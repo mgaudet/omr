@@ -1,0 +1,13 @@
+language: cpp
+os:
+- linux
+- osx
+compiler:
+- clang
+- gcc
+
+before_script:
+   -  make -f run_configure.mk SPEC=linux_x86-64 OMRGLUE=./example/glue all
+
+script:
+   -  make && make test

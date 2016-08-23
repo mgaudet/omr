@@ -24,12 +24,9 @@
 #include "omrsignal_ceehdlr.h"
 #endif
 
-
 /* internal portlib functions */
-uintptr_t
-syslogOpen(struct OMRPortLibrary *portLibrary, uintptr_t flags);
-uintptr_t
-syslogClose(struct OMRPortLibrary *portLibrary);
+uintptr_t syslogOpen(struct OMRPortLibrary *portLibrary, uintptr_t flags);
+uintptr_t syslogClose(struct OMRPortLibrary *portLibrary);
 
 #if defined(OMR_RAS_TDF_TRACE)
 #define _UTE_STATIC_
@@ -39,7 +36,6 @@ syslogClose(struct OMRPortLibrary *portLibrary);
 #if defined(RS6000)
 extern void __clearTickTock(void);
 #endif
-
 
 int32_t
 omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t value)
@@ -73,13 +69,13 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 
 #if defined(OMR_RAS_TDF_TRACE)
 	if (!strcmp(OMRPORT_CTLDATA_TRACE_START, key) && value) {
-		UtInterface *utIntf = (UtInterface *) value;
+		UtInterface *utIntf = (UtInterface *)value;
 		utIntf->module->TraceInit(NULL, &UT_MODULE_INFO);
 		Trc_PRT_PortInitStages_Event1();
 		return 0;
 	}
 	if (!strcmp(OMRPORT_CTLDATA_TRACE_STOP, key) && value) {
-		UtInterface *utIntf = (UtInterface *) value;
+		UtInterface *utIntf = (UtInterface *)value;
 		utIntf->module->TraceTerm(NULL, &UT_MODULE_INFO);
 		return 0;
 	}
@@ -100,11 +96,13 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 		return 0;
 	}
 
-#if defined (WIN32) && !defined(J9HAMMER)
+#if defined(WIN32) && !defined(J9HAMMER)
 	if (!strcmp("SIG_INTERNAL_HANDLER", key)) {
 		/* used by optimized code to implement fast signal handling on Windows */
-		extern int structuredExceptionHandler(struct OMRPortLibrary *portLibrary, omrsig_handler_fn handler, void *handler_arg, uint32_t flags, EXCEPTION_POINTERS *exceptionInfo);
-		*(int (**)(struct OMRPortLibrary *, omrsig_handler_fn, void *, uint32_t, EXCEPTION_POINTERS *))value = structuredExceptionHandler;
+		extern int structuredExceptionHandler(struct OMRPortLibrary * portLibrary, omrsig_handler_fn handler,
+											  void *handler_arg, uint32_t flags, EXCEPTION_POINTERS *exceptionInfo);
+		*(int (**)(struct OMRPortLibrary *, omrsig_handler_fn, void *, uint32_t, EXCEPTION_POINTERS *))value =
+			structuredExceptionHandler;
 		return 0;
 	}
 #endif
@@ -117,17 +115,16 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 			 * We can't use j9port_isFunctionOverridden to check for this because
 			 * the port library overrides sig_protect itself (with omrsig_protect_ceehdlr)
 			 * when the option OMRPORT_SIG_OPTIONS_ZOS_USE_CEEHDLR is passed into omrsig_set_options */
-			extern void j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBACK *newfc);
+			extern void j9vm_le_condition_handler(_FEEDBACK * fc, _INT4 * token, _INT4 * leResult, _FEEDBACK * newfc);
 
-			*(void (**)(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBACK *newfc))value = j9vm_le_condition_handler;
+			*(void (**)(_FEEDBACK * fc, _INT4 * token, _INT4 * leResult, _FEEDBACK * newfc))value =
+				j9vm_le_condition_handler;
 			return 0;
 		} else {
 			return 1;
 		}
-
 	}
 #endif
-
 
 	/* return 1 if numa is available on the platform, otherwise, return 0 */
 	if (!strcmp(OMRPORT_CTLDATA_VMEM_NUMA_IN_USE, key)) {
@@ -139,11 +136,10 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 			/* NUMA is not supported on this platform */
 			return 0;
 		}
-#else /* PPG_numa_platform_supports_numa */
+#else  /* PPG_numa_platform_supports_numa */
 		return 0;
 #endif /* PPG_numa_platform_supports_numa) */
 	}
-
 
 	/* enable or disable NUMA memory interleave */
 	if (0 == strcmp(OMRPORT_CTLDATA_VMEM_NUMA_ENABLE, key)) {
@@ -166,7 +162,7 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 		int rc = 0;
 
 		rc = iconv_global_init(portLibrary);
-		if (rc == 0) {/* iconv_global_init done */
+		if (rc == 0) { /* iconv_global_init done */
 			PPG_global_converter_enabled = 1;
 		}
 		return rc;
@@ -189,8 +185,8 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 			uint32_t omrCategoryCount = OMRMEM_OMR_CATEGORY_INDEX_FROM_CODE(OMRMEM_CATEGORY_PORT_LIBRARY);
 			uint32_t languageCategoryCount = 0;
 #if defined(OMR_ENV_DATA64)
-			omrCategoryCount = OMRMEM_OMR_CATEGORY_INDEX_FROM_CODE(
-								   OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS);
+			omrCategoryCount =
+				OMRMEM_OMR_CATEGORY_INDEX_FROM_CODE(OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS);
 #endif
 			/* Now sort the categories into two sets < OMRMEM_LANGUAGE_CATEGORY_LIMIT and > OMRMEM_LANGUAGE_CATEGORY_LIMIT */
 			/* Find out how big the category arrays need to be. */
@@ -209,14 +205,16 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 			omrCategoryCount++;
 			portControl->language_memory_categories.numberOfCategories = 0;
 			/* We are calling the real omrmem_allocate_memory, not the macro. */
-			portControl->language_memory_categories.categories = portLibrary->mem_allocate_memory(OMRPORTLIB,
-					(languageCategoryCount) * sizeof(OMRMemCategory *), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			portControl->language_memory_categories.categories =
+				portLibrary->mem_allocate_memory(OMRPORTLIB, (languageCategoryCount) * sizeof(OMRMemCategory *),
+												 OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 			if (NULL == portControl->language_memory_categories.categories) {
 				return 1;
 			}
 			portControl->omr_memory_categories.numberOfCategories = 0;
-			portControl->omr_memory_categories.categories = portLibrary->mem_allocate_memory(OMRPORTLIB,
-					(omrCategoryCount) * sizeof(OMRMemCategory *), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			portControl->omr_memory_categories.categories =
+				portLibrary->mem_allocate_memory(OMRPORTLIB, (omrCategoryCount) * sizeof(OMRMemCategory *),
+												 OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 			if (NULL == portControl->omr_memory_categories.categories) {
 				portLibrary->mem_free_memory(OMRPORTLIB, portControl->language_memory_categories.categories);
 				portControl->language_memory_categories.categories = NULL;
@@ -237,12 +235,13 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 				}
 			}
 			/* These two won't have been passed in by the caller of port control. */
-			portControl->omr_memory_categories.categories[OMRMEM_OMR_CATEGORY_INDEX_FROM_CODE(
-						OMRMEM_CATEGORY_PORT_LIBRARY)] = &(portLibrary->portGlobals->portLibraryMemoryCategory);
+			portControl->omr_memory_categories
+				.categories[OMRMEM_OMR_CATEGORY_INDEX_FROM_CODE(OMRMEM_CATEGORY_PORT_LIBRARY)] =
+				&(portLibrary->portGlobals->portLibraryMemoryCategory);
 #if defined(OMR_ENV_DATA64)
 			portControl->omr_memory_categories.categories[OMRMEM_OMR_CATEGORY_INDEX_FROM_CODE(
-						OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS)] =
-							&portLibrary->portGlobals->unusedAllocate32HeapRegionsMemoryCategory;
+				OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS)] =
+				&portLibrary->portGlobals->unusedAllocate32HeapRegionsMemoryCategory;
 #endif
 			portControl->language_memory_categories.numberOfCategories = languageCategoryCount;
 			portControl->omr_memory_categories.numberOfCategories = omrCategoryCount;
@@ -279,5 +278,3 @@ omrport_control(struct OMRPortLibrary *portLibrary, const char *key, uintptr_t v
 
 	return 1;
 }
-
-

@@ -22,18 +22,18 @@
 #include "CSRSIC.h"
 #include "omrcsrsi.h"
 
-#define CSRSI_DSECT_LGTH                    0x4040U
-#define CSRSI_PARAM_LGTH                    4U
+#define CSRSI_DSECT_LGTH 0x4040U
+#define CSRSI_PARAM_LGTH 4U
 
 struct j9csrsi_t {
-	CSRSIRequest request;               /**< Input - CSRSI request type */
-	CSRSIInfoAreaLen infoarea_len;      /**< Input - length of the buffer
+	CSRSIRequest request;		   /**< Input - CSRSI request type */
+	CSRSIInfoAreaLen infoarea_len; /**< Input - length of the buffer
 						area for returning data */
-	CSRSIReturnCode ret_code;           /**< Output - CSRSI return code */
-	char infoarea[CSRSI_DSECT_LGTH];    /**< Input/Output - supplied buffer
+	CSRSIReturnCode ret_code;	  /**< Output - CSRSI return code */
+	char infoarea[CSRSI_DSECT_LGTH]; /**< Input/Output - supplied buffer
 						area that gets filled upon
 						service return */
-	uint32_t cplist[CSRSI_PARAM_LGTH];  /**< Storage for constructing
+	uint32_t cplist[CSRSI_PARAM_LGTH]; /**< Storage for constructing
 						4-argument parameter list */
 };
 
@@ -43,7 +43,7 @@ j9csrsi_init(int32_t *ret)
 	struct j9csrsi_t *sess = NULL;
 
 	/* CSRSI is amode31 only so we need memory below the 2GB */
-	sess = (struct j9csrsi_t *) __malloc31(sizeof(*sess));
+	sess = (struct j9csrsi_t *)__malloc31(sizeof(*sess));
 
 	if (NULL != sess) {
 		memset(sess, 0, sizeof(*sess));
@@ -52,8 +52,7 @@ j9csrsi_init(int32_t *ret)
 		 * MVS Data Areas Volume 1 (ABEP-DDRCOM). SIV2V3 DSECT maps
 		 * the data for LPAR and VM.
 		 */
-		sess->request = (CSRSI_REQUEST_V1CPC_MACHINE |
-						 CSRSI_REQUEST_V2CPC_LPAR | CSRSI_REQUEST_V3CPC_VM);
+		sess->request = (CSRSI_REQUEST_V1CPC_MACHINE | CSRSI_REQUEST_V2CPC_LPAR | CSRSI_REQUEST_V3CPC_VM);
 		sess->infoarea_len = sizeof(sess->infoarea);
 
 		j9csrsi_wrp(sess);
@@ -78,8 +77,7 @@ j9csrsi_is_hw_info_available(int32_t ret)
 	/* CSRSI_STSINOTAVAILABLE should never happen because STSI is available
 	 * on all platforms we support (see comment 12 in JAZZ 90568).
 	 */
-	return !((CSRSI_STSINOTAVAILABLE == ret)
-			 || (CSRSI_SERVICENOTAVAILABLE == ret));
+	return !((CSRSI_STSINOTAVAILABLE == ret) || (CSRSI_SERVICENOTAVAILABLE == ret));
 }
 
 void
@@ -98,13 +96,10 @@ j9csrsi_is_lpar(const j9csrsi_t *session)
 	BOOLEAN ret = FALSE;
 
 	if (NULL != session) {
-		const siv1v2v3 *const ia =
-			(const siv1v2v3 *) &(session->infoarea);
-		const si00 *const hdr = (const si00 *) &(ia->siv1v2v3si00);
+		const siv1v2v3 *const ia = (const siv1v2v3 *)&(session->infoarea);
+		const si00 *const hdr = (const si00 *)&(ia->siv1v2v3si00);
 
-		ret = (BOOLEAN)
-			  (SI00CPCVARIETY_V2CPC_LPAR == hdr->si00cpcvariety)
-			  && hdr->si00validsi22v2;
+		ret = (BOOLEAN)(SI00CPCVARIETY_V2CPC_LPAR == hdr->si00cpcvariety) && hdr->si00validsi22v2;
 	}
 
 	return ret;
@@ -116,43 +111,31 @@ j9csrsi_is_vmh(const j9csrsi_t *session)
 	BOOLEAN ret = FALSE;
 
 	if (NULL != session) {
-		const siv1v2v3 *const ia =
-			(const siv1v2v3 *) &(session->infoarea);
-		const si00 *const hdr = (const si00 *) &(ia->siv1v2v3si00);
+		const siv1v2v3 *const ia = (const siv1v2v3 *)&(session->infoarea);
+		const si00 *const hdr = (const si00 *)&(ia->siv1v2v3si00);
 
-		ret = (BOOLEAN)
-			  (SI00CPCVARIETY_V3CPC_VM == hdr->si00cpcvariety)
-			  && hdr->si00validsi22v3;
+		ret = (BOOLEAN)(SI00CPCVARIETY_V3CPC_VM == hdr->si00cpcvariety) && hdr->si00validsi22v3;
 	}
 
 	return ret;
 }
 
 int32_t
-j9csrsi_get_vmhpidentifier(const j9csrsi_t *session, uint32_t position,
-						   char *buf, uint32_t len)
+j9csrsi_get_vmhpidentifier(const j9csrsi_t *session, uint32_t position, char *buf, uint32_t len)
 {
 	int32_t ret = -1;
 
-	if ((NULL != session)
-		&& (NULL != buf)
-		&& (0U < len)
-		&& j9csrsi_is_vmh(session)
-	) {
-		const siv1v2v3 *const ia =
-			(const siv1v2v3 *) &(session->infoarea);
-		const si22v3 *const info =
-			(const si22v3 *) &(ia->siv1v2v3si22v3);
+	if ((NULL != session) && (NULL != buf) && (0U < len) && j9csrsi_is_vmh(session)) {
+		const siv1v2v3 *const ia = (const siv1v2v3 *)&(session->infoarea);
+		const si22v3 *const info = (const si22v3 *)&(ia->siv1v2v3si22v3);
 
 		if (info->si22v3dbcountfield._si22v3dbcount > position) {
 			const si22v3db *const db = &(info->si22v3dbe[position]);
-			const char *const str =
-				&(db->si22v3dbvmhpidentifier[0U]);
-			const uint32_t str_sz =
-				sizeof(db->si22v3dbvmhpidentifier);
+			const char *const str = &(db->si22v3dbvmhpidentifier[0U]);
+			const uint32_t str_sz = sizeof(db->si22v3dbvmhpidentifier);
 
 			if (str_sz < len) {
-				(void) strncpy(buf, str, str_sz);
+				(void)strncpy(buf, str, str_sz);
 				buf[str_sz] = '\0';
 
 				ret = __etoa(buf);
@@ -168,27 +151,19 @@ j9csrsi_get_cpctype(const j9csrsi_t *session, char *buf, uint32_t len)
 {
 	int32_t ret = -1;
 
-	if ((NULL != session)
-		&& (NULL != buf)
-		&& (0U < len)
-	) {
-		const siv1v2v3 *const ia =
-			(const siv1v2v3 *) &(session->infoarea);
-		const si00 *const hdr = (const si00 *) &(ia->siv1v2v3si00);
+	if ((NULL != session) && (NULL != buf) && (0U < len)) {
+		const siv1v2v3 *const ia = (const siv1v2v3 *)&(session->infoarea);
+		const si00 *const hdr = (const si00 *)&(ia->siv1v2v3si00);
 
-		if (hdr->si00validsi11v1
-			&& (
-				(SI00CPCVARIETY_V1CPC_MACHINE == hdr->si00cpcvariety)
-				|| (SI00CPCVARIETY_V2CPC_LPAR == hdr->si00cpcvariety)
-				|| (SI00CPCVARIETY_V3CPC_VM   == hdr->si00cpcvariety))
-		) {
-			const si11v1 *const info =
-				(const si11v1 *) &(ia->siv1v2v3si11v1);
+		if (hdr->si00validsi11v1 && ((SI00CPCVARIETY_V1CPC_MACHINE == hdr->si00cpcvariety)
+									 || (SI00CPCVARIETY_V2CPC_LPAR == hdr->si00cpcvariety)
+									 || (SI00CPCVARIETY_V3CPC_VM == hdr->si00cpcvariety))) {
+			const si11v1 *const info = (const si11v1 *)&(ia->siv1v2v3si11v1);
 			const char *const str = &(info->si11v1cpctype[0U]);
 			const uint32_t str_sz = sizeof(info->si11v1cpctype);
 
 			if (str_sz < len) {
-				(void) strncpy(buf, str, str_sz);
+				(void)strncpy(buf, str, str_sz);
 				buf[str_sz] = '\0';
 
 				ret = __etoa(buf);
@@ -198,4 +173,3 @@ j9csrsi_get_cpctype(const j9csrsi_t *session, char *buf, uint32_t len)
 
 	return ret;
 }
-

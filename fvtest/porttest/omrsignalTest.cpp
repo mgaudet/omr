@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /*
  * $RCSfile: omrsignalTest.c,v $
  * $Revision: 1.66 $
@@ -47,7 +46,6 @@
 #include "fltconst.h"
 #include "omrthread.h"
 
-
 #include "testHelpers.hpp"
 #include "testProcessHelpers.hpp"
 #include "omrport.h"
@@ -64,16 +62,17 @@ extern PortTestEnvironment *portTestEnv;
 
 struct PortSigMap {
 	uint32_t portLibSignalNo;
-	const char *portLibSignalString ;
+	const char *portLibSignalString;
 	int unixSignalNo;
 	const char *unixSignalString;
 } PortSigMap;
 struct PortSigMap testSignalMap[] = {
-	{OMRPORT_SIG_FLAG_SIGQUIT, "OMRPORT_SIG_FLAG_SIGQUIT", SIGQUIT, "SIGQUIT"}
-	, {OMRPORT_SIG_FLAG_SIGABRT, "OMRPORT_SIG_FLAG_SIGABRT", SIGABRT, "SIGABRT"}
-	, {OMRPORT_SIG_FLAG_SIGTERM, "OMRPORT_SIG_FLAG_SIGTERM", SIGTERM, "SIGTERM"}
+	{OMRPORT_SIG_FLAG_SIGQUIT, "OMRPORT_SIG_FLAG_SIGQUIT", SIGQUIT, "SIGQUIT"},
+	{OMRPORT_SIG_FLAG_SIGABRT, "OMRPORT_SIG_FLAG_SIGABRT", SIGABRT, "SIGABRT"},
+	{OMRPORT_SIG_FLAG_SIGTERM, "OMRPORT_SIG_FLAG_SIGTERM", SIGTERM, "SIGTERM"}
 #if defined(AIXPPC)
-	, {OMRPORT_SIG_FLAG_SIGRECONFIG, "OMRPORT_SIG_FLAG_SIGRECONFIG", SIGRECONFIG, "SIGRECONFIG"}
+	,
+	{OMRPORT_SIG_FLAG_SIGRECONFIG, "OMRPORT_SIG_FLAG_SIGRECONFIG", SIGRECONFIG, "SIGRECONFIG"}
 #endif
 	/* {OMRPORT_SIG_FLAG_SIGINT, "OMRPORT_SIG_FLAG_SIGINT", SIGINT, "SIGINT"} */
 };
@@ -110,7 +109,7 @@ static uintptr_t
 asyncTestHandler(struct OMRPortLibrary *portLibrary, uint32_t gpType, void *handlerInfo, void *userData)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
-	AsyncHandlerInfo *info = (AsyncHandlerInfo *) userData;
+	AsyncHandlerInfo *info = (AsyncHandlerInfo *)userData;
 	const char *testName = info->testName;
 	omrthread_monitor_t monitor = *(info->monitor);
 
@@ -118,14 +117,14 @@ asyncTestHandler(struct OMRPortLibrary *portLibrary, uint32_t gpType, void *hand
 
 	outputComment(OMRPORTLIB, "\t\tasyncTestHandler invoked (type = 0x%x)\n", gpType);
 	if (info->expectedType != gpType) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "asyncTestHandler -- incorrect type. Expecting 0x%x, got 0x%x\n", info->expectedType, gpType);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "asyncTestHandler -- incorrect type. Expecting 0x%x, got 0x%x\n",
+						   info->expectedType, gpType);
 	}
 
 	info->controlFlag = 1;
 	omrthread_monitor_notify(monitor);
 	omrthread_monitor_exit(monitor);
 	return 0;
-
 }
 
 static void
@@ -193,7 +192,8 @@ omrsig_runTests(struct OMRPortLibrary *portLibrary, char *exeName, char *argumen
  * Otherwise the register must be expectedKind, or it may be undefined if optional is TRUE.
  */
 static void
-validatePlatformRegister(struct OMRPortLibrary *portLibrary, void *gpInfo, uint32_t category, int32_t index, uint32_t expectedKind, uintptr_t optional, const char *platform, const char *testName)
+validatePlatformRegister(struct OMRPortLibrary *portLibrary, void *gpInfo, uint32_t category, int32_t index,
+						 uint32_t expectedKind, uintptr_t optional, const char *platform, const char *testName)
 {
 	uint32_t infoKind;
 	void *value;
@@ -207,17 +207,20 @@ validatePlatformRegister(struct OMRPortLibrary *portLibrary, void *gpInfo, uint3
 				outputErrorMessage(PORTTEST_ERROR_ARGS, "Required platform register %d is undefined\n", index);
 			}
 		} else if (infoKind != expectedKind) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "Platform register %d type is not %u. It is %u\n", index, expectedKind, infoKind);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "Platform register %d type is not %u. It is %u\n", index,
+							   expectedKind, infoKind);
 		}
 	} else {
 		if (infoKind != OMRPORT_SIG_VALUE_UNDEFINED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_GPR_X86_EDI type is not OMRPORT_SIG_VALUE_UNDEFINED. It is %u\n", infoKind);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "OMRPORT_SIG_GPR_X86_EDI type is not OMRPORT_SIG_VALUE_UNDEFINED. It is %u\n", infoKind);
 		}
 	}
 }
 
 void
-validateGPInfo(struct OMRPortLibrary *portLibrary, uint32_t gpType, omrsig_handler_fn handler, void *gpInfo, const char *testName)
+validateGPInfo(struct OMRPortLibrary *portLibrary, uint32_t gpType, omrsig_handler_fn handler, void *gpInfo,
+			   const char *testName)
 {
 	uint32_t category;
 	void *value;
@@ -253,98 +256,130 @@ validateGPInfo(struct OMRPortLibrary *portLibrary, uint32_t gpType, omrsig_handl
 				break;
 			case OMRPORT_SIG_VALUE_FLOAT_64:
 				/* make sure when casting to a float that we get least significant 32-bits. */
-				outputComment(OMRPORTLIB,
-							  "info %u:%u: %s=%016.16llx (f: %f, d: %e)\n",
-							  category, index, name,
+				outputComment(OMRPORTLIB, "info %u:%u: %s=%016.16llx (f: %f, d: %e)\n", category, index, name,
 							  *(uint64_t *)value, (float)LOW_U32_FROM_DBL_PTR(value), *(double *)value);
 				break;
-				case OMRPORT_SIG_VALUE_128:
-					{
-						const U_128 *const v = (U_128 *)value;
-						const uint64_t h = v->high64;
-						const uint64_t l = v->low64;
+			case OMRPORT_SIG_VALUE_128: {
+				const U_128 *const v = (U_128 *)value;
+				const uint64_t h = v->high64;
+				const uint64_t l = v->low64;
 
-						outputComment(OMRPORTLIB, "info %u:%u: %s=%016.16llx%016.16llx\n", category, index, name, h, l);
-					}
-				break;
+				outputComment(OMRPORTLIB, "info %u:%u: %s=%016.16llx%016.16llx\n", category, index, name, h, l);
+			} break;
 			case OMRPORT_SIG_VALUE_UNDEFINED:
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "Undefined value in info (%u:%u, name=%s)\n", category, index, name);
+				outputErrorMessage(PORTTEST_ERROR_ARGS, "Undefined value in info (%u:%u, name=%s)\n", category, index,
+								   name);
 				break;
 			default:
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "Unrecognized type in info (%u:%u, name=%s, type=%u)\n", category, index, name, infoKind);
+				outputErrorMessage(PORTTEST_ERROR_ARGS, "Unrecognized type in info (%u:%u, name=%s, type=%u)\n",
+								   category, index, name, infoKind);
 				break;
 			}
 		}
 
 		infoKind = omrsig_info(gpInfo, category, index, &name, &value);
 		if (infoKind != OMRPORT_SIG_VALUE_UNDEFINED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpected data after end of info (%u:%u, name=%s, type=%u)\n", category, index, name, infoKind);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpected data after end of info (%u:%u, name=%s, type=%u)\n",
+							   category, index, name, infoKind);
 		}
 	}
 
 	/* test the known names */
 	infoKind = omrsig_info(gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_TYPE, &name, &value);
 	if (infoKind != OMRPORT_SIG_VALUE_32) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_SIGNAL_TYPE type is not OMRPORT_SIG_VALUE_32. It is %u\n", infoKind);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_SIGNAL_TYPE type is not OMRPORT_SIG_VALUE_32. It is %u\n",
+						   infoKind);
 	} else if (*(uint32_t *)value != gpType) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_SIGNAL_TYPE is incorrect. Expecting %u, got %u\n", gpType, *(uint32_t *)value);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_SIGNAL_TYPE is incorrect. Expecting %u, got %u\n", gpType,
+						   *(uint32_t *)value);
 	}
 
 	infoKind = omrsig_info(gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_HANDLER, &name, &value);
 	if (infoKind != OMRPORT_SIG_VALUE_ADDRESS) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_SIGNAL_HANDLER type is not OMRPORT_SIG_VALUE_ADDRESS. It is %u\n", infoKind);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "OMRPORT_SIG_SIGNAL_HANDLER type is not OMRPORT_SIG_VALUE_ADDRESS. It is %u\n", infoKind);
 	} else if (*(omrsig_handler_fn *)value != handler) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_SIGNAL_HANDLER is incorrect. Expecting %p, got %p\n", handler, *(omrsig_handler_fn *)value);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "OMRPORT_SIG_SIGNAL_HANDLER is incorrect. Expecting %p, got %p\n",
+						   handler, *(omrsig_handler_fn *)value);
 	}
 
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_MODULE, OMRPORT_SIG_MODULE_NAME, OMRPORT_SIG_VALUE_STRING, TRUE, NULL, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_MODULE, OMRPORT_SIG_MODULE_NAME, OMRPORT_SIG_VALUE_STRING,
+							 TRUE, NULL, testName);
 
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_ERROR_VALUE, OMRPORT_SIG_VALUE_32, TRUE, NULL, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_ADDRESS, OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_ERROR_VALUE,
+							 OMRPORT_SIG_VALUE_32, TRUE, NULL, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_ADDRESS,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
 
 	portTestOptionsGlobal = omrsig_get_options();
 	if (0 != (OMRPORT_SIG_OPTIONS_ZOS_USE_CEEHDLR & portTestOptionsGlobal)) {
 		/* The LE condition handler message number is a U_16 */
-		validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_PLATFORM_SIGNAL_TYPE, OMRPORT_SIG_VALUE_16, TRUE, NULL, testName);
+		validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_PLATFORM_SIGNAL_TYPE,
+								 OMRPORT_SIG_VALUE_16, TRUE, NULL, testName);
 	} else {
-		validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_PLATFORM_SIGNAL_TYPE, OMRPORT_SIG_VALUE_32, TRUE, NULL, testName);
+		validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_PLATFORM_SIGNAL_TYPE,
+								 OMRPORT_SIG_VALUE_32, TRUE, NULL, testName);
 	}
 
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_INACCESSIBLE_ADDRESS, OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_SIGNAL, OMRPORT_SIG_SIGNAL_INACCESSIBLE_ADDRESS,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
 
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_PC, OMRPORT_SIG_VALUE_ADDRESS, FALSE, NULL, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_SP, OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_BP, OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_S390_BEA, OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
-
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_PC, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, NULL, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_SP, OMRPORT_SIG_VALUE_ADDRESS,
+							 TRUE, NULL, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_BP, OMRPORT_SIG_VALUE_ADDRESS,
+							 TRUE, NULL, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_S390_BEA,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, NULL, testName);
 
 	/*
 	 * x86 registers
 	 */
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EDI, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_X86, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_ESI, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_X86, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EAX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_X86, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EBX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_X86, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_ECX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_X86, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EDX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_X86, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EDI, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_X86, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_ESI, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_X86, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EAX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_X86, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EBX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_X86, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_ECX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_X86, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_X86_EDX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_X86, testName);
 
 	/*
 	 * AMD64 registers
 	 */
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RDI, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RSI, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RAX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RBX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RCX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RDX, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R8, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R9, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R10, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R11, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R12, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R13, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R14, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R15, OMRPORT_SIG_VALUE_ADDRESS, FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RDI, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RSI, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RAX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RBX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RCX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_RDX, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R8, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R9, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R10, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R11, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R12, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R13, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R14, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_GPR, OMRPORT_SIG_GPR_AMD64_R15, OMRPORT_SIG_VALUE_ADDRESS,
+							 FALSE, OMRPORT_ARCH_HAMMER, testName);
 
 	/*
 	 * PowerPC registers
@@ -358,17 +393,26 @@ validateGPInfo(struct OMRPortLibrary *portLibrary, uint32_t gpType, omrsig_handl
 		arch = OMRPORT_ARCH_PPC64LE;
 	}
 
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_LR, OMRPORT_SIG_VALUE_ADDRESS, FALSE, arch, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_MSR, OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_CTR, OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_CR, OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_FPSCR, OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_XER, OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_DAR, OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_DSIR, OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_LR,
+							 OMRPORT_SIG_VALUE_ADDRESS, FALSE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_MSR,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_CTR,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_CR,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_FPSCR,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_XER,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_DAR,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_DSIR,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, arch, testName);
 
 	/* this one is PPC32 only */
-	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_MQ, OMRPORT_SIG_VALUE_ADDRESS, TRUE, OMRPORT_ARCH_PPC, testName);
+	validatePlatformRegister(OMRPORTLIB, gpInfo, OMRPORT_SIG_CONTROL, OMRPORT_SIG_CONTROL_POWERPC_MQ,
+							 OMRPORT_SIG_VALUE_ADDRESS, TRUE, OMRPORT_ARCH_PPC, testName);
 }
 
 static uintptr_t
@@ -376,7 +420,6 @@ sampleFunction(OMRPortLibrary *portLibrary, void *arg)
 {
 	return 8096;
 }
-
 
 static uintptr_t
 simpleHandlerFunction(struct OMRPortLibrary *portLibrary, uint32_t gpType, void *gpInfo, void *handler_arg)
@@ -388,7 +431,8 @@ simpleHandlerFunction(struct OMRPortLibrary *portLibrary, uint32_t gpType, void 
 	outputComment(OMRPORTLIB, "simpleHandlerFunction invoked (type = 0x%x)\n", gpType);
 
 	if (info->expectedType != gpType) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "simpleHandlerFunction -- incorrect type. Expecting 0x%x, got 0x%x\n", info->expectedType, gpType);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "simpleHandlerFunction -- incorrect type. Expecting 0x%x, got 0x%x\n",
+						   info->expectedType, gpType);
 	}
 	validateGPInfo(OMRPORTLIB, gpType, simpleHandlerFunction, gpInfo, testName);
 
@@ -404,11 +448,15 @@ currentSigNumHandlerFunction(struct OMRPortLibrary *portLibrary, uint32_t gpType
 	const char *testName = info->testName;
 
 	if (currentSigNum < 0) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "currentSigNumHandlerFunction -- omrsig_get_current_signal call failed\n");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "currentSigNumHandlerFunction -- omrsig_get_current_signal call failed\n");
 		return OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH;
 	}
-	if (gpType != (uint32_t) currentSigNum) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "currentSigNumHandlerFunction -- unexpected value for current signal. Expecting 0x%x, got 0x%x\n", gpType, (uint32_t)currentSigNum);
+	if (gpType != (uint32_t)currentSigNum) {
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"currentSigNumHandlerFunction -- unexpected value for current signal. Expecting 0x%x, got 0x%x\n", gpType,
+			(uint32_t)currentSigNum);
 		return OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH;
 	}
 	return OMRPORT_SIG_EXCEPTION_RETURN;
@@ -453,14 +501,13 @@ nestedTestCatchSEGV(OMRPortLibrary *portLibrary, void *arg)
 			handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 			handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_RETURN;
 			handlerInfo.testName = testName;
-			protectResult = omrsig_protect(
-								raiseSEGV, (void *)testName,
-								simpleHandlerFunction, &handlerInfo,
-								flags,
-								&result);
+			protectResult =
+				omrsig_protect(raiseSEGV, (void *)testName, simpleHandlerFunction, &handlerInfo, flags, &result);
 
 			if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
+				outputErrorMessage(
+					PORTTEST_ERROR_ARGS,
+					"portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
 			}
 
 			if (result != 0) {
@@ -487,11 +534,7 @@ nestedTestCatchNothing(OMRPortLibrary *portLibrary, void *arg)
 		handlerInfo.expectedType = 0;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_RETURN;
 		handlerInfo.testName = testName;
-		(void)omrsig_protect(
-			raiseSEGV, (void *)testName,
-			simpleHandlerFunction, &handlerInfo,
-			flags,
-			&result);
+		(void)omrsig_protect(raiseSEGV, (void *)testName, simpleHandlerFunction, &handlerInfo, flags, &result);
 
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "this should be unreachable\n");
 	}
@@ -514,11 +557,7 @@ nestedTestCatchAndIgnore(OMRPortLibrary *portLibrary, void *arg)
 		handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH;
 		handlerInfo.testName = testName;
-		(void)omrsig_protect(
-			raiseSEGV, (void *)testName,
-			simpleHandlerFunction, &handlerInfo,
-			flags,
-			&result);
+		(void)omrsig_protect(raiseSEGV, (void *)testName, simpleHandlerFunction, &handlerInfo, flags, &result);
 
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "this should be unreachable\n");
 	}
@@ -542,13 +581,11 @@ nestedTestCatchAndContinueSearch(OMRPortLibrary *portLibrary, void *arg)
 		handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							raiseSEGV, (void *)testName,
-							simpleHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult =
+			omrsig_protect(raiseSEGV, (void *)testName, simpleHandlerFunction, &handlerInfo, flags, &result);
 		if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
 		}
 	}
 
@@ -566,11 +603,7 @@ nestedTestCatchAndCrash(OMRPortLibrary *portLibrary, void *arg)
 	if (!omrsig_can_protect(flags)) {
 		operationNotSupported(OMRPORTLIB, "the specified signals are");
 	} else {
-		(void)omrsig_protect(
-			raiseSEGV, (void *)testName,
-			crashingHandlerFunction, (void *)testName,
-			flags,
-			&result);
+		(void)omrsig_protect(raiseSEGV, (void *)testName, crashingHandlerFunction, (void *)testName, flags, &result);
 
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "this should be unreachable\n");
 	}
@@ -598,33 +631,37 @@ TEST(PortSigTest, sig_test0)
 	}
 
 	if (!omrsig_can_protect(OMRPORT_SIG_FLAG_MAY_RETURN)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->can_protect() must always support 0 | OMRPORT_SIG_FLAG_MAY_RETURN\n");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "portLibrary->can_protect() must always support 0 | OMRPORT_SIG_FLAG_MAY_RETURN\n");
 	}
 
-
-
 	if (!omrsig_can_protect(OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->can_protect() must always support 0 | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION\n");
-# if defined(J9ZOS390)
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"portLibrary->can_protect() must always support 0 | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION\n");
+#if defined(J9ZOS390)
 		/* z/OS does not always support this, however, pltest should never be run under a configuration that does not support it.
 		 * See implementation of omrsig_can_proctect() and omrsig_startup()
 		 */
-		omrtty_printf("OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION is not supported if the default settings for TRAP(ON,SPIE) have been changed. The should both be set to 1\n");
+		omrtty_printf(
+			"OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION is not supported if the default settings for TRAP(ON,SPIE) have "
+			"been changed. The should both be set to 1\n");
 #endif
 	}
 
-
 	if (!omrsig_can_protect(OMRPORT_SIG_FLAG_MAY_RETURN | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->can_protect() must always support 0 | OMRPORT_SIG_FLAG_MAY_RETURN | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION\n");
-# if defined(J9ZOS390)
-		omrtty_printf("OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION is not supported if the default settings for TRAP(ON,SPIE) have been changed. The should both be set to 1\n");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "portLibrary->can_protect() must always support 0 | OMRPORT_SIG_FLAG_MAY_RETURN | "
+						   "OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION\n");
+#if defined(J9ZOS390)
+		omrtty_printf(
+			"OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION is not supported if the default settings for TRAP(ON,SPIE) have "
+			"been changed. The should both be set to 1\n");
 #endif
-
 	}
 
 	reportTestExit(OMRPORTLIB, testName);
 }
-
 
 /*
  * Test protecting (and running) a function that does not fault
@@ -648,18 +685,17 @@ TEST(PortSigTest, sig_test1)
 		handlerInfo.expectedType = 0;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							sampleFunction, NULL,
-							simpleHandlerFunction, &handlerInfo,
-							0, /* protect from nothing */
-							&result);
+		protectResult =
+			omrsig_protect(sampleFunction, NULL, simpleHandlerFunction, &handlerInfo, 0, /* protect from nothing */
+						   &result);
 
 		if (protectResult != 0) {
 			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected 0 return value\n");
 		}
 
 		if (result != 8096) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- protected function did not execute correctly\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- protected function did not execute correctly\n");
 		}
 	}
 
@@ -689,14 +725,12 @@ TEST(PortSigTest, sig_test2)
 		handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_RETURN;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							raiseSEGV, (void *)testName,
-							simpleHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult =
+			omrsig_protect(raiseSEGV, (void *)testName, simpleHandlerFunction, &handlerInfo, flags, &result);
 
 		if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
 		}
 
 		if (result != 0) {
@@ -746,11 +780,8 @@ TEST(PortSigTest, sig_test3)
 		handlerInfo.expectedType = 0;
 		handlerInfo.returnValue = 0;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							nestedTestCatchSEGV, (void *)testName,
-							simpleHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult =
+			omrsig_protect(nestedTestCatchSEGV, (void *)testName, simpleHandlerFunction, &handlerInfo, flags, &result);
 
 		if (protectResult != 0) {
 			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected 0 return value\n");
@@ -801,14 +832,12 @@ TEST(PortSigTest, sig_test4)
 		handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_RETURN;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							nestedTestCatchNothing, (void *)testName,
-							simpleHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult = omrsig_protect(nestedTestCatchNothing, (void *)testName, simpleHandlerFunction, &handlerInfo,
+									   flags, &result);
 
 		if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
 		}
 
 		if (result != 0) {
@@ -856,14 +885,12 @@ TEST(PortSigTest, sig_test5)
 		handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_RETURN;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							nestedTestCatchAndIgnore, (void *)testName,
-							simpleHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult = omrsig_protect(nestedTestCatchAndIgnore, (void *)testName, simpleHandlerFunction, &handlerInfo,
+									   flags, &result);
 
 		if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
 		}
 
 		if (result != 0) {
@@ -908,14 +935,12 @@ TEST(PortSigTest, sig_test6)
 		handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_RETURN;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							nestedTestCatchAndCrash, (void *)testName,
-							simpleHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult = omrsig_protect(nestedTestCatchAndCrash, (void *)testName, simpleHandlerFunction, &handlerInfo,
+									   flags, &result);
 
 		if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
 		}
 
 		if (result != 0) {
@@ -928,7 +953,7 @@ TEST(PortSigTest, sig_test6)
 		 * to run this test you need to port/unix/omrsignal.c (remove static from declaration of tlsKeyCurrentSignal)
 		 * and add "<export name="tlsKeyCurrentSignal" />" to port/module.xml, to export tlsKeyCurrentSignal.
 		 */
-#if ! defined(WIN32)
+#if !defined(WIN32)
 		{
 			extern omrthread_tls_key_t tlsKeyCurrentSignal;
 			int signo = (int)(uintptr_t)omrthread_tls_get(omrthread_self(), tlsKeyCurrentSignal);
@@ -941,7 +966,6 @@ TEST(PortSigTest, sig_test6)
 		}
 #endif
 #endif
-
 	}
 
 	reportTestExit(OMRPORTLIB, testName);
@@ -972,17 +996,17 @@ TEST(PortSigTest, sig_test7)
 		currentSigNum = omrsig_get_current_signal();
 
 		if (0 != currentSigNum) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected 0 for current signal, received 0x%X\n", currentSigNum);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected 0 for current signal, received 0x%X\n",
+							   currentSigNum);
 		}
 
-		protectResult = omrsig_protect(
-							raiseSEGV, (void *)testName,
-							currentSigNumHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult =
+			omrsig_protect(raiseSEGV, (void *)testName, currentSigNumHandlerFunction, &handlerInfo, flags, &result);
 
 		if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_OCCURRED return value\n");
 		}
 
 		if (result != 0) {
@@ -992,7 +1016,9 @@ TEST(PortSigTest, sig_test7)
 		currentSigNum = omrsig_get_current_signal();
 
 		if (0 != currentSigNum) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected 0 for current signal, received 0x%X\n", currentSigNum);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "portLibrary->sig_protect -- expected 0 for current signal, received 0x%X\n",
+							   currentSigNum);
 		}
 	}
 
@@ -1016,13 +1042,11 @@ callSigProtectWithContinueSearch(OMRPortLibrary *portLibrary, void *arg)
 	handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 	handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH;
 	handlerInfo.testName = testName;
-	protectResult = omrsig_protect(
-						nestedTestCatchAndContinueSearch, (void *)testName,
-						simpleHandlerFunction, &handlerInfo,
-						flags,
-						&result);
+	protectResult = omrsig_protect(nestedTestCatchAndContinueSearch, (void *)testName, simpleHandlerFunction,
+								   &handlerInfo, flags, &result);
 	if (protectResult != OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH return value\n");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH return value\n");
 	}
 	return result;
 }
@@ -1056,19 +1080,20 @@ TEST(PortSigTest, sig_test8)
 		handlerInfo.expectedType = OMRPORT_SIG_FLAG_SIGSEGV;
 		handlerInfo.returnValue = OMRPORT_SIG_EXCEPTION_RETURN;
 		handlerInfo.testName = testName;
-		protectResult = omrsig_protect(
-							callSigProtectWithContinueSearch, (void *)testName,
-							simpleHandlerFunction, &handlerInfo,
-							flags,
-							&result);
+		protectResult = omrsig_protect(callSigProtectWithContinueSearch, (void *)testName, simpleHandlerFunction,
+									   &handlerInfo, flags, &result);
 		outputComment(OMRPORTLIB, "omrsig_test8 protectResult=%d\n", protectResult);
 #if defined(WIN64)
 		if (protectResult != OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH in protectResult\n");
+			outputErrorMessage(
+				PORTTEST_ERROR_ARGS,
+				"portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH in protectResult\n");
 		}
 #else
 		if (protectResult != OMRPORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH in protectResult\n");
+			outputErrorMessage(
+				PORTTEST_ERROR_ARGS,
+				"portLibrary->sig_protect -- expected OMRPORT_SIG_EXCEPTION_CONTINUE_SEARCH in protectResult\n");
 		}
 #endif
 		if (result != 0) {
@@ -1077,7 +1102,6 @@ TEST(PortSigTest, sig_test8)
 	}
 	reportTestExit(OMRPORTLIB, testName);
 }
-
 
 #if defined(J9SIGNAL_TEST_RUN_ASYNC_UNIX_TESTS)
 /*
@@ -1117,7 +1141,9 @@ TEST(PortSigTest, sig_test_async_unix_handler)
 
 	handlerInfo.monitor = &asyncMonitor;
 
-	setAsyncRC = omrsig_set_async_signal_handler(asyncTestHandler, &handlerInfo, OMRPORT_SIG_FLAG_SIGQUIT | OMRPORT_SIG_FLAG_SIGABRT | OMRPORT_SIG_FLAG_SIGTERM | OMRPORT_SIG_FLAG_SIGINT);
+	setAsyncRC = omrsig_set_async_signal_handler(asyncTestHandler, &handlerInfo,
+												 OMRPORT_SIG_FLAG_SIGQUIT | OMRPORT_SIG_FLAG_SIGABRT
+													 | OMRPORT_SIG_FLAG_SIGTERM | OMRPORT_SIG_FLAG_SIGINT);
 	if (setAsyncRC == (uint32_t)OMRPORT_SIG_ERROR) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrsig_set_async_signal_handler returned: OMRPORT_SIG_ERROR\n");
 		goto exit;
@@ -1139,7 +1165,6 @@ TEST(PortSigTest, sig_test_async_unix_handler)
 
 		handlerInfo.expectedType = testSignalMap[index].portLibSignalNo;
 
-
 		omrtty_printf("\n\tTesting %s\n", testSignalMap[index].unixSignalString);
 
 		/* asyncTestHandler notifies the monitor once it has set controlFlag to 0; */
@@ -1147,7 +1172,6 @@ TEST(PortSigTest, sig_test_async_unix_handler)
 
 		/* asyncTestHandler will change controlFlag to 1 */
 		handlerInfo.controlFlag = 0;
-
 
 		/* test that we handle the signal when it is raise()'d */
 		portTestOptionsGlobal = omrsig_get_options();
@@ -1166,7 +1190,8 @@ TEST(PortSigTest, sig_test_async_unix_handler)
 		(void)omrthread_monitor_wait_timed(asyncMonitor, 20000, 0);
 
 		if (1 != handlerInfo.controlFlag) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "%s handler was not invoked when %s was raised\n", testSignalMap[index].portLibSignalString, testSignalMap[index].unixSignalString);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "%s handler was not invoked when %s was raised\n",
+							   testSignalMap[index].portLibSignalString, testSignalMap[index].unixSignalString);
 		}
 
 		handlerInfo.controlFlag = 0;
@@ -1192,7 +1217,9 @@ TEST(PortSigTest, sig_test_async_unix_handler)
 		(void)omrthread_monitor_wait_timed(asyncMonitor, 20000, 0);
 
 		if (1 != handlerInfo.controlFlag) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "%s handler was NOT invoked when %s was injected by another process\n", testSignalMap[index].portLibSignalString, testSignalMap[index].unixSignalString);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "%s handler was NOT invoked when %s was injected by another process\n",
+							   testSignalMap[index].portLibSignalString, testSignalMap[index].unixSignalString);
 		}
 
 		omrthread_monitor_exit(asyncMonitor);
@@ -1229,7 +1256,8 @@ TEST(PortSigTest, sig_test_async_unix_handler)
 
 		/* verify that the signal was NOT received */
 		if (0 != handlerInfo.controlFlag) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "%s handler was unexpectedly invoked when %s was injected by another process\n",
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "%s handler was unexpectedly invoked when %s was injected by another process\n",
 							   testSignalMap[index].portLibSignalString, testSignalMap[index].unixSignalString);
 		}
 
@@ -1238,7 +1266,9 @@ TEST(PortSigTest, sig_test_async_unix_handler)
 		sigrelse(signum);
 		(void)omrthread_monitor_wait_timed(asyncMonitor, 20000, 0);
 		if (1 != handlerInfo.controlFlag) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "%s handler was NOT invoked when %s was injected by another process\n", testSignalMap[index].portLibSignalString, testSignalMap[index].unixSignalString);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "%s handler was NOT invoked when %s was injected by another process\n",
+							   testSignalMap[index].portLibSignalString, testSignalMap[index].unixSignalString);
 		}
 
 		omrthread_monitor_exit(asyncMonitor);
@@ -1252,10 +1282,8 @@ exit:
 	omrsig_set_async_signal_handler(asyncTestHandler, &handlerInfo, 0);
 	omrthread_monitor_destroy(asyncMonitor);
 	reportTestExit(OMRPORTLIB, testName);
-
 }
 #endif /* J9SIGNAL_TEST_RUN_ASYNC_UNIX_TESTS */
-
 
 /*
  *
@@ -1280,4 +1308,3 @@ exit:
  * 		|
  * 	omrsigTest<future>
  */
-

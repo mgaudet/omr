@@ -50,7 +50,7 @@ public:
 	size_t getArrayLength(unsigned int i);
 	size_t getArrayDimensions();
 	size_t getSize(size_t typeSize);
-	bool operator==(Modifiers const& type) const;
+	bool operator==(Modifiers const &type) const;
 };
 
 #endif /* MODIFIERS_HPP */

@@ -24,12 +24,12 @@
 #if !defined(COPYSCANCACHELIST_HPP_)
 #define COPYSCANCACHELIST_HPP_
 
-#include "modronopt.h"	
+#include "modronopt.h"
 
 #include "string.h"
 
 #include "BaseVirtual.hpp"
-#include "EnvironmentStandard.hpp" 
+#include "EnvironmentStandard.hpp"
 #include "LightweightNonReentrantLock.hpp"
 #include "ModronAssertions.h"
 
@@ -37,7 +37,7 @@ class MM_Collector;
 class MM_CopyScanCacheStandard;
 class MM_CopyScanCacheChunk;
 class MM_MemorySubSpace;
- 
+
 /**
  * @todo Provide class documentation
  * @ingroup GC_Modron_Standard
@@ -48,26 +48,27 @@ class MM_CopyScanCacheList : public MM_BaseVirtual
 	 * Data members
 	 */
 private:
-	bool _allocationInHeap;	/**< set if scan cache headers allocated in Heap */
+	bool _allocationInHeap; /**< set if scan cache headers allocated in Heap */
 
 	struct CopyScanCacheSublist {
-		MM_CopyScanCacheStandard * volatile _cacheHead;  /**< Head of the list */
-		MM_LightweightNonReentrantLock _cacheLock;  /**< Lock for getting/putting caches */
-		uintptr_t _entryCount;	/**< number of entries in sublist */
+		MM_CopyScanCacheStandard *volatile _cacheHead; /**< Head of the list */
+		MM_LightweightNonReentrantLock _cacheLock;	 /**< Lock for getting/putting caches */
+		uintptr_t _entryCount;						   /**< number of entries in sublist */
 	};
-	
-	struct CopyScanCacheSublist *_sublists;	/**< An array of CopyScanCacheSublist structures which is _sublistCount elements long */
+
+	struct CopyScanCacheSublist
+		*_sublists;			 /**< An array of CopyScanCacheSublist structures which is _sublistCount elements long */
 	uintptr_t _sublistCount; /**< the number of lists (split for parallelism). Must be at least 1 */
-	
-	MM_CopyScanCacheChunk *_chunkHead; 
+
+	MM_CopyScanCacheChunk *_chunkHead;
 	uintptr_t _incrementEntryCount;
 	uintptr_t _totalAllocatedEntryCount;
-	
-	volatile uintptr_t *_cachedEntryCount; /* pointer to cachedEntryCount, that is shared among all lists (of all nodes) */
+
+	volatile uintptr_t
+		*_cachedEntryCount; /* pointer to cachedEntryCount, that is shared among all lists (of all nodes) */
 
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
@@ -82,11 +83,12 @@ private:
 	 * 
 	 * @return an index into the _sublists array
 	 */
-	uintptr_t getSublistIndex(MM_EnvironmentBase *env)
+	uintptr_t
+	getSublistIndex(MM_EnvironmentBase *env)
 	{
 		return env->getEnvironmentId() % _sublistCount;
 	}
-	
+
 	/**
 	 * Increment the sublist counter by the specified amount
 	 * Also increment the shared counter if current sublist counter value is zero
@@ -96,7 +98,7 @@ private:
 	 * @param value the positive value to increment
 	 */
 	void incrementCount(CopyScanCacheSublist *sublist, uintptr_t value);
-	
+
 	/**
 	 * Decrement the sublist counter by the specified amount
 	 * Also decrement the shared counter if sublist counter value after operation is zero
@@ -120,7 +122,7 @@ public:
 	{
 		return _totalAllocatedEntryCount;
 	}
-	 
+
 	/**
 	 * Resizes the number of cache entries.
 	 *
@@ -129,7 +131,8 @@ public:
 	 * @param incrementCacheEntryCount[in] increment increase count
 	 * @return true if resize success
 	 */
-	bool resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocatedCacheEntryCount, uintptr_t incrementCacheEntryCount);
+	bool resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocatedCacheEntryCount,
+							uintptr_t incrementCacheEntryCount);
 
 	/**
 	 * Remove all heap allocated chunks from chunks list
@@ -145,7 +148,8 @@ public:
 	 * @param requestCollector collector issued a memory allocation request
 	 * @return pointer to first scan cache if allocation is successful
 	 */
-	MM_CopyScanCacheStandard * appendCacheEntriesInHeap(MM_EnvironmentStandard *env, MM_MemorySubSpace *memorySubSpace, MM_Collector *requestCollector);
+	MM_CopyScanCacheStandard *appendCacheEntriesInHeap(MM_EnvironmentStandard *env, MM_MemorySubSpace *memorySubSpace,
+													   MM_Collector *requestCollector);
 
 	/**
 	 * Walk all sublists and count total number of entries
@@ -180,19 +184,12 @@ public:
 	/**
 	 * Create a CopyScanCacheList object.
 	 */
-	MM_CopyScanCacheList() 
-		: MM_BaseVirtual()
-		, _allocationInHeap(false)
-		, _sublists(NULL)
-		, _sublistCount(0)
-		, _chunkHead(NULL)
-		, _incrementEntryCount(0)
-		, _totalAllocatedEntryCount(0)
-		, _cachedEntryCount(NULL)
+	MM_CopyScanCacheList()
+		: MM_BaseVirtual(), _allocationInHeap(false), _sublists(NULL), _sublistCount(0), _chunkHead(NULL),
+		  _incrementEntryCount(0), _totalAllocatedEntryCount(0), _cachedEntryCount(NULL)
 	{
 		_typeId = __FUNCTION__;
 	}
-	
 };
 
 #endif /* COPYSCANCACHELIST_HPP_ */

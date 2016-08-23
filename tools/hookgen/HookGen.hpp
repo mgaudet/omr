@@ -42,14 +42,13 @@ class HookGen
 	 */
 private:
 	int _eventNum;
-	const char *_fileName; /**< value from argv so no need to free */
-	const char *_publicFileName; /**< value (or substring) from XML parsing so no need to free */
-	FILE *_publicFile; /**< FILE handle for public header file.  close in tearDown if non-NULL */
+	const char *_fileName;		  /**< value from argv so no need to free */
+	const char *_publicFileName;  /**< value (or substring) from XML parsing so no need to free */
+	FILE *_publicFile;			  /**< FILE handle for public header file.  close in tearDown if non-NULL */
 	const char *_privateFileName; /**< value (or substring) from XML parsing so no need to free */
-	FILE *_privateFile; /**< FILE handle for prviate header file.  close in tearDown if non-NULL */
+	FILE *_privateFile;			  /**< FILE handle for prviate header file.  close in tearDown if non-NULL */
 protected:
 public:
-
 private:
 	static char
 	convertChar(char value)
@@ -68,8 +67,10 @@ private:
 	RCType completePublicHeader();
 	RCType startPrivateHeader();
 	RCType completePrivateHeader(const char *structName);
-	void writeEventToPublicHeader(const char *name, const char *description, const char *condition, const char *structName, const char *reverse, pugi::xml_node event);
-	void writeEventToPrivateHeader(const char *name, const char *condition, const char *once, const char *structName, pugi::xml_node event);
+	void writeEventToPublicHeader(const char *name, const char *description, const char *condition,
+								  const char *structName, const char *reverse, pugi::xml_node event);
+	void writeEventToPrivateHeader(const char *name, const char *condition, const char *once, const char *structName,
+								   pugi::xml_node event);
 	void writeEvent(pugi::xml_node event);
 
 	static void displayUsage();
@@ -82,26 +83,32 @@ private:
 protected:
 public:
 	HookGen()
-		: _eventNum(1)
-		, _fileName(NULL)
-		, _publicFileName(NULL)
-		, _publicFile(NULL)
-		, _privateFileName(NULL)
-		, _privateFile(NULL)
+		: _eventNum(1), _fileName(NULL), _publicFileName(NULL), _publicFile(NULL), _privateFileName(NULL),
+		  _privateFile(NULL)
 	{
 	}
 
-	~HookGen()
-	{
-	}
+	~HookGen() {}
 
 	RCType parseOptions(int argc, char *argv[]);
 	RCType processFile();
 	void tearDown();
 
-	const char *getFileName() const {return _fileName;}
-	const char *getPublicFileName() const {return _publicFileName;}
-	const char *getPrivateFileName() const {return _privateFileName;}
+	const char *
+	getFileName() const
+	{
+		return _fileName;
+	}
+	const char *
+	getPublicFileName() const
+	{
+		return _publicFileName;
+	}
+	const char *
+	getPrivateFileName() const
+	{
+		return _privateFileName;
+	}
 };
 
 #endif /* HOOKGEN_HPP_ */

@@ -21,33 +21,32 @@
 
 #include "omrcfg.h"
 
-
 #include "omrcomp.h"
 #include "BaseVirtual.hpp"
 
-#if defined (OMR_GC_MODRON_CONCURRENT_MARK)
+#if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 
 class MM_EnvironmentBase;
 class MM_EnvironmentStandard;
 
-typedef void (*SafepointCallbackHandler)(struct OMR_VMThread * currentThread, void * userData);
+typedef void (*SafepointCallbackHandler)(struct OMR_VMThread *currentThread, void *userData);
 
 class MM_ConcurrentSafepointCallback : public MM_BaseVirtual
 {
 private:
 protected:
 	SafepointCallbackHandler _handler;
-	void * _userData;
-public:
+	void *_userData;
 
+public:
 private:
 protected:
-
 public:
 #if defined(AIXPPC) || defined(LINUXPPC)
-	virtual void registerCallback(MM_EnvironmentBase *env, SafepointCallbackHandler handler, void *userData, bool cancelAfterGC = false);
+	virtual void registerCallback(MM_EnvironmentBase *env, SafepointCallbackHandler handler, void *userData,
+								  bool cancelAfterGC = false);
 #else
-	virtual void registerCallback(MM_EnvironmentBase *env,  SafepointCallbackHandler handler, void *userData);
+	virtual void registerCallback(MM_EnvironmentBase *env, SafepointCallbackHandler handler, void *userData);
 #endif /* defined(AIXPPC) || defined(LINUXPPC) */
 
 	virtual void requestCallback(MM_EnvironmentStandard *env);
@@ -60,13 +59,9 @@ public:
 	/**
 	 * Create a MM_ConcurrentSafepointCallback object
 	 */
-	MM_ConcurrentSafepointCallback(MM_EnvironmentBase *env)
-		: MM_BaseVirtual()
-		,_handler(NULL)
-		,_userData(NULL)
+	MM_ConcurrentSafepointCallback(MM_EnvironmentBase *env) : MM_BaseVirtual(), _handler(NULL), _userData(NULL)
 	{
 		_typeId = __FUNCTION__;
-
 	}
 };
 

@@ -19,7 +19,6 @@
 #include "omrport.h"
 #include "omrsignal_context.h"
 
-
 #define NUM_REGS 16
 
 void
@@ -30,7 +29,8 @@ fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, stru
 }
 
 uint32_t
-infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	*name = "";
 
@@ -89,26 +89,11 @@ infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info,
 }
 
 uint32_t
-infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+		   void **value)
 {
-	const char *n_fpr[NUM_REGS] = {
-		"fpr0",
-		"fpr1",
-		"fpr2",
-		"fpr3",
-		"fpr4",
-		"fpr5",
-		"fpr6",
-		"fpr7",
-		"fpr8",
-		"fpr9",
-		"fpr10",
-		"fpr11",
-		"fpr12",
-		"fpr13",
-		"fpr14",
-		"fpr15"
-	};
+	const char *n_fpr[NUM_REGS] = {"fpr0", "fpr1", "fpr2",  "fpr3",  "fpr4",  "fpr5",  "fpr6",  "fpr7",
+								   "fpr8", "fpr9", "fpr10", "fpr11", "fpr12", "fpr13", "fpr14", "fpr15"};
 
 	*name = "";
 
@@ -122,7 +107,8 @@ infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, in
 }
 
 uint32_t
-infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+		   void **value)
 {
 
 	const char *n_gpr[NUM_REGS * 2] = {
@@ -184,7 +170,8 @@ infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, in
 }
 
 uint32_t
-infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+			   void **value)
 {
 	mcontext_t *mcontext = (mcontext_t *)&info->platformSignalInfo.context->uc_mcontext;
 	*name = "";
@@ -215,7 +202,8 @@ infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info
 }
 
 uint32_t
-infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	Dl_info *dl_info = &(info->platformSignalInfo.dl_info);
 	void *address;
@@ -268,4 +256,3 @@ infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info,
 		return OMRPORT_SIG_VALUE_UNDEFINED;
 	}
 }
-

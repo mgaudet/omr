@@ -23,10 +23,10 @@ ClassUDT::ClassUDT(size_t size, bool isClass, unsigned int lineNumber)
 {
 }
 
-ClassUDT::~ClassUDT() {};
+ClassUDT::~ClassUDT(){};
 
 bool
-ClassUDT::equal(Type const& type, set<Type const*> *checked) const
+ClassUDT::equal(Type const &type, set<Type const *> *checked) const
 {
 	bool ret = false;
 	if (checked->find(this) != checked->end()) {
@@ -35,9 +35,8 @@ ClassUDT::equal(Type const& type, set<Type const*> *checked) const
 		checked->insert(this);
 		ClassUDT const *classUDT = dynamic_cast<ClassUDT const *>(&type);
 		if (NULL != classUDT) {
-			ret = (ClassType::equal(type, checked))
-				&& (( NULL == _superClass) == (NULL == classUDT->_superClass))
-				&& ((_superClass == classUDT->_superClass) || (*_superClass == *classUDT->_superClass));
+			ret = (ClassType::equal(type, checked)) && ((NULL == _superClass) == (NULL == classUDT->_superClass))
+				  && ((_superClass == classUDT->_superClass) || (*_superClass == *classUDT->_superClass));
 		}
 	}
 	return ret;
@@ -55,10 +54,7 @@ ClassUDT::replaceType(Type *typeToReplace, Type *replaceWith)
 }
 
 DDR_RC
-ClassUDT::scanChildInfo(Scanner *scanner, void *data)
-{
-	return scanner->dispatchScanChildInfo(this, data);
-}
+ClassUDT::scanChildInfo(Scanner *scanner, void *data) { return scanner->dispatchScanChildInfo(this, data); }
 
 string
 ClassUDT::getSymbolTypeName()

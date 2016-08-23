@@ -64,7 +64,6 @@ j9sem_init(j9sem_t *sp, int32_t initValue)
 #endif
 }
 
-
 /**
  * Release a semaphore by 1.
  *
@@ -87,7 +86,6 @@ j9sem_post(j9sem_t s)
 	return -1;
 #endif
 }
-
 
 /**
  * Wait on a semaphore.

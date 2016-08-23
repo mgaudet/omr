@@ -39,12 +39,12 @@ extern "C" {
 uintptr_t
 allocateMemoryForSublistFragment(void *vmThreadRawPtr, J9VMGC_SublistFragment *fragmentPrimitive)
 {
-	OMR_VMThread *omrVMThread = (OMR_VMThread*) vmThreadRawPtr;
+	OMR_VMThread *omrVMThread = (OMR_VMThread *)vmThreadRawPtr;
 	MM_SublistFragment fragment(fragmentPrimitive);
-	
+
 	MM_SublistFragment::flush(fragmentPrimitive);
 	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(omrVMThread);
-	
+
 	bool result = ((MM_SublistPool *)fragmentPrimitive->parentList)->allocate(env, &fragment);
 	if (result) {
 		return 0;
@@ -67,21 +67,20 @@ allocateMemoryForSublistFragment(void *vmThreadRawPtr, J9VMGC_SublistFragment *f
  */
 void *
 MM_SublistFragment::allocate(MM_EnvironmentBase *env)
-{	
+{
 	MM_SublistPool *parentList = (MM_SublistPool *)_fragment->parentList;
-	
+
 	/* Check if there is a free entry available in the fragment */
-	if(_fragment->fragmentCurrent < _fragment->fragmentTop){			
+	if (_fragment->fragmentCurrent < _fragment->fragmentTop) {
 		_fragment->count += 1;
-		
+
 		return _fragment->fragmentCurrent++;
 	}
-	
 
 	/* There is no free entry available - attempt to allocate a new fragment from the sublist */
-	if(parentList->allocate(env, this)) {
+	if (parentList->allocate(env, this)) {
 		_fragment->count += 1;
-		
+
 		/* A new fragment was obtained - return the next available slot */
 		return _fragment->fragmentCurrent++;
 	}
@@ -101,7 +100,7 @@ MM_SublistFragment::add(MM_EnvironmentBase *env, uintptr_t entry)
 	uintptr_t *dest = (uintptr_t *)allocate(env);
 	if (dest != NULL) {
 		*dest = entry;
-		return true;	
+		return true;
 	}
 	return false;
 }

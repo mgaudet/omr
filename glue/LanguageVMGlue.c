@@ -50,7 +50,7 @@ OMR_Glue_BindCurrentThread(OMR_VM *omrVM, const char *threadName, OMR_VMThread *
 			}
 			/* success */
 			*omrVMThread = newOMRThread;
-done:
+		done:
 			if (OMR_ERROR_NONE != rc) {
 				/* error cleanup */
 				omrthread_detach(self);
@@ -115,4 +115,3 @@ OMR_Glue_LinkLanguageThreadToOMRThread(void *languageThread, OMR_VMThread *omrVM
 {
 	return OMR_ERROR_NONE;
 }
-

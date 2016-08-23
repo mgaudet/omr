@@ -31,7 +31,7 @@
 /* need this for __csg() */
 #include <builtins.h>
 #endif
-#if defined(AIXPPC)||defined(LINUXPPC)
+#if defined(AIXPPC) || defined(LINUXPPC)
 #if defined(__xlC__)
 #include <builtins.h>
 /* 
@@ -39,19 +39,19 @@
    provides a hint that performance will probably be improved if shared resources dedicated
    to the executing processor are released for use by other processors. 
 */
-#pragma mc_func __ppc_yield  {"7F7BDB78"}
+#pragma mc_func __ppc_yield{"7F7BDB78" }
 /*
    Bytecode for: or 1,1,1
    Lower SMT thread priority.
 */
-#pragma mc_func __ppc_dropSMT  {"7C210B78"}
+#pragma mc_func __ppc_dropSMT{"7C210B78" }
 /*
    Bytecode for: or 2,2,2
    Restore SMT thread priority
 */
-#pragma mc_func __ppc_restoreSMT  {"7C421378"}
+#pragma mc_func __ppc_restoreSMT{"7C421378" }
 /* Bytecode for: nop */
-#pragma mc_func __ppc_nop  {"60000000"}
+#pragma mc_func __ppc_nop{"60000000" }
 #endif /* #if defined(__xlC__) */
 #endif /* defined(AIXPPC)||defined(LINUXPPC) */
 
@@ -72,63 +72,127 @@
 #if !defined(ATOMIC_SUPPORT_STUB)
 #if defined(LINUXPPC) || defined(AIXPPC)
 #if defined(__xlC__)
-		inline void __yield() { __ppc_yield(); }
-		inline void __dropSMT() { __ppc_dropSMT(); }
-		inline void __restoreSMT() { __ppc_restoreSMT(); }
+inline void
+__yield()
+{
+	__ppc_yield();
+}
+inline void
+__dropSMT()
+{
+	__ppc_dropSMT();
+}
+inline void
+__restoreSMT()
+{
+	__ppc_restoreSMT();
+}
 #else
-		inline void __yield() { __asm__ volatile ("or 27,27,27"); }
-		inline void __dropSMT() {  __asm__ volatile ("or 1,1,1"); }
-		inline void __restoreSMT() {  __asm__ volatile ("or 2,2,2"); }
+inline void
+__yield()
+{
+	__asm__ volatile("or 27,27,27");
+}
+inline void
+__dropSMT()
+{
+	__asm__ volatile("or 1,1,1");
+}
+inline void
+__restoreSMT()
+{
+	__asm__ volatile("or 2,2,2");
+}
 #endif
 #elif defined(_MSC_VER)
-		inline void __yield() { _mm_pause(); }
+inline void
+__yield()
+{
+	_mm_pause();
+}
 #elif defined(__GNUC__) && (defined(J9X86) || defined(J9HAMMER))
-		inline void __yield() { __asm volatile ("pause"); }
+inline void
+__yield()
+{
+	__asm volatile("pause");
+}
 #else
-		inline void __yield() { __asm volatile ("# AtomicOperations::__yield"); }
+inline void
+__yield()
+{
+	__asm volatile("# AtomicOperations::__yield");
+}
 #endif /* __GNUC__ && (J9X86 || J9HAMMER) */
 
 #if defined(_MSC_VER)
-		/* use compiler intrinsic */
+/* use compiler intrinsic */
 #elif defined(LINUXPPC) || defined(AIXPPC)
 #if defined(__xlC__)
-		/* XL compiler complained about generated assembly, use machine code instead. */
-		inline void __nop() { __ppc_nop(); }
+/* XL compiler complained about generated assembly, use machine code instead. */
+inline void
+__nop()
+{
+	__ppc_nop();
+}
 #else
-		inline void __nop() { __asm__ volatile ("nop"); }
+inline void
+__nop()
+{
+	__asm__ volatile("nop");
+}
 #endif
 #elif defined(LINUX) && (defined(S390) || defined(S39064))
-		/*
+/*
 		 * nop instruction requires operand https://bugzilla.redhat.com/show_bug.cgi?id=506417
 		 */
-		inline void __nop() { __asm__ volatile ("nop 0"); }
+inline void
+__nop()
+{
+	__asm__ volatile("nop 0");
+}
 #else /* GCC && XL */
-		inline void __nop() { __asm__ volatile ("nop"); }
+inline void
+__nop()
+{
+	__asm__ volatile("nop");
+}
 #endif
 
 #if defined(AIXPPC) || defined(LINUXPPC)
 #if defined(__GNUC__) && !defined(__clang__)
-	/* GCC compiler does not provide the same intrinsics. */
+/* GCC compiler does not provide the same intrinsics. */
 
-	/**
+/**
 	 * Synchronize
 	 * Ensures that all instructions preceding the function the call to __sync complete before any instructions following
 	 * the function call can execute.
 	 */
-	inline void __sync() { asm volatile ("sync"); }
-	/**
+inline void
+__sync()
+{
+	asm volatile("sync");
+}
+/**
 	 * Instruction Synchronize
 	 * Waits for all previous instructions to complete and then discards any prefetched instructions, causing subsequent
 	 * instructions to be fetched (or refetched) and executed in the context established by previous instructions.
 	 */
-	inline void __isync() {	asm volatile ("isync");	}
-	/**
+inline void
+__isync()
+{
+	asm volatile("isync");
+}
+/**
 	 * Load Word Synchronize
 	 * Ensures that all store instructions preceding the call to __lwsync complete before any new instructions can be executed
 	 * on the processor that executed the function. This allows you to synchronize between multiple processors with minimal
 	 * performance impact, as __lwsync does not wait for confirmation from each processor.
 	 */
-	inline void __lwsync() { asm volatile ("lwsync"); }
+inline void
+__lwsync()
+{
+	asm volatile("lwsync");
+}
 #endif /* defined(__GNUC__) && !defined(__clang__) */
 #endif /* AIXPPC || LINUXPPC */
 #endif /* !defined(ATOMIC_SUPPORT_STUB) */
@@ -147,7 +211,6 @@
 class VM_AtomicSupport
 {
 public:
-
 	/**
 	 * If the CPU supports it, emit an instruction to yield the CPU to another thread.
 	 */
@@ -189,13 +252,13 @@ public:
 		asm volatile("lock orl $0x0,(%%esp)" ::: "memory");
 #elif defined(J9HAMMER)
 		asm volatile("lock orq $0x0,(%%rsp)" ::: "memory");
-#elif defined(ARM) /* defined(J9HAMMER) */
+#elif defined(ARM)  /* defined(J9HAMMER) */
 		__sync_synchronize();
 #elif defined(S390) /* defined(ARM) */
-		asm volatile("bcr 15,0":::"memory");
-#else /* defined(S390) */
-		asm volatile("":::"memory");
-#endif /* defined(J9X86) || defined(J9HAMMER) */
+		asm volatile("bcr 15,0" ::: "memory");
+#else				/* defined(S390) */
+		asm volatile("" ::: "memory");
+#endif				/* defined(J9X86) || defined(J9HAMMER) */
 #elif defined(J9ZOS390)
 		/* Replace this with an inline "bcr 15,0" whenever possible */
 		J9ZOSRWB();
@@ -221,15 +284,15 @@ public:
 		_WriteBarrier();
 #elif defined(__GNUC__)
 #if defined(J9X86) || defined(J9HAMMER)
-		asm volatile("":::"memory");
-		/* TODO investigate whether or not we should call this
+		asm volatile("" ::: "memory");
+/* TODO investigate whether or not we should call this
 		asm volatile("sfence" ::: "memory");
 		*/
 #elif defined(ARM) /* defined(J9X86) || defined(J9HAMMER) */
 		__sync_synchronize();
-#else /* defined(ARM) */
-		asm volatile("":::"memory");
-#endif /* defined(J9X86) || defined(J9HAMMER) */
+#else			   /* defined(ARM) */
+		asm volatile("" ::: "memory");
+#endif			   /* defined(J9X86) || defined(J9HAMMER) */
 #elif defined(J9ZOS390)
 		__fence();
 #endif /* defined(AIXPPC) || defined(LINUXPPC) */
@@ -254,19 +317,19 @@ public:
 #elif defined(__GNUC__)
 #if defined(J9X86)
 		asm volatile("lock orl $0x0,(%%esp)" ::: "memory");
-		/* TODO investigate whether or not we should call this instead
+/* TODO investigate whether or not we should call this instead
 		asm volatile("lfence":::"memory");
 		*/
 #elif defined(J9HAMMER)
 		asm volatile("lock orq $0x0,(%%rsp)" ::: "memory");
-		/* TODO investigate whether or not we should call this instead
+/* TODO investigate whether or not we should call this instead
 		asm volatile("lfence":::"memory");
 		*/
 #elif defined(ARM) /* defined(J9HAMMER) */
 		__sync_synchronize();
-#else /* defined(ARM) */
-		asm volatile("":::"memory");
-#endif /* defined(J9X86) || defined(J9HAMMER) */
+#else			   /* defined(ARM) */
+		asm volatile("" ::: "memory");
+#endif			   /* defined(J9X86) || defined(J9HAMMER) */
 #elif defined(J9ZOS390)
 		__fence();
 #endif /* defined(AIXPPC) || defined(LINUXPPC) */
@@ -289,7 +352,7 @@ public:
 	{
 #if defined(AIXPPC) || defined(LINUXPPC)
 		readWriteBarrier();
-#else /* defined(AIXPPC) || defined(LINUXPPC) */
+#else  /* defined(AIXPPC) || defined(LINUXPPC) */
 		readBarrier();
 #endif /* defined(AIXPPC) || defined(LINUXPPC) */
 	}
@@ -320,8 +383,8 @@ public:
 				return currentValue;
 			}
 		}
-#endif /* defined(ATOMIC_ALLOW_PRE_READ) */
-#if defined(__GNUC__) /* defined(ATOMIC_SUPPORT_STUB) */
+#endif					/* defined(ATOMIC_ALLOW_PRE_READ) */
+#if defined(__GNUC__)   /* defined(ATOMIC_SUPPORT_STUB) */
 		/* Assume GCC >= 4.2 */
 		return __sync_val_compare_and_swap(address, oldValue, newValue);
 #elif defined(_MSC_VER) /* defined(__GNUC__) */
@@ -333,7 +396,7 @@ public:
 		__cs1((uint32_t *)&old, (uint32_t *)address, (uint32_t *)&newValue);
 		return old;
 #elif defined(__xlC__) /* defined(J9ZOS390) */
-		__compare_and_swap((volatile int*)address, (int*)&oldValue, (int)newValue);
+		__compare_and_swap((volatile int *)address, (int *)&oldValue, (int)newValue);
 		return oldValue;
 #else /* defined(__xlC__) */
 #error "lockCompareExchangeU32(): unsupported platform!"
@@ -360,7 +423,7 @@ public:
 #if defined(ATOMIC_SUPPORT_STUB)
 		return 0;
 #else /* defined(ATOMIC_SUPPORT_STUB) */
-		/* For 64-bit CAS on 32-bit architectures, the pre-read is not
+/* For 64-bit CAS on 32-bit architectures, the pre-read is not
 		 * reliable, as the value will not be read atomically.  As this
 		 * is strictly a performance optimization, just don't do it in
 		 * this case.
@@ -372,30 +435,32 @@ public:
 				return currentValue;
 			}
 		}
-#endif /* defined(ATOMIC_ALLOW_PRE_READ) */
+#endif													/* defined(ATOMIC_ALLOW_PRE_READ) */
 #if defined(OMR_ARCH_POWER) && !defined(OMR_ENV_DATA64) /* defined(ATOMIC_SUPPORT_STUB) */
-		return J9CAS8Helper(address, ((uint32_t*)&oldValue)[1], ((uint32_t*)&oldValue)[0], ((uint32_t*)&newValue)[1], ((uint32_t*)&newValue)[0]);
-#elif defined(__GNUC__) /* defined(OMR_ARCH_POWER) && !defined(OMR_ENV_DATA64) */
+		return J9CAS8Helper(address, ((uint32_t *)&oldValue)[1], ((uint32_t *)&oldValue)[0], ((uint32_t *)&newValue)[1],
+							((uint32_t *)&newValue)[0]);
+#elif defined(__GNUC__)									/* defined(OMR_ARCH_POWER) && !defined(OMR_ENV_DATA64) */
 		/* Assume GCC >= 4.2 */
 		return __sync_val_compare_and_swap(address, oldValue, newValue);
-#elif defined(_MSC_VER) /* defined(__GNUC__) */
-		return (uint64_t)_InterlockedCompareExchange64((volatile __int64 *)address, (__int64)newValue, (__int64)oldValue);
-#elif defined(J9ZOS390) /* defined(_MSC_VER) */
-		 /* V1.R13 has a compiler bug and if you pass a constant as oldValue it will cause c-stack corruption */
-		 volatile uint64_t old = oldValue;
+#elif defined(_MSC_VER)									/* defined(__GNUC__) */
+		return (uint64_t)_InterlockedCompareExchange64((volatile __int64 *)address, (__int64)newValue,
+													   (__int64)oldValue);
+#elif defined(J9ZOS390)									/* defined(_MSC_VER) */
+		/* V1.R13 has a compiler bug and if you pass a constant as oldValue it will cause c-stack corruption */
+		volatile uint64_t old = oldValue;
 #if defined(OMR_ENV_DATA64)
-		 /* Call __csg directly as csg() does not exist */
-		__csg((void*)&old, (void*)address, (void*)&newValue);
+		/* Call __csg directly as csg() does not exist */
+		__csg((void *)&old, (void *)address, (void *)&newValue);
 		return old;
-#else /* defined(OMR_ENV_DATA64) */
+#else				   /* defined(OMR_ENV_DATA64) */
 		/* __cds1 does not write the swap value correctly, cds does the correct thing */
-		cds((cds_t*)&old, (cds_t*)address, *(cds_t*)&newValue);
+		cds((cds_t *)&old, (cds_t *)address, *(cds_t *)&newValue);
 		return old;
-#endif /* defined(OMR_ENV_DATA64) */
+#endif				   /* defined(OMR_ENV_DATA64) */
 #elif defined(__xlC__) /* defined(J9ZOS390) */
-		__compare_and_swaplp((volatile long*)address, (long*)&oldValue, (long)newValue);
+		__compare_and_swaplp((volatile long *)address, (long *)&oldValue, (long)newValue);
 		return oldValue;
-#else /* defined(__xlC__) */
+#else				   /* defined(__xlC__) */
 #error "lockCompareExchangeU64(): unsupported platform!"
 #endif /* defined(__xlC__) */
 #endif /* defined(ATOMIC_SUPPORT_STUB) */
@@ -415,12 +480,14 @@ public:
 	 * @return the value at memory location <b>address</b> BEFORE the store was attempted
 	 */
 	VMINLINE static uintptr_t
-	lockCompareExchange(volatile uintptr_t * address, uintptr_t oldValue, uintptr_t newValue, bool readBeforeCAS = false)
+	lockCompareExchange(volatile uintptr_t *address, uintptr_t oldValue, uintptr_t newValue, bool readBeforeCAS = false)
 	{
 #if defined(OMR_ENV_DATA64)
-		return (uintptr_t)lockCompareExchangeU64((volatile uint64_t *)address, (uint64_t)oldValue, (uint64_t)newValue, readBeforeCAS);
-#else /* defined(OMR_ENV_DATA64) */
-		return (uintptr_t)lockCompareExchangeU32((volatile uint32_t *)address, (uint32_t)oldValue, (uint32_t)newValue, readBeforeCAS);
+		return (uintptr_t)lockCompareExchangeU64((volatile uint64_t *)address, (uint64_t)oldValue, (uint64_t)newValue,
+												 readBeforeCAS);
+#else  /* defined(OMR_ENV_DATA64) */
+		return (uintptr_t)lockCompareExchangeU32((volatile uint32_t *)address, (uint32_t)oldValue, (uint32_t)newValue,
+												 readBeforeCAS);
 #endif /* defined(OMR_ENV_DATA64) */
 	}
 
@@ -586,11 +653,12 @@ public:
 		volatile uint64_t *localAddr = (volatile uint64_t *)address;
 
 		double oldValue = *address;
-		double newValue =  oldValue + addend;
+		double newValue = oldValue + addend;
 
-		while (lockCompareExchangeU64(localAddr, *(uint64_t *)&oldValue, *(uint64_t *)&newValue) != *(uint64_t *)&oldValue) {
+		while (lockCompareExchangeU64(localAddr, *(uint64_t *)&oldValue, *(uint64_t *)&newValue)
+			   != *(uint64_t *)&oldValue) {
 			oldValue = *address;
-			newValue =  oldValue + addend;
+			newValue = oldValue + addend;
 		}
 		return newValue;
 	}
@@ -778,7 +846,6 @@ public:
 		/* TODO: JAZZ103 51150 */
 		return true;
 	}
-
 };
 
 #endif /* ATOMIC_SUPPORT_HPP_ */

@@ -37,8 +37,9 @@
 #include "Scanner.hpp"
 #include "Symbol_IR.hpp"
 
-DDR_RC getOptions(OMRPortLibrary *portLibrary, int argc, char *argv[], const char **macroFile, const char **supersetFile,
-	const char **blobFile, const char **overrideFile, vector<string> *debugFiles);
+DDR_RC getOptions(OMRPortLibrary *portLibrary, int argc, char *argv[], const char **macroFile,
+				  const char **supersetFile, const char **blobFile, const char **overrideFile,
+				  vector<string> *debugFiles);
 DDR_RC readFileList(OMRPortLibrary *portLibrary, const char *debugFileList, vector<string> *debugFiles);
 
 int
@@ -58,10 +59,10 @@ main(int argc, char *argv[])
 	vector<string> debugFiles;
 	rc = getOptions(&portLibrary, argc, argv, &macroFile, &supersetFile, &blobFile, &overrideFile, &debugFiles);
 
-	/* Create IR from input. */
+/* Create IR from input. */
 #if defined(_MSC_VER)
 	PdbScanner scanner;
-#else /* defined(_MSC_VER) */
+#else  /* defined(_MSC_VER) */
 	DwarfScanner scanner;
 #endif /* defined(_MSC_VER) */
 	Symbol_IR ir;
@@ -106,15 +107,13 @@ main(int argc, char *argv[])
 
 DDR_RC
 getOptions(OMRPortLibrary *portLibrary, int argc, char *argv[], const char **macroFile, const char **supersetFile,
-	const char **blobFile, const char **overrideFile, vector<string> *debugFiles)
+		   const char **blobFile, const char **overrideFile, vector<string> *debugFiles)
 {
 	DDR_RC rc = DDR_RC_OK;
 	bool showHelp = (argc < 2);
 	bool showVersion = false;
 	for (int i = 1; i < argc; i += 1) {
-		if ((0 == strcmp(argv[i], "--filelist"))
-			|| (0 == strcmp(argv[i], "-f"))
-		) {
+		if ((0 == strcmp(argv[i], "--filelist")) || (0 == strcmp(argv[i], "-f"))) {
 			if (argc < i + 2) {
 				showHelp = true;
 			} else {
@@ -123,45 +122,33 @@ getOptions(OMRPortLibrary *portLibrary, int argc, char *argv[], const char **mac
 					break;
 				}
 			}
-		} else if ((0 == strcmp(argv[i], "--macrolist"))
-			|| (0 == strcmp(argv[i], "-m"))
-		) {
+		} else if ((0 == strcmp(argv[i], "--macrolist")) || (0 == strcmp(argv[i], "-m"))) {
 			if (argc < i + 2) {
 				showHelp = true;
 			} else {
 				*macroFile = argv[++i];
 			}
-		} else if ((0 == strcmp(argv[i], "--superset"))
-			|| (0 == strcmp(argv[i], "-s"))
-		) {
+		} else if ((0 == strcmp(argv[i], "--superset")) || (0 == strcmp(argv[i], "-s"))) {
 			if (argc < i + 2) {
 				showHelp = true;
 			} else {
 				*supersetFile = argv[++i];
 			}
-		} else if ((0 == strcmp(argv[i], "--blob"))
-			|| (0 == strcmp(argv[i], "-b"))
-		) {
+		} else if ((0 == strcmp(argv[i], "--blob")) || (0 == strcmp(argv[i], "-b"))) {
 			if (argc < i + 2) {
 				showHelp = true;
 			} else {
 				*blobFile = argv[++i];
 			}
-		} else if ((0 == strcmp(argv[i], "--overrides"))
-			|| (0 == strcmp(argv[i], "-o"))
-		) {
+		} else if ((0 == strcmp(argv[i], "--overrides")) || (0 == strcmp(argv[i], "-o"))) {
 			if (argc < i + 2) {
 				showHelp = true;
 			} else {
 				*overrideFile = argv[++i];
 			}
-		} else if ((0 == strcmp(argv[i], "--help"))
-			|| (0 == strcmp(argv[i], "-h"))
-		) {
+		} else if ((0 == strcmp(argv[i], "--help")) || (0 == strcmp(argv[i], "-h"))) {
 			showHelp = true;
-		} else if ((0 == strcmp(argv[i], "--version"))
-			|| (0 == strcmp(argv[i], "-v"))
-		) {
+		} else if ((0 == strcmp(argv[i], "--version")) || (0 == strcmp(argv[i], "-v"))) {
 			showVersion = true;
 		} else {
 			debugFiles->push_back(argv[i]);
@@ -180,16 +167,17 @@ getOptions(OMRPortLibrary *portLibrary, int argc, char *argv[], const char **mac
 			"	-f FILE, --filelist FILE\n"
 			"		Specify file containing list of input files\n"
 			"	-m FILE, --macrolist FILE\n"
-			"		Specify input list of macros. See macro tool for format. Default is macroList in current directory.\n"
+			"		Specify input list of macros. See macro tool for format. Default is macroList in current "
+			"directory.\n"
 			"	-s FILE, --superset FILE\n"
 			"		Output superset file. Default is superset.out in current directory.\n"
 			"	-b FILE, --blob FILE\n"
 			"		Output binary blob file. Default is blob.dat in current directory.\n"
 			"	-o FILE, --overrides FILE\n"
-			"		Optional. File containing a list of files which contain type and field overrides for specific fields.\n"
+			"		Optional. File containing a list of files which contain type and field overrides for specific "
+			"fields.\n"
 			"		Overrides are of the format 'typeoverride.STRUCT_NAME.FIELD_NAME=TypeToChangeTo' or\n"
-			"		'fieldoverride.STRUCT_NAME.FIELD_NAME=NewFieldName'\n"
-		);
+			"		'fieldoverride.STRUCT_NAME.FIELD_NAME=NewFieldName'\n");
 	} else if (showVersion) {
 		printf("Version 0.1\n");
 	}
@@ -203,7 +191,7 @@ readFileList(OMRPortLibrary *portLibrary, const char *debugFileList, vector<stri
 	DDR_RC rc = DDR_RC_OK;
 
 	/* Read list of debug files to scan from the input file. */
-	intptr_t fd = omrfile_open(debugFileList,  EsOpenRead, 0660);
+	intptr_t fd = omrfile_open(debugFileList, EsOpenRead, 0660);
 	if (0 > fd) {
 		ERRMSG("Failure attempting to open %s\nExiting...\n", debugFileList);
 		rc = DDR_RC_ERROR;

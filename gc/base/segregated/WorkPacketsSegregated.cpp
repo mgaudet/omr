@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omr.h"
 
 #include "OverflowSegregated.hpp"
@@ -35,9 +34,10 @@ MM_WorkPacketsSegregated::newInstance(MM_EnvironmentBase *env)
 {
 	MM_WorkPacketsSegregated *workPackets;
 
-	workPackets = (MM_WorkPacketsSegregated *)env->getForge()->allocate(sizeof(MM_WorkPacketsSegregated), MM_AllocationCategory::WORK_PACKETS, OMR_GET_CALLSITE());
+	workPackets = (MM_WorkPacketsSegregated *)env->getForge()->allocate(
+		sizeof(MM_WorkPacketsSegregated), MM_AllocationCategory::WORK_PACKETS, OMR_GET_CALLSITE());
 	if (NULL != workPackets) {
-		new(workPackets) MM_WorkPacketsSegregated(env);
+		new (workPackets) MM_WorkPacketsSegregated(env);
 		if (!workPackets->initialize(env)) {
 			workPackets->kill(env);
 			workPackets = NULL;

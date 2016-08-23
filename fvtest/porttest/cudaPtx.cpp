@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "cudaTests.hpp"
 
 /**
@@ -197,8 +196,7 @@ static char fragment2_code[] = {
 	"    add.s32         %r5, %r2, %r1;\n"
 	"    st.param.b32    [func_retval0+0], %r5;\n"
 	"    ret;\n"
-	"}\n"
-};
+	"}\n"};
 
 static char module_code[] = {
 	".version 3.2\n"
@@ -593,7 +591,10 @@ static char parameters_code[] = {
 #endif /* OMR_ENV_DATA64 */
 };
 
-#define PTX_INIT(code) { sizeof(code), code }
+#define PTX_INIT(code)                                                                                                 \
+	{                                                                                                                  \
+		sizeof(code), code                                                                                             \
+	}
 
 const CudaTestArray<char> CudaDeviceTest::ptxFragment1 = PTX_INIT(fragment1_code);
 const CudaTestArray<char> CudaDeviceTest::ptxFragment2 = PTX_INIT(fragment2_code);

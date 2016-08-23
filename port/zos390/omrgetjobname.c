@@ -47,7 +47,7 @@ omrget_jobname(struct OMRPortLibrary *portLibrary, char *jobname, uintptr_t leng
 
 	if (tmp_jobname) {
 		memset(tmp_jobname, '\0', J9_MAX_JOBNAME);
-		_JOBNAME(tmp_jobname);  /* requires <31bit address */
+		_JOBNAME(tmp_jobname); /* requires <31bit address */
 		ascname = e2a_func(tmp_jobname, strlen(tmp_jobname));
 
 		if (ascname) {
@@ -64,5 +64,3 @@ omrget_jobname(struct OMRPortLibrary *portLibrary, char *jobname, uintptr_t leng
 		}
 	}
 }
-
-

@@ -31,7 +31,6 @@ class DATMerge
 private:
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
@@ -43,6 +42,7 @@ private:
 	 * @return RC_OK on success.
 	 */
 	RCType merge(J9TDFOptions *options, const char *fromFileName);
+
 protected:
 public:
 	/**

@@ -39,16 +39,16 @@ class MM_WorkPackets;
  */
 class MM_WorkStack : public MM_BaseNonVirtual
 {
-/* data members */
+	/* data members */
 private:
 	MM_WorkPackets *_workPackets;
 	MM_Packet *_inputPacket;
 	MM_Packet *_outputPacket;
 	MM_Packet *_deferredPacket;
-	
-	uintptr_t 		_pushCount;
 
-/* function members */
+	uintptr_t _pushCount;
+
+	/* function members */
 private:
 	/**
 	 * Push an element to work stack in case if it can be done for current packet (full or does not exist)
@@ -100,18 +100,27 @@ public:
 
 	void pushDefer(MM_EnvironmentBase *env, void *element);
 	void *peek(MM_EnvironmentBase *env);
-	
+
 	/* Following 2 functions are intended to allow a caller to count how
 	 * many slots have been pushed to a thread's workstack between 2 points 
 	 * in time.
-	 */ 
-	MMINLINE void clearPushCount()	{ _pushCount = 0; };
-	MMINLINE uintptr_t getPushCount()	{ return _pushCount; };	
+	 */
+	MMINLINE void
+	clearPushCount()
+	{
+		_pushCount = 0;
+	};
+	MMINLINE uintptr_t
+	getPushCount()
+	{
+		return _pushCount;
+	};
 
 	/**
 	 * Return back true if input packets list is not empty
 	 */
-	MMINLINE bool inputPacketAvailable()
+	MMINLINE bool
+	inputPacketAvailable()
 	{
 		return (NULL != _inputPacket);
 	}
@@ -119,7 +128,8 @@ public:
 	/**
 	 * Return back true if output packets list is not empty
 	 */
-	MMINLINE bool outputPacketAvailable()
+	MMINLINE bool
+	outputPacketAvailable()
 	{
 		return (NULL != _outputPacket);
 	}
@@ -127,7 +137,8 @@ public:
 	/**
 	 * Return back true if deferred packets list is not empty
 	 */
-	MMINLINE bool deferredPacketAvailable()
+	MMINLINE bool
+	deferredPacketAvailable()
 	{
 		return (NULL != _deferredPacket);
 	}
@@ -137,9 +148,10 @@ public:
 	 * @param env[in] The thread which owns the work stack
 	 * @param element[in] The element to push
 	 */
-	MMINLINE void push(MM_EnvironmentBase *env, void *element)
+	MMINLINE void
+	push(MM_EnvironmentBase *env, void *element)
 	{
-		if(_outputPacket && (_outputPacket->push(env, element))) {
+		if (_outputPacket && (_outputPacket->push(env, element))) {
 			_pushCount++;
 		} else {
 			pushFailed(env, element);
@@ -152,9 +164,10 @@ public:
 	 * @param element1[in] The first element to push
 	 * @param element2[in] The second element to push
 	 */
-	MMINLINE void push(MM_EnvironmentBase *env, void *element1, void *element2)
+	MMINLINE void
+	push(MM_EnvironmentBase *env, void *element1, void *element2)
 	{
-		if(_outputPacket && (_outputPacket->push(env, element1, element2))) {
+		if (_outputPacket && (_outputPacket->push(env, element1, element2))) {
 			_pushCount += 2;
 		} else {
 			pushFailed(env, element1, element2);
@@ -172,11 +185,12 @@ public:
 	 * @return Object reference or NULL all packets procesed.
 	 *
 	 */
-	MMINLINE void *pop(MM_EnvironmentBase *env)
+	MMINLINE void *
+	pop(MM_EnvironmentBase *env)
 	{
 		void *result;
 
-		if((NULL != _inputPacket) && (NULL != (result = _inputPacket->pop(env)))) {
+		if ((NULL != _inputPacket) && (NULL != (result = _inputPacket->pop(env)))) {
 			return result;
 		} else {
 			return popFailed(env);
@@ -194,11 +208,12 @@ public:
 	 * @return Object reference or NULL if all input packets empty.
 	 *
 	 */
-	MMINLINE void *popNoWait(MM_EnvironmentBase *env)
+	MMINLINE void *
+	popNoWait(MM_EnvironmentBase *env)
 	{
 		void *result;
 
-		if((NULL != _inputPacket) && (NULL != (result = _inputPacket->pop(env)))) {
+		if ((NULL != _inputPacket) && (NULL != (result = _inputPacket->pop(env)))) {
 			return result;
 		} else {
 			return popNoWaitFailed(env);
@@ -208,12 +223,8 @@ public:
 	/**
 	 * Create a WorkStack object.
 	 */
-	MM_WorkStack() :
-		MM_BaseNonVirtual(),
-		_workPackets(NULL),
-		_inputPacket(NULL),
-		_outputPacket(NULL),
-		_deferredPacket(NULL)
+	MM_WorkStack()
+		: MM_BaseNonVirtual(), _workPackets(NULL), _inputPacket(NULL), _outputPacket(NULL), _deferredPacket(NULL)
 	{
 		_typeId = __FUNCTION__;
 	};

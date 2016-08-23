@@ -26,15 +26,17 @@
 #if defined(OMR_GC_SEGREGATED_HEAP)
 
 MM_LockingFreeHeapRegionList *
-MM_LockingFreeHeapRegionList::newInstance(MM_EnvironmentBase *env, MM_HeapRegionList::RegionListKind regionListKind, bool singleRegionsOnly)
+MM_LockingFreeHeapRegionList::newInstance(MM_EnvironmentBase *env, MM_HeapRegionList::RegionListKind regionListKind,
+										  bool singleRegionsOnly)
 {
-	MM_LockingFreeHeapRegionList *fpl = (MM_LockingFreeHeapRegionList *)env->getForge()->allocate(sizeof(MM_LockingFreeHeapRegionList), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	MM_LockingFreeHeapRegionList *fpl = (MM_LockingFreeHeapRegionList *)env->getForge()->allocate(
+		sizeof(MM_LockingFreeHeapRegionList), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (fpl) {
 		new (fpl) MM_LockingFreeHeapRegionList(regionListKind, singleRegionsOnly);
 		if (!fpl->initialize(env)) {
 			fpl->kill(env);
 			return NULL;
-		}		
+		}
 	}
 	return fpl;
 }
@@ -54,7 +56,7 @@ MM_LockingFreeHeapRegionList::initialize(MM_EnvironmentBase *env)
 	}
 	return true;
 }
-	
+
 void
 MM_LockingFreeHeapRegionList::tearDown(MM_EnvironmentBase *env)
 {
@@ -70,7 +72,7 @@ MM_LockingFreeHeapRegionList::getTotalRegions()
 	uintptr_t count = 0;
 	lock();
 	for (MM_HeapRegionDescriptorSegregated *cur = _head; cur != NULL; cur = cur->getNext()) {
-		count += cur->getRange();		
+		count += cur->getRange();
 	}
 	unlock();
 	return count;
@@ -105,8 +107,9 @@ MM_LockingFreeHeapRegionList::showList(MM_EnvironmentBase *env)
 	unlock();
 }
 
-MM_HeapRegionDescriptorSegregated*
-MM_LockingFreeHeapRegionList::allocate(MM_EnvironmentBase *env, uintptr_t szClass, uintptr_t numRegions, uintptr_t maxExcess)
+MM_HeapRegionDescriptorSegregated *
+MM_LockingFreeHeapRegionList::allocate(MM_EnvironmentBase *env, uintptr_t szClass, uintptr_t numRegions,
+									   uintptr_t maxExcess)
 {
 	lock();
 	for (MM_HeapRegionDescriptorSegregated *cur = _head; cur != NULL; cur = cur->getNext()) {
@@ -126,7 +129,7 @@ MM_LockingFreeHeapRegionList::allocate(MM_EnvironmentBase *env, uintptr_t szClas
 #if defined(OMR_GC_ARRAYLETS)
 				} else if (szClass == OMR_SIZECLASSES_ARRAYLET) {
 					cur->setArraylet();
-#endif /* defined(OMR_GC_ARRAYLETS) */		
+#endif /* defined(OMR_GC_ARRAYLETS) */
 				} else {
 					cur->setSmall(szClass);
 				}

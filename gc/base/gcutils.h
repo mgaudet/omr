@@ -33,7 +33,7 @@
  */
 #ifdef __cplusplus
 extern "C" {
-#endif  /* __cplusplus */
+#endif /* __cplusplus */
 
 void qualifiedSize(uintptr_t *byteSize, const char **qualifier);
 
@@ -58,7 +58,6 @@ const char *getSystemGCReasonAsString(uint32_t gcCode);
 
 #ifdef __cplusplus
 } /* extern "C" { */
-#endif  /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* GCUTILS_H_ */
-

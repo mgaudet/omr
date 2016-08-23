@@ -24,13 +24,7 @@
 using std::string;
 using std::vector;
 
-Modifiers::Modifiers()
-	: _modifierFlags(NO_MOD),
-	  _offset(0),
-	  _pointerCount(0),
-	  _referenceCount(0)
-{
-}
+Modifiers::Modifiers() : _modifierFlags(NO_MOD), _offset(0), _pointerCount(0), _referenceCount(0) {}
 
 Modifiers::~Modifiers() {}
 
@@ -40,7 +34,7 @@ string
 Modifiers::getModifierNames()
 {
 	string modifierString = "";
-	for (int i = 1, index = 0; i < MODIFIER_FLAGS; i *= 2, index ++) {
+	for (int i = 1, index = 0; i < MODIFIER_FLAGS; i *= 2, index++) {
 		if (0 != (_modifierFlags & i)) {
 			modifierString += MODIFIER_NAMES[index] + " ";
 		}
@@ -117,7 +111,7 @@ Modifiers::getSize(size_t typeSize)
 }
 
 bool
-Modifiers::operator==(Modifiers const& type) const
+Modifiers::operator==(Modifiers const &type) const
 {
 	bool arrayLengthsEqual = true;
 	for (size_t i = 0; i < _arrayLengths.size(); i += 1) {
@@ -127,8 +121,6 @@ Modifiers::operator==(Modifiers const& type) const
 		}
 	}
 
-	return (_modifierFlags == type._modifierFlags)
-		&& (_referenceCount == type._referenceCount)
-		&& (_pointerCount == type._pointerCount)
-		&& arrayLengthsEqual;
+	return (_modifierFlags == type._modifierFlags) && (_referenceCount == type._referenceCount)
+		   && (_pointerCount == type._pointerCount) && arrayLengthsEqual;
 }

@@ -20,8 +20,7 @@
 
 #include "config.hpp"
 
-ClassType::ClassType(SymbolType symbolType, size_t size, unsigned int lineNumber)
-	: NamespaceUDT(lineNumber)
+ClassType::ClassType(SymbolType symbolType, size_t size, unsigned int lineNumber) : NamespaceUDT(lineNumber)
 {
 	_symbolType = symbolType;
 	_sizeOf = size;
@@ -34,7 +33,7 @@ ClassType::~ClassType()
 		if (NULL == _enumMembers[i]) {
 			ERRMSG("Null member, cannot free");
 		} else {
-			delete(_enumMembers[i]);
+			delete (_enumMembers[i]);
 		}
 	}
 	_enumMembers.clear();
@@ -43,7 +42,7 @@ ClassType::~ClassType()
 		if (NULL == _fieldMembers[i]) {
 			ERRMSG("Null member, cannot free");
 		} else {
-			delete(_fieldMembers[i]);
+			delete (_fieldMembers[i]);
 		}
 	}
 	_fieldMembers.clear();
@@ -56,7 +55,7 @@ ClassType::isAnonymousType()
 }
 
 bool
-ClassType::equal(Type const& type, set<Type const*> *checked) const
+ClassType::equal(Type const &type, set<Type const *> *checked) const
 {
 	bool ret = false;
 	if (checked->find(this) != checked->end()) {
@@ -70,12 +69,10 @@ ClassType::equal(Type const& type, set<Type const*> *checked) const
 				for (size_t i = 0; i < _fieldMembers.size(); i += 1) {
 					Field *field = _fieldMembers[i];
 					Field *fieldCompare = classType->_fieldMembers[i];
-					if ((field->_fieldType != fieldCompare->_fieldType && !(*field->_fieldType == *fieldCompare->_fieldType))
-						|| (field->_offset != fieldCompare->_offset)
-						|| !(field->_modifiers == fieldCompare->_modifiers)
-						|| (field->_sizeOf != fieldCompare->_sizeOf)
-						|| (field->_bitField != fieldCompare->_bitField)
-					) {
+					if ((field->_fieldType != fieldCompare->_fieldType
+						 && !(*field->_fieldType == *fieldCompare->_fieldType))
+						|| (field->_offset != fieldCompare->_offset) || !(field->_modifiers == fieldCompare->_modifiers)
+						|| (field->_sizeOf != fieldCompare->_sizeOf) || (field->_bitField != fieldCompare->_bitField)) {
 						fieldsEqual = false;
 						break;
 					}
@@ -86,16 +83,13 @@ ClassType::equal(Type const& type, set<Type const*> *checked) const
 			if (enumMembersEqual) {
 				for (size_t i = 0; i < _enumMembers.size(); i += 1) {
 					if ((_enumMembers[i]->_name != classType->_enumMembers[i]->_name)
-						|| (_enumMembers[i]->_value != classType->_enumMembers[i]->_value)
-					) {
+						|| (_enumMembers[i]->_value != classType->_enumMembers[i]->_value)) {
 						enumMembersEqual = false;
 						break;
 					}
 				}
 			}
-			ret = (NamespaceUDT::equal(type, checked))
-				&& (fieldsEqual)
-				&& (enumMembersEqual);
+			ret = (NamespaceUDT::equal(type, checked)) && (fieldsEqual) && (enumMembersEqual);
 		}
 	}
 	return ret;

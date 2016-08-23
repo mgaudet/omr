@@ -41,11 +41,7 @@ public:
 
 	virtual uintptr_t reassignChunks(MM_EnvironmentBase *env);
 
-	MM_SweepHeapSectioningSegmented(MM_EnvironmentBase *env)
-		: MM_SweepHeapSectioning(env)
-	{
-		_typeId = __FUNCTION__;
-	}
+	MM_SweepHeapSectioningSegmented(MM_EnvironmentBase *env) : MM_SweepHeapSectioning(env) { _typeId = __FUNCTION__; }
 };
 
 #endif /* SWEEPSCHEMESECTIONINGSEGMENTED_HPP_ */

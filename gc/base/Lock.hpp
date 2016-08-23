@@ -45,11 +45,7 @@ class MM_Lock : public MM_BaseNonVirtual
 	omrthread_monitor_t _monitor;
 
 public:
-	MM_Lock() :
-		MM_BaseNonVirtual()
-	{
-		_typeId = __FUNCTION__;
-	};
+	MM_Lock() : MM_BaseNonVirtual() { _typeId = __FUNCTION__; };
 
 	/**
 	 * Initialize a new lock object.
@@ -58,9 +54,10 @@ public:
 	 * @param flags should be null, passed to thread library
 	 * @return 0 on success -1 on failure
 	 */
-	MMINLINE intptr_t initialize(uintptr_t flags, char *name) 
-	{ 
-		return omrthread_monitor_init_with_name(&_monitor, flags, name); 
+	MMINLINE intptr_t
+	initialize(uintptr_t flags, char *name)
+	{
+		return omrthread_monitor_init_with_name(&_monitor, flags, name);
 	};
 
 	/**
@@ -71,7 +68,8 @@ public:
 	 * 
 	 * @return 0 on success
 	 */
-	MMINLINE intptr_t enter()
+	MMINLINE intptr_t
+	enter()
 	{
 		return omrthread_monitor_enter(_monitor);
 	};
@@ -83,7 +81,8 @@ public:
 	 * 
 	 * @return 0 on success
 	 */
-	MMINLINE intptr_t exit()
+	MMINLINE intptr_t
+	exit()
 	{
 		return omrthread_monitor_exit(_monitor);
 	};
@@ -95,7 +94,8 @@ public:
 	 * 
 	 * @return 0 on success
 	 */
-	MMINLINE intptr_t wait()
+	MMINLINE intptr_t
+	wait()
 	{
 		return omrthread_monitor_wait(_monitor);
 	};
@@ -109,7 +109,8 @@ public:
 	 * 
 	 * @return 0 once the thread has been signalled
 	 */
-	MMINLINE intptr_t notify()
+	MMINLINE intptr_t
+	notify()
 	{
 		return omrthread_monitor_notify(_monitor);
 	};
@@ -123,7 +124,8 @@ public:
 	 * 
 	 * @return 0 once the threads have been signalled
 	 */
-	MMINLINE intptr_t notifyAll()
+	MMINLINE intptr_t
+	notifyAll()
 	{
 		return omrthread_monitor_notify_all(_monitor);
 	};
@@ -137,7 +139,8 @@ public:
 	 * 
 	 * @return 0 on success -1 on failure
 	 */
-	MMINLINE intptr_t tearDown()
+	MMINLINE intptr_t
+	tearDown()
 	{
 		return omrthread_monitor_destroy(_monitor);
 	};

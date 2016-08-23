@@ -23,10 +23,7 @@
 #include "GCExtensionsBase.hpp"
 #include "VerboseWriterHook.hpp"
 
-
-
-MM_VerboseWriterHook::MM_VerboseWriterHook(MM_EnvironmentBase *env) :
-	MM_VerboseWriter(VERBOSE_WRITER_HOOK)
+MM_VerboseWriterHook::MM_VerboseWriterHook(MM_EnvironmentBase *env) : MM_VerboseWriter(VERBOSE_WRITER_HOOK)
 {
 	/* no implementation */
 }
@@ -39,11 +36,12 @@ MM_VerboseWriterHook *
 MM_VerboseWriterHook::newInstance(MM_EnvironmentBase *env)
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
-	
-	MM_VerboseWriterHook *agent = (MM_VerboseWriterHook *)extensions->getForge()->allocate(sizeof(MM_VerboseWriterHook), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
+
+	MM_VerboseWriterHook *agent = (MM_VerboseWriterHook *)extensions->getForge()->allocate(
+		sizeof(MM_VerboseWriterHook), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
 	if (agent) {
-		new(agent) MM_VerboseWriterHook(env);
-		if(!agent->initialize(env)){
+		new (agent) MM_VerboseWriterHook(env);
+		if (!agent->initialize(env)) {
 			agent->kill(env);
 			agent = NULL;
 		}
@@ -73,21 +71,16 @@ MM_VerboseWriterHook::endOfCycle(MM_EnvironmentBase *env)
 void
 MM_VerboseWriterHook::closeStream(MM_EnvironmentBase *env)
 {
-	/* Should this force an event with "</verbosegc>"? */ 
+	/* Should this force an event with "</verbosegc>"? */
 }
 
 void
-MM_VerboseWriterHook::outputString(MM_EnvironmentBase *env, const char* string)
+MM_VerboseWriterHook::outputString(MM_EnvironmentBase *env, const char *string)
 {
-	OMR_VMThread* vmThread = env->getOmrVMThread();
+	OMR_VMThread *vmThread = env->getOmrVMThread();
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
 	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
-	
-	/* Call the hook */
-	TRIGGER_J9HOOK_MM_OMR_VERBOSE_GC_OUTPUT(
-		extensions->omrHookInterface,
-		vmThread,
-		omrtime_hires_clock(),
-		string);
-}
 
+	/* Call the hook */
+	TRIGGER_J9HOOK_MM_OMR_VERBOSE_GC_OUTPUT(extensions->omrHookInterface, vmThread, omrtime_hires_clock(), string);
+}

@@ -30,11 +30,12 @@ MM_SegregatedMarkingScheme *
 MM_SegregatedMarkingScheme::newInstance(MM_EnvironmentBase *env)
 {
 	MM_SegregatedMarkingScheme *instance;
-	
-	instance = (MM_SegregatedMarkingScheme *)env->getForge()->allocate(sizeof(MM_SegregatedMarkingScheme), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+
+	instance = (MM_SegregatedMarkingScheme *)env->getForge()->allocate(
+		sizeof(MM_SegregatedMarkingScheme), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (instance) {
-		new(instance) MM_SegregatedMarkingScheme(env);
-		if (!instance->initialize(env)) { 
+		new (instance) MM_SegregatedMarkingScheme(env);
+		if (!instance->initialize(env)) {
 			instance->kill(env);
 			instance = NULL;
 		}
@@ -49,7 +50,7 @@ MM_SegregatedMarkingScheme::newInstance(MM_EnvironmentBase *env)
 void
 MM_SegregatedMarkingScheme::kill(MM_EnvironmentBase *env)
 {
-	tearDown(env); 
+	tearDown(env);
 	env->getForge()->free(this);
 }
 

@@ -18,7 +18,6 @@
 
 #include "spacesaving.h"
 
-
 OMRSpaceSaving *
 spaceSavingNew(OMRPortLibrary *portLibrary, uint32_t size)
 {

@@ -48,9 +48,7 @@
  * only once with each client-defined status value. The thread that receives the call
  * can check the concurrentStatus value to select and execute the appropriate unit of work.
  */
-enum {
-	CONCURRENT_ROOT_TRACING1 = ((uintptr_t)((uintptr_t)CONCURRENT_ROOT_TRACING + 1))
-};
+enum { CONCURRENT_ROOT_TRACING1 = ((uintptr_t)((uintptr_t)CONCURRENT_ROOT_TRACING + 1)) };
 
 /**
  * Initialization
@@ -62,9 +60,10 @@ MM_CollectorLanguageInterfaceImpl::newInstance(MM_EnvironmentBase *env)
 	OMR_VM *omrVM = env->getOmrVM();
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(omrVM);
 
-	cli = (MM_CollectorLanguageInterfaceImpl *)extensions->getForge()->allocate(sizeof(MM_CollectorLanguageInterfaceImpl), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	cli = (MM_CollectorLanguageInterfaceImpl *)extensions->getForge()->allocate(
+		sizeof(MM_CollectorLanguageInterfaceImpl), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (NULL != cli) {
-		new(cli) MM_CollectorLanguageInterfaceImpl(omrVM);
+		new (cli) MM_CollectorLanguageInterfaceImpl(omrVM);
 		if (!cli->initialize(omrVM)) {
 			cli->kill(env);
 			cli = NULL;
@@ -85,7 +84,6 @@ MM_CollectorLanguageInterfaceImpl::kill(MM_EnvironmentBase *env)
 void
 MM_CollectorLanguageInterfaceImpl::tearDown(OMR_VM *omrVM)
 {
-
 }
 
 bool
@@ -152,15 +150,17 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_masterCleanupAfterGC(MM_Environ
 }
 
 uintptr_t
-MM_CollectorLanguageInterfaceImpl::markingScheme_scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MarkingSchemeScanReason reason)
+MM_CollectorLanguageInterfaceImpl::markingScheme_scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr,
+															MarkingSchemeScanReason reason)
 {
-	/* This will likely get moved back into MarkingScheme and use an object scanner to walk the slots of an Object */
+/* This will likely get moved back into MarkingScheme and use an object scanner to walk the slots of an Object */
 #error implement an object scanner
 }
 
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 uintptr_t
-MM_CollectorLanguageInterfaceImpl::markingScheme_scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MarkingSchemeScanReason reason, uintptr_t sizeToDo)
+MM_CollectorLanguageInterfaceImpl::markingScheme_scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr,
+																	MarkingSchemeScanReason reason, uintptr_t sizeToDo)
 {
 #error implement an object scanner which scans up to sizeToDo bytes
 }
@@ -192,7 +192,7 @@ MM_CollectorLanguageInterfaceImpl::scavenger_workerSetupForGC_clearEnvironmentLa
 }
 
 void
-MM_CollectorLanguageInterfaceImpl::scavenger_reportScavengeEnd(MM_EnvironmentBase * envBase, bool scavengeSuccessful)
+MM_CollectorLanguageInterfaceImpl::scavenger_reportScavengeEnd(MM_EnvironmentBase *envBase, bool scavengeSuccessful)
 {
 	/* Do nothing for now */
 }
@@ -216,13 +216,15 @@ MM_CollectorLanguageInterfaceImpl::scavenger_masterThreadGarbageCollect_scavenge
 }
 
 bool
-MM_CollectorLanguageInterfaceImpl::scavenger_internalGarbageCollect_shouldPercolateGarbageCollect(MM_EnvironmentBase *envBase, PercolateReason *reason, uint32_t *gcCode)
+MM_CollectorLanguageInterfaceImpl::scavenger_internalGarbageCollect_shouldPercolateGarbageCollect(
+	MM_EnvironmentBase *envBase, PercolateReason *reason, uint32_t *gcCode)
 {
 #error Return true if scavenge cycle should be forgone and GC cycle percolated up to another collector
 }
 
 GC_ObjectScanner *
-MM_CollectorLanguageInterfaceImpl::scavenger_getObjectScanner(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr, void *allocSpace, uintptr_t flags)
+MM_CollectorLanguageInterfaceImpl::scavenger_getObjectScanner(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr,
+															  void *allocSpace, uintptr_t flags)
 {
 #error Implement a GC_ObjectScanner subclass for each distinct kind of objects (eg scanner for scalar objects and scanner for indexable objects)
 }
@@ -234,7 +236,8 @@ MM_CollectorLanguageInterfaceImpl::scavenger_flushReferenceObjects(MM_Environmen
 }
 
 bool
-MM_CollectorLanguageInterfaceImpl::scavenger_hasIndirectReferentsInNewSpace(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr)
+MM_CollectorLanguageInterfaceImpl::scavenger_hasIndirectReferentsInNewSpace(MM_EnvironmentStandard *env,
+																			omrobjectptr_t objectPtr)
 {
 	/* This method must be implemented and return true an object may hold any object references that are live
 	 * but not reachable by traversing the reference graph from the root set or remembered set. Otherwise this
@@ -244,7 +247,8 @@ MM_CollectorLanguageInterfaceImpl::scavenger_hasIndirectReferentsInNewSpace(MM_E
 }
 
 bool
-MM_CollectorLanguageInterfaceImpl::scavenger_scavengeIndirectObjectSlots(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr)
+MM_CollectorLanguageInterfaceImpl::scavenger_scavengeIndirectObjectSlots(MM_EnvironmentStandard *env,
+																		 omrobjectptr_t objectPtr)
 {
 	/* This method must be implemented if an object may hold any object references that are live but not reachable
 	 * by traversing the reference graph from the root set or remembered set. In that case, this method should
@@ -255,7 +259,8 @@ MM_CollectorLanguageInterfaceImpl::scavenger_scavengeIndirectObjectSlots(MM_Envi
 }
 
 void
-MM_CollectorLanguageInterfaceImpl::scavenger_backOutIndirectObjectSlots(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr)
+MM_CollectorLanguageInterfaceImpl::scavenger_backOutIndirectObjectSlots(MM_EnvironmentStandard *env,
+																		omrobjectptr_t objectPtr)
 {
 	/* This method must be implemented if an object may hold any object references that are live but not reachable
 	 * by traversing the reference graph from the root set or remembered set. In that case, this method should
@@ -279,7 +284,8 @@ MM_CollectorLanguageInterfaceImpl::scavenger_backOutIndirectObjects(MM_Environme
 }
 
 void
-MM_CollectorLanguageInterfaceImpl::scavenger_reverseForwardedObject(MM_EnvironmentBase *env, MM_ForwardedHeader *forwardedHeader)
+MM_CollectorLanguageInterfaceImpl::scavenger_reverseForwardedObject(MM_EnvironmentBase *env,
+																	MM_ForwardedHeader *forwardedHeader)
 {
 	/* This method must restore the object header slot (and overlapped slot, if header is compressed)
 	 * in the original object and install a reverse forwarded object in the forwarding location. 
@@ -289,9 +295,11 @@ MM_CollectorLanguageInterfaceImpl::scavenger_reverseForwardedObject(MM_Environme
 	 */
 }
 
-#if defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER)
+#if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 void
-MM_CollectorLanguageInterfaceImpl::scavenger_fixupDestroyedSlot(MM_EnvironmentBase *env, MM_ForwardedHeader *forwardedHeader, MM_MemorySubSpaceSemiSpace *subSpaceNew)
+MM_CollectorLanguageInterfaceImpl::scavenger_fixupDestroyedSlot(MM_EnvironmentBase *env,
+																MM_ForwardedHeader *forwardedHeader,
+																MM_MemorySubSpaceSemiSpace *subSpaceNew)
 {
 	/* This method must be implemented if (and only if) the object header is stored in a compressed slot. in that
 	 * case the other half of the full (omrobjectptr_t sized) slot may hold a compressed object reference that
@@ -329,7 +337,7 @@ MM_CollectorLanguageInterfaceImpl::compactScheme_languageMasterSetupForGC(MM_Env
 #endif /* OMR_GC_MODRON_COMPACTION */
 
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
-MM_ConcurrentSafepointCallback*
+MM_ConcurrentSafepointCallback *
 MM_CollectorLanguageInterfaceImpl::concurrentGC_createSafepointCallback(MM_EnvironmentBase *env)
 {
 	MM_EnvironmentStandard *envStd = MM_EnvironmentStandard::getEnvironment(env);
@@ -355,7 +363,8 @@ MM_CollectorLanguageInterfaceImpl::concurrentGC_getNextTracingMode(uintptr_t exe
 }
 
 uintptr_t
-MM_CollectorLanguageInterfaceImpl::concurrentGC_collectRoots(MM_EnvironmentStandard *env, uintptr_t concurrentStatus, bool *collectedRoots, bool *paidTax)
+MM_CollectorLanguageInterfaceImpl::concurrentGC_collectRoots(MM_EnvironmentStandard *env, uintptr_t concurrentStatus,
+															 bool *collectedRoots, bool *paidTax)
 {
 	uintptr_t bytesScanned = 0;
 	*collectedRoots = true;

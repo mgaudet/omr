@@ -47,7 +47,8 @@ publishTraceBuffer(OMR_TraceThread *currentThr, OMR_TraceBuffer *buf)
 
 		omrthread_monitor_t const subscribersLock = OMR_TRACEGLOBAL(subscribersLock);
 		omrthread_monitor_enter(subscribersLock);
-		for (UtSubscription *subscription = (UtSubscription *)OMR_TRACEGLOBAL(subscribers); subscription; subscription = subscription->next) {
+		for (UtSubscription *subscription = (UtSubscription *)OMR_TRACEGLOBAL(subscribers); subscription;
+			 subscription = subscription->next) {
 			subscription->dataLength = OMR_TRACEGLOBAL(bufferSize);
 			subscription->data = &(buf->record);
 

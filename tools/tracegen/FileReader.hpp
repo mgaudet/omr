@@ -29,9 +29,9 @@ class FileReader
 	 * Data members
 	 */
 private:
-	FILE *_fd; /* current TDF file file descriptor */
+	FILE *_fd;	 /* current TDF file file descriptor */
 	char *_buffer; /* Current line */
-	int _strLen; /* Length of current line */
+	int _strLen;   /* Length of current line */
 protected:
 public:
 	const char *_fileName;
@@ -49,13 +49,10 @@ private:
 	 * @return Line size, RC_FAILED on failure or EOF
 	 */
 	RCType readline(FILE *fd, char *buf, unsigned int buffSize, int *byteRead);
+
 protected:
 public:
-	FileReader()
-		: _fd(NULL)
-		, _buffer(NULL)
-		, _strLen(-1) {
-	}
+	FileReader() : _fd(NULL), _buffer(NULL), _strLen(-1) {}
 
 	/**
 	 * Initialize file reader

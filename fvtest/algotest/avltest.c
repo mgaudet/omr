@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -24,10 +23,9 @@
 #include "omrport.h"
 #include "avl_api.h"
 
-
 /* we need isspace on ce platforms */
 #if !defined(isspace)
-#define isspace(x) ( ((x)==' ')||((x)=='\t')||((x)=='\r')||((x)=='\n') )
+#define isspace(x) (((x) == ' ') || ((x) == '\t') || ((x) == '\r') || ((x) == '\n'))
 #endif
 
 #define AVL_TEST_MAX_LINELEN 4096
@@ -40,15 +38,16 @@ typedef struct J9AVLTestNode {
 
 static BOOLEAN avlTestInsert(OMRPortLibrary *portlib, J9AVLTree *tree, uintptr_t val);
 static intptr_t testInsertionComparator(J9AVLTree *tree, J9AVLTestNode *insertNode, J9AVLTestNode *walkNode);
-static uintptr_t get_node_string(OMRPortLibrary *portlib, J9AVLTree *tree, J9AVLTestNode *walk, char *buffer, uintptr_t bufSize);
+static uintptr_t get_node_string(OMRPortLibrary *portlib, J9AVLTree *tree, J9AVLTestNode *walk, char *buffer,
+								 uintptr_t bufSize);
 static void avlReset(J9AVLTree *tree);
 static uintptr_t get_datum_string(OMRPortLibrary *portlib, J9AVLTestNode *walk, char *buffer, uintptr_t bufSize);
 static void avl_get_string(OMRPortLibrary *portlib, J9AVLTree *tree, char *buffer, uintptr_t bufSize);
 static intptr_t testSearchComparator(J9AVLTree *tree, intptr_t search, J9AVLTestNode *walkNode);
 static void freeAVLTree(OMRPortLibrary *portlib, J9AVLTreeNode *currentNode);
 
-
-int32_t verifyAVLTree(OMRPortLibrary *portLib, char *testListFile, uintptr_t *passCount, uintptr_t *failCount)
+int32_t
+verifyAVLTree(OMRPortLibrary *portLib, char *testListFile, uintptr_t *passCount, uintptr_t *failCount)
 {
 	J9AVLTree tree;
 	char buf[AVL_TEST_MAX_LINELEN];
@@ -236,7 +235,6 @@ malformed_input:
 	return -1;
 }
 
-
 static uintptr_t
 get_datum_string(OMRPortLibrary *portlib, J9AVLTestNode *walk, char *buffer, uintptr_t bufSize)
 {
@@ -248,15 +246,17 @@ get_datum_string(OMRPortLibrary *portlib, J9AVLTestNode *walk, char *buffer, uin
 	return out;
 }
 
-
-static void avlReset(J9AVLTree *tree)
+static void
+avlReset(J9AVLTree *tree)
 {
 	memset(tree, 0, sizeof(J9AVLTree));
-	tree->insertionComparator = (intptr_t ( *)(struct J9AVLTree *, J9AVLTreeNode *, J9AVLTreeNode *))testInsertionComparator;
-	tree->searchComparator = (intptr_t ( *)(struct J9AVLTree *, uintptr_t, J9AVLTreeNode *))testSearchComparator;
+	tree->insertionComparator =
+		(intptr_t(*)(struct J9AVLTree *, J9AVLTreeNode *, J9AVLTreeNode *))testInsertionComparator;
+	tree->searchComparator = (intptr_t(*)(struct J9AVLTree *, uintptr_t, J9AVLTreeNode *))testSearchComparator;
 }
 
-static void freeAVLTree(OMRPortLibrary *portlib, J9AVLTreeNode *currentNode)
+static void
+freeAVLTree(OMRPortLibrary *portlib, J9AVLTreeNode *currentNode)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portlib);
 	if (currentNode != NULL) {
@@ -269,8 +269,8 @@ static void freeAVLTree(OMRPortLibrary *portlib, J9AVLTreeNode *currentNode)
 	}
 }
 
-
-static BOOLEAN avlTestInsert(OMRPortLibrary *portlib, J9AVLTree *tree, uintptr_t val)
+static BOOLEAN
+avlTestInsert(OMRPortLibrary *portlib, J9AVLTree *tree, uintptr_t val)
 {
 	J9AVLTestNode *node = NULL;
 	J9AVLTestNode *t1;
@@ -318,18 +318,20 @@ static BOOLEAN avlTestInsert(OMRPortLibrary *portlib, J9AVLTree *tree, uintptr_t
 	return TRUE;
 }
 
-
-static intptr_t testSearchComparator(J9AVLTree *tree, intptr_t search, J9AVLTestNode *walkNode)
+static intptr_t
+testSearchComparator(J9AVLTree *tree, intptr_t search, J9AVLTestNode *walkNode)
 {
 	return search - walkNode->datum;
 }
 
-static intptr_t testInsertionComparator(J9AVLTree *tree, J9AVLTestNode *insertNode, J9AVLTestNode *walkNode)
+static intptr_t
+testInsertionComparator(J9AVLTree *tree, J9AVLTestNode *insertNode, J9AVLTestNode *walkNode)
 {
 	return insertNode->datum - walkNode->datum;
 }
 
-static void avl_get_string(OMRPortLibrary *portlib, J9AVLTree *tree, char *buffer, uintptr_t bufSize)
+static void
+avl_get_string(OMRPortLibrary *portlib, J9AVLTree *tree, char *buffer, uintptr_t bufSize)
 {
 	uintptr_t len = get_node_string(portlib, tree, (J9AVLTestNode *)tree->rootNode, buffer, bufSize);
 	if (len >= bufSize) {
@@ -339,7 +341,8 @@ static void avl_get_string(OMRPortLibrary *portlib, J9AVLTree *tree, char *buffe
 	}
 }
 
-static uintptr_t get_node_string(OMRPortLibrary *portlib, J9AVLTree *tree, J9AVLTestNode *walk, char *buffer, uintptr_t bufSize)
+static uintptr_t
+get_node_string(OMRPortLibrary *portlib, J9AVLTree *tree, J9AVLTestNode *walk, char *buffer, uintptr_t bufSize)
 {
 	uintptr_t len;
 
@@ -363,16 +366,13 @@ static uintptr_t get_node_string(OMRPortLibrary *portlib, J9AVLTree *tree, J9AVL
 
 	len = 2;
 	len += get_datum_string(portlib, walk, &buffer[len], bufSize - len);
-	len += get_node_string(portlib, tree, (J9AVLTestNode *)AVL_SRP_GETNODE(walk->leftChild), &buffer[len], bufSize - len);
-	len += get_node_string(portlib, tree, (J9AVLTestNode *)AVL_SRP_GETNODE(walk->rightChild), &buffer[len], bufSize - len);
+	len +=
+		get_node_string(portlib, tree, (J9AVLTestNode *)AVL_SRP_GETNODE(walk->leftChild), &buffer[len], bufSize - len);
+	len +=
+		get_node_string(portlib, tree, (J9AVLTestNode *)AVL_SRP_GETNODE(walk->rightChild), &buffer[len], bufSize - len);
 
 	if ((bufSize - len) > 1) {
 		buffer[len++] = '}';
 	}
 	return len;
 }
-
-
-
-
-

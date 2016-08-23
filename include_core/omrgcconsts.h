@@ -33,9 +33,9 @@
 #define OMR_GC_POLICY_OPTAVGPAUSE 0x2
 #define OMR_GC_POLICY_OPTTHRUPUT 0x1
 
-#define OMR_GC_CYCLE_TYPE_DEFAULT     0
-#define OMR_GC_CYCLE_TYPE_GLOBAL      1
-#define OMR_GC_CYCLE_TYPE_SCAVENGE    2
+#define OMR_GC_CYCLE_TYPE_DEFAULT 0
+#define OMR_GC_CYCLE_TYPE_GLOBAL 1
+#define OMR_GC_CYCLE_TYPE_SCAVENGE 2
 
 #define OMR_GC_ALLOCATE_OBJECT_NON_INSTRUMENTABLE 0x0
 #define OMR_GC_ALLOCATE_OBJECT_INSTRUMENTABLE 0x1
@@ -59,13 +59,13 @@
  * J9_OBJECT_HEADER_SHAPE_MASK		/ OBJECT_HEADER_SHAPE_MASK
  * J9_OBJECT_HEADER_STACK_ALLOCATED	/ OBJECT_HEADER_STACK_ALLOCATED
  * */
-#define OBJECT_HEADER_AGE_MIN  1
-#define OBJECT_HEADER_AGE_MAX  14
+#define OBJECT_HEADER_AGE_MIN 1
+#define OBJECT_HEADER_AGE_MAX 14
 
 /**
  * #defines representing tags used in the Remembered Set
  */
-#define DEFERRED_RS_REMOVE_FLAG 			0x1
+#define DEFERRED_RS_REMOVE_FLAG 0x1
 
 #define J9_MU_WALK_DEBUGGER_REFS 0x1
 #define J9_MU_WALK_DEBUGGER_CLASS_REFS 0x2
@@ -91,9 +91,9 @@
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
 #endif /* OMR_ENV_DATA64 */
 
-#define MINIMUM_VM_SIZE ((uintptr_t) 1*1024*1024)
-#define MINIMUM_OLD_SPACE_SIZE ((uintptr_t) (MINIMUM_VM_SIZE/2))
-#define MINIMUM_NEW_SPACE_SIZE ((uintptr_t) (MINIMUM_VM_SIZE/4))
+#define MINIMUM_VM_SIZE ((uintptr_t)1 * 1024 * 1024)
+#define MINIMUM_OLD_SPACE_SIZE ((uintptr_t)(MINIMUM_VM_SIZE / 2))
+#define MINIMUM_NEW_SPACE_SIZE ((uintptr_t)(MINIMUM_VM_SIZE / 4))
 
 /**
  * Lock initialization and option structure.
@@ -163,14 +163,14 @@ struct ModronLnrlOptions {
 #define PACKET_ARRAY_SPLIT_SHIFT 2
 #define PACKET_INVALID_OBJECT (UDATA_MAX << PACKET_ARRAY_SPLIT_SHIFT)
 
-#define OLDFREE_DESPERATE_RATIO_DIVISOR			100
-#define OLDFREE_DESPERATE_RATIO_MULTIPLIER		4
-#define OLDFREE_INSUFFICIENT					((uintptr_t)(1024 * 128))
-#define MINIMUM_TLHSIZE_MULTIPLIER				2
-#define MINIMUM_CONTRACTION_RATIO_DIVISOR		100
-#define MINIMUM_CONTRACTION_RATIO_MULTIPLIER	10
+#define OLDFREE_DESPERATE_RATIO_DIVISOR 100
+#define OLDFREE_DESPERATE_RATIO_MULTIPLIER 4
+#define OLDFREE_INSUFFICIENT ((uintptr_t)(1024 * 128))
+#define MINIMUM_TLHSIZE_MULTIPLIER 2
+#define MINIMUM_CONTRACTION_RATIO_DIVISOR 100
+#define MINIMUM_CONTRACTION_RATIO_MULTIPLIER 10
 
-#define DESIRED_SUBAREA_SIZE		((uintptr_t)(4*1024*1024))
+#define DESIRED_SUBAREA_SIZE ((uintptr_t)(4 * 1024 * 1024))
 
 typedef enum {
 	COMPACT_NONE = 0,
@@ -181,13 +181,10 @@ typedef enum {
 	COMPACT_MEMORY_INSUFFICIENT = 6,
 	COMPACT_ALWAYS = 7,
 	COMPACT_CONTRACT = 11,
-	COMPACT_AGGRESSIVE= 12
+	COMPACT_AGGRESSIVE = 12
 } CompactReason;
 
-typedef enum {
-	COMPACT_PREVENTED_NONE = 0,
-	COMPACT_PREVENTED_CRITICAL_REGIONS
-} CompactPreventedReason;
+typedef enum { COMPACT_PREVENTED_NONE = 0, COMPACT_PREVENTED_CRITICAL_REGIONS } CompactPreventedReason;
 
 /**
  * @}
@@ -218,7 +215,7 @@ typedef enum {
  * @{
  */
 typedef enum {
-	NO_KICKOFF_REASON=1,
+	NO_KICKOFF_REASON = 1,
 	KICKOFF_THRESHOLD_REACHED,
 	NEXT_SCAVENGE_WILL_PERCOLATE,
 	LANGUAGE_DEFINED_REASON
@@ -230,7 +227,7 @@ typedef enum {
  * to explain why a kickoff was triggered.
  */
 typedef enum {
-	NO_LANGUAGE_KICKOFF_REASON=1,
+	NO_LANGUAGE_KICKOFF_REASON = 1,
 } ConcurrentKickoffLanguageReason;
 
 /**
@@ -239,7 +236,7 @@ typedef enum {
  * @{
  */
 typedef enum {
-	ABORT_COLLECTION_INSUFFICENT_PROGRESS=1,
+	ABORT_COLLECTION_INSUFFICENT_PROGRESS = 1,
 	ABORT_COLLECTION_REMEMBERSET_OVERFLOW,
 	ABORT_COLLECTION_SCAVENGE_REMEMBEREDSET_OVERFLOW,
 	ABORT_COLLECTION_PREPARE_HEAP_FOR_WALK
@@ -251,12 +248,11 @@ typedef enum {
  * @ingroup GC_Base_Core
  * @{
  */
- typedef enum {
-		CARD_CLEANING_REASON_NONE=0,
-		TRACING_COMPLETED,
-		CARD_CLEANING_THRESHOLD_REACHED
+typedef enum {
+	CARD_CLEANING_REASON_NONE = 0,
+	TRACING_COMPLETED,
+	CARD_CLEANING_THRESHOLD_REACHED
 } ConcurrentCardCleaningReason;
-
 
 #if defined(OMR_GC_REALTIME)
 /* Reasons we are doing some GC work */
@@ -289,13 +285,7 @@ typedef enum {
  * @}
  */
 
-typedef enum {
-	HEAP_NO_RESIZE,
-	HEAP_EXPAND,
-	HEAP_CONTRACT,
-	HEAP_LOA_EXPAND,
-	HEAP_LOA_CONTRACT
-} HeapResizeType;
+typedef enum { HEAP_NO_RESIZE, HEAP_EXPAND, HEAP_CONTRACT, HEAP_LOA_EXPAND, HEAP_LOA_CONTRACT } HeapResizeType;
 
 typedef enum {
 	NO_CONTRACT = 1,
@@ -327,11 +317,7 @@ typedef enum {
 	LOA_CONTRACT_LAST_RESIZE_REASON = LOA_CONTRACT_UNDERUTILIZED
 } LoaResizeReason;
 
-typedef enum {
-	FIXUP_NONE = 0,
-	FIXUP_CLASS_UNLOADING,
-	FIXUP_DEBUG_TOOLING
-} FixUpReason;
+typedef enum { FIXUP_NONE = 0, FIXUP_CLASS_UNLOADING, FIXUP_DEBUG_TOOLING } FixUpReason;
 
 typedef enum {
 	NOT_REQUIRED = 1,
@@ -415,19 +401,20 @@ typedef enum {
  * always request that the heap is allocated low in the address range. This leaves the space above
  * 2GB free for other mmap() allocations (e.g. pthread stacks). See CMVC 102861 */
 #if defined(S390) && defined(LINUX) && !defined(OMR_ENV_DATA64)
-#define PREFERRED_HEAP_BASE 0x10000000 /* Value chosen to copy Sovereign behaviour - allows heaps up to 750MB to fit below 1GB line */
+#define PREFERRED_HEAP_BASE                                                                                            \
+	0x10000000 /* Value chosen to copy Sovereign behaviour - allows heaps up to 750MB to fit below 1GB line */
 #else
 #define PREFERRED_HEAP_BASE 0x0
 #endif
 
 #if defined(OMR_GC_COMPRESSED_POINTERS)
-#define SUBALLOCATOR_INITIAL_SIZE (200*1024*1024)
-#define SUBALLOCATOR_COMMIT_SIZE (50*1024*1024)
+#define SUBALLOCATOR_INITIAL_SIZE (200 * 1024 * 1024)
+#define SUBALLOCATOR_COMMIT_SIZE (50 * 1024 * 1024)
 #if defined(AIXPPC)
 /* virtual memory is assigned in segment of 256M, so grab the entire segment */
-#define SUBALLOCATOR_ALIGNMENT (256*1024*1024)
+#define SUBALLOCATOR_ALIGNMENT (256 * 1024 * 1024)
 #else /* defined(AIXPPC) */
-#define SUBALLOCATOR_ALIGNMENT (8*1024*1024)
+#define SUBALLOCATOR_ALIGNMENT (8 * 1024 * 1024)
 #endif /* defined(AIXPPC) */
 #endif /* defined(OMR_GC_COMPRESSED_POINTERS) */
 

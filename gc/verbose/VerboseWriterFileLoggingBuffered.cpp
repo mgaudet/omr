@@ -25,9 +25,9 @@
 
 #include <string.h>
 
-MM_VerboseWriterFileLoggingBuffered::MM_VerboseWriterFileLoggingBuffered(MM_EnvironmentBase *env, MM_VerboseManager *manager)
-	:MM_VerboseWriterFileLogging(env, manager, VERBOSE_WRITER_FILE_LOGGING_BUFFERED)
-	,_logFileStream(NULL)
+MM_VerboseWriterFileLoggingBuffered::MM_VerboseWriterFileLoggingBuffered(MM_EnvironmentBase *env,
+																		 MM_VerboseManager *manager)
+	: MM_VerboseWriterFileLogging(env, manager, VERBOSE_WRITER_FILE_LOGGING_BUFFERED), _logFileStream(NULL)
 {
 	/* No implementation */
 }
@@ -37,14 +37,17 @@ MM_VerboseWriterFileLoggingBuffered::MM_VerboseWriterFileLoggingBuffered(MM_Envi
  * @return Pointer to the new MM_VerboseWriterFileLoggingBuffered.
  */
 MM_VerboseWriterFileLoggingBuffered *
-MM_VerboseWriterFileLoggingBuffered::newInstance(MM_EnvironmentBase *env, MM_VerboseManager *manager, char *filename, uintptr_t numFiles, uintptr_t numCycles)
+MM_VerboseWriterFileLoggingBuffered::newInstance(MM_EnvironmentBase *env, MM_VerboseManager *manager, char *filename,
+												 uintptr_t numFiles, uintptr_t numCycles)
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
-	
-	MM_VerboseWriterFileLoggingBuffered *agent = (MM_VerboseWriterFileLoggingBuffered *)extensions->getForge()->allocate(sizeof(MM_VerboseWriterFileLoggingBuffered), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
-	if(agent) {
-		new(agent) MM_VerboseWriterFileLoggingBuffered(env, manager);
-		if(!agent->initialize(env, filename, numFiles, numCycles)) {
+
+	MM_VerboseWriterFileLoggingBuffered *agent =
+		(MM_VerboseWriterFileLoggingBuffered *)extensions->getForge()->allocate(
+			sizeof(MM_VerboseWriterFileLoggingBuffered), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
+	if (agent) {
+		new (agent) MM_VerboseWriterFileLoggingBuffered(env, manager);
+		if (!agent->initialize(env, filename, numFiles, numCycles)) {
 			agent->kill(env);
 			agent = NULL;
 		}
@@ -57,7 +60,8 @@ MM_VerboseWriterFileLoggingBuffered::newInstance(MM_EnvironmentBase *env, MM_Ver
  * @return true on success, false otherwise
  */
 bool
-MM_VerboseWriterFileLoggingBuffered::initialize(MM_EnvironmentBase *env, const char *filename, uintptr_t numFiles, uintptr_t numCycles)
+MM_VerboseWriterFileLoggingBuffered::initialize(MM_EnvironmentBase *env, const char *filename, uintptr_t numFiles,
+												uintptr_t numCycles)
 {
 	return MM_VerboseWriterFileLogging::initialize(env, filename, numFiles, numCycles);
 }
@@ -80,22 +84,22 @@ bool
 MM_VerboseWriterFileLoggingBuffered::openFile(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	MM_GCExtensionsBase* extensions = env->getExtensions();
-	const char* version = omrgc_get_version(env->getOmrVM());
-	
+	MM_GCExtensionsBase *extensions = env->getExtensions();
+	const char *version = omrgc_get_version(env->getOmrVM());
+
 	char *filenameToOpen = expandFilename(env, _currentFile);
 	if (NULL == filenameToOpen) {
 		return false;
 	}
-	
+
 	_logFileStream = omrfilestream_open(filenameToOpen, EsOpenWrite | EsOpenCreate | EsOpenTruncate, 0666);
-	if(NULL == _logFileStream) {
+	if (NULL == _logFileStream) {
 		char *cursor = filenameToOpen;
 		/**
 		 * This may have failed due to directories in the path not being available.
 		 * Try to create these directories and attempt to open again before failing.
 		 */
-		while ( (cursor = strchr(++cursor, DIR_SEPARATOR)) != NULL ) {
+		while ((cursor = strchr(++cursor, DIR_SEPARATOR)) != NULL) {
 			*cursor = '\0';
 			omrfile_mkdir(filenameToOpen);
 			*cursor = DIR_SEPARATOR;
@@ -111,9 +115,9 @@ MM_VerboseWriterFileLoggingBuffered::openFile(MM_EnvironmentBase *env)
 	}
 
 	extensions->getForge()->free(filenameToOpen);
-	
+
 	omrfilestream_printf(_logFileStream, getHeader(env), version);
-	
+
 	return true;
 }
 
@@ -124,8 +128,8 @@ void
 MM_VerboseWriterFileLoggingBuffered::closeFile(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	
-	if(NULL != _logFileStream) {
+
+	if (NULL != _logFileStream) {
 		omrfilestream_write_text(_logFileStream, getFooter(env), strlen(getFooter(env)), J9STR_CODE_PLATFORM_RAW);
 		omrfilestream_write_text(_logFileStream, "\n", strlen("\n"), J9STR_CODE_PLATFORM_RAW);
 		omrfilestream_close(_logFileStream);
@@ -133,16 +137,16 @@ MM_VerboseWriterFileLoggingBuffered::closeFile(MM_EnvironmentBase *env)
 	}
 }
 void
-MM_VerboseWriterFileLoggingBuffered::outputString(MM_EnvironmentBase *env, const char* string)
+MM_VerboseWriterFileLoggingBuffered::outputString(MM_EnvironmentBase *env, const char *string)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 
-	if(NULL == _logFileStream) {
+	if (NULL == _logFileStream) {
 		/* we open the file at the end of the cycle so can't have a final empty file at the end of a run */
 		openFile(env);
 	}
 
-	if(NULL != _logFileStream){
+	if (NULL != _logFileStream) {
 		omrfilestream_write_text(_logFileStream, string, strlen(string), J9STR_CODE_PLATFORM_RAW);
 	} else {
 		omrfilestream_write_text(OMRPORT_STREAM_ERR, string, strlen(string), J9STR_CODE_PLATFORM_RAW);

@@ -49,7 +49,6 @@ omrthread_tls_alloc(omrthread_tls_key_t *handle)
 	return omrthread_tls_alloc_with_finalizer(handle, tls_null_finalizer);
 }
 
-
 /**
  * Allocate a thread local storage (TLS) key.
  *
@@ -88,8 +87,6 @@ omrthread_tls_alloc_with_finalizer(omrthread_tls_key_t *handle, omrthread_tls_fi
 	return index < J9THREAD_MAX_TLS_KEYS ? 0 : -1;
 }
 
-
-
 /**
  * Release a TLS key.
  *
@@ -126,7 +123,6 @@ omrthread_tls_free(omrthread_tls_key_t key)
 	return 0;
 }
 
-
 /**
  * Set a thread's TLS value.
  *
@@ -144,8 +140,6 @@ omrthread_tls_set(omrthread_t thread, omrthread_tls_key_t key, void *value)
 
 	return 0;
 }
-
-
 
 /**
  * Run finalizers on any non-NULL TLS values for the current thread

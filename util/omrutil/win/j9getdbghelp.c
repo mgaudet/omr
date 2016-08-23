@@ -68,8 +68,7 @@ j9getdbghelp_loadDLL(void)
 	printf("\nloadDbgHelpDLL returning %p\n", dbghelpDLL);
 #endif
 
-	return (uintptr_t) dbghelpDLL;
-
+	return (uintptr_t)dbghelpDLL;
 }
 
 /**
@@ -95,8 +94,7 @@ j9getdbghelp_getDLL(void)
 	printf("\ngetDbgHelpDLL returning %p\n", dbghelpDLL);
 #endif
 
-	return (uintptr_t) dbghelpDLL;
-
+	return (uintptr_t)dbghelpDLL;
 }
 
 /**
@@ -109,7 +107,7 @@ void
 j9getdbghelp_freeDLL(uintptr_t dbgHelpDLL)
 {
 	if (NULL != (HMODULE)dbgHelpDLL) {
-		FreeLibrary((HMODULE) dbgHelpDLL);
+		FreeLibrary((HMODULE)dbgHelpDLL);
 	}
 	return;
 }

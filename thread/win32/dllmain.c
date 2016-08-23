@@ -21,7 +21,6 @@
  * @ingroup Thread
  */
 
-
 #include <windows.h>
 #include <stdlib.h>
 #include "omrcfg.h"
@@ -46,7 +45,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
  * @return TRUE on success, FALSE on failure.
  */
 BOOL APIENTRY
-DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
 
 	switch (ul_reason_for_call) {

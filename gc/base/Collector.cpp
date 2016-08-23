@@ -40,7 +40,7 @@ class MM_MemorySpace;
  * @param expandSize number of bytes the subspace was expanded by.
  */
 void
-MM_Collector::collectorExpanded(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace, uintptr_t expandSize)
+MM_Collector::collectorExpanded(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, uintptr_t expandSize)
 {
 	_collectorExpandedSize += expandSize;
 }
@@ -53,7 +53,7 @@ MM_Collector::collectorExpanded(MM_EnvironmentBase* env, MM_MemorySubSpace* subS
  * @return true if the subspace is allowed to expand, false otherwise.
  */
 bool
-MM_Collector::canCollectorExpand(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace, uintptr_t expandSize)
+MM_Collector::canCollectorExpand(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, uintptr_t expandSize)
 {
 	return false;
 }
@@ -67,7 +67,7 @@ MM_Collector::canCollectorExpand(MM_EnvironmentBase* env, MM_MemorySubSpace* sub
  * @ingroup GC_Base_Core
  */
 uintptr_t
-MM_Collector::getCollectorExpandSize(MM_EnvironmentBase* env)
+MM_Collector::getCollectorExpandSize(MM_EnvironmentBase *env)
 {
 	return 0;
 }
@@ -82,7 +82,8 @@ MM_Collector::getCollectorExpandSize(MM_EnvironmentBase* env)
  * @return true if kickoff can be forced
  */
 bool
-MM_Collector::forceKickoff(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace, MM_AllocateDescription* allocDescription, uint32_t gcCode)
+MM_Collector::forceKickoff(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+						   MM_AllocateDescription *allocDescription, uint32_t gcCode)
 {
 	return false;
 }
@@ -92,7 +93,8 @@ MM_Collector::forceKickoff(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace,
  * The base implementation is to do nothing.
  */
 void
-MM_Collector::payAllocationTax(MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, MM_MemorySubSpace* baseSubSpace, MM_AllocateDescription* allocDescription)
+MM_Collector::payAllocationTax(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, MM_MemorySubSpace *baseSubSpace,
+							   MM_AllocateDescription *allocDescription)
 {
 	return;
 }
@@ -106,7 +108,7 @@ MM_Collector::payAllocationTax(MM_EnvironmentBase* env, MM_MemorySubSpace* subsp
  * @return True if the pool was replenished with a free entry that can satisfy the size, false otherwise.
  */
 bool
-MM_Collector::replenishPoolForAllocate(MM_EnvironmentBase* env, MM_MemoryPool* memoryPool, uintptr_t size)
+MM_Collector::replenishPoolForAllocate(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool, uintptr_t size)
 {
 	return false;
 }
@@ -119,9 +121,9 @@ MM_Collector::replenishPoolForAllocate(MM_EnvironmentBase* env, MM_MemoryPool* m
  * collect the stats they require
  */
 void
-MM_Collector::recordExcessiveStatsForGCStart(MM_EnvironmentBase* env)
+MM_Collector::recordExcessiveStatsForGCStart(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 
 	extensions->excessiveGCStats.gcCount += 1;
@@ -141,10 +143,10 @@ MM_Collector::recordExcessiveStatsForGCStart(MM_EnvironmentBase* env)
  * collect the stats they require
  */
 void
-MM_Collector::recordExcessiveStatsForGCEnd(MM_EnvironmentBase* env)
+MM_Collector::recordExcessiveStatsForGCEnd(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
-	MM_ExcessiveGCStats* stats = &extensions->excessiveGCStats;
+	MM_GCExtensionsBase *extensions = env->getExtensions();
+	MM_ExcessiveGCStats *stats = &extensions->excessiveGCStats;
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 
 	/* Record the end time of the GC */
@@ -159,7 +161,8 @@ MM_Collector::recordExcessiveStatsForGCEnd(MM_EnvironmentBase* env)
 	/* (protect from malicious clock jitters) */
 	if (stats->endGCTimeStamp > stats->startGCTimeStamp) {
 		/* Tally the time spent gc'ing (both local and global gcs) */
-		stats->totalGCTime += (uint64_t)omrtime_hires_delta(stats->startGCTimeStamp, stats->endGCTimeStamp, OMRPORT_TIME_DELTA_IN_MICROSECONDS);
+		stats->totalGCTime += (uint64_t)omrtime_hires_delta(stats->startGCTimeStamp, stats->endGCTimeStamp,
+															OMRPORT_TIME_DELTA_IN_MICROSECONDS);
 	}
 
 	if (stats->endGCTimeStamp > stats->lastEndGlobalGCTimeStamp) {
@@ -175,11 +178,14 @@ MM_Collector::recordExcessiveStatsForGCEnd(MM_EnvironmentBase* env)
 		 * a chance to free up a lot of memory, increasing the free % above the
 		 * threshold, and therefore not trigger an excessive GC.
 		 */
-		stats->newGCToUserTimeRatio = (float)((int64_t)stats->totalGCTime * 100.0 / (int64_t)omrtime_hires_delta(stats->lastEndGlobalGCTimeStamp, stats->endGCTimeStamp, OMRPORT_TIME_DELTA_IN_MICROSECONDS));
-		stats->avgGCToUserTimeRatio = MM_Math::weightedAverage(stats->avgGCToUserTimeRatio, stats->newGCToUserTimeRatio, extensions->excessiveGCnewRatioWeight);
+		stats->newGCToUserTimeRatio =
+			(float)((int64_t)stats->totalGCTime * 100.0
+					/ (int64_t)omrtime_hires_delta(stats->lastEndGlobalGCTimeStamp, stats->endGCTimeStamp,
+												   OMRPORT_TIME_DELTA_IN_MICROSECONDS));
+		stats->avgGCToUserTimeRatio = MM_Math::weightedAverage(stats->avgGCToUserTimeRatio, stats->newGCToUserTimeRatio,
+															   extensions->excessiveGCnewRatioWeight);
 	}
 }
-
 
 /**
  * Perform any collector setup activities.
@@ -188,9 +194,10 @@ MM_Collector::recordExcessiveStatsForGCEnd(MM_EnvironmentBase* env)
  * @param aggressive True if this is an aggressive collect, otherwise false
  */
 void
-MM_Collector::preCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace, MM_AllocateDescription* allocDescription, uint32_t gcCode)
+MM_Collector::preCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription,
+						 uint32_t gcCode)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	/* Record the master GC thread CPU time at the start to diff later */
 	_masterThreadCpuTimeStart = omrthread_get_self_cpu_time(env->getOmrVMThread()->_os_thread);
@@ -236,9 +243,9 @@ MM_Collector::preCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace, M
  * @param subSpace the memory subspace where the collection occurred
  */
 void
-MM_Collector::postCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace)
+MM_Collector::postCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	/* Calculate the master GC thread CPU time. Do this immediately
 	 * so the information will be available to cycle end hooks.
@@ -292,8 +299,11 @@ MM_Collector::postCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace)
  * which triggered the GC. If NULL, the GC is a system GC.
  *
  */
-void*
-MM_Collector::garbageCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* callingSubSpace, MM_AllocateDescription* allocateDescription, uint32_t gcCode, MM_ObjectAllocationInterface* objectAllocationInterface, MM_MemorySubSpace* baseSubSpace, MM_AllocationContext* context)
+void *
+MM_Collector::garbageCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *callingSubSpace,
+							 MM_AllocateDescription *allocateDescription, uint32_t gcCode,
+							 MM_ObjectAllocationInterface *objectAllocationInterface, MM_MemorySubSpace *baseSubSpace,
+							 MM_AllocationContext *context)
 {
 	Assert_MM_mustHaveExclusiveVMAccess(env->getOmrVMThread());
 
@@ -315,18 +325,20 @@ MM_Collector::garbageCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* calling
 	env->popVMstate(vmState);
 
 	/* now, see if we need to resume an allocation or replenishment attempt */
-	void* postCollectAllocationResult = NULL;
+	void *postCollectAllocationResult = NULL;
 	if (NULL != allocateDescription) {
 		MM_MemorySubSpace::AllocationType allocationType = allocateDescription->getAllocationType();
 		allocateDescription->restoreObjects(env);
 		if (NULL != context) {
 			/* replenish this context */
-			postCollectAllocationResult = baseSubSpace->lockedReplenishAndAllocate(env, context, objectAllocationInterface, allocateDescription, allocationType);
+			postCollectAllocationResult = baseSubSpace->lockedReplenishAndAllocate(
+				env, context, objectAllocationInterface, allocateDescription, allocationType);
 		} else if (NULL != baseSubSpace) {
 			/* try allocating in this subspace. indicate that this thread just did a GC and is ok to try a parent,
 			 * if current subspace fails to satisfy */
 			allocateDescription->setClimb();
-			postCollectAllocationResult = callingSubSpace->allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, baseSubSpace);
+			postCollectAllocationResult = callingSubSpace->allocateGeneric(env, allocateDescription, allocationType,
+																		   objectAllocationInterface, baseSubSpace);
 		}
 		allocateDescription->saveObjects(env);
 	}
@@ -342,9 +354,9 @@ MM_Collector::garbageCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* calling
  * Sets excessive GC state
  */
 void
-MM_Collector::setThreadFailAllocFlag(MM_EnvironmentBase* env, bool flag)
+MM_Collector::setThreadFailAllocFlag(MM_EnvironmentBase *env, bool flag)
 {
-	OMR_VMThread* vmThread = NULL;
+	OMR_VMThread *vmThread = NULL;
 
 	GC_OMRVMThreadListIterator threadListIterator(env->getOmrVM());
 	while ((vmThread = threadListIterator.nextOMRVMThread()) != NULL) {
@@ -366,7 +378,7 @@ MM_Collector::isTimeForGlobalGCKickoff()
  * should be flushed/released at this stage.
  */
 void
-MM_Collector::abortCollection(MM_EnvironmentBase* env, CollectionAbortReason reason)
+MM_Collector::abortCollection(MM_EnvironmentBase *env, CollectionAbortReason reason)
 {
 	Assert_MM_unreachable();
 }
@@ -375,7 +387,7 @@ MM_Collector::abortCollection(MM_EnvironmentBase* env, CollectionAbortReason rea
  * Perform any collector initialization particular to the concurrent collector.
  */
 bool
-MM_Collector::collectorStartup(MM_GCExtensionsBase* extensions)
+MM_Collector::collectorStartup(MM_GCExtensionsBase *extensions)
 {
 	Assert_MM_unreachable();
 	return true;
@@ -386,7 +398,7 @@ MM_Collector::collectorStartup(MM_GCExtensionsBase* extensions)
  * Currently this just involves stopping the concurrent background helper threads.
  */
 void
-MM_Collector::collectorShutdown(MM_GCExtensionsBase* extensions)
+MM_Collector::collectorShutdown(MM_GCExtensionsBase *extensions)
 {
 	Assert_MM_unreachable();
 }

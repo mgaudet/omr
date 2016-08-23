@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Modron_Standard
@@ -54,16 +53,16 @@ public:
 
 	virtual uintptr_t expand(MM_EnvironmentBase *env, uintptr_t expandSize);
 	virtual uintptr_t expandNoCheck(MM_EnvironmentBase *env, uintptr_t expandSize);
-	virtual uintptr_t checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_t expandSizeDeltaAlignment, uintptr_t expandSize);
+	virtual uintptr_t checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_t expandSizeDeltaAlignment,
+												uintptr_t expandSize);
 
 	virtual uintptr_t contract(MM_EnvironmentBase *env, uintptr_t expandSize);
 	virtual bool canContract(MM_EnvironmentBase *env);
 
-	virtual uintptr_t getAvailableContractionSize(MM_EnvironmentBase *env, MM_MemorySubSpace *memorySubSpace, MM_AllocateDescription *allocDescription);
+	virtual uintptr_t getAvailableContractionSize(MM_EnvironmentBase *env, MM_MemorySubSpace *memorySubSpace,
+												  MM_AllocateDescription *allocDescription);
 
-	MM_PhysicalSubArenaVirtualMemoryFlat(MM_Heap *heap) :
-		MM_PhysicalSubArenaVirtualMemory(heap),
-		_region(NULL)
+	MM_PhysicalSubArenaVirtualMemoryFlat(MM_Heap *heap) : MM_PhysicalSubArenaVirtualMemory(heap), _region(NULL)
 	{
 		_typeId = __FUNCTION__;
 	};

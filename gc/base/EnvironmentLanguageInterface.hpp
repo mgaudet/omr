@@ -38,20 +38,16 @@ class MM_EnvironmentLanguageInterface : public MM_BaseVirtual
 {
 private:
 protected:
-	OMR_VMThread *_omrThread;  /**< Associated OMR_VMThread */
+	OMR_VMThread *_omrThread; /**< Associated OMR_VMThread */
 	OMR_VM *_omrVM;
 	OMRPortLibrary *_portLibrary;
-	MM_EnvironmentBase *_env;  /**< Associated Environment */
+	MM_EnvironmentBase *_env; /**< Associated Environment */
 public:
-
 private:
 protected:
 	MM_EnvironmentLanguageInterface(MM_EnvironmentBase *env)
-		: MM_BaseVirtual()
-		,_omrThread(env->getOmrVMThread())
-		,_omrVM(env->getOmrVM())
-		,_portLibrary(env->getPortLibrary())
-		,_env(env)
+		: MM_BaseVirtual(), _omrThread(env->getOmrVMThread()), _omrVM(env->getOmrVM()),
+		  _portLibrary(env->getPortLibrary()), _env(env)
 	{
 		_typeId = __FUNCTION__;
 	};
@@ -114,29 +110,51 @@ public:
 	/**
 	 * TODO fill in description
 	 */
-	virtual void exclusiveAccessForGCBeatenByOtherThread() {}
-	virtual void exclusiveAccessForGCObtainedAfterBeatenByOtherThread() {}
-	virtual void releaseCriticalHeapAccess(uintptr_t *data) {}
-	virtual void reacquireCriticalHeapAccess(uintptr_t data) {}
+	virtual void
+	exclusiveAccessForGCBeatenByOtherThread()
+	{
+	}
+	virtual void
+	exclusiveAccessForGCObtainedAfterBeatenByOtherThread()
+	{
+	}
+	virtual void
+	releaseCriticalHeapAccess(uintptr_t *data)
+	{
+	}
+	virtual void
+	reacquireCriticalHeapAccess(uintptr_t data)
+	{
+	}
 
 	/**
 	 * Give up exclusive access in preparation for transferring it to a collaborating thread (i.e. main-to-master or master-to-main)
 	 * @return the exclusive count of the current thread before relinquishing 
 	 */
-	virtual uintptr_t relinquishExclusiveVMAccess() { return 0; }
-	
+	virtual uintptr_t
+	relinquishExclusiveVMAccess()
+	{
+		return 0;
+	}
+
 	/**
 	 * Assume exclusive access from a collaborating thread i.e. main-to-master or master-to-main)
 	 * @param exclusiveCount the exclusive count to be restored 
 	 */
-	virtual void assumeExclusiveVMAccess(uintptr_t exclusiveCount) {}
+	virtual void
+	assumeExclusiveVMAccess(uintptr_t exclusiveCount)
+	{
+	}
 
 	/**
 	 * Checks to see if any thread has requested exclusive access
 	 * @return true if a thread is waiting on exclusive access, false if not.
 	 */
-	virtual bool isExclusiveAccessRequestWaiting() { return false; }
-
+	virtual bool
+	isExclusiveAccessRequestWaiting()
+	{
+		return false;
+	}
 
 	/**
 	 * Saves the given object in the calling VMThread's allocateObjectSavePrivate1 field so that it will be kept alive and can be updated if moved during a GC.
@@ -153,7 +171,7 @@ public:
 	 */
 	virtual void restoreObjects(omrobjectptr_t *objectPtrIndirect) = 0;
 
-#if defined (OMR_GC_THREAD_LOCAL_HEAP)
+#if defined(OMR_GC_THREAD_LOCAL_HEAP)
 	/**
 	 * Disable inline TLH allocates by hiding the real heap allocation address from
 	 * JIT/Interpreter in realHeapAlloc and setting heapALloc == HeapTop so TLH
@@ -176,7 +194,6 @@ public:
 
 	virtual void parallelMarkTask_setup(MM_EnvironmentBase *env) = 0;
 	virtual void parallelMarkTask_cleanup(MM_EnvironmentBase *env) = 0;
-
 };
 
 #endif /* ENVIRONMENTLANGUAGEINTERFACE_HPP_ */

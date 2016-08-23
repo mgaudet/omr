@@ -18,17 +18,12 @@
 
 #include "TypedefUDT.hpp"
 
-TypedefUDT::TypedefUDT(unsigned int lineNumber)
-	: UDT(TYPEDEF, 0, lineNumber), _type(NULL)
-{
-}
+TypedefUDT::TypedefUDT(unsigned int lineNumber) : UDT(TYPEDEF, 0, lineNumber), _type(NULL) {}
 
-TypedefUDT::~TypedefUDT()
-{
-}
+TypedefUDT::~TypedefUDT() {}
 
 bool
-TypedefUDT::equal(Type const& type, set<Type const*> *checked) const
+TypedefUDT::equal(Type const &type, set<Type const *> *checked) const
 {
 	bool ret = false;
 	if (checked->find(this) != checked->end()) {
@@ -37,9 +32,8 @@ TypedefUDT::equal(Type const& type, set<Type const*> *checked) const
 		checked->insert(this);
 		TypedefUDT const *td = dynamic_cast<TypedefUDT const *>(&type);
 		if (NULL != td) {
-			ret = (UDT::equal(type, checked))
-				&& (_type == td->_type || *_type == *td->_type)
-				&& (_modifiers == td->_modifiers);
+			ret = (UDT::equal(type, checked)) && (_type == td->_type || *_type == *td->_type)
+				  && (_modifiers == td->_modifiers);
 		}
 	}
 	return ret;
@@ -55,10 +49,7 @@ TypedefUDT::replaceType(Type *typeToReplace, Type *replaceWith)
 }
 
 DDR_RC
-TypedefUDT::scanChildInfo(Scanner *scanner, void *data)
-{
-	return scanner->dispatchScanChildInfo(this, data);
-}
+TypedefUDT::scanChildInfo(Scanner *scanner, void *data) { return scanner->dispatchScanChildInfo(this, data); }
 
 DDR_RC
 TypedefUDT::enumerateType(BlobGenerator *blobGenerator, bool addFieldsOnly)

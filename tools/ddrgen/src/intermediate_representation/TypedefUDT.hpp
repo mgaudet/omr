@@ -33,7 +33,7 @@ public:
 	TypedefUDT(unsigned int lineNumber = 0);
 	~TypedefUDT();
 
-	virtual bool equal(Type const& type, set<Type const*> *checked) const;
+	virtual bool equal(Type const &type, set<Type const *> *checked) const;
 	virtual void replaceType(Type *typeToReplace, Type *replaceWith);
 
 	virtual DDR_RC scanChildInfo(Scanner *scanner, void *data);

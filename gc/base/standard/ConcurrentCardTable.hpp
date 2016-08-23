@@ -19,7 +19,6 @@
 #if !defined(CONCURRENTCARDTABLE_HPP_)
 #define CONCURRENTCARDTABLE_HPP_
 
-
 #include "omrcfg.h"
 
 #include "CardTable.hpp"
@@ -33,22 +32,22 @@
  * @ingroup GC_Modron_Standard
  * @name CardTable platform dependent constants
  * @{
- */ 
-#if defined(OMR_ENV_DATA64)                                       
+ */
+#if defined(OMR_ENV_DATA64)
 #define TLH_MARKING_BIT_MASK ((uintptr_t)32767)
-#define TLH_MARKING_INDEX_SHIFT ((uintptr_t)15)		/* i.e divide by 32768 */
+#define TLH_MARKING_INDEX_SHIFT ((uintptr_t)15) /* i.e divide by 32768 */
 #define TLH_CARD_INDEX_SHIFT ((uintptr_t)6)
 #define TLH_CARD_BIT_MASK ((uintptr_t)63)
-#else /* !OMR_ENV_DATA64 */                                        
+#else /* !OMR_ENV_DATA64 */
 #define TLH_MARKING_BIT_MASK ((uintptr_t)16383)
-#define TLH_MARKING_INDEX_SHIFT ((uintptr_t)14)		/* i.e divide by 16384 */
+#define TLH_MARKING_INDEX_SHIFT ((uintptr_t)14) /* i.e divide by 16384 */
 #define TLH_CARD_INDEX_SHIFT ((uintptr_t)5)
 #define TLH_CARD_BIT_MASK ((uintptr_t)31)
-#endif /* !OMR_ENV_DATA64 */     
+#endif /* !OMR_ENV_DATA64 */
 
 #define TLH_MARKING_SET_ALL_BITS ((uintptr_t)(-1))
 #define TLH_MARKING_CLEAR_ALL_BITS ((uintptr_t)(0))
-                                   
+
 /**
  * @}
  */
@@ -61,9 +60,9 @@
 #define CONCURRENT_CARD_CLEAN_MASK (CARD_DIRTY)
 #define FINAL_CARD_CLEAN_MASK (CARD_DIRTY)
 
-#define SLOT_ALL_CLEAN (uintptr_t)CARD_CLEAN
+#define SLOT_ALL_CLEAN (uintptr_t) CARD_CLEAN
 #define EXCLUSIVE_VMACCESS_REQUESTED ((uintptr_t)-1)
- 
+
 /**
  * @}
  */
@@ -72,11 +71,11 @@
  * @ingroup GC_Modron_Standard
  * @name misc definitions
  * @{
- */ 
+ */
 #define BITS_IN_BYTE 8
 #define ALL_BITS_SET (uintptr_t)(-1)
 #define LOW_BIT_SET 0x1
-#define HIGH_BIT_SET ~(((uintptr_t)(-1))>>1)
+#define HIGH_BIT_SET ~(((uintptr_t)(-1)) >> 1)
 
 /**
  * @}
@@ -95,9 +94,9 @@
  * 
  * @ingroup GC_Modron_Standard
  */
- 
+
 typedef enum {
-	UNINITIALIZED=0,
+	UNINITIALIZED = 0,
 	PHASE1_PREPARING,
 	PHASE1_CLEANING,
 	PHASE1_COMPLETE,
@@ -113,22 +112,17 @@ typedef enum {
  * @todo Provide typedef documentation
  * @ingroup GC_Modron_Standard
  */
-typedef enum {
-	SET=1,
-	CLEAR=2
-} BitMapAction;	
-
+typedef enum { SET = 1, CLEAR = 2 } BitMapAction;
 
 class MM_EnvironmentStandard;
 class MM_ConcurrentGC;
 class MM_Dispatcher;
 class MM_MarkingScheme;
 
-
 typedef struct {
-	Card * baseCard;
-	Card * topCard;
-	Card * volatile nextCard;
+	Card *baseCard;
+	Card *topCard;
+	Card *volatile nextCard;
 	uintptr_t numCards;
 } CleaningRange;
 
@@ -138,144 +132,174 @@ typedef struct {
  * is first card in range and top card is card immediately AFTER the end of the range.
  * @ingroup GC_Modron_Standard
  */
-class MM_ConcurrentCardTable : public MM_CardTable 
+class MM_ConcurrentCardTable : public MM_CardTable
 {
 	/*
 	 * Data members
 	 */
 private:
 	MM_MemoryHandle _tlhMarkMapMemoryHandle;
-	
+
 	uintptr_t *_tlhMarkBits;
 	bool _cardTableReconfigured;
 	bool _cleanAllCards;
+
 protected:
 	OMR_VM *_omrVM;
 	MM_ConcurrentGC *_collector;
 	MM_GCExtensionsBase *_extensions;
-	MM_Dispatcher *_dispatcher; 
+	MM_Dispatcher *_dispatcher;
 	MM_MarkingScheme *_markingScheme;
 	MM_ConcurrentCardTableStats _cardTableStats;
-	volatile CardCleanPhase	_cardCleanPhase;
+	volatile CardCleanPhase _cardCleanPhase;
 	CardCleanPhase _lastCardCleanPhase;
 	CleaningRange *_cleaningRanges;
-	CleaningRange * volatile _currentCleaningRange;
+	CleaningRange *volatile _currentCleaningRange;
 	CleaningRange *_lastCleaningRange;
 	uintptr_t _maxCleaningRanges;
-	
+
 	Card _concurrentCardCleanMask;
 	Card _finalCardCleanMask;
-	
+
 	Card *_lastCard;
 	Card *_firstCardInPhase;
-	Card * volatile _lastCardInPhase;
+	Card *volatile _lastCardInPhase;
 	Card *_firstCardInPhase2;
+
 public:
-	
 	/*
 	 * Function members
 	 */
 private:
 	virtual void tearDown(MM_EnvironmentBase *env);
-	
-	bool allocateCardTableEntriesForHeapRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, bool clearNewCards);
-	bool freeCardTableEntriesForHeapRange(MM_EnvironmentStandard *env, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
-	bool allocateTLHMarkMapEntriesForHeapRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	bool freeTLHMarkMapEntriesForHeapRange(MM_EnvironmentStandard *env, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
-	
+
+	bool allocateCardTableEntriesForHeapRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size,
+											  void *lowAddress, void *highAddress, bool clearNewCards);
+	bool freeCardTableEntriesForHeapRange(MM_EnvironmentStandard *env, uintptr_t size, void *lowAddress,
+										  void *highAddress, void *lowValidAddress, void *highValidAddress);
+	bool allocateTLHMarkMapEntriesForHeapRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size,
+											   void *lowAddress, void *highAddress);
+	bool freeTLHMarkMapEntriesForHeapRange(MM_EnvironmentStandard *env, uintptr_t size, void *lowAddress,
+										   void *highAddress, void *lowValidAddress, void *highValidAddress);
+
 	void setTLHMarkBits(MM_EnvironmentStandard *env, uintptr_t slotIndex, uintptr_t slotBits);
 	void clearTLHMarkBits(MM_EnvironmentStandard *env, uintptr_t slotIndex, uintptr_t slotBits);
 	static uintptr_t calculateTLHMarkMapSize(MM_EnvironmentStandard *env, uintptr_t cardTableSize);
-	
+
 	void determineCleaningRanges(MM_EnvironmentStandard *env);
 	void resetCleaningRanges(MM_EnvironmentStandard *env);
 	bool isCardInActiveTLH(MM_EnvironmentStandard *env, Card *card);
-	
+
 	void reportCardCleanPass2Start(MM_EnvironmentStandard *env);
-		
-	MMINLINE uintptr_t getTLHMarkBitMask(uintptr_t index)
+
+	MMINLINE uintptr_t
+	getTLHMarkBitMask(uintptr_t index)
 	{
-#if defined(OMR_ENV_LITTLE_ENDIAN)		
+#if defined(OMR_ENV_LITTLE_ENDIAN)
 		return ((uintptr_t)LOW_BIT_SET << index);
 #else
 		return ((uintptr_t)HIGH_BIT_SET >> index);
 #endif
 	}
-	
-	MMINLINE uintptr_t getTLHMarkBitSetHead(uintptr_t index)
+
+	MMINLINE uintptr_t
+	getTLHMarkBitSetHead(uintptr_t index)
 	{
-#if defined(OMR_ENV_LITTLE_ENDIAN)		
+#if defined(OMR_ENV_LITTLE_ENDIAN)
 		return ((uintptr_t)ALL_BITS_SET << index);
 #else
 		return ((uintptr_t)ALL_BITS_SET >> index);
-#endif		
+#endif
 	}
 
-	MMINLINE uintptr_t getTLHMarkBitSetTail(uintptr_t index)
+	MMINLINE uintptr_t
+	getTLHMarkBitSetTail(uintptr_t index)
 	{
-#if defined(OMR_ENV_LITTLE_ENDIAN)		
+#if defined(OMR_ENV_LITTLE_ENDIAN)
 		return (~(((uintptr_t)ALL_BITS_SET << index) << 1));
 #else
 		return (~((uintptr_t)ALL_BITS_SET >> (index) >> 1));
-#endif		
+#endif
 	}
-	
-	void processTLHMarkBits(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, void *tlhBase, void *tlhTop, BitMapAction action);
-	
+
+	void processTLHMarkBits(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, void *tlhBase, void *tlhTop,
+							BitMapAction action);
+
 protected:
 	bool initialize(MM_EnvironmentBase *env, MM_Heap *heap);
-	
+
 	bool cleanSingleCard(MM_EnvironmentStandard *env, Card *card, uintptr_t bytesToClean, uintptr_t *totalBytesCleaned);
-	Card* getNextDirtyCard(MM_EnvironmentStandard *env, Card cardMask, bool concurrentCardClean);
-	
+	Card *getNextDirtyCard(MM_EnvironmentStandard *env, Card cardMask, bool concurrentCardClean);
+
 	bool cardHasMarkedObjects(MM_EnvironmentStandard *env, Card *card);
-	
-	virtual void prepareCardsForCleaning(MM_EnvironmentStandard *env); 
-	virtual bool getExclusiveCardTableAccess(MM_EnvironmentStandard *env, CardCleanPhase currentPhase, bool threadAtSafePoint);
+
+	virtual void prepareCardsForCleaning(MM_EnvironmentStandard *env);
+	virtual bool getExclusiveCardTableAccess(MM_EnvironmentStandard *env, CardCleanPhase currentPhase,
+											 bool threadAtSafePoint);
 	virtual void releaseExclusiveCardTableAccess(MM_EnvironmentStandard *env);
-	
-	MMINLINE virtual void concurrentCleanCard(Card *card) { *card = CARD_CLEAN; };
-	MMINLINE virtual void finalCleanCard(Card *card) { *card = CARD_CLEAN; };
-			
-	MMINLINE bool cardTableNeedsPreparing(CardCleanPhase currentPhase) 
-	{ 	
-		return ((currentPhase < _lastCardCleanPhase) && (currentPhase % 3 <  2 )) ? true : false;
-	}
-	
-	bool cardTableBeingPrepared(CardCleanPhase currentPhase) { return (currentPhase % 3 == 1 ? true:false); };
-	bool cardCleaningInProgress(CardCleanPhase currentPhase) { return (currentPhase % 3 == 2 ? true:false); };
-	
-	MMINLINE void initializeCardCleaningStatistics() 
-	{ 
-		_cardTableStats.initializeCardCleaningStatistics(); 
-	}
-	
-	MMINLINE void incConcurrentCleanedCards(uintptr_t numCards, CardCleanPhase currentPhase)
+
+	MMINLINE virtual void
+	concurrentCleanCard(Card *card)
 	{
-		switch(currentPhase) {
+		*card = CARD_CLEAN;
+	};
+	MMINLINE virtual void
+	finalCleanCard(Card *card)
+	{
+		*card = CARD_CLEAN;
+	};
+
+	MMINLINE bool
+	cardTableNeedsPreparing(CardCleanPhase currentPhase)
+	{
+		return ((currentPhase < _lastCardCleanPhase) && (currentPhase % 3 < 2)) ? true : false;
+	}
+
+	bool
+	cardTableBeingPrepared(CardCleanPhase currentPhase)
+	{
+		return (currentPhase % 3 == 1 ? true : false);
+	};
+	bool
+	cardCleaningInProgress(CardCleanPhase currentPhase)
+	{
+		return (currentPhase % 3 == 2 ? true : false);
+	};
+
+	MMINLINE void
+	initializeCardCleaningStatistics()
+	{
+		_cardTableStats.initializeCardCleaningStatistics();
+	}
+
+	MMINLINE void
+	incConcurrentCleanedCards(uintptr_t numCards, CardCleanPhase currentPhase)
+	{
+		switch (currentPhase) {
 		case PHASE1_CLEANING:
 			_cardTableStats.incConcurrentCleanedCardsPhase1(numCards);
 			break;
 		case PHASE2_CLEANING:
 			_cardTableStats.incConcurrentCleanedCardsPhase2(numCards);
-			break;	
+			break;
 		case PHASE3_CLEANING:
 			_cardTableStats.incConcurrentCleanedCardsPhase3(numCards);
-			break;	
-		default: 
+			break;
+		default:
 			assume0(0);
 			break;
-		}		
+		}
 	}
-	
-	MMINLINE void incFinalCleanedCards(uintptr_t numCards, bool phase2)
+
+	MMINLINE void
+	incFinalCleanedCards(uintptr_t numCards, bool phase2)
 	{
 		if (0 == numCards) {
 			return;
 		}
-		
-		if(!phase2) {
-			_cardTableStats.incFinalCleanedCardsPhase1(numCards);	
+
+		if (!phase2) {
+			_cardTableStats.incFinalCleanedCardsPhase1(numCards);
 		} else {
 			_cardTableStats.incFinalCleanedCardsPhase2(numCards);
 		}
@@ -290,8 +314,9 @@ public:
 	 * @param[in] collector The collector with which we interact
 	 * @return The new isntance (NULL on failure)
 	 */
-	static MM_ConcurrentCardTable	*newInstance(MM_EnvironmentBase *env, MM_Heap *heap, MM_MarkingScheme *markingScheme, MM_ConcurrentGC *collector);
-	
+	static MM_ConcurrentCardTable *newInstance(MM_EnvironmentBase *env, MM_Heap *heap, MM_MarkingScheme *markingScheme,
+											   MM_ConcurrentGC *collector);
+
 	/**
 	 * Called when a range of memory has been added to the heap.
 	 * @param[in] env The thread which initiated the expansion request (typically the master GC thread)
@@ -302,7 +327,8 @@ public:
 	 * @param[in] cleanNewCards True if the new cards included in this range should be cleared (true if the subspace is collectable)
 	 * @return true if expansion is successful
 	 */
-	bool heapAddRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, bool cleaNewCards);
+	bool heapAddRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+					  void *highAddress, bool cleaNewCards);
 	/**
 	 * Called when a range of memory has been removed from the heap.
 	 * @param[in] env The thread which initiated the contraction request (typically the master GC thread)
@@ -315,18 +341,23 @@ public:
 	 * @param[in] cleanNewCards True if the new cards included in this range should be cleared (true if the subspace is collectable)
 	 * @return true if contraction is successful
 	 */
-	bool heapRemoveRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
+	bool heapRemoveRange(MM_EnvironmentStandard *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+						 void *highAddress, void *lowValidAddress, void *highValidAddress);
 	/**
 	 * Called when the heap geometry has been reconfigured but no memory was added or removed from the heap (happens during tilt).
 	 * @param[in] env The thread which caused the heap geometry change (typically the master GC thread)
 	 * @note This implementation does nothing.
 	 */
 	void heapReconfigured(MM_EnvironmentStandard *env);
-	
+
 	/**
 	 * @return A pointer to the mutable card table stats structure
 	 */
-	MM_ConcurrentCardTableStats *getCardTableStats() {return &_cardTableStats; };
+	MM_ConcurrentCardTableStats *
+	getCardTableStats()
+	{
+		return &_cardTableStats;
+	};
 
 	/**
 	 * Determine how many bytes of card table correspond to the supplied heap range.
@@ -353,14 +384,14 @@ public:
 	 * @note Called only from MM_ConcurrentGC during concurrent work stack overflow
 	 */
 	void clearNonConcurrentCards(MM_EnvironmentStandard *env);
-	
+
 	/**
 	 * Prepare for next concurrent marking cycle (atomically sets internal state of the card table).
 	 * @param[in] env The initializing concurrent card cleaning
 	 * @note Called only from MM_ConcurrentGC
 	 */
 	void initializeCardCleaning(MM_EnvironmentStandard *env);
-	
+
 	/**
 	 * Start or continue the card cleaning process.
 	 *
@@ -375,7 +406,8 @@ public:
 	 * @param threadAtSafePoint Whether the calling thread is at a safe point or not
 	 * @return FALSE if a GC occurs during during card table preperation.
 	 */
-	bool cleanCards(MM_EnvironmentStandard *env, bool isMutator, uintptr_t sizeToDo, uintptr_t *sizeDone, bool threadAtSafePoint);
+	bool cleanCards(MM_EnvironmentStandard *env, bool isMutator, uintptr_t sizeToDo, uintptr_t *sizeDone,
+					bool threadAtSafePoint);
 	/**
 	 * Initialize for final card cleaning.
 	 *
@@ -416,7 +448,7 @@ public:
 	 * @return TRUE if reference is to an object within a dirty card; FALSE otherwise
 	 */
 	bool isObjectInDirtyCardNoCheck(MM_EnvironmentStandard *env, omrobjectptr_t object);
-	
+
 	/**
 	 * Is object in an uncleaned dirty card
 	 *
@@ -428,17 +460,25 @@ public:
 	 * @return TRUE if card has NOT already been cleaned; FALSE otherwise
 	 */
 	virtual bool isObjectInUncleanedDirtyCard(MM_EnvironmentStandard *env, omrobjectptr_t object);
-	
+
 	/**
 	 * @return TRUE if we are at least in PHASE1_CLEANING.
 	 * @note Only called internally
 	 */
-	bool isCardCleaningStarted(){ return (_cardCleanPhase >= PHASE1_CLEANING) ? true : false; };
+	bool
+	isCardCleaningStarted()
+	{
+		return (_cardCleanPhase >= PHASE1_CLEANING) ? true : false;
+	};
 	/**
 	 * @return TRUE if we are in the last card cleaning phase
 	 */
-	bool isCardCleaningComplete() { return (_lastCardCleanPhase == _cardCleanPhase) ;};
-	
+	bool
+	isCardCleaningComplete()
+	{
+		return (_lastCardCleanPhase == _cardCleanPhase);
+	};
+
 	/**
 	 * Is objec tin an active TLH
 	 *
@@ -449,50 +489,36 @@ public:
 	 * @note Only called from MM_ConcurrentGC and internally
 	 */
 	bool isObjectInActiveTLH(MM_EnvironmentStandard *env, omrobjectptr_t object);
-	
+
 	/**
 	 * Is TLH mark bits empty?
 	 * Check that all bits in the TLH mark bits map are OFF. All bits should be OFF
 	 *
 	 * @return TRUE if TLH mark bits all off; FALSE otherwise
 	 */
-	static void tlhCleared(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
+	static void tlhCleared(J9HookInterface **hook, uintptr_t eventNum, void *eventData, void *userData);
 	/**
 	 * Called when a new TLH has been allocated.
 	 * We use this broadcast event to trigger the update of  the TLH mark bits.
 	 * @see MM_ParallelGlobalGC::TLHRefreshed()
 	 */
-	static void tlhRefreshed(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
-		
+	static void tlhRefreshed(J9HookInterface **hook, uintptr_t eventNum, void *eventData, void *userData);
+
 #if defined(DEBUG)
 	bool isTLHMarkBitsEmpty(MM_EnvironmentStandard *env);
 	bool isCardTableEmpty(MM_EnvironmentStandard *env);
 #endif /* DEBUG */
-	
+
 	/**
 	 * Create a CardTable object.
 	 */
-	MM_ConcurrentCardTable(MM_EnvironmentBase *env, MM_MarkingScheme *markingScheme, MM_ConcurrentGC *collector):
-		MM_CardTable(),
-		_tlhMarkMapMemoryHandle(),
-		_tlhMarkBits(NULL),
-		_cardTableReconfigured(false),
-		_cleanAllCards(false),
-		_omrVM(env->getOmrVM()),
-		_collector(collector),
-		_extensions(MM_GCExtensionsBase::getExtensions(_omrVM)),
-		_dispatcher(_extensions->dispatcher),
-		_markingScheme(markingScheme),
-		_cardCleanPhase(UNINITIALIZED),
-		_lastCardCleanPhase(UNINITIALIZED),
-		_cleaningRanges(NULL),
-		_currentCleaningRange(NULL),
-		_lastCleaningRange(NULL),
-		_maxCleaningRanges(0),
-		_lastCard(NULL),
-		_firstCardInPhase(NULL),
-		_lastCardInPhase(NULL),
-		_firstCardInPhase2(NULL)
+	MM_ConcurrentCardTable(MM_EnvironmentBase *env, MM_MarkingScheme *markingScheme, MM_ConcurrentGC *collector)
+		: MM_CardTable(), _tlhMarkMapMemoryHandle(), _tlhMarkBits(NULL), _cardTableReconfigured(false),
+		  _cleanAllCards(false), _omrVM(env->getOmrVM()), _collector(collector),
+		  _extensions(MM_GCExtensionsBase::getExtensions(_omrVM)), _dispatcher(_extensions->dispatcher),
+		  _markingScheme(markingScheme), _cardCleanPhase(UNINITIALIZED), _lastCardCleanPhase(UNINITIALIZED),
+		  _cleaningRanges(NULL), _currentCleaningRange(NULL), _lastCleaningRange(NULL), _maxCleaningRanges(0),
+		  _lastCard(NULL), _firstCardInPhase(NULL), _lastCardInPhase(NULL), _firstCardInPhase2(NULL)
 	{
 		_typeId = __FUNCTION__;
 	}

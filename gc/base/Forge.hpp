@@ -25,15 +25,15 @@
 
 typedef struct MM_AllocationCategory {
 	enum Enum {
-		FIXED = 0,		/** Memory that is a fixed cost of running the garbage collector (e.g. memory for GCExtensions) */
-		WORK_PACKETS, 	/** Memory that is used for work packets  */
-		REFERENCES, 	/** Memory that is used to track soft, weak, and phantom references */
-		FINALIZE, 		/** Memory that is used to track and finalize objects */
-		DIAGNOSTIC,		/** Memory that is used to track gc behaviour (e.g. gc check, verbose gc) */
+		FIXED = 0,	/** Memory that is a fixed cost of running the garbage collector (e.g. memory for GCExtensions) */
+		WORK_PACKETS, /** Memory that is used for work packets  */
+		REFERENCES,   /** Memory that is used to track soft, weak, and phantom references */
+		FINALIZE,	 /** Memory that is used to track and finalize objects */
+		DIAGNOSTIC,   /** Memory that is used to track gc behaviour (e.g. gc check, verbose gc) */
 		REMEMBERED_SET, /** Memory that is used to track the remembered set */
 		JAVA_HEAP,		/** Memory that is used for the java heap */
-		OTHER, 			/** Memory that does not fall into any of the above categories */
-		
+		OTHER,			/** Memory that does not fall into any of the above categories */
+
 		/* Must be last, do not use this category! */
 		CATEGORY_COUNT
 	};
@@ -47,19 +47,18 @@ typedef struct MM_MemoryStatistics {
 
 class MM_EnvironmentBase;
 
-
 class MM_Forge
 {
-/* Friend Declarations */
-friend class MM_GCExtensionsBase;
+	/* Friend Declarations */
+	friend class MM_GCExtensionsBase;
 
-/* Data Members */
+	/* Data Members */
 private:
 	omrthread_monitor_t _mutex;
-	OMRPortLibrary* _portLibrary;
+	OMRPortLibrary *_portLibrary;
 	MM_MemoryStatistics _statistics[MM_AllocationCategory::CATEGORY_COUNT];
-	
-/* Function Members */
+
+	/* Function Members */
 protected:
 	/**
 	 * Initialize internal structures of the memory forge.  An instance of MM_Forge must be initialized before
@@ -69,16 +68,16 @@ protected:
 	 * @return true if the forge was successfully initialized, otherwise returns false.  A instance of MM_Forge
 	 * 		   should not be used before it has been successfully initialized.
 	 */
-	bool initialize(MM_EnvironmentBase* env);
-	
+	bool initialize(MM_EnvironmentBase *env);
+
 	/**
 	 * Release any internal structures of the memory forge.  After tear down, there should be no calls to the 
 	 * methods allocate or free.
 	 * 
 	 * @param[in] env - the environment base
 	 */
-	void tearDown(MM_EnvironmentBase* env);
-	
+	void tearDown(MM_EnvironmentBase *env);
+
 public:
 	/**
 	 * Allocates the amount of memory requested in bytesRequested.  Returns a pointer to the allocated memory, 
@@ -90,7 +89,7 @@ public:
 	 * 						 the OMR_GET_CALLSITE() macro
 	 * @return a pointer to the allocated memory, or NULL if the request could not be performed
 	 */
-	void* allocate(uintptr_t bytesRequested, MM_AllocationCategory::Enum category, const char* callsite);
+	void *allocate(uintptr_t bytesRequested, MM_AllocationCategory::Enum category, const char *callsite);
 
 	/**
 	 * Deallocate memory that has been allocated by the garbage collector.  This function should not be called
@@ -99,7 +98,7 @@ public:
 	 *
 	 * @param[in] memoryPointer - a pointer to the memory that will be freed
 	 */
-	void free(void* memoryPointer);
+	void free(void *memoryPointer);
 
 	/**
 	 * Returns the current memory usage statistics for the garbage collector.  Each entry in the array corresponds
@@ -108,7 +107,7 @@ public:
 	 *
 	 * @return an array of memory usage statistics indexed using the CategoryType enumeration
 	 */
-	MM_MemoryStatistics* getCurrentStatistics();
+	MM_MemoryStatistics *getCurrentStatistics();
 };
 
 #endif /*FORGE_HPP_*/

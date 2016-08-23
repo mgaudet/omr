@@ -47,7 +47,7 @@ class MM_Dispatcher : public MM_BaseVirtual
 {
 private:
 	MM_Task *_task;
-	
+
 protected:
 	bool initialize(MM_EnvironmentBase *env);
 
@@ -62,25 +62,39 @@ public:
 	virtual bool startUpThreads();
 	virtual void shutDownThreads();
 
-	virtual bool condYieldFromGCWrapper(MM_EnvironmentBase *env, uint64_t timeSlack = 0) { return false; }
+	virtual bool
+	condYieldFromGCWrapper(MM_EnvironmentBase *env, uint64_t timeSlack = 0)
+	{
+		return false;
+	}
 
-	MMINLINE virtual uintptr_t threadCount() { return 1; }
-	MMINLINE virtual uintptr_t threadCountMaximum() { return 1; }
-	MMINLINE virtual uintptr_t activeThreadCount() { return 1; }
+	MMINLINE virtual uintptr_t
+	threadCount()
+	{
+		return 1;
+	}
+	MMINLINE virtual uintptr_t
+	threadCountMaximum()
+	{
+		return 1;
+	}
+	MMINLINE virtual uintptr_t
+	activeThreadCount()
+	{
+		return 1;
+	}
 
 	void run(MM_EnvironmentBase *env, MM_Task *task);
-	virtual void reinitAfterFork(MM_EnvironmentBase *env, uintptr_t newThreadCount) {}
+	virtual void
+	reinitAfterFork(MM_EnvironmentBase *env, uintptr_t newThreadCount)
+	{
+	}
 
 	/**
 	 * Create a Dispatcher object.
 	 */
-	MM_Dispatcher(MM_EnvironmentBase *env) :
-		MM_BaseVirtual(),
-		_task(NULL)
-	{
-		_typeId = __FUNCTION__;
-	};
-	
+	MM_Dispatcher(MM_EnvironmentBase *env) : MM_BaseVirtual(), _task(NULL) { _typeId = __FUNCTION__; };
+
 	friend class MM_Task;
 };
 

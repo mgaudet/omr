@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "threadTestLib.hpp"
 #include "sanityTestHelper.hpp"
 
@@ -119,8 +118,7 @@ SimpleSanity(void)
 }
 
 bool
-TestNThreadsLooping(unsigned int numThreads, unsigned int sleepInterval,
-					unsigned int runTime, bool keepCount)
+TestNThreadsLooping(unsigned int numThreads, unsigned int sleepInterval, unsigned int runTime, bool keepCount)
 {
 	CMonitor mon(0, "monitor");
 	unsigned int i;
@@ -220,17 +218,17 @@ QuickNDirtyPerformanceTest(unsigned int runTime)
  * Tests queuing and dequeuing from blocking queue
  */
 bool
-TestBlockingQueue(CThread& self, const unsigned int numThreads)
+TestBlockingQueue(CThread &self, const unsigned int numThreads)
 {
 #if !defined(OMR_THR_THREE_TIER_LOCKING)
 	return true;
-#else /* !defined(OMR_THR_THREE_TIER_LOCKING) */
+#else  /* !defined(OMR_THR_THREE_TIER_LOCKING) */
 	unsigned int i;
 	bool ok = true;
 	CMonitor mon(0, "TestBlockingQueue");
 	mon.Enter();
 
-	CEnterExit **pThreads = new CEnterExit*[numThreads];
+	CEnterExit **pThreads = new CEnterExit *[numThreads];
 	for (i = 0; i < numThreads; i++) {
 		pThreads[i] = new CEnterExit(mon, i * 1000);
 		pThreads[i]->Start();
@@ -316,10 +314,8 @@ TestLoopingWaitNotify(int runTime)
 
 	volatile unsigned int doneRunningCount = 0;
 	volatile unsigned int notifyCount = 0;
-	CWaitNotifyLooper thread1(mon, (unsigned int *)&notifyCount,
-							  (unsigned int *)&doneRunningCount);
-	CWaitNotifyLooper thread2(mon, (unsigned int *)&notifyCount,
-							  (unsigned int *)&doneRunningCount);
+	CWaitNotifyLooper thread1(mon, (unsigned int *)&notifyCount, (unsigned int *)&doneRunningCount);
+	CWaitNotifyLooper thread2(mon, (unsigned int *)&notifyCount, (unsigned int *)&doneRunningCount);
 
 	thread1.Start();
 	thread2.Start();

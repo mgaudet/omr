@@ -15,7 +15,7 @@
  * Contributors:
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
- 
+
 #if !defined(HEAPMEMORYSNAPSHOT_HPP_)
 #define HEAPMEMORYSNAPSHOT_HPP_
 
@@ -56,29 +56,13 @@ public:
 	/**
 	 * Create a HeapMemorySnapshot object.
 	 */
-	MM_HeapMemorySnapshot() :
-		MM_Base(),
-		_totalHeapSize(0),
-		_freeHeapSize(0),
-		_totalTenuredSize(0),
-		_freeTenuredSize(0),
-		_totalTenuredSOASize(0),
-		_freeTenuredSOASize(0),
-		_totalTenuredLOASize(0),
-		_freeTenuredLOASize(0),
-		_totalNurseryAllocateSize(0),
-		_freeNurseryAllocateSize(0),
-		_totalNurserySurvivorSize(0),
-		_freeNurserySurvivorSize(0),
-		_totalRegionOldSize(0),
-		_freeRegionOldSize(0),
-		_totalRegionEdenSize(0),
-		_freeRegionEdenSize(0),
-		_totalRegionSurvivorSize(0),
-		_freeRegionSurvivorSize(0),
-		_totalRegionReservedSize(0),
-		_freeRegionReservedSize(0)
-	{};
+	MM_HeapMemorySnapshot()
+		: MM_Base(), _totalHeapSize(0), _freeHeapSize(0), _totalTenuredSize(0), _freeTenuredSize(0),
+		  _totalTenuredSOASize(0), _freeTenuredSOASize(0), _totalTenuredLOASize(0), _freeTenuredLOASize(0),
+		  _totalNurseryAllocateSize(0), _freeNurseryAllocateSize(0), _totalNurserySurvivorSize(0),
+		  _freeNurserySurvivorSize(0), _totalRegionOldSize(0), _freeRegionOldSize(0), _totalRegionEdenSize(0),
+		  _freeRegionEdenSize(0), _totalRegionSurvivorSize(0), _freeRegionSurvivorSize(0), _totalRegionReservedSize(0),
+		  _freeRegionReservedSize(0){};
 };
 
 #endif /* HEAPMEMORYSNAPSHOT_HPP_ */

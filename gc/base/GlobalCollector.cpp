@@ -21,7 +21,7 @@
 #include "CollectorLanguageInterface.hpp"
 
 void
-MM_GlobalCollector::internalPostCollect(MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace)
+MM_GlobalCollector::internalPostCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace)
 {
 	_cli->globalCollector_internalPostCollect(env, subSpace);
 }
@@ -36,6 +36,6 @@ MM_GlobalCollector::isTimeForGlobalGCKickoff()
  * Abort any currently active garbage collection activity.
  */
 void
-MM_GlobalCollector::abortCollection(MM_EnvironmentBase* env, CollectionAbortReason reason)
+MM_GlobalCollector::abortCollection(MM_EnvironmentBase *env, CollectionAbortReason reason)
 {
 }

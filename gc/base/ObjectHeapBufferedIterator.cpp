@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "ModronAssertions.h"
 
 #include "GCExtensionsBase.hpp"
@@ -24,18 +23,23 @@
 
 #include "ObjectHeapBufferedIterator.hpp"
 
-GC_ObjectHeapBufferedIterator::GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, bool includeDeadObjects, uintptr_t maxElementsToCache)
+GC_ObjectHeapBufferedIterator::GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions,
+															 MM_HeapRegionDescriptor *region, bool includeDeadObjects,
+															 uintptr_t maxElementsToCache)
 {
 	init(extensions, region, region->getLowAddress(), region->getHighAddress(), includeDeadObjects, maxElementsToCache);
 }
 
-GC_ObjectHeapBufferedIterator::GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, void *base, void *top, bool includeDeadObjects, uintptr_t maxElementsToCache)
+GC_ObjectHeapBufferedIterator::GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions,
+															 MM_HeapRegionDescriptor *region, void *base, void *top,
+															 bool includeDeadObjects, uintptr_t maxElementsToCache)
 {
 	init(extensions, region, base, top, includeDeadObjects, maxElementsToCache);
 }
 
 void
-GC_ObjectHeapBufferedIterator::init(MM_GCExtensionsBase* extensions, MM_HeapRegionDescriptor* region, void *base, void *top, bool includeDeadObjects, uintptr_t maxElementsToCache)
+GC_ObjectHeapBufferedIterator::init(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, void *base,
+									void *top, bool includeDeadObjects, uintptr_t maxElementsToCache)
 {
 	_region = region;
 	_cacheIndex = 0;
@@ -77,7 +81,7 @@ GC_ObjectHeapBufferedIterator::nextObject()
 	return next;
 }
 
-const MM_ObjectHeapBufferedIteratorPopulator*
+const MM_ObjectHeapBufferedIteratorPopulator *
 GC_ObjectHeapBufferedIterator::getPopulator()
 {
 	const MM_ObjectHeapBufferedIteratorPopulator *populator = NULL;
@@ -87,7 +91,7 @@ GC_ObjectHeapBufferedIterator::getPopulator()
 	case MM_HeapRegionDescriptor::FREE:
 	case MM_HeapRegionDescriptor::ADDRESS_ORDERED_IDLE:
 	case MM_HeapRegionDescriptor::BUMP_ALLOCATED_IDLE:
-		/* (for all intents and purposes, an IDLE region is the same as a FREE region) */
+/* (for all intents and purposes, an IDLE region is the same as a FREE region) */
 #if defined(OMR_GC_ARRAYLETS)
 	case MM_HeapRegionDescriptor::ARRAYLET_LEAF:
 #endif /* defined(OMR_GC_ARRAYLETS) */
@@ -124,4 +128,3 @@ GC_ObjectHeapBufferedIterator::advance(uintptr_t sizeInBytes)
 	_populator->advance(sizeInBytes, &_state);
 	_cacheCount = _populator->populateObjectHeapBufferedIteratorCache(_cache, _cacheSizeToUse, &_state);
 }
-

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "PhysicalSubArena.hpp"
 
 #include "Debug.hpp"
@@ -49,11 +48,11 @@ MM_PhysicalSubArena::tearDown(MM_EnvironmentBase *env)
 bool
 MM_PhysicalSubArena::canExpand(MM_EnvironmentBase *env)
 {
-	if(!_resizable) {
+	if (!_resizable) {
 		return false;
 	}
 
-	if(_parent) {
+	if (_parent) {
 		return _parent->canExpand(env, this);
 	}
 
@@ -94,7 +93,8 @@ MM_PhysicalSubArena::canContract(MM_EnvironmentBase *env)
  * @return the actual physical size that the receiver can expand by, or 0 if there is no room or alignment restrictions cannot be met.
  */
 uintptr_t
-MM_PhysicalSubArena::checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_t expandSizeDeltaAlignment, uintptr_t expandSize)
+MM_PhysicalSubArena::checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_t expandSizeDeltaAlignment,
+											   uintptr_t expandSize)
 {
 	return expandSize;
 }
@@ -108,7 +108,7 @@ MM_PhysicalSubArena::checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_
 uintptr_t
 MM_PhysicalSubArena::expandNoCheck(MM_EnvironmentBase *env, uintptr_t expandSize)
 {
-	assume0(0);  /* override - you can only call this if the receiver can in fact expand */
+	assume0(0); /* override - you can only call this if the receiver can in fact expand */
 	return expandSize;
 }
 
@@ -140,8 +140,8 @@ MM_PhysicalSubArena::tilt(MM_EnvironmentBase *env, uintptr_t survivorSpaceSizeRe
  * @return The amount of heap available for contraction factoring in the size of the allocate (if applicable)
  */
 uintptr_t
-MM_PhysicalSubArena::getAvailableContractionSize(MM_EnvironmentBase *env, MM_MemorySubSpace *memorySubSpace, MM_AllocateDescription *allocDescription)
+MM_PhysicalSubArena::getAvailableContractionSize(MM_EnvironmentBase *env, MM_MemorySubSpace *memorySubSpace,
+												 MM_AllocateDescription *allocDescription)
 {
 	return 0;
 }
-

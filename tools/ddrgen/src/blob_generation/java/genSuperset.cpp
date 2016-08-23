@@ -28,10 +28,7 @@
 #include "TypedefUDT.hpp"
 #include "UnionUDT.hpp"
 
-JavaSupersetGenerator::JavaSupersetGenerator() : _file(0), _portLibrary(NULL)
-{
-	initBaseTypedefSet();
-}
+JavaSupersetGenerator::JavaSupersetGenerator() : _file(0), _portLibrary(NULL) { initBaseTypedefSet(); }
 
 string
 JavaSupersetGenerator::getUDTname(Type *type)
@@ -108,11 +105,12 @@ JavaSupersetGenerator::initBaseTypedefSet()
 
 	_baseTypedefIgnore.insert("IDATA");
 	_baseTypedefIgnore.insert("UDATA");
-	for (unordered_map<string, string>::iterator it = _baseTypedefReplace.begin(); it != _baseTypedefReplace.end(); ++ it) {
+	for (unordered_map<string, string>::iterator it = _baseTypedefReplace.begin(); it != _baseTypedefReplace.end();
+		 ++it) {
 		_baseTypedefIgnore.insert(it->first);
 		_baseTypedefIgnore.insert(it->second);
 	}
-	for (unordered_map<string, string>::iterator it = _baseTypedefMap.begin(); it != _baseTypedefMap.end(); ++ it) {
+	for (unordered_map<string, string>::iterator it = _baseTypedefMap.begin(); it != _baseTypedefMap.end(); ++it) {
 		_baseTypedefIgnore.insert(it->first);
 		_baseTypedefIgnore.insert(it->second);
 	}
@@ -128,8 +126,7 @@ JavaSupersetGenerator::convertJ9BaseTypedef(Type *type, string *typeName)
 		name = _baseTypedefMap[name];
 	} else if (_baseTypedefSet.find(name) != _baseTypedefSet.end()) {
 		stringstream ss;
-		ss << (0 == strchr(name.c_str(), 'u') ? "I" : "U")
-		   << (type->_sizeOf * 8);
+		ss << (0 == strchr(name.c_str(), 'u') ? "I" : "U") << (type->_sizeOf * 8);
 		name = ss.str();
 	} else {
 		replaceBaseTypedef(type, &name);
@@ -147,7 +144,8 @@ JavaSupersetGenerator::replaceBaseTypedef(Type *type, string *name)
 	if (_baseTypedefReplace.find(*name) != _baseTypedefReplace.end()) {
 		*name = _baseTypedefReplace[*name];
 	} else {
-		for (unordered_map<string, string>::iterator it = _baseTypedefReplace.begin(); it != _baseTypedefReplace.end(); it ++) {
+		for (unordered_map<string, string>::iterator it = _baseTypedefReplace.begin(); it != _baseTypedefReplace.end();
+			 it++) {
 			size_t index = name->find(it->first);
 			if (string::npos != index) {
 				name->replace(index, it->first.length(), it->second);
@@ -213,7 +211,7 @@ JavaSupersetGenerator::getFieldType(Field *f, string *assembledTypeName, string 
 		ERRMSG("Unhandled field modifer flags: %d", f->_modifiers._modifierFlags);
 		rc = DDR_RC_ERROR;
 	} else {
-		modifiers =  f->_modifiers.getModifierNames();
+		modifiers = f->_modifiers.getModifierNames();
 	}
 
 	/* Get the translated and simple type names for the field. */

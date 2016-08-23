@@ -21,7 +21,6 @@
  * @ingroup Thread
  */
 
-
 #include <windows.h>
 #include <stdlib.h>
 #include "omrcfg.h"

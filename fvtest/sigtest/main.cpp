@@ -27,7 +27,6 @@ int testMain(int argc, char **argv, char **envp);
 
 PortEnvironment *omrTestEnv;
 
-
 int
 testMain(int argc, char **argv, char **envp)
 {

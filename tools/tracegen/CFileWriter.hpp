@@ -30,7 +30,6 @@ class CFileWriter
 private:
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
@@ -90,7 +89,8 @@ private:
 	 * @param groupsCount Trace group count
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeComponentDataOnStream(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints, unsigned int *levels, unsigned int *earlyAssertDefaults, J9TDFGroup *groups, unsigned int groupsCount);
+	RCType writeComponentDataOnStream(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints, unsigned int *levels,
+									  unsigned int *earlyAssertDefaults, J9TDFGroup *groups, unsigned int groupsCount);
 
 	/**
 	 * @param fd Output stream
@@ -108,9 +108,9 @@ private:
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
 	RCType writeComponentDataForNonTraceEnabledBuildsOnStream(FILE *fd, J9TDFFile *tdf);
+
 protected:
 public:
-
 	/**
 	 * Output trace C file
 	 *

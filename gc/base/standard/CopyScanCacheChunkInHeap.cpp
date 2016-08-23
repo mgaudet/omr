@@ -30,8 +30,9 @@
 #include "MemorySubSpace.hpp"
 
 MM_CopyScanCacheChunkInHeap *
-MM_CopyScanCacheChunkInHeap::newInstance(MM_EnvironmentStandard *env, MM_CopyScanCacheChunk *nextChunk, MM_MemorySubSpace *memorySubSpace, MM_Collector *requestCollector,
-		MM_CopyScanCacheStandard **sublistTail, uintptr_t *entries)
+MM_CopyScanCacheChunkInHeap::newInstance(MM_EnvironmentStandard *env, MM_CopyScanCacheChunk *nextChunk,
+										 MM_MemorySubSpace *memorySubSpace, MM_Collector *requestCollector,
+										 MM_CopyScanCacheStandard **sublistTail, uintptr_t *entries)
 {
 	MM_GCExtensionsBase *extensions = env->getExtensions();
 	MM_CopyScanCacheChunkInHeap *chunk = NULL;
@@ -62,7 +63,8 @@ MM_CopyScanCacheChunkInHeap::newInstance(MM_EnvironmentStandard *env, MM_CopySca
 
 	/* Attempt to allocate in given subspace */
 	MM_AllocateDescription allocDescription(sizeToAllocate, 0, false, true);
-	addrBase = (MM_CopyScanCacheChunkInHeap *)memorySubSpace->collectorAllocate(env, requestCollector, &allocDescription);
+	addrBase =
+		(MM_CopyScanCacheChunkInHeap *)memorySubSpace->collectorAllocate(env, requestCollector, &allocDescription);
 
 	if (NULL != addrBase) {
 		/* memory allocated */
@@ -73,9 +75,9 @@ MM_CopyScanCacheChunkInHeap::newInstance(MM_EnvironmentStandard *env, MM_CopySca
 
 		/* create a CopyScanCacheChunkInHeap itself */
 		chunk = (MM_CopyScanCacheChunkInHeap *)((uintptr_t)addrBase + sizeof(MM_HeapLinkedFreeHeader));
-		new(chunk) MM_CopyScanCacheChunkInHeap(addrBase, addrTop, memorySubSpace);
+		new (chunk) MM_CopyScanCacheChunkInHeap(addrBase, addrTop, memorySubSpace);
 		chunk->_baseCache = (MM_CopyScanCacheStandard *)(chunk + 1);
-		if(chunk->initialize(env, numberOfCaches, nextChunk, OMR_SCAVENGER_CACHE_TYPE_HEAP, sublistTail)) {
+		if (chunk->initialize(env, numberOfCaches, nextChunk, OMR_SCAVENGER_CACHE_TYPE_HEAP, sublistTail)) {
 			*entries = numberOfCaches;
 		} else {
 			chunk->kill(env);
@@ -93,5 +95,3 @@ MM_CopyScanCacheChunkInHeap::kill(MM_EnvironmentBase *env)
 	/* return memory to pool */
 	_memorySubSpace->abandonHeapChunk(_addrBase, _addrTop);
 }
-
-

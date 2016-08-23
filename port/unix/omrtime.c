@@ -38,10 +38,9 @@
 
 #if defined(OSX)
 static clock_serv_t cs_t;
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 static const clockid_t OMRTIME_NANO_CLOCK = CLOCK_MONOTONIC;
 #endif /* defined(OSX) */
-
 
 /**
  * Query OS for timestamp.
@@ -91,7 +90,7 @@ omrtime_current_time_nanos(struct OMRPortLibrary *portLibrary, uintptr_t *succes
 		nsec = ((uint64_t)ts.tv_sec * OMRTIME_NANOSECONDS_PER_SECOND) + (uint64_t)(ts.tv_usec * 1000);
 		*success = 1;
 	}
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 	struct timespec ts;
 	*success = 0;
 	if (0 == clock_gettime(CLOCK_REALTIME, &ts)) {
@@ -111,7 +110,7 @@ omrtime_nano_time(struct OMRPortLibrary *portLibrary)
 	if (KERN_SUCCESS == clock_get_time(cs_t, &mt)) {
 		hiresTime = ((int64_t)mt.tv_sec * OMRTIME_NANOSECONDS_PER_SECOND) + (int64_t)mt.tv_nsec;
 	}
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 	struct timespec ts;
 
 	if (0 == clock_gettime(OMRTIME_NANO_CLOCK, &ts)) {
@@ -191,7 +190,8 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime,
+					uint64_t requiredResolution)
 {
 	uint64_t ticks;
 
@@ -246,7 +246,7 @@ omrtime_startup(struct OMRPortLibrary *portLibrary)
 	if (KERN_SUCCESS != host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cs_t)) {
 		rc = OMRPORT_ERROR_STARTUP_TIME;
 	}
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 	struct timespec ts;
 
 	/* check if the clock is available */
@@ -257,5 +257,3 @@ omrtime_startup(struct OMRPortLibrary *portLibrary)
 
 	return rc;
 }
-
-

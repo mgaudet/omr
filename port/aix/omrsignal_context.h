@@ -28,7 +28,7 @@
 #define J9SIG_VALUE_UDATA OMRPORT_SIG_VALUE_32
 #endif
 
-#define MAX_UNIX_SIGNAL_TYPES  SIGMAX32
+#define MAX_UNIX_SIGNAL_TYPES SIGMAX32
 
 /*
  * User context structure
@@ -49,10 +49,14 @@ typedef struct J9UnixSignalInfo {
 	siginfo_t *sigInfo;
 } J9UnixSignalInfo;
 
-uint32_t infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
+uint32_t infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+					void **value);
+uint32_t infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+					void **value);
+uint32_t infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index,
+					   const char **name, void **value);
+uint32_t infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index,
+						const char **name, void **value);
+uint32_t infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index,
+					   const char **name, void **value);
 void fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, struct J9UnixSignalInfo *j9Info);
-

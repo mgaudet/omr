@@ -266,7 +266,7 @@ omrfile_length(struct OMRPortLibrary *portLibrary, const char *path)
 		Trc_PRT_file_length_Exit(-1);
 		return -1;
 	}
-	length =  portLibrary->file_seek(portLibrary, fd, 0, EsSeekEnd);
+	length = portLibrary->file_seek(portLibrary, fd, 0, EsSeekEnd);
 	portLibrary->file_close(portLibrary, fd);
 	Trc_PRT_file_length_Exit(length);
 	return length;
@@ -433,7 +433,7 @@ omrfile_seek(struct OMRPortLibrary *portLibrary, intptr_t fd, int64_t offset, in
 	/* If file offsets are 32 bit, truncate the seek to that range */
 	if (sizeof(off_t) < sizeof(int64_t)) {
 		if (offset > 0x7FFFFFFF) {
-			localOffset =  0x7FFFFFFF;
+			localOffset = 0x7FFFFFFF;
 		} else if (offset < -0x7FFFFFFF) {
 			localOffset = -0x7FFFFFFF;
 		}
@@ -529,7 +529,6 @@ omrfile_unlinkdir(struct OMRPortLibrary *portLibrary, const char *path)
 	return -1;
 }
 
-
 /**
  * Write to a file.
  *
@@ -589,8 +588,6 @@ EsTranslateOpenFlags(int32_t flags)
 	return -1;
 }
 
-
-
 /**
  * Write to a file.
  *
@@ -633,7 +630,8 @@ omrfile_vprintf(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *for
 	numberWritten = portLibrary->str_vprintf(portLibrary, NULL, (uint32_t)(-1), format, copyOfArgs);
 	numberWritten += 1;
 
-	allocatedBuffer = portLibrary->mem_allocate_memory(portLibrary, numberWritten, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	allocatedBuffer =
+		portLibrary->mem_allocate_memory(portLibrary, numberWritten, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == allocatedBuffer) {
 		portLibrary->nls_printf(portLibrary, J9NLS_ERROR, J9NLS_PORT_FILE_MEMORY_ALLOCATE_FAILURE);
 		return;
@@ -681,7 +679,7 @@ omrfile_printf(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *form
 int32_t
 omrfile_set_length(struct OMRPortLibrary *portLibrary, intptr_t fd, int64_t newLength)
 {
-	off_t length  = (off_t)newLength;
+	off_t length = (off_t)newLength;
 	int32_t result = 0;
 
 	Trc_PRT_file_setlength_Entry(fd, newLength);
@@ -689,13 +687,13 @@ omrfile_set_length(struct OMRPortLibrary *portLibrary, intptr_t fd, int64_t newL
 	/* If file offsets are 32 bit, truncate the newLength to that range */
 	if (sizeof(off_t) < sizeof(int64_t)) {
 		if (newLength > 0x7FFFFFFF) {
-			length =  0x7FFFFFFF;
+			length = 0x7FFFFFFF;
 		} else if (newLength < -0x7FFFFFFF) {
 			length = -0x7FFFFFFF;
 		}
 	}
 
-	result =  ftruncate(fd, length);
+	result = ftruncate(fd, length);
 	Trc_PRT_file_setlength_Exit(result);
 	return result;
 }
@@ -784,7 +782,8 @@ omrfile_stat(struct OMRPortLibrary *portLibrary, const char *path, uint32_t flag
  * @note If a multi-threaded application passes in a relative path the caller must synchronize on the current working directory, otherwise the behavior is undefined
  */
 int32_t
-omrfile_stat_filesystem(struct OMRPortLibrary *portLibrary, const char *path, uint32_t flags, struct J9FileStatFilesystem *buf)
+omrfile_stat_filesystem(struct OMRPortLibrary *portLibrary, const char *path, uint32_t flags,
+						struct J9FileStatFilesystem *buf)
 {
 	return -1;
 }

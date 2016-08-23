@@ -32,8 +32,8 @@
 #include "ObjectModel.hpp"
 #include "omrgcstartup.hpp"
 
-omrobjectptr_t static inline
-allocHelper(OMR_VMThread * omrVMThread, size_t sizeInBytes, uintptr_t flags, bool collectOnFailure)
+omrobjectptr_t static inline allocHelper(OMR_VMThread *omrVMThread, size_t sizeInBytes, uintptr_t flags,
+										 bool collectOnFailure)
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(omrVMThread->_vm);
 	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(omrVMThread);
@@ -58,7 +58,8 @@ allocHelper(OMR_VMThread * omrVMThread, size_t sizeInBytes, uintptr_t flags, boo
 	/* OMRTODO: Under what conditions could this assert fail? */
 	assert(omrVMThread->memorySpace == env->getMemorySpace());
 
-	omrobjectptr_t heapBytes = (omrobjectptr_t)env->_objectAllocationInterface->allocateObject(env, &allocdescription, env->getMemorySpace(), collectOnFailure);
+	omrobjectptr_t heapBytes = (omrobjectptr_t)env->_objectAllocationInterface->allocateObject(
+		env, &allocdescription, env->getMemorySpace(), collectOnFailure);
 
 	/* OMRTODO: Should we use zero TLH instead of memset? */
 	if (NULL != heapBytes) {
@@ -83,7 +84,8 @@ allocHelper(OMR_VMThread * omrVMThread, size_t sizeInBytes, uintptr_t flags, boo
 	env->popVMstate(vmState);
 
 #if defined(OMR_GC_THREAD_LOCAL_HEAP)
-	if (extensions->fvtest_disableInlineAllocation || extensions->instrumentableAllocateHookEnabled || extensions->disableInlineCacheForAllocationThreshold) {
+	if (extensions->fvtest_disableInlineAllocation || extensions->instrumentableAllocateHookEnabled
+		|| extensions->disableInlineCacheForAllocationThreshold) {
 		env->_envLanguageInterface->disableInlineTLHAllocate();
 	}
 #endif /* OMR_GC_THREAD_LOCAL_HEAP */
@@ -92,7 +94,7 @@ allocHelper(OMR_VMThread * omrVMThread, size_t sizeInBytes, uintptr_t flags, boo
 }
 
 omrobjectptr_t
-OMR_GC_Allocate(OMR_VMThread * omrVMThread, size_t sizeInBytes, uintptr_t flags)
+OMR_GC_Allocate(OMR_VMThread *omrVMThread, size_t sizeInBytes, uintptr_t flags)
 {
 	omrobjectptr_t heapBytes = allocHelper(omrVMThread, sizeInBytes, flags, true);
 	if (NULL == heapBytes) {
@@ -108,13 +110,13 @@ OMR_GC_Allocate(OMR_VMThread * omrVMThread, size_t sizeInBytes, uintptr_t flags)
 }
 
 omrobjectptr_t
-OMR_GC_AllocateNoGC(OMR_VMThread * omrVMThread, size_t sizeInBytes, uintptr_t flags)
+OMR_GC_AllocateNoGC(OMR_VMThread *omrVMThread, size_t sizeInBytes, uintptr_t flags)
 {
 	return allocHelper(omrVMThread, sizeInBytes, flags, false);
 }
 
 omr_error_t
-OMR_GC_SystemCollect(OMR_VMThread* omrVMThread, uint32_t gcCode)
+OMR_GC_SystemCollect(OMR_VMThread *omrVMThread, uint32_t gcCode)
 {
 	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(omrVMThread);
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(omrVMThread->_vm);

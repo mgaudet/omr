@@ -24,7 +24,6 @@
 #include "EventTypes.hpp"
 #include "FileUtils.hpp"
 
-
 #define PRETTY_PRINT_TP_LIMIT 30
 
 RCType
@@ -35,7 +34,8 @@ CFileWriter::writeOutputFiles(J9TDFOptions *options, J9TDFFile *tdf, J9TDFGroup 
 	unsigned int *levels = NULL;
 	unsigned int *assertDefaults = NULL;
 
-	const char *fileName = FileUtils::getTargetFileName(options, tdf->fileName, UT_FILENAME_PREFIX, tdf->header.executable, ".c");
+	const char *fileName =
+		FileUtils::getTargetFileName(options, tdf->fileName, UT_FILENAME_PREFIX, tdf->header.executable, ".c");
 
 	time_t sourceFileMtime = FileUtils::getMtime(tdf->fileName);
 	time_t targetFileMtime = FileUtils::getMtime(fileName);
@@ -146,7 +146,8 @@ failed:
 }
 
 RCType
-CFileWriter::writeComponentDataOnStream(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints, unsigned int *levels, unsigned int *earlyAssertDefaults, J9TDFGroup *groups, unsigned int groupsCount)
+CFileWriter::writeComponentDataOnStream(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints, unsigned int *levels,
+										unsigned int *earlyAssertDefaults, J9TDFGroup *groups, unsigned int groupsCount)
 {
 	RCType rc = RC_OK;
 	if (0 == ntracepoints) {
@@ -203,7 +204,8 @@ CFileWriter::writeRegistrationFunctionsOnStream(FILE *fd, J9TDFFile *tdf, bool d
 
 	fprintf(fd, "/* function to register with trace engine and configure current module */\n");
 	fprintf(fd, "int32_t\n"); /* type */
-	fprintf(fd, "register%sWithTrace(%s%s, UtModuleInfo * containerModule)\n", tdf->header.executable, parameterType, parameterName); /* func name */
+	fprintf(fd, "register%sWithTrace(%s%s, UtModuleInfo * containerModule)\n", tdf->header.executable, parameterType,
+			parameterName); /* func name */
 	fprintf(fd, "{\n");
 	fprintf(fd, "\tI_32 rc = %s;\n\n", ok); /* func vars */
 	fprintf(fd, "#if defined(UT_TRACE_ENABLED_IN_BUILD)\n");
@@ -239,8 +241,10 @@ CFileWriter::writeRegistrationFunctionsOnStream(FILE *fd, J9TDFFile *tdf, bool d
 		registerSubmodule = strtok(submodules, ",");
 		while (NULL != registerSubmodule) {
 			fprintf(fd, "\n\tif (rc == %s) {\n", ok);
-			fprintf(fd, "\t\textern int32_t register%sWithTrace(%s%s, UtModuleInfo* containerModule);\n\n", registerSubmodule, parameterType, parameterName);
-			fprintf(fd, "\t\trc = register%sWithTrace(%s, &%s_UtModuleInfo);\n", registerSubmodule, parameterName, tdf->header.executable);
+			fprintf(fd, "\t\textern int32_t register%sWithTrace(%s%s, UtModuleInfo* containerModule);\n\n",
+					registerSubmodule, parameterType, parameterName);
+			fprintf(fd, "\t\trc = register%sWithTrace(%s, &%s_UtModuleInfo);\n", registerSubmodule, parameterName,
+					tdf->header.executable);
 			fprintf(fd, "\t}\n");
 			registerSubmodule = strtok(NULL, ",");
 		}
@@ -251,12 +255,12 @@ CFileWriter::writeRegistrationFunctionsOnStream(FILE *fd, J9TDFFile *tdf, bool d
 	fprintf(fd, "\t/* trace not present in build - NOOP */");
 	fprintf(fd, "\n#endif /* defined(UT_TRACE_ENABLED_IN_BUILD) */\n");
 	fprintf(fd, "\treturn rc;\n"); /* function return */
-	fprintf(fd, "}\n"); /* function close */
+	fprintf(fd, "}\n");			   /* function close */
 
 	/* include a shutdown function */
 	fprintf(fd, "\n/* function to deregister with trace engine and configure current module */\n");
-	fprintf(fd, "int32_t\n"); /* type */
-	fprintf(fd, "deregister%sWithTrace(%s%s)\n", tdf->header.executable, parameterType , parameterName); /* func name */
+	fprintf(fd, "int32_t\n");																			/* type */
+	fprintf(fd, "deregister%sWithTrace(%s%s)\n", tdf->header.executable, parameterType, parameterName); /* func name */
 	fprintf(fd, "{\n");
 	fprintf(fd, "\tI_32 rc = %s;\n\n", ok); /* func vars */
 	fprintf(fd, "#if defined(UT_TRACE_ENABLED_IN_BUILD)\n");
@@ -287,7 +291,8 @@ CFileWriter::writeRegistrationFunctionsOnStream(FILE *fd, J9TDFFile *tdf, bool d
 		unregisterSubmodule = strtok(submodules, ",");
 		while (NULL != unregisterSubmodule) {
 			fprintf(fd, "\n\tif (rc == %s) {\n", ok);
-			fprintf(fd, "\t\textern int32_t deregister%sWithTrace(%s%s);\n\n", unregisterSubmodule, parameterType, parameterName);
+			fprintf(fd, "\t\textern int32_t deregister%sWithTrace(%s%s);\n\n", unregisterSubmodule, parameterType,
+					parameterName);
 			fprintf(fd, "\t\trc = deregister%sWithTrace(%s);\n", unregisterSubmodule, parameterName);
 			fprintf(fd, "\t}\n");
 			unregisterSubmodule = strtok(NULL, ",");
@@ -300,7 +305,7 @@ CFileWriter::writeRegistrationFunctionsOnStream(FILE *fd, J9TDFFile *tdf, bool d
 	fprintf(fd, "\t/* trace not present in build - NOOP */\n");
 	fprintf(fd, "#endif /* defined(UT_TRACE_ENABLED_IN_BUILD) */\n");
 	fprintf(fd, "\treturn rc;\n"); /* function return */
-	fprintf(fd, "}\n"); /* function close */
+	fprintf(fd, "}\n");			   /* function close */
 
 	rc = RC_OK;
 	return rc;
@@ -314,12 +319,11 @@ CFileWriter::writeComponentDataForNonTraceEnabledBuildsOnStream(FILE *fd, J9TDFF
 {
 	RCType rc = RC_FAILED;
 	fprintf(fd, "unsigned char %s_UtActive[1];\n", tdf->header.executable);
-	fprintf(fd, "UtModuleInfo %s_UtModuleInfo = {(char*) \"%s\", %u, 0, 0, NULL, NULL, NULL, &%s_UtTraceVersionInfo, (char*) \"%s\", NULL, NULL, NULL, NULL, 0, 0};\n"
-			, tdf->header.executable
-			, tdf->header.executable
-			, (unsigned int) strlen(tdf->header.executable)
-			, tdf->header.executable
-			, tdf->header.datfilename);
+	fprintf(fd,
+			"UtModuleInfo %s_UtModuleInfo = {(char*) \"%s\", %u, 0, 0, NULL, NULL, NULL, &%s_UtTraceVersionInfo, "
+			"(char*) \"%s\", NULL, NULL, NULL, NULL, 0, 0};\n",
+			tdf->header.executable, tdf->header.executable, (unsigned int)strlen(tdf->header.executable),
+			tdf->header.executable, tdf->header.datfilename);
 	rc = RC_OK;
 	return rc;
 }
@@ -328,17 +332,12 @@ RCType
 CFileWriter::writeModuleInfo(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints)
 {
 	RCType rc = RC_FAILED;
-	fprintf(fd, "UtModuleInfo %s_UtModuleInfo = {(char*) \"%s\", %u, %u, 0, %s_UtActive , NULL, NULL, &%s_UtTraceVersionInfo, (char*) \"%s\", %s_UtLevels, &%s_group0, NULL, NULL, 0, %s};"
-			, tdf->header.executable
-			, tdf->header.executable
-			, (unsigned int) strlen(tdf->header.executable)
-			, ntracepoints
-			, tdf->header.executable
-			, tdf->header.executable
-			, tdf->header.datfilename
-			, tdf->header.executable
-			, tdf->header.executable
-			, tdf->header.auxiliary ? "1" : "0");
+	fprintf(fd,
+			"UtModuleInfo %s_UtModuleInfo = {(char*) \"%s\", %u, %u, 0, %s_UtActive , NULL, NULL, "
+			"&%s_UtTraceVersionInfo, (char*) \"%s\", %s_UtLevels, &%s_group0, NULL, NULL, 0, %s};",
+			tdf->header.executable, tdf->header.executable, (unsigned int)strlen(tdf->header.executable), ntracepoints,
+			tdf->header.executable, tdf->header.executable, tdf->header.datfilename, tdf->header.executable,
+			tdf->header.executable, tdf->header.auxiliary ? "1" : "0");
 	rc = RC_OK;
 	return rc;
 }

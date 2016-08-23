@@ -44,28 +44,24 @@ struct ModronLnrlOptions;
 class MM_LightweightNonReentrantLock : public MM_BaseNonVirtual
 {
 private:
-	bool _initialized; /**< initialized state */
+	bool _initialized;						/**< initialized state */
 	char _nameBuf[MAX_LWNR_LOCK_NAME_SIZE]; /* LWNR lock name */
-	J9ThreadMonitorTracing *_tracing; /**< lock statistics */
-	MM_GCExtensionsBase *_extensions; /**< cache extensions for use in teardown() */
+	J9ThreadMonitorTracing *_tracing;		/**< lock statistics */
+	MM_GCExtensionsBase *_extensions;		/**< cache extensions for use in teardown() */
 
 #if defined(J9MODRON_USE_CUSTOM_SPINLOCKS)
 	J9GCSpinlock _spinlock;
-#else /* J9MODRON_USE_CUSTOM_SPINLOCKS */
+#else  /* J9MODRON_USE_CUSTOM_SPINLOCKS */
 	MUTEX _mutex;
 #endif /* J9MODRON_USE_CUSTOM_SPINLOCKS */
 
 protected:
-
 public:
-
 private:
-
 protected:
-
 public:
-	bool initialize(MM_EnvironmentBase *env, ModronLnrlOptions *options, const char * name);
-	void tearDown() ;
+	bool initialize(MM_EnvironmentBase *env, ModronLnrlOptions *options, const char *name);
+	void tearDown();
 
 	/**
 	 * Acquire the lock.
@@ -76,11 +72,12 @@ public:
 	 * @return TRUE on success
 	 * @note Creates a load/store barrier.
 	 */
-	MMINLINE bool acquire() 
+	MMINLINE bool
+	acquire()
 	{
 #if defined(J9MODRON_USE_CUSTOM_SPINLOCKS)
 		omrgc_spinlock_acquire(&_spinlock, _tracing);
-#else /* J9MODRON_USE_CUSTOM_SPINLOCKS */
+#else  /* J9MODRON_USE_CUSTOM_SPINLOCKS */
 		MUTEX_ENTER(_mutex);
 #endif /* J9MODRON_USE_CUSTOM_SPINLOCKS */
 		return true;
@@ -94,21 +91,18 @@ public:
 	 * @return TRUE on success
 	 * @note Creates a store barrier.
 	 */
-	MMINLINE bool release() 
+	MMINLINE bool
+	release()
 	{
 #if defined(J9MODRON_USE_CUSTOM_SPINLOCKS)
 		omrgc_spinlock_release(&_spinlock);
-#else /* J9MODRON_USE_CUSTOM_SPINLOCKS */
+#else  /* J9MODRON_USE_CUSTOM_SPINLOCKS */
 		MUTEX_EXIT(_mutex);
 #endif /* J9MODRON_USE_CUSTOM_SPINLOCKS */
 		return true;
 	};
 
-	MM_LightweightNonReentrantLock() : 
-		MM_BaseNonVirtual(),
-		_initialized(false),
-		_tracing(NULL),
-		_extensions(NULL)
+	MM_LightweightNonReentrantLock() : MM_BaseNonVirtual(), _initialized(false), _tracing(NULL), _extensions(NULL)
 	{
 		_typeId = __FUNCTION__;
 	};

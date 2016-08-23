@@ -29,7 +29,8 @@ fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, stru
 }
 
 uint32_t
-infoForSignal(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForSignal(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	*name = "";
 
@@ -247,7 +248,8 @@ infoForGPR(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t i
 }
 
 uint32_t
-infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			   void **value)
 {
 	mcontext_t *context = (mcontext_t *)&info->platformSignalInfo.context->uc_mcontext;
 	_STRUCT_X86_THREAD_STATE64 threadState = (*context)->__ss;
@@ -308,7 +310,8 @@ infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32
 }
 
 uint32_t
-infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	Dl_info *dl_info = &(info->platformSignalInfo.dl_info);
 	mcontext_t *context = (mcontext_t *)&info->platformSignalInfo.context->uc_mcontext;

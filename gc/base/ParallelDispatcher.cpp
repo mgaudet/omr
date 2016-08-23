@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base
@@ -45,10 +44,10 @@ typedef struct slaveThreadInfo {
 #define SLAVE_INFO_FLAG_OK 1
 #define SLAVE_INFO_FLAG_FAILED 2
 
-#define MINIMUM_HEAP_PER_THREAD (2*1024*1024)
+#define MINIMUM_HEAP_PER_THREAD (2 * 1024 * 1024)
 
 uintptr_t
-dispatcher_thread_proc2(OMRPortLibrary* portLib, void *info)
+dispatcher_thread_proc2(OMRPortLibrary *portLib, void *info)
 {
 	slaveThreadInfo *slaveInfo = (slaveThreadInfo *)info;
 	OMR_VM *omrVM = slaveInfo->omrVM;
@@ -64,7 +63,8 @@ dispatcher_thread_proc2(OMRPortLibrary* portLib, void *info)
 	slaveID = slaveInfo->slaveID;
 
 	/* Attach the thread as a system daemon thread */
-	omrVMThread = cli->attachVMThread(omrVM, "GC Slave", MM_CollectorLanguageInterfaceImpl::ATTACH_GC_DISPATCHER_THREAD);
+	omrVMThread =
+		cli->attachVMThread(omrVM, "GC Slave", MM_CollectorLanguageInterfaceImpl::ATTACH_GC_DISPATCHER_THREAD);
 	if (NULL == omrVMThread) {
 		goto startup_failed;
 	}
@@ -94,7 +94,7 @@ dispatcher_thread_proc2(OMRPortLibrary* portLib, void *info)
 	/* Thread is terminating -- shut it down */
 	env->setSlaveID(0);
 	cli->detachVMThread(omrVM, omrVMThread, MM_CollectorLanguageInterfaceImpl::ATTACH_GC_DISPATCHER_THREAD);
-	
+
 	omrthread_monitor_enter(dispatcher->_dispatcherMonitor);
 	dispatcher->_threadShutdownCount -= 1;
 	omrthread_monitor_notify(dispatcher->_dispatcherMonitor);
@@ -124,15 +124,12 @@ dispatcher_thread_proc(void *info)
 	MM_ParallelDispatcher *dispatcher = ((slaveThreadInfo *)info)->dispatcher;
 	OMRPORT_ACCESS_FROM_OMRVM(omrVM);
 	uintptr_t rc;
-	omrsig_protect(dispatcher_thread_proc2, info,
-		dispatcher->getSignalHandler(), dispatcher->getSignalHandlerArg(),
-		OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION,
-		&rc);
+	omrsig_protect(dispatcher_thread_proc2, info, dispatcher->getSignalHandler(), dispatcher->getSignalHandlerArg(),
+				   OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION, &rc);
 	return 0;
 }
 
 } /* extern "C" */
-
 
 /**
  * Run the main loop for a fully-constructed slave thread.
@@ -145,24 +142,24 @@ dispatcher_thread_proc(void *info)
  * </code>
  */
 void
-MM_ParallelDispatcher::slaveEntryPoint(MM_EnvironmentBase *env) 
+MM_ParallelDispatcher::slaveEntryPoint(MM_EnvironmentBase *env)
 {
 	uintptr_t slaveID = env->getSlaveID();
-	
+
 	setThreadInitializationComplete(env);
-	
+
 	omrthread_monitor_enter(_slaveThreadMutex);
 
-	while(slave_status_dying != _statusTable[slaveID]) {
+	while (slave_status_dying != _statusTable[slaveID]) {
 		/* Wait for a task to be dispatched to the slave thread */
-		while(slave_status_waiting == _statusTable[slaveID]) {
+		while (slave_status_waiting == _statusTable[slaveID]) {
 			omrthread_monitor_wait(_slaveThreadMutex);
 		}
 
-		if(slave_status_reserved == _statusTable[slaveID]) {
+		if (slave_status_reserved == _statusTable[slaveID]) {
 			/* Found a task to dispatch to - do prep work for dispatch */
 			acceptTask(env);
-			omrthread_monitor_exit(_slaveThreadMutex);	
+			omrthread_monitor_exit(_slaveThreadMutex);
 
 			env->_currentTask->run(env);
 
@@ -171,7 +168,7 @@ MM_ParallelDispatcher::slaveEntryPoint(MM_EnvironmentBase *env)
 			completeTask(env);
 		}
 	}
-	omrthread_monitor_exit(_slaveThreadMutex);	
+	omrthread_monitor_exit(_slaveThreadMutex);
 }
 
 void
@@ -185,14 +182,16 @@ MM_ParallelDispatcher::masterEntryPoint(MM_EnvironmentBase *env)
 }
 
 MM_ParallelDispatcher *
-MM_ParallelDispatcher::newInstance(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize)
+MM_ParallelDispatcher::newInstance(MM_EnvironmentBase *env, omrsig_handler_fn handler, void *handler_arg,
+								   uintptr_t defaultOSStackSize)
 {
 	MM_ParallelDispatcher *dispatcher;
-	
-	dispatcher = (MM_ParallelDispatcher *)env->getForge()->allocate(sizeof(MM_ParallelDispatcher), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+
+	dispatcher = (MM_ParallelDispatcher *)env->getForge()->allocate(sizeof(MM_ParallelDispatcher),
+																	MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (dispatcher) {
-		new(dispatcher) MM_ParallelDispatcher(env, handler, handler_arg, defaultOSStackSize);
-		if(!dispatcher->initialize(env)) {
+		new (dispatcher) MM_ParallelDispatcher(env, handler, handler_arg, defaultOSStackSize);
+		if (!dispatcher->initialize(env)) {
 			dispatcher->kill(env);
 			return NULL;
 		}
@@ -205,28 +204,28 @@ MM_ParallelDispatcher::kill(MM_EnvironmentBase *env)
 {
 	MM_Forge *forge = env->getForge();
 
-	if(_slaveThreadMutex) {
+	if (_slaveThreadMutex) {
 		omrthread_monitor_destroy(_slaveThreadMutex);
 		_slaveThreadMutex = NULL;
 	}
-    if(_dispatcherMonitor) {
-        omrthread_monitor_destroy(_dispatcherMonitor);
-        _dispatcherMonitor = NULL;
-    }
-	if(_synchronizeMutex) {
+	if (_dispatcherMonitor) {
+		omrthread_monitor_destroy(_dispatcherMonitor);
+		_dispatcherMonitor = NULL;
+	}
+	if (_synchronizeMutex) {
 		omrthread_monitor_destroy(_synchronizeMutex);
 		_synchronizeMutex = NULL;
 	}
 
-	if(_taskTable) {
+	if (_taskTable) {
 		forge->free(_taskTable);
 		_taskTable = NULL;
 	}
-	if(_statusTable) {
+	if (_statusTable) {
 		forge->free(_statusTable);
 		_statusTable = NULL;
 	}
-	if(_threadTable) {
+	if (_threadTable) {
 		forge->free(_threadTable);
 		_threadTable = NULL;
 	}
@@ -242,27 +241,30 @@ MM_ParallelDispatcher::initialize(MM_EnvironmentBase *env)
 	_threadCountMaximum = env->getExtensions()->gcThreadCount;
 	Assert_MM_true(0 < _threadCountMaximum);
 
-	if(omrthread_monitor_init_with_name(&_slaveThreadMutex, 0, "MM_ParallelDispatcher::slaveThread")
-	|| omrthread_monitor_init_with_name(&_dispatcherMonitor, 0, "MM_ParallelDispatcher::dispatcherControl")
-	|| omrthread_monitor_init_with_name(&_synchronizeMutex, 0, "MM_ParallelDispatcher::synchronize")) {
+	if (omrthread_monitor_init_with_name(&_slaveThreadMutex, 0, "MM_ParallelDispatcher::slaveThread")
+		|| omrthread_monitor_init_with_name(&_dispatcherMonitor, 0, "MM_ParallelDispatcher::dispatcherControl")
+		|| omrthread_monitor_init_with_name(&_synchronizeMutex, 0, "MM_ParallelDispatcher::synchronize")) {
 		goto error_no_memory;
 	}
 
 	/* Initialize the thread tables */
-	_threadTable = (omrthread_t *)forge->allocate(_threadCountMaximum * sizeof(omrthread_t), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
-	if(!_threadTable) {
+	_threadTable = (omrthread_t *)forge->allocate(_threadCountMaximum * sizeof(omrthread_t),
+												  MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	if (!_threadTable) {
 		goto error_no_memory;
 	}
 	memset(_threadTable, 0, _threadCountMaximum * sizeof(omrthread_t));
 
-	_statusTable = (uintptr_t *)forge->allocate(_threadCountMaximum * sizeof(uintptr_t *), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
-	if(!_statusTable) {
+	_statusTable = (uintptr_t *)forge->allocate(_threadCountMaximum * sizeof(uintptr_t *), MM_AllocationCategory::FIXED,
+												OMR_GET_CALLSITE());
+	if (!_statusTable) {
 		goto error_no_memory;
 	}
 	memset(_statusTable, 0, _threadCountMaximum * sizeof(uintptr_t *));
 
-	_taskTable = (MM_Task **)forge->allocate(_threadCountMaximum * sizeof(MM_Task *), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
-	if(!_taskTable) {
+	_taskTable = (MM_Task **)forge->allocate(_threadCountMaximum * sizeof(MM_Task *), MM_AllocationCategory::FIXED,
+											 OMR_GET_CALLSITE());
+	if (!_taskTable) {
 		goto error_no_memory;
 	}
 	memset(_taskTable, 0, _threadCountMaximum * sizeof(MM_Task *));
@@ -290,32 +292,26 @@ MM_ParallelDispatcher::startUpThreads()
 
 	/* We may be starting the master thread at this point too */
 	slaveThreadCount = useSeparateMasterThread() ? 0 : 1;
-	
+
 	while (slaveThreadCount < _threadCountMaximum) {
 		slaveInfo.slaveFlags = 0;
 		slaveInfo.slaveID = slaveThreadCount;
 
 		threadForkResult =
-			createThreadWithCategory(
-				&(_threadTable[slaveThreadCount]),
-				_defaultOSStackSize,
-				getThreadPriority(),
-				0,
-				dispatcher_thread_proc,
-				(void *)&slaveInfo,
-				J9THREAD_CATEGORY_SYSTEM_GC_THREAD);
+			createThreadWithCategory(&(_threadTable[slaveThreadCount]), _defaultOSStackSize, getThreadPriority(), 0,
+									 dispatcher_thread_proc, (void *)&slaveInfo, J9THREAD_CATEGORY_SYSTEM_GC_THREAD);
 		if (threadForkResult != 0) {
 			/* Thread creation failed - for safety sake, set the shutdown flag to true */
 			goto error;
 		}
 		do {
-			if(_inShutdown) {
+			if (_inShutdown) {
 				goto error;
 			}
 			omrthread_monitor_wait(_dispatcherMonitor);
 		} while (!slaveInfo.slaveFlags);
 
-		if(slaveInfo.slaveFlags != SLAVE_INFO_FLAG_OK ) {
+		if (slaveInfo.slaveFlags != SLAVE_INFO_FLAG_OK) {
 			goto error;
 		}
 
@@ -325,7 +321,7 @@ MM_ParallelDispatcher::startUpThreads()
 	omrthread_monitor_exit(_dispatcherMonitor);
 
 	_threadCount = _threadCountMaximum;
-	
+
 	_activeThreadCount = adjustThreadCount(_threadCount);
 
 	return true;
@@ -356,7 +352,7 @@ MM_ParallelDispatcher::shutDownThreads()
 	}
 
 	/* Set the slave thread mode to dying */
-	for(uintptr_t index=0; index < _threadCountMaximum; index++) {
+	for (uintptr_t index = 0; index < _threadCountMaximum; index++) {
 		_statusTable[index] = slave_status_dying;
 	}
 
@@ -384,7 +380,7 @@ MM_ParallelDispatcher::shutDownThreads()
 void
 MM_ParallelDispatcher::wakeUpThreads(uintptr_t count)
 {
-	omrthread_monitor_notify_all(_slaveThreadMutex);	
+	omrthread_monitor_notify_all(_slaveThreadMutex);
 }
 
 /**
@@ -398,24 +394,25 @@ MM_ParallelDispatcher::recomputeActiveThreadCount(MM_EnvironmentBase *env)
 	 *  2) the number of active CPU's at JVM startup 
 	 *  3) 1 if we have not yet started the GC helpers or are in process of  shutting down 
 	 *     the GC helper threads.
-	 */ 	
+	 */
 	_activeThreadCount = adjustThreadCount(_threadCount);
 }
 
-uintptr_t 
+uintptr_t
 MM_ParallelDispatcher::adjustThreadCount(uintptr_t maxThreadCount)
 {
 	uintptr_t toReturn = maxThreadCount;
-	
+
 	/* Did user specify number of gc threads? */
-	if(!_extensions->gcThreadCountForced) {
+	if (!_extensions->gcThreadCountForced) {
 		/* No ...Use a sensible number of threads for current heap size. Using too many 
 		 * can lead to unacceptable pause times due to insufficient parallelism. Additionally,
 		 * it can lead to excessive fragmentation, causing aborts and percolates. 
 		 */
 		MM_Heap *heap = (MM_Heap *)_extensions->heap;
 		uintptr_t heapSize = heap->getActiveMemorySize();
-		uintptr_t maximumThreadsForHeapSize = (heapSize > MINIMUM_HEAP_PER_THREAD) ?  heapSize / MINIMUM_HEAP_PER_THREAD : 1;
+		uintptr_t maximumThreadsForHeapSize =
+			(heapSize > MINIMUM_HEAP_PER_THREAD) ? heapSize / MINIMUM_HEAP_PER_THREAD : 1;
 		if (maximumThreadsForHeapSize < maxThreadCount) {
 			Trc_MM_ParallelDispatcher_adjustThreadCount_smallHeap(maximumThreadsForHeapSize);
 			toReturn = maximumThreadsForHeapSize;
@@ -429,7 +426,7 @@ MM_ParallelDispatcher::adjustThreadCount(uintptr_t maxThreadCount)
 			toReturn = activeCPUs;
 		}
 	}
-	
+
 	return toReturn;
 }
 
@@ -437,23 +434,23 @@ void
 MM_ParallelDispatcher::prepareThreadsForTask(MM_EnvironmentBase *env, MM_Task *task)
 {
 	omrthread_monitor_enter(_slaveThreadMutex);
-	
+
 	/* Set _slaveThreadsReservedForGC to true so that shutdown will not 
 	 * attempt to kill the slave threads until after this task is completed
 	 */
-	_slaveThreadsReservedForGC = true; 
+	_slaveThreadsReservedForGC = true;
 
 	if (!_extensions->isMetronomeGC()) {
 		/* Metronome recomputes the number of GC threads at the beginning of
 		 * a GC cycle. It may not be safe to do so at the beginning of a task
-		 */	
+		 */
 		recomputeActiveThreadCount(env);
 	}
 
 	task->setThreadCount(_activeThreadCount);
 	task->setSynchronizeMutex(_synchronizeMutex);
-	
-	for(uintptr_t index=0; index < _activeThreadCount; index++) {
+
+	for (uintptr_t index = 0; index < _activeThreadCount; index++) {
 		_statusTable[index] = slave_status_reserved;
 		_taskTable[index] = task;
 	}
@@ -465,7 +462,7 @@ void
 MM_ParallelDispatcher::acceptTask(MM_EnvironmentBase *env)
 {
 	uintptr_t slaveID = env->getSlaveID();
-	
+
 	env->resetWorkUnitIndex();
 	_statusTable[slaveID] = slave_status_active;
 	env->_currentTask = _taskTable[slaveID];
@@ -478,7 +475,7 @@ MM_ParallelDispatcher::completeTask(MM_EnvironmentBase *env)
 {
 	uintptr_t slaveID = env->getSlaveID();
 	_statusTable[slaveID] = slave_status_waiting;
-	
+
 	MM_Task *currentTask = env->_currentTask;
 	env->_currentTask = NULL;
 	_taskTable[slaveID] = NULL;
@@ -490,20 +487,20 @@ void
 MM_ParallelDispatcher::cleanupAfterTask(MM_EnvironmentBase *env)
 {
 	omrthread_monitor_enter(_slaveThreadMutex);
-	
+
 	_slaveThreadsReservedForGC = false;
-	
+
 	if (_inShutdown) {
 		omrthread_monitor_notify_all(_slaveThreadMutex);
 	}
-	
+
 	omrthread_monitor_exit(_slaveThreadMutex);
 }
 
 /**
  * Return a value indicating the priority at which GC threads should be run.
  */
-uintptr_t 
+uintptr_t
 MM_ParallelDispatcher::getThreadPriority()
 {
 	return J9THREAD_PRIORITY_NORMAL;
@@ -517,7 +514,7 @@ void
 MM_ParallelDispatcher::setThreadInitializationComplete(MM_EnvironmentBase *env)
 {
 	uintptr_t slaveID = env->getSlaveID();
-	
+
 	/* Set the status of the thread to waiting and notify that the thread has started up */
 	omrthread_monitor_enter(_dispatcherMonitor);
 	_statusTable[slaveID] = MM_ParallelDispatcher::slave_status_waiting;
@@ -529,7 +526,7 @@ void
 MM_ParallelDispatcher::reinitAfterFork(MM_EnvironmentBase *env, uintptr_t newThreadCount)
 {
 	/* Set the slave thread mode to dying */
-	for(uintptr_t index=0; index < _threadCountMaximum; index++) {
+	for (uintptr_t index = 0; index < _threadCountMaximum; index++) {
 		_statusTable[index] = slave_status_dying;
 	}
 

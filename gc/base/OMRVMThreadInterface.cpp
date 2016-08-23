@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 
 #include "CollectorLanguageInterface.hpp"

@@ -36,18 +36,12 @@ typedef struct J9TDFGroupTp {
 	struct J9TDFGroupTp *next;
 } J9TDFGroupTp;
 
-
 /* Trace group and link-list of TP ids that belong to this group*/
 typedef struct J9TDFGroup {
 	const char *name;
 	J9TDFGroupTp *groupTpIds;
 	struct J9TDFGroup *nextGroup;
-	J9TDFGroup()
-		: name(NULL)
-		, groupTpIds(NULL)
-		, nextGroup(NULL)
-	{
-	}
+	J9TDFGroup() : name(NULL), groupTpIds(NULL), nextGroup(NULL) {}
 } J9TDFGroup;
 
 /* TDF file header */
@@ -56,13 +50,7 @@ typedef struct J9TDFHeader {
 	const char *submodules;
 	char *datfilename;
 	bool auxiliary;
-	J9TDFHeader()
-		: executable(NULL)
-		, submodules(NULL)
-		, datfilename(NULL)
-		, auxiliary(false)
-	{
-	}
+	J9TDFHeader() : executable(NULL), submodules(NULL), datfilename(NULL), auxiliary(false) {}
 } J9TDFHeader;
 
 /* TDF File TP structure */
@@ -81,19 +69,8 @@ typedef struct J9TDFTracepoint {
 	char *parameters;
 	struct J9TDFTracepoint *nexttp;
 	J9TDFTracepoint()
-		: type(UT_EVENT_TYPE)
-		, overhead(0)
-		, level(0)
-		, parmCount(0)
-		, hasEnv(false)
-		, obsolete(false)
-		, test(false)
-		, isExplicit(false)
-		, name(NULL)
-		, groups(NULL)
-		, format(NULL)
-		, parameters(NULL)
-		, nexttp(NULL)
+		: type(UT_EVENT_TYPE), overhead(0), level(0), parmCount(0), hasEnv(false), obsolete(false), test(false),
+		  isExplicit(false), name(NULL), groups(NULL), format(NULL), parameters(NULL), nexttp(NULL)
 	{
 	}
 } J9TDFTracepoint;
@@ -104,23 +81,14 @@ typedef struct J9TDFFile {
 	J9TDFHeader header;
 	J9TDFTracepoint *tracepoints;
 	J9TDFTracepoint *lasttp;
-	J9TDFFile()
-		: fileName(NULL)
-		, tracepoints(NULL)
-		, lasttp(NULL)
-	{
-	}
+	J9TDFFile() : fileName(NULL), tracepoints(NULL), lasttp(NULL) {}
 } J9TDFFile;
 
 /* Location of a file or a directory in a file system */
 typedef struct Path {
 	const char *path;
 	Path *next;
-	Path()
-		: path(NULL)
-		, next(NULL)
-	{
-	}
+	Path() : path(NULL), next(NULL) {}
 } Path;
 
 /* Command line options */
@@ -140,15 +108,8 @@ typedef struct J9TDFOptions {
 	bool treatWarningAsError;
 
 	J9TDFOptions()
-		: rasMajorVersion(5)
-		, rasMinorVersion(1)
-		, threshold(1)
-		, force(false)
-		, generateCFiles(false)
-		, writeToCurrentDir(false)
-		, rootDirectory(NULL)
-		, debugOutput(false)
-		, treatWarningAsError(false)
+		: rasMajorVersion(5), rasMinorVersion(1), threshold(1), force(false), generateCFiles(false),
+		  writeToCurrentDir(false), rootDirectory(NULL), debugOutput(false), treatWarningAsError(false)
 	{
 	}
 } J9TDFOptions;

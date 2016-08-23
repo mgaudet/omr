@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "PhysicalArena.hpp"
 
 #include "EnvironmentBase.hpp"
@@ -60,7 +59,7 @@ MM_PhysicalArena::initialize(MM_EnvironmentBase *env)
 void
 MM_PhysicalArena::tearDown(MM_EnvironmentBase *env)
 {
-	if(_attached) {
+	if (_attached) {
 		_heap->detachArena(env, this);
 	}
 }

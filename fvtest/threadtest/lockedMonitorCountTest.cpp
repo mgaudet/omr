@@ -23,7 +23,7 @@
  * verifies that omrthread_t->lockedmonitorcount is maintained correctly
  */
 
-class LockedMonitorCountTest: public ::testing::Test
+class LockedMonitorCountTest : public ::testing::Test
 {
 	/*
 	 * Data members
@@ -57,10 +57,7 @@ protected:
 	}
 
 public:
-	LockedMonitorCountTest() :
-		::testing::Test(), cthr(NULL), self(NULL), mon(0, "mon")
-	{
-	}
+	LockedMonitorCountTest() : ::testing::Test(), cthr(NULL), self(NULL), mon(0, "mon") {}
 };
 
 TEST_F(LockedMonitorCountTest, TestEnterExit)

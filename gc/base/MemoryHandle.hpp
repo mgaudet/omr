@@ -16,24 +16,23 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  ******************************************************************************/
 
-
 #if !defined(MEMORYHANDLE_HPP)
 #define MEMORYHANDLE_HPP
 
 class MM_VirtualMemory;
 
-class MM_MemoryHandle {
+class MM_MemoryHandle
+{
 	/*
 	 * Data members
 	 */
 private:
-	MM_VirtualMemory* _virtualMemory; /**< pointer to virtual memory instance */
-	void* _memoryBase; /**< lowest memory address */
-	void* _memoryTop; /**< highest memory address */
+	MM_VirtualMemory *_virtualMemory; /**< pointer to virtual memory instance */
+	void *_memoryBase;				  /**< lowest memory address */
+	void *_memoryTop;				  /**< highest memory address */
 
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
@@ -43,7 +42,8 @@ protected:
 	 * Set _virtualMemory field
 	 * @param virtualMemory virtual memory pointer to set
 	 */
-	MMINLINE void setVirtualMemory(MM_VirtualMemory* virtualMemory)
+	MMINLINE void
+	setVirtualMemory(MM_VirtualMemory *virtualMemory)
 	{
 		_virtualMemory = virtualMemory;
 	}
@@ -52,7 +52,8 @@ protected:
 	 * Return back virtual memory pointer
 	 * @return virtual memory pointer
 	 */
-	MMINLINE MM_VirtualMemory* getVirtualMemory() const
+	MMINLINE MM_VirtualMemory *
+	getVirtualMemory() const
 	{
 		return _virtualMemory;
 	}
@@ -61,7 +62,8 @@ protected:
 	 * Set memory base pointer
 	 * @param memoryBase memory base pointer
 	 */
-	MMINLINE void setMemoryBase(void* memoryBase)
+	MMINLINE void
+	setMemoryBase(void *memoryBase)
 	{
 		_memoryBase = memoryBase;
 	}
@@ -70,7 +72,8 @@ protected:
 	 * Return back memory base pointer
 	 * @return memory base pointer
 	 */
-	MMINLINE void* getMemoryBase()
+	MMINLINE void *
+	getMemoryBase()
 	{
 		return _memoryBase;
 	}
@@ -79,7 +82,8 @@ protected:
 	 * Set memory top pointer
 	 * @param memoryTop memory top pointer
 	 */
-	MMINLINE void setMemoryTop(void* memoryTop)
+	MMINLINE void
+	setMemoryTop(void *memoryTop)
 	{
 		_memoryTop = memoryTop;
 	}
@@ -88,16 +92,14 @@ protected:
 	 * Return back memory top pointer
 	 * @return memory top pointer
 	 */
-	MMINLINE void* getMemoryTop()
+	MMINLINE void *
+	getMemoryTop()
 	{
 		return _memoryTop;
 	}
 
 public:
-	MM_MemoryHandle()
-		: _virtualMemory(NULL)
-		, _memoryBase(NULL)
-		, _memoryTop(NULL) {};
+	MM_MemoryHandle() : _virtualMemory(NULL), _memoryBase(NULL), _memoryTop(NULL){};
 
 	/*
 	 * friends

@@ -21,8 +21,8 @@
 #include "unix/unixthreadattr.h"
 
 intptr_t
-osthread_create(struct J9Thread *self, OSTHREAD *handle, const omrthread_attr_t attr,
-				WRAPPER_FUNC entrypoint, WRAPPER_ARG entryarg)
+osthread_create(struct J9Thread *self, OSTHREAD *handle, const omrthread_attr_t attr, WRAPPER_FUNC entrypoint,
+				WRAPPER_ARG entryarg)
 {
 	intptr_t retCode;
 	unixthread_attr_t ux;
@@ -41,7 +41,7 @@ osthread_create(struct J9Thread *self, OSTHREAD *handle, const omrthread_attr_t 
 			/* z stores the error code in errno and errno2, not in the return value from pthread_create() */
 			self->os_errno = errno;
 			self->os_errno2 = __errno2();
-#else /* J9ZOS390 */
+#else  /* J9ZOS390 */
 			self->os_errno = (omrthread_os_errno_t)retCode;
 #endif /* J9ZOS390 */
 		}

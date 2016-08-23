@@ -37,41 +37,15 @@
 using std::ios;
 using std::stringstream;
 
-const char *const baseTypeArray[] = {
-	"<NoType>",
-	"void",
-	"I8", /* This could also be char. */
-	"wchar_t",
-	"I8",
-	"U8",
-	"I32",
-	"U32",
-	"float",
-	"<BCD>",
-	"bool",
-	"short",
-	"unsigned short",
-	"I32", /* This should be just a long */
-	"U32", /* his should be unsigned long */
-	"I8",
-	"I16",
-	"I32",
-	"I64",
-	"__int128",
-	"U8",
-	"U16",
-	"U32",
-	"U64",
-	"unsigned __int128",
-	"<currency>",
-	"<date>",
-	"VARIANT",
-	"<complex>",
-	"<bit>",
-	"BSTR",
-	"HRESULT",
-	"double"
-};
+const char *const baseTypeArray[] = {"<NoType>",   "void",	"I8", /* This could also be char. */
+									 "wchar_t",	"I8",	  "U8",		 "I32",		  "U32",
+									 "float",	  "<BCD>",   "bool",	"short",	 "unsigned short",
+									 "I32", /* This should be just a long */
+									 "U32", /* his should be unsigned long */
+									 "I8",		   "I16",	 "I32",	 "I64",		  "__int128",
+									 "U8",		   "U16",	 "U32",	 "U64",		  "unsigned __int128",
+									 "<currency>", "<date>",  "VARIANT", "<complex>", "<bit>",
+									 "BSTR",	   "HRESULT", "double"};
 
 /* temporary global variable to be removed once PdbScanner is complete */
 static string errorNoType = "ERROR_PDBSCANNER_MISSING_THIS_TYPE";
@@ -171,7 +145,7 @@ PdbScanner::startScan(OMRPortLibrary *portLibrary, Symbol_IR *const ir, vector<s
 		int lastProgressUpdate = 0;
 		int count = 0;
 		for (vector<string>::iterator it = debugFiles->begin(); it != debugFiles->end(); ++it) {
-			if (count ++ > lastProgressUpdate + debugFiles->size() / 10) {
+			if (count++ > lastProgressUpdate + debugFiles->size() / 10) {
 				printf("Completed scanning %d of %d files...\n", count, debugFiles->size());
 				lastProgressUpdate = count;
 			}
@@ -206,7 +180,7 @@ PdbScanner::startScan(OMRPortLibrary *portLibrary, Symbol_IR *const ir, vector<s
 				diaSymbol->Release();
 				diaSymbol = NULL;
 			}
-			delete(filename);
+			delete (filename);
 			if (DDR_RC_OK != rc) {
 				break;
 			}
@@ -236,7 +210,7 @@ PdbScanner::renameAnonymousTypes()
 	 * print it.
 	 */
 	ULONGLONG unnamedTypeCount = 0;
-	for (vector<Type *>::iterator it = _ir->_types.begin(); it != _ir->_types.end(); it ++) {
+	for (vector<Type *>::iterator it = _ir->_types.begin(); it != _ir->_types.end(); it++) {
 		renameAnonymousType(*it, &unnamedTypeCount);
 	}
 }
@@ -253,37 +227,39 @@ PdbScanner::renameAnonymousType(Type *type, ULONGLONG *unnamedTypeCount)
 			 * a placeholder name.
 			 */
 			stringstream ss;
-			ss << "AnonymousType" << (*unnamedTypeCount) ++;
+			ss << "AnonymousType" << (*unnamedTypeCount)++;
 			type->_name = ss.str();
 		} else {
 			type->_name = "";
 		}
-
 	}
 	NamespaceUDT *namespaceUDT = dynamic_cast<NamespaceUDT *>(type);
 	if (NULL != namespaceUDT) {
-		for (vector<UDT *>::iterator it = namespaceUDT->_subUDTs.begin(); it != namespaceUDT->_subUDTs.end(); it ++) {
+		for (vector<UDT *>::iterator it = namespaceUDT->_subUDTs.begin(); it != namespaceUDT->_subUDTs.end(); it++) {
 			renameAnonymousType(*it, unnamedTypeCount);
 		}
 	}
 }
 
 DDR_RC
-PdbScanner::loadDataFromPdb(const wchar_t *filename, IDiaDataSource **dataSource, IDiaSession **session, IDiaSymbol **symbol)
+PdbScanner::loadDataFromPdb(const wchar_t *filename, IDiaDataSource **dataSource, IDiaSession **session,
+							IDiaSymbol **symbol)
 {
 	DDR_RC rc = DDR_RC_OK;
 	/* Attemt to co-create the DiaSource instance. On failure to find the required
 	 * dll, instead attempt to find and load the dll first.
 	 */
-	HRESULT hr = CoCreateInstance(__uuidof(DiaSource), NULL, CLSCTX_INPROC_SERVER, __uuidof(IDiaDataSource), (void **)dataSource);
+	HRESULT hr = CoCreateInstance(__uuidof(DiaSource), NULL, CLSCTX_INPROC_SERVER, __uuidof(IDiaDataSource),
+								  (void **)dataSource);
 	if (FAILED(hr)) {
 		const char *libraries[] = {"MSDIA100", "MSDIA80", "MSDIA70", "MSDIA60"};
 		rc = DDR_RC_ERROR;
 		for (size_t i = 0; i < sizeof(libraries) / sizeof(char *); i += 1) {
 			HMODULE hmodule = LoadLibrary(libraries[i]);
-			BOOL (WINAPI *DllGetClassObject)(REFCLSID, REFIID, LPVOID) = NULL;
+			BOOL(WINAPI * DllGetClassObject)(REFCLSID, REFIID, LPVOID) = NULL;
 			if (NULL != hmodule) {
-				 DllGetClassObject = (BOOL (WINAPI *)(REFCLSID, REFIID, LPVOID))GetProcAddress(hmodule, "DllGetClassObject");
+				DllGetClassObject =
+					(BOOL(WINAPI *)(REFCLSID, REFIID, LPVOID))GetProcAddress(hmodule, "DllGetClassObject");
 			}
 
 			IClassFactory *classFactory = NULL;
@@ -291,7 +267,7 @@ PdbScanner::loadDataFromPdb(const wchar_t *filename, IDiaDataSource **dataSource
 				hr = DllGetClassObject(__uuidof(DiaSource), IID_IClassFactory, &classFactory);
 			}
 			if (SUCCEEDED(hr)) {
-				hr = classFactory->CreateInstance(NULL, __uuidof(IDiaDataSource), (void**)dataSource);
+				hr = classFactory->CreateInstance(NULL, __uuidof(IDiaDataSource), (void **)dataSource);
 			}
 			if (SUCCEEDED(hr)) {
 				rc = DDR_RC_OK;
@@ -307,7 +283,9 @@ PdbScanner::loadDataFromPdb(const wchar_t *filename, IDiaDataSource **dataSource
 	if (DDR_RC_OK == rc) {
 		hr = (*dataSource)->loadDataFromPdb(filename);
 		if (FAILED(hr)) {
-			ERRMSG("loadDataFromPdb() failed for file %ls with HRESULT = %08X. Ensure the input is a pdb and not an exe.", filename, hr);
+			ERRMSG(
+				"loadDataFromPdb() failed for file %ls with HRESULT = %08X. Ensure the input is a pdb and not an exe.",
+				filename, hr);
 			rc = DDR_RC_ERROR;
 		}
 	}
@@ -334,7 +312,7 @@ PdbScanner::loadDataFromPdb(const wchar_t *filename, IDiaDataSource **dataSource
 bool
 PdbScanner::blacklistedSymbol(string name)
 {
-	for (set<string>::iterator it = _blacklistWildcard.begin(); it != _blacklistWildcard.end(); it ++) {
+	for (set<string>::iterator it = _blacklistWildcard.begin(); it != _blacklistWildcard.end(); it++) {
 		size_t wildcardPos = 0;
 		size_t lastWildcardPos = 0;
 		size_t lastSequencePos = 0;
@@ -346,13 +324,10 @@ PdbScanner::blacklistedSymbol(string name)
 			}
 			string sequence = it->substr(lastWildcardPos, wildcardPos - lastWildcardPos);
 			size_t sequencePos = name.find(sequence);
-			matchFound = sequence.empty()
-				|| (0 == lastWildcardPos && 0 == sequencePos)
-				|| (string::npos != sequencePos && sequencePos > lastSequencePos);
-			matchFound = matchFound
-				&& (sequencePos + sequence.length() == name.length()
-				|| wildcardPos < it->length()
-				|| sequence.empty());
+			matchFound = sequence.empty() || (0 == lastWildcardPos && 0 == sequencePos)
+						 || (string::npos != sequencePos && sequencePos > lastSequencePos);
+			matchFound = matchFound && (sequencePos + sequence.length() == name.length() || wildcardPos < it->length()
+										|| sequence.empty());
 			if (!matchFound) {
 				break;
 			}
@@ -375,7 +350,7 @@ PdbScanner::updatePostponedFieldNames()
 	/* Update field type references for fields which were
 	 * processed before their type was added to the IR.
 	 */
-	for (vector<PostponedType>::iterator it = _postponedFields.begin(); it != _postponedFields.end(); it ++) {
+	for (vector<PostponedType>::iterator it = _postponedFields.begin(); it != _postponedFields.end(); it++) {
 		Type **type = it->type;
 		string typeIdentifier = it->typeIdentifier;
 
@@ -415,7 +390,7 @@ PdbScanner::addChildrenSymbols(IDiaSymbol *symbol, enum SymTagEnum symTag, Names
 	IDiaSymbol **childSymbols = NULL;
 	ULONG celt = 0;
 	if ((DDR_RC_OK == rc) && (0 != count)) {
-		childSymbols = new IDiaSymbol*[count];
+		childSymbols = new IDiaSymbol *[count];
 		hr = classSymbols->Next(count, childSymbols, &celt);
 		if (FAILED(hr)) {
 			ERRMSG("Failed to get children symbols with HRESULT = %08X", hr);
@@ -459,14 +434,15 @@ PdbScanner::addChildrenSymbols(IDiaSymbol *symbol, enum SymTagEnum symTag, Names
 	 * here, since they have no associated symbol.
 	 */
 	if (DDR_RC_OK == rc) {
-		for (vector<ULONG>::iterator it = innerTypeSymbols.begin(); it != innerTypeSymbols.end() && DDR_RC_OK == rc; it ++) {
+		for (vector<ULONG>::iterator it = innerTypeSymbols.begin(); it != innerTypeSymbols.end() && DDR_RC_OK == rc;
+			 it++) {
 			rc = addSymbol(childSymbols[*it], NULL);
 			childSymbols[*it]->Release();
 		}
 	}
 
 	if (NULL != childSymbols) {
-		delete(childSymbols);
+		delete (childSymbols);
 	}
 	if (NULL != classSymbols) {
 		classSymbols->Release();
@@ -486,11 +462,8 @@ PdbScanner::createTypedef(IDiaSymbol *symbol, NamespaceUDT *outerUDT)
 		/* Get the typedef's type's name to check the blacklist. */
 		IDiaSymbol *baseSymbol = symbol;
 		DWORD symTag = 0;
-		while (SymTagUDT != symTag
-			&& SymTagEnum != symTag
-			&& SymTagBaseType != symTag
-			&& SymTagFunctionType != symTag
-		) {
+		while (SymTagUDT != symTag && SymTagEnum != symTag && SymTagBaseType != symTag
+			   && SymTagFunctionType != symTag) {
 			/* Ignore sym tags Array and Pointer to find the actual type of the typedef.
 			 * setType() has similar logic, but black listed types would not be found
 			 * and errenously added to the postponed type list.
@@ -528,7 +501,7 @@ PdbScanner::createTypedef(IDiaSymbol *symbol, NamespaceUDT *outerUDT)
 					newTypedef->_sizeOf = newTypedef->_type->_sizeOf;
 					addType(newTypedef, NULL == outerUDT);
 				} else {
-					delete(newTypedef);
+					delete (newTypedef);
 				}
 			}
 		}
@@ -560,10 +533,7 @@ PdbScanner::addEnumMembers(IDiaSymbol *symbol, EnumUDT *const enumUDT)
 		LONG count = 0;
 		enumSymbols->get_Count(&count);
 		enumUDT->_enumMembers.reserve(count);
-		while (SUCCEEDED(enumSymbols->Next(1, &childSymbol, &celt))
-			&& (1 == celt)
-			&& (DDR_RC_OK == rc)
-		) {
+		while (SUCCEEDED(enumSymbols->Next(1, &childSymbol, &celt)) && (1 == celt) && (DDR_RC_OK == rc)) {
 			string name = "";
 			rc = getName(childSymbol, &name);
 
@@ -599,7 +569,7 @@ PdbScanner::createEnumUDT(IDiaSymbol *symbol, NamespaceUDT *outerUDT)
 
 	string name = "";
 	if (DDR_RC_OK == rc) {
-		 rc = getName(symbol, &name);
+		rc = getName(symbol, &name);
 	}
 
 	if (DDR_RC_OK == rc) {
@@ -635,7 +605,7 @@ PdbScanner::createEnumUDT(IDiaSymbol *symbol, NamespaceUDT *outerUDT)
 						}
 						addType(enumUDT, NULL == outerUDT);
 					} else {
-						delete(enumUDT);
+						delete (enumUDT);
 					}
 				}
 			}
@@ -659,8 +629,7 @@ PdbScanner::setMemberOffset(IDiaSymbol *symbol, Field *newField)
 
 	if (DDR_RC_OK == rc) {
 		switch (locType) {
-		case LocIsThisRel:
-		{
+		case LocIsThisRel: {
 			LONG loffset = 0;
 			hr = symbol->get_offset(&loffset);
 			if (FAILED(hr)) {
@@ -675,8 +644,7 @@ PdbScanner::setMemberOffset(IDiaSymbol *symbol, Field *newField)
 			/* TODO: Decide how to represent offset of static class members. */
 			newField->_isStatic = true;
 			break;
-		case LocIsBitField:
-		{
+		case LocIsBitField: {
 			LONG loffset = 0;
 			hr = symbol->get_offset(&loffset);
 			if (FAILED(hr)) {
@@ -873,7 +841,6 @@ PdbScanner::setBaseTypeFloat(ULONGLONG ulLen, Type **type)
 	return rc;
 }
 
-
 DDR_RC
 PdbScanner::setBaseTypeUInt(ULONGLONG ulLen, Type **type)
 {
@@ -978,8 +945,7 @@ PdbScanner::setType(IDiaSymbol *symbol, Type **type, Modifiers *modifiers, Names
 		case SymTagUDT:
 			rc = setTypeUDT(typeSymbol, type, outerUDT);
 			break;
-		case SymTagArrayType:
-		{
+		case SymTagArrayType: {
 			DWORD size = 0;
 			if (FAILED(typeSymbol->get_count(&size))) {
 				ERRMSG("Failed to get array dimensions.");
@@ -1164,7 +1130,7 @@ PdbScanner::createClassUDT(IDiaSymbol *symbol, NamespaceUDT *outerUDT)
 					if (DDR_RC_OK == rc) {
 						addType(classUDT, NULL == classUDT->_outerUDT);
 					} else {
-						delete(classUDT);
+						delete (classUDT);
 						classUDT = NULL;
 					}
 				}
@@ -1278,7 +1244,4 @@ PdbScanner::getUDTname(UDT *u)
 }
 
 DDR_RC
-PdbScanner::dispatchScanChildInfo(Type *type, void *data)
-{
-	return DDR_RC_OK;
-}
+PdbScanner::dispatchScanChildInfo(Type *type, void *data) { return DDR_RC_OK; }

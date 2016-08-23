@@ -36,7 +36,6 @@
 #include "portnls.h"
 #include "ut_omrport.h"
 
-
 #if defined(J9ZOS390)
 /* Needed for a translation table from ascii -> ebcdic */
 #include "atoe.h"
@@ -67,7 +66,7 @@ static int
 translateBufferingMode(int32_t mode)
 {
 	/* On most systems the modes are already mapped correctly */
-	return (int) mode;
+	return (int)mode;
 }
 
 /**
@@ -91,7 +90,7 @@ EsTranslateOpenFlags(int32_t flags)
 	flags &= (EsOpenWrite | EsOpenRead | EsOpenAppend);
 
 #if defined(J9ZOS390)
-	/* On Z/OS, stdio functions are shadowed to take ASCII strings, and turn them into EBCDIC.
+/* On Z/OS, stdio functions are shadowed to take ASCII strings, and turn them into EBCDIC.
 	 * Since fdopen is a POSIX function, it needs EBCDIC strings.
 	 */
 #pragma convlit(suspend)
@@ -117,7 +116,6 @@ EsTranslateOpenFlags(int32_t flags)
 #if defined(J9ZOS390)
 #pragma convlit(resume)
 #endif /* defined(J9ZOS390) */
-
 }
 
 /**
@@ -129,11 +127,11 @@ EsTranslateOpenFlags(int32_t flags)
  * @return the (negative) portable error code
  */
 static int32_t
-findError (int32_t errorCode)
+findError(int32_t errorCode)
 {
 	switch (errorCode) {
 	case EACCES:
-		/* FALLTHROUGH */
+	/* FALLTHROUGH */
 	case EPERM:
 		return OMRPORT_ERROR_FILE_NOPERMISSION;
 	case ENAMETOOLONG:
@@ -149,7 +147,7 @@ findError (int32_t errorCode)
 	case EEXIST:
 		return OMRPORT_ERROR_FILE_EXIST;
 	case ENOSPC:
-		/* FALLTHROUGH */
+	/* FALLTHROUGH */
 	case EFBIG:
 		return OMRPORT_ERROR_FILE_DISKFULL;
 	case EINVAL:
@@ -350,17 +348,16 @@ omrfilestream_write(struct OMRPortLibrary *portLibrary, OMRFileStream *fileStrea
 		rc = OMRPORT_ERROR_FILE_INVAL;
 	} else {
 		/* nbytes may be truncated during this cast, resulting in smaller writes than intended */
-		rc = (intptr_t) fwrite(buf, 1, (size_t) nbytes, fileStream);
+		rc = (intptr_t)fwrite(buf, 1, (size_t)nbytes, fileStream);
 		if (0 != ferror(fileStream)) {
 			rc = portLibrary->error_set_last_error(portLibrary, errno, findError(errno));
-			Trc_PRT_filestream_write_failedToWrite(fileStream, buf, nbytes, (int32_t) rc);
+			Trc_PRT_filestream_write_failedToWrite(fileStream, buf, nbytes, (int32_t)rc);
 		}
 	}
 
 	Trc_PRT_filestream_write_Exit(rc);
 	return rc;
 }
-
 
 /**
  * Set the buffer and mode to use for the stream.
@@ -385,7 +382,8 @@ omrfilestream_write(struct OMRPortLibrary *portLibrary, OMRFileStream *fileStrea
  * @note It is not guaranteed that the entire buffer will be used.
  */
 int32_t
-omrfilestream_setbuffer(OMRPortLibrary *portLibrary, OMRFileStream *fileStream, char *buffer, int32_t mode, uintptr_t size)
+omrfilestream_setbuffer(OMRPortLibrary *portLibrary, OMRFileStream *fileStream, char *buffer, int32_t mode,
+						uintptr_t size)
 {
 	int localMode = 0;
 	int32_t rc = 0;
@@ -397,7 +395,7 @@ omrfilestream_setbuffer(OMRPortLibrary *portLibrary, OMRFileStream *fileStream, 
 	if ((NULL == fileStream) || (-1 == localMode)) {
 		Trc_PRT_filestream_setbuffer_invalidArgs(fileStream, buffer, mode, size);
 		rc = OMRPORT_ERROR_FILE_INVAL;
-	} else if (0 != setvbuf(fileStream, (char *) buffer, mode, size)) {
+	} else if (0 != setvbuf(fileStream, (char *)buffer, mode, size)) {
 		Trc_PRT_filestream_setbuffer_failed(fileStream, buffer, mode, size);
 		rc = OMRPORT_ERROR_FILE_OPFAILED;
 	}
@@ -441,7 +439,7 @@ omrfilestream_fdopen(OMRPortLibrary *portLibrary, intptr_t fd, int32_t flags)
 	fileStream = fdopen(fileDescriptor, realFlags);
 	if (NULL == fileStream) {
 		rc = portLibrary->error_set_last_error(portLibrary, errno, findError(errno));
-		Trc_PRT_filestream_fdopen_failed(fd, flags, (int32_t) rc);
+		Trc_PRT_filestream_fdopen_failed(fd, flags, (int32_t)rc);
 	}
 
 	Trc_PRT_filestream_fdopen_Exit(fileStream);

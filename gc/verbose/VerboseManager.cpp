@@ -39,14 +39,15 @@
  * @return Pointer to the new MM_VerboseManager.
  */
 MM_VerboseManager *
-MM_VerboseManager::newInstance(MM_EnvironmentBase *env, OMR_VM* vm)
+MM_VerboseManager::newInstance(MM_EnvironmentBase *env, OMR_VM *vm)
 {
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(vm);
-	
-	MM_VerboseManager *verboseManager = (MM_VerboseManager *)extensions->getForge()->allocate(sizeof(MM_VerboseManager), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(vm);
+
+	MM_VerboseManager *verboseManager = (MM_VerboseManager *)extensions->getForge()->allocate(
+		sizeof(MM_VerboseManager), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (verboseManager) {
-		new(verboseManager) MM_VerboseManager(vm);
-		if(!verboseManager->initialize(env)) {
+		new (verboseManager) MM_VerboseManager(vm);
+		if (!verboseManager->initialize(env)) {
 			verboseManager->kill(env);
 			verboseManager = NULL;
 		}
@@ -63,7 +64,7 @@ MM_VerboseManager::kill(MM_EnvironmentBase *env)
 {
 	tearDown(env);
 
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
+	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
 	extensions->getForge()->free(this);
 }
 
@@ -82,13 +83,13 @@ MM_VerboseManager::initialize(MM_EnvironmentBase *env)
 	if (NULL == _writerChain) {
 		return false;
 	}
-	
-	if(NULL == (_verboseHandlerOutput = createVerboseHandlerOutputObject(env))) {
+
+	if (NULL == (_verboseHandlerOutput = createVerboseHandlerOutputObject(env))) {
 		return false;
 	}
 
 	_lastOutputTime = omrtime_hires_clock();
-	
+
 	return true;
 }
 
@@ -100,8 +101,8 @@ void
 MM_VerboseManager::tearDown(MM_EnvironmentBase *env)
 {
 	disableVerboseGC();
-	
-	if(NULL != _verboseHandlerOutput) {
+
+	if (NULL != _verboseHandlerOutput) {
 		_verboseHandlerOutput->kill(env);
 		_verboseHandlerOutput = NULL;
 	}
@@ -130,7 +131,7 @@ void
 MM_VerboseManager::closeStreams(MM_EnvironmentBase *env)
 {
 	MM_VerboseWriter *writer = _writerChain->getFirstWriter();
-	while(NULL != writer) {
+	while (NULL != writer) {
 		writer->closeStream(env);
 		writer = writer->getNextWriter();
 	}
@@ -164,8 +165,8 @@ MM_VerboseManager::findWriterInChain(WriterType type)
 {
 	MM_VerboseWriter *writer = _writerChain->getFirstWriter();
 
-	while (NULL != writer){
-		if (type == writer->getType()){
+	while (NULL != writer) {
+		if (type == writer->getType()) {
 			return writer;
 		}
 		writer = writer->getNextWriter();
@@ -184,8 +185,8 @@ MM_VerboseManager::countActiveOutputHandlers()
 	MM_VerboseWriter *writer = _writerChain->getFirstWriter();
 	uintptr_t count = 0;
 
-	while(NULL != writer) {
-		if(writer->isActive()) {
+	while (NULL != writer) {
+		if (writer->isActive()) {
 			count += 1;
 		}
 		writer = writer->getNextWriter();
@@ -202,7 +203,7 @@ MM_VerboseManager::disableWriters()
 {
 	MM_VerboseWriter *writer = _writerChain->getFirstWriter();
 
-	while(NULL != writer) {
+	while (NULL != writer) {
 		writer->isActive(false);
 		writer = writer->getNextWriter();
 	}
@@ -211,23 +212,23 @@ MM_VerboseManager::disableWriters()
 WriterType
 MM_VerboseManager::parseWriterType(MM_EnvironmentBase *env, char *filename, uintptr_t fileCount, uintptr_t iterations)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
-	if(NULL == filename) {
+	if (NULL == filename) {
 		return VERBOSE_WRITER_STANDARD_STREAM;
 	}
 
-	if(!strcmp(filename, "stderr") || !strcmp(filename, "stdout")) {
+	if (!strcmp(filename, "stderr") || !strcmp(filename, "stdout")) {
 		return VERBOSE_WRITER_STANDARD_STREAM;
 	}
 
 #if defined(OMR_RAS_TDF_TRACE)
-	if(!strcmp(filename, "trace")) {
+	if (!strcmp(filename, "trace")) {
 		return VERBOSE_WRITER_TRACE;
 	}
 #endif /* OMR_RAS_TDF_TRACE */
 
-	if(!strcmp(filename, "hook")) {
+	if (!strcmp(filename, "hook")) {
 		return VERBOSE_WRITER_HOOK;
 	}
 
@@ -264,7 +265,7 @@ MM_VerboseManager::configureVerboseGC(OMR_VM *omrVM, char *filename, uintptr_t f
 
 		writer = createWriter(&env, type, filename, fileCount, iterations);
 
-		if(NULL == writer) {
+		if (NULL == writer) {
 			return false;
 		}
 
@@ -277,10 +278,11 @@ MM_VerboseManager::configureVerboseGC(OMR_VM *omrVM, char *filename, uintptr_t f
 }
 
 MM_VerboseWriter *
-MM_VerboseManager::createWriter(MM_EnvironmentBase *env, WriterType type, char *filename, uintptr_t fileCount, uintptr_t iterations)
+MM_VerboseManager::createWriter(MM_EnvironmentBase *env, WriterType type, char *filename, uintptr_t fileCount,
+								uintptr_t iterations)
 {
 	MM_VerboseWriter *writer = NULL;
-	switch(type) {
+	switch (type) {
 	case VERBOSE_WRITER_STANDARD_STREAM:
 		writer = MM_VerboseWriterStreamOutput::newInstance(env, filename);
 		break;

@@ -83,13 +83,13 @@ omrthread_spinlock_acquire(omrthread_t self, omrthread_monitor_t monitor)
 			VM_AtomicSupport::yieldCPU();
 
 			/* begin tight loop */
-			for (uintptr_t spinCount1 = monitor->spinCount1; spinCount1 > 0; spinCount1--)	{
+			for (uintptr_t spinCount1 = monitor->spinCount1; spinCount1 > 0; spinCount1--) {
 				VM_AtomicSupport::nop();
 			} /* end tight loop */
 		}
 #if defined(OMR_THR_YIELD_ALG)
 		omrthread_yield_new(spinCount3);
-#else /* OMR_THR_YIELD_ALG */
+#else  /* OMR_THR_YIELD_ALG */
 		omrthread_yield();
 #endif /* OMR_THR_YIELD_ALG */
 	}
@@ -162,5 +162,4 @@ omrthread_spinlock_swapState(omrthread_monitor_t monitor, uintptr_t newState)
 }
 
 #endif /* OMR_THR_THREE_TIER_LOCKING */
-
 }

@@ -38,11 +38,15 @@ class MM_ParallelScavengeTask : public MM_ParallelTask
 {
 protected:
 	MM_Scavenger *_collector;
-	MM_CycleState *_cycleState;  /**< Collection cycle state active for the task */
+	MM_CycleState *_cycleState; /**< Collection cycle state active for the task */
 
 public:
-	virtual UDATA getVMStateID() { return J9VMSTATE_GC_SCAVENGE; };
-	
+	virtual UDATA
+	getVMStateID()
+	{
+		return J9VMSTATE_GC_SCAVENGE;
+	};
+
 	virtual void run(MM_EnvironmentBase *env);
 	virtual void setup(MM_EnvironmentBase *env);
 	virtual void cleanup(MM_EnvironmentBase *env);
@@ -59,7 +63,7 @@ public:
 	 * @see MM_ParallelTask::synchronizeGCThreadsAndReleaseMaster
 	 */
 	virtual bool synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase *env, const char *id);
-	
+
 	/**
 	 * Override to collect stall time statistics.
 	 * @see MM_ParallelTask::synchronizeGCThreadsAndReleaseSingleThread
@@ -70,10 +74,9 @@ public:
 	/**
 	 * Create a ParallelScavengeTask object.
 	 */
-	MM_ParallelScavengeTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_Scavenger *collector,MM_CycleState *cycleState) :
-		MM_ParallelTask(env, dispatcher)
-		,_collector(collector)
-		,_cycleState(cycleState)
+	MM_ParallelScavengeTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_Scavenger *collector,
+							MM_CycleState *cycleState)
+		: MM_ParallelTask(env, dispatcher), _collector(collector), _cycleState(cycleState)
 	{
 		_typeId = __FUNCTION__;
 	};

@@ -40,7 +40,6 @@ private:
 
 protected:
 public:
-
 	/*
 	 * Member functions
 	 */
@@ -48,10 +47,7 @@ private:
 protected:
 public:
 	MM_ScavengerBackOutScanner(MM_EnvironmentBase *env, bool singleThread, MM_Scavenger *scavenger)
-		: MM_Base()
-		, _scavenger(scavenger)
-	{
-	};
+		: MM_Base(), _scavenger(scavenger){};
 
 	void
 	scanAllSlots(MM_EnvironmentBase *env)
@@ -60,13 +56,13 @@ public:
 		OMR_VM_Example *omrVM = (OMR_VM_Example *)env->getOmrVM()->_language_vm;
 		RootEntry *rootEntry = (RootEntry *)hashTableStartDo(omrVM->rootTable, &state);
 		while (rootEntry != NULL) {
-			_scavenger->backOutFixSlotWithoutCompression((volatile omrobjectptr_t *) &rootEntry->rootPtr);
+			_scavenger->backOutFixSlotWithoutCompression((volatile omrobjectptr_t *)&rootEntry->rootPtr);
 			rootEntry = (RootEntry *)hashTableNextDo(&state);
 		}
 		ObjectEntry *objectEntry = (ObjectEntry *)hashTableStartDo(omrVM->objectTable, &state);
 		while (NULL != objectEntry) {
 			if (NULL != objectEntry->objPtr) {
-				_scavenger->backOutFixSlotWithoutCompression((volatile omrobjectptr_t *) &objectEntry->objPtr);
+				_scavenger->backOutFixSlotWithoutCompression((volatile omrobjectptr_t *)&objectEntry->objPtr);
 			}
 			objectEntry = (ObjectEntry *)hashTableNextDo(&state);
 		}

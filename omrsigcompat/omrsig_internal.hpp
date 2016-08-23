@@ -15,14 +15,14 @@
  * Contributors:
  *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
  *******************************************************************************/
- 
+
 #include <signal.h>
 #if defined(WIN32)
 /* windows.h defined UDATA.  Ignore its definition */
 #define UDATA UDATA_win32_
 #include <windows.h>
-#undef UDATA	/* this is safe because our UDATA is a typedef, not a macro */
-#else /* defined(WIN32) */
+#undef UDATA /* this is safe because our UDATA is a typedef, not a macro */
+#else		 /* defined(WIN32) */
 #include <pthread.h>
 #endif /* defined(WIN32) */
 
@@ -64,23 +64,19 @@ struct OMR_SigData {
 #define NSIG 65
 #endif /* defined(J9ZOS390) */
 
-
 #if defined(WIN32)
 
 #define LockMask
-#define SIGLOCK(sigMutex) \
-	sigMutex.lock();
-#define SIGUNLOCK(sigMutex) \
-	sigMutex.unlock();
+#define SIGLOCK(sigMutex) sigMutex.lock();
+#define SIGUNLOCK(sigMutex) sigMutex.unlock();
 
 #else /* defined(WIN32) */
 
 #define LockMask sigset_t *previousMask
-#define SIGLOCK(sigMutex) \
-	sigset_t previousMask; \
+#define SIGLOCK(sigMutex)                                                                                              \
+	sigset_t previousMask;                                                                                             \
 	sigMutex.lock(&previousMask);
-#define SIGUNLOCK(sigMutex) \
-	sigMutex.unlock(&previousMask);
+#define SIGUNLOCK(sigMutex) sigMutex.unlock(&previousMask);
 
 #endif /* defined(WIN32) */
 
@@ -90,10 +86,7 @@ private:
 	volatile uintptr_t locked;
 
 public:
-	SigMutex()
-	{
-		locked = 0;
-	}
+	SigMutex() { locked = 0; }
 
 	void lock(LockMask)
 	{

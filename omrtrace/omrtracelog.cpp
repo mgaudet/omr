@@ -28,7 +28,6 @@
 
 #define MAX_QUALIFIED_NAME_LENGTH 16
 
-
 static OMR_TraceBuffer *allocateTraceBuffer(OMR_TraceThread *currentThread);
 static UtProcessorInfo *getProcessorInfo(void);
 static void raiseAssertion(void);
@@ -46,12 +45,12 @@ char pointerSpec[2] = {(char)sizeof(char *), '\0'};
 omr_error_t
 initTraceHeader(void)
 {
-	int                 size;
-	UtTraceFileHdr     *trcHdr;
-	char               *ptr;
-	UtTraceCfg         *cfg;
-	int                 actSize, srvSize, startSize;
-	UtProcessorInfo			*procinfo;
+	int size;
+	UtTraceFileHdr *trcHdr;
+	char *ptr;
+	UtTraceCfg *cfg;
+	int actSize, srvSize, startSize;
+	UtProcessorInfo *procinfo;
 
 	OMRPORT_ACCESS_FROM_OMRPORT(OMR_TRACEGLOBAL(portLibrary));
 
@@ -72,17 +71,16 @@ initTraceHeader(void)
 	if (OMR_TRACEGLOBAL(serviceInfo) == NULL) {
 
 		/* Make sure we allocate this so we can free it on shutdown. */
-		OMR_TRACEGLOBAL(serviceInfo) = (char *)omrmem_allocate_memory(sizeof(UNKNOWN_SERVICE_LEVEL) + 1, OMRMEM_CATEGORY_TRACE);
+		OMR_TRACEGLOBAL(serviceInfo) =
+			(char *)omrmem_allocate_memory(sizeof(UNKNOWN_SERVICE_LEVEL) + 1, OMRMEM_CATEGORY_TRACE);
 		if (NULL == OMR_TRACEGLOBAL(serviceInfo)) {
 			return OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 		}
 		strcpy(OMR_TRACEGLOBAL(serviceInfo), UNKNOWN_SERVICE_LEVEL);
 	}
 	srvSize += (int)strlen(OMR_TRACEGLOBAL(serviceInfo)) + 1;
-	srvSize = ((srvSize +
-				UT_STRUCT_ALIGN - 1) / UT_STRUCT_ALIGN) * UT_STRUCT_ALIGN;
+	srvSize = ((srvSize + UT_STRUCT_ALIGN - 1) / UT_STRUCT_ALIGN) * UT_STRUCT_ALIGN;
 	size += srvSize;
-
 
 	/*
 	 *  Calculate length of startup options
@@ -91,8 +89,7 @@ initTraceHeader(void)
 	if (OMR_TRACEGLOBAL(properties) != NULL) {
 		startSize += (int)strlen(OMR_TRACEGLOBAL(properties)) + 1;
 	}
-	startSize = ((startSize +
-				  UT_STRUCT_ALIGN - 1) / UT_STRUCT_ALIGN) * UT_STRUCT_ALIGN;
+	startSize = ((startSize + UT_STRUCT_ALIGN - 1) / UT_STRUCT_ALIGN) * UT_STRUCT_ALIGN;
 	startSize = ((startSize + 3) / 4) * 4;
 	size += startSize;
 
@@ -101,16 +98,12 @@ initTraceHeader(void)
 	 */
 	actSize = offsetof(UtActiveSection, active);
 
-	for (cfg = OMR_TRACEGLOBAL(config);
-		 cfg != NULL;
-		 cfg = cfg->next) {
+	for (cfg = OMR_TRACEGLOBAL(config); cfg != NULL; cfg = cfg->next) {
 		actSize += (int)strlen(cfg->command) + 1;
 	}
-	actSize = ((actSize +
-				UT_STRUCT_ALIGN - 1) / UT_STRUCT_ALIGN) * UT_STRUCT_ALIGN;
+	actSize = ((actSize + UT_STRUCT_ALIGN - 1) / UT_STRUCT_ALIGN) * UT_STRUCT_ALIGN;
 	actSize = ((actSize + 3) / 4) * 4;
 	size += actSize;
-
 
 	/*
 	 *  Add length of UtProcSection
@@ -125,21 +118,19 @@ initTraceHeader(void)
 	memset(trcHdr, '\0', size);
 	initHeader(&trcHdr->header, UT_TRACE_HEADER_NAME, size);
 
-	trcHdr->bufferSize       = OMR_TRACEGLOBAL(bufferSize);
-	trcHdr->endianSignature  = UT_ENDIAN_SIGNATURE;
-	trcHdr->traceStart       = offsetof(UtTraceFileHdr, traceSection);
-	trcHdr->serviceStart     = trcHdr->traceStart + sizeof(UtTraceSection);
-	trcHdr->startupStart     = trcHdr->serviceStart + srvSize;
-	trcHdr->activeStart      = trcHdr->startupStart + startSize;
-	trcHdr->processorStart   = trcHdr->activeStart + actSize;
-
+	trcHdr->bufferSize = OMR_TRACEGLOBAL(bufferSize);
+	trcHdr->endianSignature = UT_ENDIAN_SIGNATURE;
+	trcHdr->traceStart = offsetof(UtTraceFileHdr, traceSection);
+	trcHdr->serviceStart = trcHdr->traceStart + sizeof(UtTraceSection);
+	trcHdr->startupStart = trcHdr->serviceStart + srvSize;
+	trcHdr->activeStart = trcHdr->startupStart + startSize;
+	trcHdr->processorStart = trcHdr->activeStart + actSize;
 
 	/*
 	 * Initialize trace section
 	 */
 	ptr = (char *)trcHdr + trcHdr->traceStart;
-	initHeader((UtDataHeader *)ptr, UT_TRACE_SECTION_NAME,
-			   sizeof(UtTraceSection));
+	initHeader((UtDataHeader *)ptr, UT_TRACE_SECTION_NAME, sizeof(UtTraceSection));
 	((UtTraceSection *)ptr)->startPlatform = OMR_TRACEGLOBAL(startPlatform);
 	((UtTraceSection *)ptr)->startSystem = OMR_TRACEGLOBAL(startSystem);
 	((UtTraceSection *)ptr)->type = OMR_TRACEGLOBAL(traceInCore) ? UT_TRACE_INTERNAL : UT_TRACE_EXTERNAL;
@@ -171,9 +162,7 @@ initTraceHeader(void)
 	ptr = (char *)trcHdr + trcHdr->activeStart;
 	initHeader((UtDataHeader *)ptr, UT_ACTIVE_SECTION_NAME, actSize);
 	ptr += offsetof(UtActiveSection, active);
-	for (cfg = OMR_TRACEGLOBAL(config);
-		 cfg != NULL;
-		 cfg = cfg->next) {
+	for (cfg = OMR_TRACEGLOBAL(config); cfg != NULL; cfg = cfg->next) {
 		strcpy(ptr, cfg->command);
 		ptr += strlen(cfg->command) + 1;
 	}
@@ -182,8 +171,7 @@ initTraceHeader(void)
 	 *  Initialize UtProcSection
 	 */
 	ptr = (char *)trcHdr + trcHdr->processorStart;
-	initHeader((UtDataHeader *)ptr, UT_PROC_SECTION_NAME,
-			   sizeof(UtProcSection));
+	initHeader((UtDataHeader *)ptr, UT_PROC_SECTION_NAME, sizeof(UtProcSection));
 	ptr += offsetof(UtProcSection, processorInfo);
 	procinfo = getProcessorInfo();
 	if (procinfo == NULL) {
@@ -213,7 +201,7 @@ getTrcBuf(OMR_TraceThread *thr, OMR_TraceBuffer *oldBuf, int bufferType)
 
 	OMRPORT_ACCESS_FROM_OMRPORT(OMR_TRACEGLOBAL(portLibrary));
 	writePlatform = omrtime_hires_clock();
-	writeSystem = ((uint64_t) omrtime_current_time_millis());
+	writeSystem = ((uint64_t)omrtime_current_time_millis());
 	writePlatform = (writePlatform >> 1) + (omrtime_hires_clock() >> 1);
 
 	if (oldBuf != NULL) {
@@ -267,9 +255,9 @@ getTrcBuf(OMR_TraceThread *thr, OMR_TraceBuffer *oldBuf, int bufferType)
 		}
 
 		VM_AtomicSupport::addU32((volatile uint32_t *)&OMR_TRACEGLOBAL(allocatedTraceBuffers), 1);
-		UT_DBGOUT(1, ("<UT> Allocated buffer %i " UT_POINTER_SPEC "\n", OMR_TRACEGLOBAL(allocatedTraceBuffers), trcBuf));
+		UT_DBGOUT(1,
+				  ("<UT> Allocated buffer %i " UT_POINTER_SPEC "\n", OMR_TRACEGLOBAL(allocatedTraceBuffers), trcBuf));
 	}
-
 
 	/*
 	 *  Initialize buffer for this thread
@@ -280,7 +268,7 @@ getTrcBuf(OMR_TraceThread *thr, OMR_TraceBuffer *oldBuf, int bufferType)
 	trcBuf->thr = NULL;
 
 	if (bufferType == UT_NORMAL_BUFFER) {
-		trcBuf->record.threadId   = (uint64_t)(uintptr_t)thr->id;
+		trcBuf->record.threadId = (uint64_t)(uintptr_t)thr->id;
 		trcBuf->record.threadSyn1 = (uint64_t)(uintptr_t)thr->synonym1;
 		trcBuf->record.threadSyn2 = (uint64_t)(uintptr_t)thr->synonym2;
 		strncpy(trcBuf->record.threadName, thr->name, UT_MAX_THREAD_NAME_LENGTH);
@@ -297,8 +285,7 @@ getTrcBuf(OMR_TraceThread *thr, OMR_TraceBuffer *oldBuf, int bufferType)
 #endif
 	}
 
-	trcBuf->record.firstEntry = offsetof(UtTraceRecord, threadName) +
-								(int32_t)strlen(trcBuf->record.threadName) + 1;
+	trcBuf->record.firstEntry = offsetof(UtTraceRecord, threadName) + (int32_t)strlen(trcBuf->record.threadName) + 1;
 
 out:
 
@@ -330,12 +317,7 @@ out:
  * returns     - void
  ******************************************************************************/
 static void
-copyToBuffer(OMR_TraceThread *thr,
-			 int bufferType,
-			 const char *var,
-			 char **p,
-			 int length,
-			 int *entryLength,
+copyToBuffer(OMR_TraceThread *thr, int bufferType, const char *var, char **p, int length, int *entryLength,
 			 OMR_TraceBuffer **trcBuf)
 {
 	int bufLeft = (int)((char *)&(*trcBuf)->record + OMR_TRACEGLOBAL(bufferSize) - *p);
@@ -428,17 +410,18 @@ copyToBuffer(OMR_TraceThread *thr,
 static void
 tracePrint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_list var)
 {
-	int             id;
-	char           *format;
-	uint32_t          hh, mm, ss, millis;
-	char            threadSwitch = ' ';
-	char							entryexit = ' ';
-	char							excpt = ' ';
-	static char     blanks[] = "                    "
-							   "                    "
-							   "                    "
-							   "                    "
-							   "                    ";
+	int id;
+	char *format;
+	uint32_t hh, mm, ss, millis;
+	char threadSwitch = ' ';
+	char entryexit = ' ';
+	char excpt = ' ';
+	static char blanks[] =
+		"                    "
+		"                    "
+		"                    "
+		"                    "
+		"                    ";
 	char qualifiedModuleName[MAX_QUALIFIED_NAME_LENGTH + 1];
 	const char *moduleName = NULL;
 	OMRPORT_ACCESS_FROM_OMRPORT(OMR_TRACEGLOBAL(portLibrary));
@@ -447,8 +430,9 @@ tracePrint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_lis
 	if (modInfo == NULL) {
 		strcpy(qualifiedModuleName, "dg");
 		moduleName = "dg";
-	} else 	if (modInfo->traceVersionInfo->traceVersion >= 7 && modInfo->containerModule != NULL) {
-		omrstr_printf(qualifiedModuleName, MAX_QUALIFIED_NAME_LENGTH, "%s(%s)", modInfo->name, modInfo->containerModule->name);
+	} else if (modInfo->traceVersionInfo->traceVersion >= 7 && modInfo->containerModule != NULL) {
+		omrstr_printf(qualifiedModuleName, MAX_QUALIFIED_NAME_LENGTH, "%s(%s)", modInfo->name,
+					  modInfo->containerModule->name);
 		moduleName = modInfo->name;
 	} else {
 		strncpy(qualifiedModuleName, modInfo->name, MAX_QUALIFIED_NAME_LENGTH);
@@ -459,7 +443,7 @@ tracePrint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_lis
 	 *  Split tracepoint id into component and tracepoint within component
 	 */
 
-	id   = (traceId >> 8) & UT_TRC_ID_MASK;
+	id = (traceId >> 8) & UT_TRC_ID_MASK;
 
 	/*
 	 * Find the appropriate format for this tracepoint
@@ -492,15 +476,14 @@ tracePrint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_lis
 		 *  If indented print was requested
 		 */
 		char *indent;
-		excpt = format[0];      /* Pick up exception flag, if any */
+		excpt = format[0]; /* Pick up exception flag, if any */
 		entryexit = format[1];
 
 		/*
 		 *  If this is an exit type tracepoint, decrease the indentation,
 		 *  but make sure it doesn't go negative
 		 */
-		if (format[1] == '<' &&
-			thr->indent > 0) {
+		if (format[1] == '<' && thr->indent > 0) {
 			thr->indent--;
 		}
 
@@ -524,9 +507,8 @@ tracePrint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_lis
 		/*
 		 *  Indented print
 		 */
-		omrtty_err_printf("%02d:%02d:%02d.%03d%c" UT_POINTER_SPEC
-						  "%16s.%-6d %c %s %c ", hh, mm, ss, millis, threadSwitch, thr->id, qualifiedModuleName,
-						  id, excpt, indent, entryexit);
+		omrtty_err_printf("%02d:%02d:%02d.%03d%c" UT_POINTER_SPEC "%16s.%-6d %c %s %c ", hh, mm, ss, millis,
+						  threadSwitch, thr->id, qualifiedModuleName, id, excpt, indent, entryexit);
 		omrtty_err_vprintf(format + 2, var);
 
 	} else {
@@ -536,11 +518,9 @@ tracePrint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_lis
 		excpt = format[0];
 		format[1] == ' ' ? (entryexit = '-') : (entryexit = format[1]);
 
-		omrtty_err_printf("%02d:%02d:%02d.%03d%c" UT_POINTER_SPEC
-						  "%16s.%-6d %c %c ", hh, mm, ss, millis, threadSwitch, thr->id, qualifiedModuleName,
-						  id, excpt, entryexit);
+		omrtty_err_printf("%02d:%02d:%02d.%03d%c" UT_POINTER_SPEC "%16s.%-6d %c %c ", hh, mm, ss, millis, threadSwitch,
+						  thr->id, qualifiedModuleName, id, excpt, entryexit);
 		omrtty_err_vprintf(format + 2, var);
-
 	}
 	omrtty_err_printf("\n");
 	freeTraceLock(thr);
@@ -556,9 +536,9 @@ tracePrint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_lis
 static void
 traceAssertion(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va_list var)
 {
-	int             id;
-	const char     *format;
-	uint32_t   hh, mm, ss, millis;
+	int id;
+	const char *format;
+	uint32_t hh, mm, ss, millis;
 	char qualifiedModuleName[MAX_QUALIFIED_NAME_LENGTH + 1];
 	OMRPORT_ACCESS_FROM_OMRPORT(OMR_TRACEGLOBAL(portLibrary));
 
@@ -566,7 +546,8 @@ traceAssertion(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va
 	if (modInfo == NULL) {
 		strcpy(qualifiedModuleName, "dg");
 	} else if (modInfo->traceVersionInfo->traceVersion >= 7 && modInfo->containerModule != NULL) {
-		omrstr_printf(qualifiedModuleName, MAX_QUALIFIED_NAME_LENGTH, "%s(%s)", modInfo->name, modInfo->containerModule->name);
+		omrstr_printf(qualifiedModuleName, MAX_QUALIFIED_NAME_LENGTH, "%s(%s)", modInfo->name,
+					  modInfo->containerModule->name);
 	} else {
 		strncpy(qualifiedModuleName, modInfo->name, MAX_QUALIFIED_NAME_LENGTH);
 	}
@@ -577,7 +558,7 @@ traceAssertion(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va
 	 *  Split tracepoint id into component and tracepoint within component
 	 */
 
-	id   = (traceId >> 8) & UT_TRC_ID_MASK;
+	id = (traceId >> 8) & UT_TRC_ID_MASK;
 
 	format = "* ** ASSERTION FAILED ** at %s:%d: %s";
 
@@ -589,9 +570,8 @@ traceAssertion(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, va
 	/*
 	 *  Non-indented print
 	 */
-	omrtty_err_printf("%02d:%02d:%02d.%03d " UT_POINTER_SPEC
-					  "%8s.%-6d *   ", hh, mm, ss, millis, thr->id, qualifiedModuleName,
-					  id);
+	omrtty_err_printf("%02d:%02d:%02d.%03d " UT_POINTER_SPEC "%8s.%-6d *   ", hh, mm, ss, millis, thr->id,
+					  qualifiedModuleName, id);
 	omrtty_err_vprintf(format + 2, var);
 
 	omrtty_err_printf("\n");
@@ -620,39 +600,37 @@ traceCount(UtModuleInfo *moduleInfo, uint32_t traceId)
  *
  ******************************************************************************/
 static void
-traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char *spec,
-	   va_list var, int bufferType)
+traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char *spec, va_list var, int bufferType)
 {
-	OMR_TraceBuffer   *trcBuf;
-	int                lastSequence;
-	int                entryLength;
-	int                length;
-	char              *p;
+	OMR_TraceBuffer *trcBuf;
+	int lastSequence;
+	int entryLength;
+	int length;
+	char *p;
 	const signed char *str;
-	char              *format = NULL;
-	int32_t               intVar;
-	char               charVar;
-	unsigned short     shortVar;
-	int64_t               i64Var;
-	double             doubleVar;
-	char              *ptrVar;
-	const char        *stringVar;
-	size_t             stringVarLen;
-	char              *containerModuleVar = NULL;
-	size_t             containerModuleVarLen = 0;
-	char               temp[3];
-	static char        lengthConversion[] = {0,
-											 sizeof(char),
-											 sizeof(short),
-											 0,
-											 sizeof(int32_t),
-											 sizeof(float),
-											 sizeof(char *),
-											 sizeof(double),
-											 sizeof(int64_t),
-											 sizeof(long double),
-											 0
-											};
+	char *format = NULL;
+	int32_t intVar;
+	char charVar;
+	unsigned short shortVar;
+	int64_t i64Var;
+	double doubleVar;
+	char *ptrVar;
+	const char *stringVar;
+	size_t stringVarLen;
+	char *containerModuleVar = NULL;
+	size_t containerModuleVarLen = 0;
+	char temp[3];
+	static char lengthConversion[] = {0,
+									  sizeof(char),
+									  sizeof(short),
+									  0,
+									  sizeof(int32_t),
+									  sizeof(float),
+									  sizeof(char *),
+									  sizeof(double),
+									  sizeof(int64_t),
+									  sizeof(long double),
+									  0};
 	OMRPORT_ACCESS_FROM_OMRPORT(OMR_TRACEGLOBAL(portLibrary));
 
 	if (modInfo != NULL) {
@@ -674,16 +652,13 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 	 *  Trace buffer available ?
 	 */
 	if (bufferType == UT_NORMAL_BUFFER) {
-		if (((trcBuf = thr->trcBuf) == NULL)
-		 && ((trcBuf = getTrcBuf(thr, NULL, bufferType)) == NULL)
-		) {
+		if (((trcBuf = thr->trcBuf) == NULL) && ((trcBuf = getTrcBuf(thr, NULL, bufferType)) == NULL)) {
 			return;
 		}
 #if OMR_ENABLE_EXCEPTION_OUTPUT
 	} else if (bufferType == UT_EXCEPTION_BUFFER) {
 		if (((trcBuf = OMR_TRACEGLOBAL(exceptionTrcBuf)) == NULL)
-		 && ((trcBuf = getTrcBuf(thr, NULL, bufferType)) == NULL)
-		) {
+			&& ((trcBuf = getTrcBuf(thr, NULL, bufferType)) == NULL)) {
 			return;
 		}
 #endif
@@ -702,7 +677,9 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 	/* additional sanity check */
 	if ((p < (char *)&trcBuf->record) || (p > ((char *)&trcBuf->record + OMR_TRACEGLOBAL(bufferSize)))) {
 		/* the buffer's been mangled so free it for reuse and acquire another */
-		UT_DBGOUT(1, ("<UT> invalid nextEntry value in record. Freed trace buffer for thread " UT_POINTER_SPEC " and reinitialized\n", thr));
+		UT_DBGOUT(1, ("<UT> invalid nextEntry value in record. Freed trace buffer for thread " UT_POINTER_SPEC
+					  " and reinitialized\n",
+					  thr));
 
 		releaseTraceBuffer(thr, trcBuf);
 		thr->trcBuf = NULL;
@@ -717,7 +694,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 	if ((OMR_TRACEGLOBAL(bufferSize) - trcBuf->record.nextEntry) > (UT_FASTPATH + length + 4)) {
 		/* there is space in the buffer for a minimal entry, so avoid the overhead of copyToBuffer func	*/
 		if (lastSequence != (int32_t)(trcBuf->record.sequence >> 32)) {
-			*p       = UT_TRC_SEQ_WRAP_ID[0];
+			*p = UT_TRC_SEQ_WRAP_ID[0];
 			*(p + 1) = UT_TRC_SEQ_WRAP_ID[1];
 			*(p + 2) = UT_TRC_SEQ_WRAP_ID[2];
 			memcpy(p + 3, &lastSequence, sizeof(int32_t));
@@ -765,12 +742,9 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 		if (lastSequence != (int32_t)(trcBuf->record.sequence >> 32)) {
 			char len = UT_TRC_SEQ_WRAP_LENGTH;
 			entryLength = 0;
-			copyToBuffer(thr, bufferType, UT_TRC_SEQ_WRAP_ID, &p, 3,
-						 &entryLength, &trcBuf);
-			copyToBuffer(thr, bufferType, (char *)&lastSequence, &p, 4,
-						 &entryLength, &trcBuf);
-			copyToBuffer(thr, bufferType, &len, &p, 1,
-						 &entryLength, &trcBuf);
+			copyToBuffer(thr, bufferType, UT_TRC_SEQ_WRAP_ID, &p, 3, &entryLength, &trcBuf);
+			copyToBuffer(thr, bufferType, (char *)&lastSequence, &p, 4, &entryLength, &trcBuf);
+			copyToBuffer(thr, bufferType, &len, &p, 1, &entryLength, &trcBuf);
 			/* copyToBuffer increments p past the last byte written, but nextEntry
 			 * needs to point to the length byte so we need -1 here.
 			 */
@@ -782,16 +756,13 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 		temp[2] = (char)(traceId >> 8);
 		copyToBuffer(thr, bufferType, temp, &p, 3, &entryLength, &trcBuf);
 		intVar = (int32_t)trcBuf->record.sequence;
-		copyToBuffer(thr, bufferType, (char *)&intVar,
-					 &p, 4, &entryLength, &trcBuf);
+		copyToBuffer(thr, bufferType, (char *)&intVar, &p, 4, &entryLength, &trcBuf);
 
 		/* write name length to buffer */
-		copyToBuffer(thr, bufferType, (char *)&length,
-					 &p, 4, &entryLength, &trcBuf);
+		copyToBuffer(thr, bufferType, (char *)&length, &p, 4, &entryLength, &trcBuf);
 
 		/* write name to buffer */
-		copyToBuffer(thr, bufferType, stringVar, &p,
-					 (int)stringVarLen, &entryLength, &trcBuf);
+		copyToBuffer(thr, bufferType, stringVar, &p, (int)stringVarLen, &entryLength, &trcBuf);
 
 		if (containerModuleVar != NULL) {
 			copyToBuffer(thr, bufferType, "(", &p, 1, &entryLength, &trcBuf);
@@ -800,8 +771,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 		}
 
 		charVar = (char)entryLength;
-		copyToBuffer(thr, bufferType, &charVar, &p, 1, &entryLength,
-					 &trcBuf);
+		copyToBuffer(thr, bufferType, &charVar, &p, 1, &entryLength, &trcBuf);
 
 		p--;
 		entryLength--;
@@ -827,8 +797,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 		/*
 		 *  If we know the length and it will fit without a wrap
 		 */
-		if ((length > 0)  &&
-			((p + length + 1) < (char *)&trcBuf->record + OMR_TRACEGLOBAL(bufferSize))) {
+		if ((length > 0) && ((p + length + 1) < (char *)&trcBuf->record + OMR_TRACEGLOBAL(bufferSize))) {
 			while (*str != '\0') {
 				switch (*str) {
 				/*
@@ -922,9 +891,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 						p += sizeof(int32_t);
 						entryLength += sizeof(int32_t);
 					} else {
-						copyToBuffer(thr, bufferType, (char *)&intVar,
-									 &p, sizeof(int32_t), &entryLength,
-									 &trcBuf);
+						copyToBuffer(thr, bufferType, (char *)&intVar, &p, sizeof(int32_t), &entryLength, &trcBuf);
 					}
 					break;
 				}
@@ -938,9 +905,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 						p += sizeof(char *);
 						entryLength += sizeof(char *);
 					} else {
-						copyToBuffer(thr, bufferType, (char *)&ptrVar,
-									 &p, sizeof(char *), &entryLength,
-									 &trcBuf);
+						copyToBuffer(thr, bufferType, (char *)&ptrVar, &p, sizeof(char *), &entryLength, &trcBuf);
 					}
 					break;
 				}
@@ -962,8 +927,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 						p += length;
 						entryLength += length;
 					} else {
-						copyToBuffer(thr, bufferType, stringVar, &p,
-									 length, &entryLength, &trcBuf);
+						copyToBuffer(thr, bufferType, stringVar, &p, length, &entryLength, &trcBuf);
 					}
 					break;
 				}
@@ -985,11 +949,8 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 							entryLength += sizeof(short);
 							left -= (int32_t)sizeof(short);
 						} else {
-							copyToBuffer(thr, bufferType, (char *)&shortVar,
-										 &p, sizeof(short), &entryLength,
-										 &trcBuf);
-							left = (int32_t)((char *)&trcBuf->record +
-											 OMR_TRACEGLOBAL(bufferSize) - p);
+							copyToBuffer(thr, bufferType, (char *)&shortVar, &p, sizeof(short), &entryLength, &trcBuf);
+							left = (int32_t)((char *)&trcBuf->record + OMR_TRACEGLOBAL(bufferSize) - p);
 						}
 						if (length > 0) {
 							if (left > length) {
@@ -997,8 +958,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 								p += length;
 								entryLength += length;
 							} else {
-								copyToBuffer(thr, bufferType, stringVar, &p,
-											 length, &entryLength, &trcBuf);
+								copyToBuffer(thr, bufferType, stringVar, &p, length, &entryLength, &trcBuf);
 							}
 						}
 					}
@@ -1014,9 +974,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 						p += sizeof(int64_t);
 						entryLength += sizeof(int64_t);
 					} else {
-						copyToBuffer(thr, bufferType, (char *)&i64Var,
-									 &p, sizeof(int64_t), &entryLength,
-									 &trcBuf);
+						copyToBuffer(thr, bufferType, (char *)&i64Var, &p, sizeof(int64_t), &entryLength, &trcBuf);
 					}
 					break;
 				}
@@ -1030,8 +988,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 						p += sizeof(char);
 						entryLength += sizeof(char);
 					} else {
-						copyToBuffer(thr, bufferType, &charVar, &p,
-									 sizeof(char), &entryLength, &trcBuf);
+						copyToBuffer(thr, bufferType, &charVar, &p, sizeof(char), &entryLength, &trcBuf);
 					}
 					break;
 				}
@@ -1045,9 +1002,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 						p += sizeof(double);
 						entryLength += sizeof(double);
 					} else {
-						copyToBuffer(thr, bufferType, (char *)&doubleVar,
-									 &p, sizeof(double), &entryLength,
-									 &trcBuf);
+						copyToBuffer(thr, bufferType, (char *)&doubleVar, &p, sizeof(double), &entryLength, &trcBuf);
 					}
 					break;
 				}
@@ -1061,9 +1016,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 						p += sizeof(short);
 						entryLength += sizeof(short);
 					} else {
-						copyToBuffer(thr, bufferType, (char *)&shortVar,
-									 &p, sizeof(short), &entryLength,
-									 &trcBuf);
+						copyToBuffer(thr, bufferType, (char *)&shortVar, &p, sizeof(short), &entryLength, &trcBuf);
 					}
 					break;
 				}
@@ -1073,13 +1026,11 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 			/*
 			 *  Set the entry length
 			 */
-			if ((char *)&trcBuf->record + OMR_TRACEGLOBAL(bufferSize) - p >
-				(int32_t)sizeof(char)) {
+			if ((char *)&trcBuf->record + OMR_TRACEGLOBAL(bufferSize) - p > (int32_t)sizeof(char)) {
 				*p = (unsigned char)entryLength;
 			} else {
 				charVar = (unsigned char)entryLength;
-				copyToBuffer(thr, bufferType, &charVar, &p, sizeof(char),
-							 &entryLength, &trcBuf);
+				copyToBuffer(thr, bufferType, &charVar, &p, sizeof(char), &entryLength, &trcBuf);
 				entryLength--;
 				p--;
 			}
@@ -1092,8 +1043,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 	 *  copyToBuffer's been involved because p is decremented above.
 	 */
 	if (entryLength <= UT_MAX_TRC_LENGTH) {
-		trcBuf->record.nextEntry =
-			(int32_t)(p - (char *)&trcBuf->record);
+		trcBuf->record.nextEntry = (int32_t)(p - (char *)&trcBuf->record);
 		return;
 	} else {
 		/*
@@ -1109,8 +1059,7 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 		/* copyToBuffer increments p past the last byte written, but nextEntry
 		 * needs to point to the length byte so we need -1 here.
 		 */
-		trcBuf->record.nextEntry =
-			(int32_t)(p - (char *)&trcBuf->record - 1);
+		trcBuf->record.nextEntry = (int32_t)(p - (char *)&trcBuf->record - 1);
 	}
 }
 
@@ -1125,12 +1074,11 @@ traceV(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char
 static void
 trace(OMR_TraceThread *thr, UtModuleInfo *modinfo, uint32_t traceId, int bufferType, const char *spec, ...)
 {
-	va_list      var;
+	va_list var;
 
 	va_start(var, spec);
 	traceV(thr, modinfo, traceId, spec, var, bufferType);
 	va_end(var);
-
 }
 #endif /* OMR_ENABLE_EXCEPTION_OUTPUT */
 
@@ -1264,7 +1212,7 @@ doTracePoint(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, cons
 void
 internalTrace(OMR_TraceThread *thr, UtModuleInfo *modInfo, uint32_t traceId, const char *spec, ...)
 {
-	va_list      var;
+	va_list var;
 
 	va_start(var, spec);
 	doTracePoint(thr, modInfo, traceId, spec, var);
@@ -1280,7 +1228,7 @@ getProcessorInfo(void)
 
 	UT_DBGOUT(1, ("<UT> GetProcessorInfo called\n"));
 
-	ret = (UtProcessorInfo *) omrmem_allocate_memory(sizeof(UtProcessorInfo), OMRMEM_CATEGORY_TRACE);
+	ret = (UtProcessorInfo *)omrmem_allocate_memory(sizeof(UtProcessorInfo), OMRMEM_CATEGORY_TRACE);
 	if (ret == NULL) {
 		return NULL;
 	}
@@ -1289,10 +1237,8 @@ getProcessorInfo(void)
 	initHeader(&ret->procInfo.header, "PIN", sizeof(UtProcInfo));
 	osarch = omrsysinfo_get_CPU_architecture();
 	if (NULL != osarch) {
-		if ((strcmp(osarch, OMRPORT_ARCH_PPC) == 0)
-		 || (strcmp(osarch, OMRPORT_ARCH_PPC64) == 0)
-		 || (strcmp(osarch, OMRPORT_ARCH_PPC64LE) == 0)
-		) {
+		if ((strcmp(osarch, OMRPORT_ARCH_PPC) == 0) || (strcmp(osarch, OMRPORT_ARCH_PPC64) == 0)
+			|| (strcmp(osarch, OMRPORT_ARCH_PPC64LE) == 0)) {
 			ret->architecture = UT_POWER;
 			ret->procInfo.subtype = UT_POWERPC;
 		} else if (strcmp(osarch, OMRPORT_ARCH_S390) == 0) {
@@ -1314,9 +1260,9 @@ getProcessorInfo(void)
 		ret->architecture = UT_UNKNOWN;
 	}
 #ifdef OMR_ENV_LITTLE_ENDIAN
-	ret->isBigEndian =  FALSE;
+	ret->isBigEndian = FALSE;
 #else
-	ret->isBigEndian =  TRUE;
+	ret->isBigEndian = TRUE;
 #endif
 	ret->procInfo.traceCounter = UT_J9_TIMER;
 	ret->wordsize = sizeof(uintptr_t) * 8;

@@ -33,10 +33,7 @@ static void omrVmResetStart();
 
 extern PortEnvironment *vmTestEnv;
 
-TEST(ThreadForkResetTest, OmrVmReset)
-{
-	omrVmResetStart();
-}
+TEST(ThreadForkResetTest, OmrVmReset) { omrVmResetStart(); }
 
 static void
 omrVmResetStart()
@@ -52,7 +49,7 @@ omrVmResetStart()
 
 	/* Pre-fork */
 	int pipeRC = pipe(pipedata);
-	EXPECT_TRUE(0 == pipeRC)  << "Failure occurred calling pipe";
+	EXPECT_TRUE(0 == pipeRC) << "Failure occurred calling pipe";
 
 	omr_vm_preFork(&testVM.omrVM);
 	if (0 == fork()) {

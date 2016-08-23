@@ -61,15 +61,15 @@ proc_setattr() function exists.
  * proc_getattr and proc_setattr are APIs that allow a privileged
  * user to set/unset attributes of any process (including self)
  */
-#define PA_IGNORE       0
-#define PA_ENABLE       1
-#define PA_DISABLE      2
+#define PA_IGNORE 0
+#define PA_ENABLE 1
+#define PA_DISABLE 2
 
 typedef struct {
-	uchar core_naming;  /* Unique core file name */
-	uchar core_mmap;    /* Dump mmap'ed regions in core file */
-	uchar core_shm;     /* Dump shared memory regions in core file */
-	uchar aixthread_hrt;/* Enable high res timers */
+	uchar core_naming;   /* Unique core file name */
+	uchar core_mmap;	 /* Dump mmap'ed regions in core file */
+	uchar core_shm;		 /* Dump shared memory regions in core file */
+	uchar aixthread_hrt; /* Enable high res timers */
 } procattr_t;
 #endif
 #endif
@@ -121,7 +121,9 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 			return rc;
 		}
 	} else {
-		portLibrary->tty_err_printf(portLibrary, "Note: \"Enable full CORE dump\" in smit is set to FALSE and as a result there will be limited threading information in core file.\n");
+		portLibrary->tty_err_printf(portLibrary,
+									"Note: \"Enable full CORE dump\" in smit is set to FALSE and as a result there "
+									"will be limited threading information in core file.\n");
 	}
 #endif /* aix_ppc */
 
@@ -129,7 +131,7 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 
 	/* fork a child process from which we'll dump a core file */
 	if ((pid = fork()) == 0) {
-		/* in the child process */
+/* in the child process */
 
 #if defined(LINUX)
 		/*
@@ -150,13 +152,13 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 		}
 #endif
 
-		/*
+/*
 		 * CMVC 95748: don't use abort() after fork() on Linux as this seems to upset certain levels of glibc
 		 */
 #if defined(LINUX) || defined(OSX)
-#define J9_DUMP_SIGNAL  SIGSEGV
+#define J9_DUMP_SIGNAL SIGSEGV
 #else /* defined(LINUX) || defined(OSX) */
-#define J9_DUMP_SIGNAL  SIGABRT
+#define J9_DUMP_SIGNAL SIGABRT
 #endif /* defined(LINUX) || defined(OSX) */
 
 		/* Ensure we get default action (core) - reset primary&app handlers */
@@ -182,7 +184,9 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 
 	/* We are now in the parent process. First check that the fork() worked OK (CMVC 130439) */
 	if (pid < 0) {
-		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "insufficient system resources to generate dump, errno=%d \"%s\"", errno, strerror(errno));
+		portLibrary->str_printf(portLibrary, filename, EsMaxPath,
+								"insufficient system resources to generate dump, errno=%d \"%s\"", errno,
+								strerror(errno));
 		return 1;
 	}
 
@@ -228,7 +232,9 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 
 		/* Apply suggested name */
 		if (rename(corepath, filename)) {
-			portLibrary->str_printf(portLibrary, filename, EsMaxPath, "cannot find core file: \"%s\". check \"ulimit -Hc\" is set high enough", strerror(errno));
+			portLibrary->str_printf(portLibrary, filename, EsMaxPath,
+									"cannot find core file: \"%s\". check \"ulimit -Hc\" is set high enough",
+									strerror(errno));
 			return 1;
 		}
 
@@ -253,7 +259,7 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 
 #endif /* #if defined(AIX) */
 
-#else /* J9OS_I5 */
+#else  /* J9OS_I5 */
 
 	if (getenv("I5_JVM_SUPPLIED_DUMP") == 0) {
 		char corefile[EsMaxPath + 1] = "";

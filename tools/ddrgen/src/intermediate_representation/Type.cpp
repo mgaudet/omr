@@ -18,10 +18,7 @@
 
 #include "Type.hpp"
 
-Type::Type(SymbolType symbolType, size_t size)
-	: _symbolType(symbolType), _sizeOf(size)
-{
-}
+Type::Type(SymbolType symbolType, size_t size) : _symbolType(symbolType), _sizeOf(size) {}
 
 Type::~Type() {}
 
@@ -38,19 +35,17 @@ Type::isAnonymousType()
 }
 
 bool
-operator==(Type const& lhs, Type const& rhs)
+operator==(Type const &lhs, Type const &rhs)
 {
-	set <Type const*> checked;
+	set<Type const *> checked;
 	return lhs.equal(rhs, &checked);
 }
 
 bool
-Type::equal(Type const& type, set<Type const*> *checked) const
+Type::equal(Type const &type, set<Type const *> *checked) const
 {
 	return checked->find(this) != checked->end()
-		|| ((_name == (type._name))
-		&& (_sizeOf == type._sizeOf)
-		&& (_symbolType == type._symbolType));
+		   || ((_name == (type._name)) && (_sizeOf == type._sizeOf) && (_symbolType == type._symbolType));
 }
 
 void
@@ -72,10 +67,7 @@ Type::getSymbolTypeName()
 }
 
 DDR_RC
-Type::scanChildInfo(Scanner *scanner, void *data)
-{
-	return scanner->dispatchScanChildInfo(this, data);
-}
+Type::scanChildInfo(Scanner *scanner, void *data) { return scanner->dispatchScanChildInfo(this, data); }
 
 DDR_RC
 Type::enumerateType(BlobGenerator *blobGenerator, bool addFieldsOnly)

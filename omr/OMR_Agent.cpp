@@ -24,41 +24,29 @@
 #include "omragent_internal.h"
 
 static OMR_ThreadAPI const theOmrThreadAPI = {
-	omrthread_create,
-	omrthread_monitor_init_with_name,
-	omrthread_monitor_destroy,
-	omrthread_monitor_enter,
-	omrthread_monitor_exit,
-	omrthread_monitor_wait,
-	omrthread_monitor_notify_all,
-	omrthread_attr_init,
-	omrthread_attr_destroy,
-	omrthread_attr_set_detachstate,
-	omrthread_attr_set_category,
-	omrthread_create_ex,
-	omrthread_join
-};
+	omrthread_create,		omrthread_monitor_init_with_name, omrthread_monitor_destroy,	omrthread_monitor_enter,
+	omrthread_monitor_exit, omrthread_monitor_wait,			  omrthread_monitor_notify_all, omrthread_attr_init,
+	omrthread_attr_destroy, omrthread_attr_set_detachstate,   omrthread_attr_set_category,  omrthread_create_ex,
+	omrthread_join};
 
-OMR_TI const OMR_Agent::theOmrTI = {
-	OMR_TI_VERSION_0,
-	(void *)&theOmrThreadAPI,
-	omrtiBindCurrentThread,
-	omrtiUnbindCurrentThread,
-	omrtiRegisterRecordSubscriber,
-	omrtiDeregisterRecordSubscriber,
-	omrtiGetTraceMetadata,
-	omrtiSetTraceOptions,
-	omrtiGetSystemCpuLoad,
-	omrtiGetProcessCpuLoad,
-	omrtiGetMemoryCategories,
-	omrtiFlushTraceData,
-	omrtiGetFreePhysicalMemorySize,
-	omrtiGetProcessVirtualMemorySize,
-	omrtiGetProcessPrivateMemorySize,
-	omrtiGetProcessPhysicalMemorySize,
-	omrtiGetMethodDescriptions,
-	omrtiGetMethodProperties
-};
+OMR_TI const OMR_Agent::theOmrTI = {OMR_TI_VERSION_0,
+									(void *)&theOmrThreadAPI,
+									omrtiBindCurrentThread,
+									omrtiUnbindCurrentThread,
+									omrtiRegisterRecordSubscriber,
+									omrtiDeregisterRecordSubscriber,
+									omrtiGetTraceMetadata,
+									omrtiSetTraceOptions,
+									omrtiGetSystemCpuLoad,
+									omrtiGetProcessCpuLoad,
+									omrtiGetMemoryCategories,
+									omrtiFlushTraceData,
+									omrtiGetFreePhysicalMemorySize,
+									omrtiGetProcessVirtualMemorySize,
+									omrtiGetProcessPrivateMemorySize,
+									omrtiGetProcessPhysicalMemorySize,
+									omrtiGetMethodDescriptions,
+									omrtiGetMethodProperties};
 
 extern "C" OMR_Agent *
 omr_agent_create(OMR_VM *vm, char const *arg)
@@ -96,14 +84,8 @@ omr_agent_getTI(void)
 	return &OMR_Agent::theOmrTI;
 }
 
-OMR_Agent::OMR_Agent(OMR_VM *vm, char const *arg) :
-	_handle(0),
-	_vm(vm),
-	_onload(NULL),
-	_onunload(NULL),
-	_dllpath(NULL),
-	_options(NULL),
-	_state(UNINITIALIZED)
+OMR_Agent::OMR_Agent(OMR_VM *vm, char const *arg)
+	: _handle(0), _vm(vm), _onload(NULL), _onunload(NULL), _dllpath(NULL), _options(NULL), _state(UNINITIALIZED)
 {
 	OMRPORT_ACCESS_FROM_OMRVM(_vm);
 
@@ -137,7 +119,7 @@ OMR_Agent::createAgent(OMR_VM *vm, char const *arg)
 		OMRPORT_ACCESS_FROM_OMRVM(vm);
 		newAgent = (OMR_Agent *)omrmem_allocate_memory(sizeof(*newAgent), OMRMEM_CATEGORY_VM);
 		if (NULL != newAgent) {
-			new(newAgent) OMR_Agent(vm, arg);
+			new (newAgent) OMR_Agent(vm, arg);
 			if (INITIALIZED != newAgent->_state) {
 				destroyAgent(newAgent);
 				newAgent = NULL;

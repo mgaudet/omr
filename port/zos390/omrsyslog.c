@@ -92,7 +92,7 @@ writeToZOSLog(const char *message)
 	unsigned int descCodes[2] = {12, 0}; /* descriptor code 12 = Important Information, no operator action reqd */
 
 	/* Convert from the internal ascii format to ebcdic */
-	ebcdicbuf = a2e_func((char *) message, strlen(message));
+	ebcdicbuf = a2e_func((char *)message, strlen(message));
 	if (ebcdicbuf == NULL) {
 		return FALSE;
 	}
@@ -154,4 +154,3 @@ omrsyslog_set(struct OMRPortLibrary *portLibrary, uintptr_t options)
 	/* set the logging options here */
 	PPG_syslog_flags = options;
 }
-

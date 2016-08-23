@@ -30,10 +30,12 @@ typedef struct TestChildThreadData {
 } TestChildThreadData;
 
 static int J9THREAD_PROC childThreadMain(void *entryArg);
-static omr_error_t startTestChildThread(OMR_TI const *ti, OMR_VM *testVM, OMR_VMThread *curVMThread, omrthread_t *childThread, TestChildThreadData **childData);
+static omr_error_t startTestChildThread(OMR_TI const *ti, OMR_VM *testVM, OMR_VMThread *curVMThread,
+										omrthread_t *childThread, TestChildThreadData **childData);
 static omr_error_t testBindUnbind(OMR_TI const *ti, OMR_VM *vm, const char *threadName);
 static omr_error_t testBindUnbindNegativeCases(OMR_TI const *ti, OMR_VM *vm);
-static omr_error_t waitForTestChildThread(OMR_TI const *ti, OMR_VM *testVM, omrthread_t childThead, TestChildThreadData *childData);
+static omr_error_t waitForTestChildThread(OMR_TI const *ti, OMR_VM *testVM, omrthread_t childThead,
+										  TestChildThreadData *childData);
 
 static const char *agentName = "bindthreadagent";
 
@@ -68,13 +70,14 @@ OMRAgent_OnUnload(OMR_TI const *ti, OMR_VM *vm)
 	return OMR_ERROR_NONE;
 }
 
-
 static omr_error_t
-startTestChildThread(OMR_TI const *ti, OMR_VM *testVM, OMR_VMThread *curVMThread, omrthread_t *childThread, TestChildThreadData **childData)
+startTestChildThread(OMR_TI const *ti, OMR_VM *testVM, OMR_VMThread *curVMThread, omrthread_t *childThread,
+					 TestChildThreadData **childData)
 {
 	omr_error_t rc = OMR_ERROR_NONE;
 	OMRPORT_ACCESS_FROM_OMRVM(testVM);
-	TestChildThreadData *newChildData = (TestChildThreadData *)omrmem_allocate_memory(sizeof(*newChildData), OMRMEM_CATEGORY_VM);
+	TestChildThreadData *newChildData =
+		(TestChildThreadData *)omrmem_allocate_memory(sizeof(*newChildData), OMRMEM_CATEGORY_VM);
 	OMR_ThreadAPI *threadAPI = (OMR_ThreadAPI *)ti->internalData;
 
 	if (NULL == newChildData) {
@@ -83,7 +86,8 @@ startTestChildThread(OMR_TI const *ti, OMR_VM *testVM, OMR_VMThread *curVMThread
 	}
 
 	if (OMR_ERROR_NONE == rc) {
-		if (0 != threadAPI->omrthread_monitor_init_with_name(&newChildData->shutdownCond, 0, "traceTestChildShutdown")) {
+		if (0
+			!= threadAPI->omrthread_monitor_init_with_name(&newChildData->shutdownCond, 0, "traceTestChildShutdown")) {
 			rc = OMR_ERROR_FAILED_TO_ALLOCATE_MONITOR;
 			omrtty_printf("%s:%d ERROR: Failed to init shutdownCond monitor\n", __FILE__, __LINE__);
 			omrmem_free_memory(newChildData);
@@ -96,13 +100,13 @@ startTestChildThread(OMR_TI const *ti, OMR_VM *testVM, OMR_VMThread *curVMThread
 	}
 
 	if (OMR_ERROR_NONE == rc) {
-		if (0 != threadAPI->omrthread_create_ex(
-			NULL, /* handle */
-			J9THREAD_ATTR_DEFAULT, /* attr */
-			FALSE, /* suspend */
-			childThreadMain, /* entrypoint */
-			newChildData) /* entryarg */
-		) {
+		if (0
+			!= threadAPI->omrthread_create_ex(NULL,					 /* handle */
+											  J9THREAD_ATTR_DEFAULT, /* attr */
+											  FALSE,				 /* suspend */
+											  childThreadMain,		 /* entrypoint */
+											  newChildData)			 /* entryarg */
+			) {
 			rc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 			omrtty_printf("%s:%d ERROR: Failed to init shutdownCond monitor\n", __FILE__, __LINE__);
 			threadAPI->omrthread_monitor_destroy(newChildData->shutdownCond);
@@ -132,7 +136,7 @@ waitForTestChildThread(OMR_TI const *ti, OMR_VM *testVM, omrthread_t childThead,
 	threadAPI->omrthread_monitor_destroy(childData->shutdownCond);
 	omrmem_free_memory(childData);
 
-	/*
+/*
 	 * Workaround for the design limitation of the original j9thr library
 	 * Sleep for 0.2 sec to avoid unloading the agent library before the child thread has completed.
 	 * For more detail, please see JAZZ103 74016
@@ -196,7 +200,8 @@ testBindUnbind(OMR_TI const *ti, OMR_VM *vm, const char *threadName)
 			printf("%s: recursive BindCurrentThread failed, NULL vmThread2 was returned\n", agentName);
 			rc = OMR_ERROR_INTERNAL;
 		} else if (vmThread != vmThread2) {
-			printf("%s: recursive BindCurrentThread failed, vmThread (%p) != vmThread2 (%p)\n", agentName, vmThread, vmThread2);
+			printf("%s: recursive BindCurrentThread failed, vmThread (%p) != vmThread2 (%p)\n", agentName, vmThread,
+				   vmThread2);
 			rc = OMR_ERROR_INTERNAL;
 		} else {
 			printf("%s: recursive BindCurrentThread passed, vmThread2=%p\n", agentName, vmThread2);

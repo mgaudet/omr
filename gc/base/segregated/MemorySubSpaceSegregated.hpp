@@ -43,16 +43,11 @@ private:
 	void *_regionExpansionTop;
 
 protected:
-	typedef enum AllocateType {
-		mixedObject = 0,
-		arrayletSpine,
-		arrayletLeaf
-	} AllocateType;
-	
+	typedef enum AllocateType { mixedObject = 0, arrayletSpine, arrayletLeaf } AllocateType;
+
 	MM_MemoryPoolSegregated *_memoryPoolSegregated;
 
 public:
-
 	/*
 	 * Function members
 	 */
@@ -60,9 +55,11 @@ private:
 	/* TODO: this is temporary as a way to avoid dup code in MemorySubSpaceMetronome::allocate.
 	 * We will specifically fix this allocate method in a separate design.
 	 */
-	void *allocateMixedObjectOrArraylet(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, AllocateType allocType);
+	void *allocateMixedObjectOrArraylet(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+										AllocateType allocType);
 
-	MMINLINE void expandRegionPool()
+	MMINLINE void
+	expandRegionPool()
 	{
 		if (_regionExpansionBase != _regionExpansionTop) {
 			_memoryPoolSegregated->getRegionPool()->addFreeRange(_regionExpansionBase, _regionExpansionTop);
@@ -73,23 +70,39 @@ private:
 protected:
 	bool initialize(MM_EnvironmentBase *env);
 	virtual void tearDown(MM_EnvironmentBase *env);
-	
-	void *allocationRequestFailed(MM_EnvironmentBase *env, MM_AllocateDescription *allocateDescription, AllocationType allocationType, MM_ObjectAllocationInterface *objectAllocationInterface, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace);
+
+	void *allocationRequestFailed(MM_EnvironmentBase *env, MM_AllocateDescription *allocateDescription,
+								  AllocationType allocationType,
+								  MM_ObjectAllocationInterface *objectAllocationInterface,
+								  MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace);
 	void *allocate(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, AllocateType allocType);
 
 public:
-	static MM_MemorySubSpaceSegregated *newInstance(
-		MM_EnvironmentBase *env, MM_PhysicalSubArena *physicalSubArena, MM_MemoryPool *memoryPool,
-		bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize);
+	static MM_MemorySubSpaceSegregated *newInstance(MM_EnvironmentBase *env, MM_PhysicalSubArena *physicalSubArena,
+													MM_MemoryPool *memoryPool, bool usesGlobalCollector,
+													uintptr_t minimumSize, uintptr_t initialSize,
+													uintptr_t maximumSize);
 
-	virtual const char *getName() { return MEMORY_SUBSPACE_NAME_UNDEFINED; }
-	virtual const char *getDescription() { return MEMORY_SUBSPACE_DESCRIPTION_UNDEFINED; }
+	virtual const char *
+	getName()
+	{
+		return MEMORY_SUBSPACE_NAME_UNDEFINED;
+	}
+	virtual const char *
+	getDescription()
+	{
+		return MEMORY_SUBSPACE_DESCRIPTION_UNDEFINED;
+	}
 
 	virtual void collect(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription);
-	virtual void *allocateObject(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
+	virtual void *allocateObject(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+								 MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+								 bool shouldCollectOnFailure);
 
 #if defined(OMR_GC_ARRAYLETS)
-	virtual void *allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
+	virtual void *allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+									   MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+									   bool shouldCollectOnFailure);
 	virtual uintptr_t largestDesirableArraySpine();
 #endif /* defined(OMR_GC_ARRAYLETS) */
 
@@ -107,24 +120,30 @@ public:
 	virtual uintptr_t getActiveMemorySize(uintptr_t includeMemoryType);
 	virtual uintptr_t getActualActiveFreeMemorySize(uintptr_t includeMemoryType);
 	virtual uintptr_t getApproximateActiveFreeMemorySize(uintptr_t includeMemoryType);
-	virtual uintptr_t getAvailableContractionSize(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription) { return 0; }
+	virtual uintptr_t
+	getAvailableContractionSize(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription)
+	{
+		return 0;
+	}
 
-	virtual bool expanded(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, MM_HeapRegionDescriptor *region, bool canCoalesce);
+	virtual bool expanded(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, MM_HeapRegionDescriptor *region,
+						  bool canCoalesce);
 
-	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
+	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+							  void *highAddress);
+	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+								 void *highAddress, void *lowValidAddress, void *highValidAddress);
 	virtual void heapReconfigured(MM_EnvironmentBase *env);
 
 	virtual MM_MemoryPool *getMemoryPool();
-	
-	MM_MemorySubSpaceSegregated(
-		MM_EnvironmentBase *env, MM_PhysicalSubArena *physicalSubArena, MM_MemoryPool *memoryPool,
-		bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize
-	)
-		: MM_MemorySubSpaceUniSpace(env, physicalSubArena, usesGlobalCollector, minimumSize, initialSize, maximumSize, MEMORY_TYPE_OLD, 0)
-		,_regionExpansionBase(NULL)
-		,_regionExpansionTop(NULL)
-		, _memoryPoolSegregated((MM_MemoryPoolSegregated *)memoryPool)
+
+	MM_MemorySubSpaceSegregated(MM_EnvironmentBase *env, MM_PhysicalSubArena *physicalSubArena,
+								MM_MemoryPool *memoryPool, bool usesGlobalCollector, uintptr_t minimumSize,
+								uintptr_t initialSize, uintptr_t maximumSize)
+		: MM_MemorySubSpaceUniSpace(env, physicalSubArena, usesGlobalCollector, minimumSize, initialSize, maximumSize,
+									MEMORY_TYPE_OLD, 0),
+		  _regionExpansionBase(NULL), _regionExpansionTop(NULL),
+		  _memoryPoolSegregated((MM_MemoryPoolSegregated *)memoryPool)
 	{
 		_typeId = __FUNCTION__;
 	};
@@ -133,4 +152,3 @@ public:
 #endif /* OMR_GC_SEGREGATED_HEAP */
 
 #endif /* MEMORYSUBSPACESEGREGATED_HPP_ */
-

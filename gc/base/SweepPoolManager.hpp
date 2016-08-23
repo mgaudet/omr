@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base
@@ -44,16 +43,13 @@ class MM_SweepPoolState;
 class MM_SweepPoolManager : public MM_BaseVirtual
 {
 private:
-
 protected:
-
 	MM_GCExtensionsBase *_extensions;
 
 	virtual void tearDown(MM_EnvironmentBase *env);
 	virtual bool initialize(MM_EnvironmentBase *env);
 
 public:
-
 	void kill(MM_EnvironmentBase *env);
 
 	/**
@@ -65,7 +61,7 @@ public:
 	 *  Finally if there is at least 1 entry in the subspace, the last entry should be connected to NULL in the free list
 	 */
 	virtual void connectFinalChunk(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool) = 0;
-	
+
 	virtual void poolPostProcess(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool) = 0;
 
 	/**
@@ -86,7 +82,8 @@ public:
 	 * @param address start address of memory slot
 	 * @param size size of free memory slot
 	 */
-	virtual bool addFreeMemory(MM_EnvironmentBase *env, MM_ParallelSweepChunk *sweepChunk, uintptr_t *heapSlotFreeHead, uintptr_t heapSlotFreeCount) = 0;
+	virtual bool addFreeMemory(MM_EnvironmentBase *env, MM_ParallelSweepChunk *sweepChunk, uintptr_t *heapSlotFreeHead,
+							   uintptr_t heapSlotFreeCount) = 0;
 
 	/**
 	 * Update trailing free memory
@@ -95,7 +92,8 @@ public:
 	 * @param trailingCandidate trailing candidate address
 	 * @param trailingCandidateSlotCount trailing candidate size
 	 */
-	virtual void updateTrailingFreeMemory(MM_EnvironmentBase *env, MM_ParallelSweepChunk *sweepChunk, uintptr_t *heapSlotFreeHead, uintptr_t heapSlotFreeCount) = 0;
+	virtual void updateTrailingFreeMemory(MM_EnvironmentBase *env, MM_ParallelSweepChunk *sweepChunk,
+										  uintptr_t *heapSlotFreeHead, uintptr_t heapSlotFreeCount) = 0;
 
 	/**
 	 * Get the sweep scheme state for the given memory pool.
@@ -105,11 +103,6 @@ public:
 	/**
 	 * Create a SweepPoolManager object.
 	 */
-	MM_SweepPoolManager(MM_EnvironmentBase *env)
-		: _extensions(env->getExtensions())
-	{
-		_typeId = __FUNCTION__;
-	}
-
+	MM_SweepPoolManager(MM_EnvironmentBase *env) : _extensions(env->getExtensions()) { _typeId = __FUNCTION__; }
 };
 #endif /* SWEEPPOOLMANAGER_HPP_ */

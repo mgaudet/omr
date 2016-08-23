@@ -34,7 +34,6 @@
 #include "MarkingScheme.hpp"
 #include "ParallelSweepScheme.hpp"
 
-
 class MM_CollectionStatisticsStandard;
 class MM_CompactScheme;
 class MM_Dispatcher;
@@ -46,7 +45,7 @@ class MM_MemorySubSpace;
  */
 class MM_ParallelGlobalGC : public MM_GlobalCollector
 {
-/*
+	/*
  * Data members
  */
 protected:
@@ -57,18 +56,17 @@ private:
 
 #if defined(OMR_GC_MODRON_COMPACTION)
 	MM_CompactScheme *_compactScheme;
-	bool _compactThisCycle;		/**< keep a decision should compact run this cycle */
-#endif /* OMR_GC_MODRON_COMPACTION */
+	bool _compactThisCycle; /**< keep a decision should compact run this cycle */
+#endif						/* OMR_GC_MODRON_COMPACTION */
 
 protected:
 	MM_MarkingScheme *_markingScheme;
 	MM_ParallelSweepScheme *_sweepScheme;
 	MM_Dispatcher *_dispatcher;
-	MM_CycleState _cycleState;  /**< Embedded cycle state to be used as the master cycle state for GC activity */
+	MM_CycleState _cycleState; /**< Embedded cycle state to be used as the master cycle state for GC activity */
 	MM_CollectionStatisticsStandard _collectionStatistics; /** Common collect stats (memory, time etc.) */
 public:
-	
-/*
+	/*
  * Function members
  */
 private:
@@ -121,14 +119,16 @@ private:
 	 *
 	 * @return true if a compaction is required, false otherwise
 	 */
-	bool shouldCompactThisCycle(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, uintptr_t activeSubspaceMaxExpansionInSpace, MM_GCCode gcCode);
+	bool shouldCompactThisCycle(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+								uintptr_t activeSubspaceMaxExpansionInSpace, MM_GCCode gcCode);
 	/**
 	 * Determine if a compact is required to aid contraction.
 	 * A heap contraction is due so decide whether a compaction would be
 	 * beneficial before we attempt to contract the heap.
 	 * @return true if a compaction is required, false otherwise.
 	 */
-	bool compactRequiredBeforeHeapContraction(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, uintptr_t contractionSize);
+	bool compactRequiredBeforeHeapContraction(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+											  uintptr_t contractionSize);
 #endif /* OMR_GC_MODRON_COMPACTION */
 
 	/**
@@ -137,23 +137,23 @@ private:
 	 *	@param initMarkMap instruct should mark map be initialized (might be already partially done like in conrurrentGC) 
 	 */
 	void markAll(MM_EnvironmentBase *env, bool initMarkMap);
-	
+
 	/**
 	 *	Main call for reportObjectEvents
 	 */
 	void masterThreadReportObjectEvents(MM_EnvironmentBase *env);
-	
+
 	/**
 	 *	Main call for Sweep operation
 	 *	Start of sweep for concurrentGC, full sweep for other cases
 	 */
 	void masterThreadSweepStart(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription);
-	
+
 	/**
 	 * 	Complete Sweep operation for concurrentGC, empty for all other cases 
 	 */
 	void masterThreadSweepComplete(MM_EnvironmentBase *env, SweepCompletionReason reason);
-	
+
 #if defined(OMR_GC_MODRON_COMPACTION)
 	/**
 	 *	Main call for Compact operation
@@ -172,7 +172,7 @@ private:
 	 *	Initializations before GC cycle 
 	 */
 	void setupBeforeGC(MM_EnvironmentBase *env);
-	
+
 	/**
 	 *	Last few settings to complete GC cycle 
 	 */
@@ -182,18 +182,24 @@ protected:
 	bool initialize(MM_EnvironmentBase *env);
 	void tearDown(MM_EnvironmentBase *env);
 
-	virtual void masterThreadGarbageCollect(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, bool initMarkMap, bool rebuildMarkBits);
+	virtual void masterThreadGarbageCollect(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+											bool initMarkMap, bool rebuildMarkBits);
 
 	virtual void setupForGC(MM_EnvironmentBase *env);
-	virtual bool internalGarbageCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription);
-	virtual void internalPreCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription, uint32_t gcCode);
+	virtual bool internalGarbageCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+										MM_AllocateDescription *allocDescription);
+	virtual void internalPreCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+									MM_AllocateDescription *allocDescription, uint32_t gcCode);
 	virtual void internalPostCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace);
 
 	/**
 	 * Update tuning statistics at end of a concurrent cycle.
 	 *  need this function here empty, a real implementation is in ConcurrentGC
 	 */
-	virtual void updateTuningStatistics(MM_EnvironmentBase *env) { }
+	virtual void
+	updateTuningStatistics(MM_EnvironmentBase *env)
+	{
+	}
 
 	void reportGCCycleStart(MM_EnvironmentBase *env);
 	void reportGCCycleEnd(MM_EnvironmentBase *env);
@@ -233,13 +239,13 @@ protected:
 
 	virtual void postMark(MM_EnvironmentBase *env);
 
-	MM_ParallelSweepScheme*
+	MM_ParallelSweepScheme *
 	createSweepScheme(MM_EnvironmentBase *env, MM_GlobalCollector *globalCollector)
 	{
 		MM_ParallelSweepScheme *sweepScheme = NULL;
 
 #if defined(OMR_GC_CONCURRENT_SWEEP)
-		if(_extensions->concurrentSweep) {
+		if (_extensions->concurrentSweep) {
 			sweepScheme = MM_ConcurrentSweepScheme::newInstance(env, globalCollector);
 		} else
 #endif /* defined(OMR_GC_CONCURRENT_SWEEP) */
@@ -256,18 +262,20 @@ public:
 
 	virtual uintptr_t getVMStateID();
 
-	virtual bool collectorStartup(MM_GCExtensionsBase* extensions);
+	virtual bool collectorStartup(MM_GCExtensionsBase *extensions);
 	virtual void collectorShutdown(MM_GCExtensionsBase *extensions);
 
 	virtual void prepareHeapForWalk(MM_EnvironmentBase *env);
 
 	void workThreadGarbageCollect(MM_EnvironmentBase *env);
 
-	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
+	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+							  void *highAddress);
+	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+								 void *highAddress, void *lowValidAddress, void *highValidAddress);
 	virtual void heapReconfigured(MM_EnvironmentBase *env);
 
-	virtual	uint32_t getGCTimePercentage(MM_EnvironmentBase *env);
+	virtual uint32_t getGCTimePercentage(MM_EnvironmentBase *env);
 
 	/**
  	* Request to create sweepPoolState class for pool
@@ -287,31 +295,30 @@ public:
 	/**
 	 * Return reference to Marking Scheme
 	 */
-	MM_MarkingScheme *getMarkingScheme()
+	MM_MarkingScheme *
+	getMarkingScheme()
 	{
 		return _markingScheme;
 	}
-	
+
 #if defined(OMR_GC_MODRON_COMPACTION)
 	MM_CompactScheme *
-	getCompactScheme(MM_EnvironmentBase *env) {
+	getCompactScheme(MM_EnvironmentBase *env)
+	{
 		return _compactScheme;
 	}
 #endif /* OMR_GC_MODRON_COMPACTION */
 
 	MM_ParallelGlobalGC(MM_EnvironmentBase *env, MM_CollectorLanguageInterface *cli)
-		: MM_GlobalCollector(env, cli)
-		, _extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
-		, _portLibrary(env->getPortLibrary())
+		: MM_GlobalCollector(env, cli), _extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM())),
+		  _portLibrary(env->getPortLibrary())
 #if defined(OMR_GC_MODRON_COMPACTION)
-		, _compactScheme(NULL)
-		, _compactThisCycle(false)
+		  ,
+		  _compactScheme(NULL), _compactThisCycle(false)
 #endif /* OMR_GC_MODRON_COMPACTION */
-		, _markingScheme(NULL)
-		, _sweepScheme(NULL)
-		, _dispatcher(_extensions->dispatcher)
-		, _cycleState()
-		, _collectionStatistics()
+		  ,
+		  _markingScheme(NULL), _sweepScheme(NULL), _dispatcher(_extensions->dispatcher), _cycleState(),
+		  _collectionStatistics()
 	{
 		_typeId = __FUNCTION__;
 	}

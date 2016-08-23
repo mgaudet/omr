@@ -36,7 +36,7 @@ OMR_Glue_GetMethodDictionaryPropertyNum(void)
  * Get the method property names
  * @return Method property names
  */
-const char * const *
+const char *const *
 OMR_Glue_GetMethodDictionaryPropertyNames(void)
 {
 #error implement method property names
@@ -53,4 +53,3 @@ ex_omr_insertMethodEntryInMethodDictionary(OMR_VM *omrVM, const void *method)
 {
 	/* Please see example/glue/Profiling.c for a sample implementation. */
 }
-

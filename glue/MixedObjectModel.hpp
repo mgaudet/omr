@@ -39,7 +39,10 @@ public:
 		return true;
 	}
 
-	void tearDown(MM_GCExtensionsBase *extensions) {}
+	void
+	tearDown(MM_GCExtensionsBase *extensions)
+	{
+	}
 };
 
 #endif /* MIXEDOBJECTMODEL_HPP_ */

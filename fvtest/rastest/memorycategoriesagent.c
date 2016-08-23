@@ -27,15 +27,15 @@ typedef struct OMRMemoryCategoriesTestData {
 	omr_error_t rc;
 } OMRMemoryCategoriesTestData;
 
-static omr_error_t
-testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti, OMRPortLibrary *portLibrary);
-static omr_error_t
-testMemoryCategoriesFromUnattachedThread(OMR_VMThread *vmThread, OMR_TI const *ti, OMRPortLibrary *portLibrary);
+static omr_error_t testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
+														  OMRPortLibrary *portLibrary);
+static omr_error_t testMemoryCategoriesFromUnattachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
+															OMRPortLibrary *portLibrary);
 
-static BOOLEAN
-validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categories_buffer, int32_t written_count);
-static void
-printMemoryCategories(OMRPortLibrary *portLib, OMR_TI_MemoryCategory *categories_buffer, int32_t written_count);
+static BOOLEAN validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categories_buffer,
+								  int32_t written_count);
+static void printMemoryCategories(OMRPortLibrary *portLib, OMR_TI_MemoryCategory *categories_buffer,
+								  int32_t written_count);
 
 static OMRMemoryCategoriesTestData testData;
 
@@ -132,15 +132,15 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	OMR_TI_MemoryCategory *memoryCategories = NULL;
 
 	/* Negative path: try non-zero max_categories with NULL categories_buffer */
-	rc = OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, 1, NULL, NULL, NULL),
-									 OMR_ERROR_ILLEGAL_ARGUMENT);
+	rc =
+		OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, 1, NULL, NULL, NULL), OMR_ERROR_ILLEGAL_ARGUMENT);
 	if (OMR_ERROR_ILLEGAL_ARGUMENT != rc) {
 		testRc = OMR_ERROR_INTERNAL;
 	}
 
 	/* Negative path: try all output pointers NULL */
-	rc = OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, 0, NULL, NULL, NULL),
-									 OMR_ERROR_ILLEGAL_ARGUMENT);
+	rc =
+		OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, 0, NULL, NULL, NULL), OMR_ERROR_ILLEGAL_ARGUMENT);
 	if (OMR_ERROR_ILLEGAL_ARGUMENT != rc) {
 		testRc = OMR_ERROR_INTERNAL;
 	}
@@ -160,8 +160,8 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 
 	/* Allocate our buffer */
 	if (OMR_ERROR_NONE == testRc) {
-		memoryCategories = omrmem_allocate_memory(total_categories * sizeof(OMR_TI_MemoryCategory),
-						   OMRMEM_CATEGORY_PORT_LIBRARY);
+		memoryCategories =
+			omrmem_allocate_memory(total_categories * sizeof(OMR_TI_MemoryCategory), OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (NULL == memoryCategories) {
 			testRc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 		} else {
@@ -172,8 +172,8 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	/* Negative path: get categories with a NULL written_count_ptr */
 	if (OMR_ERROR_NONE == testRc) {
 		rc = OMRTEST_PRINT_UNEXPECTED_RC(
-				 ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, NULL, &total_categories),
-				 OMR_ERROR_ILLEGAL_ARGUMENT);
+			ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, NULL, &total_categories),
+			OMR_ERROR_ILLEGAL_ARGUMENT);
 		if (OMR_ERROR_ILLEGAL_ARGUMENT != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		}
@@ -183,9 +183,9 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	written_count = -1;
 	if (OMR_ERROR_NONE == testRc) {
 		omrtty_printf("\nNegative path: get categories with an undersized buffer\n");
-		rc = OMRTEST_PRINT_UNEXPECTED_RC(
-				 ti->GetMemoryCategories(vmThread, total_categories - 1, memoryCategories, &written_count,
-										 &total_categories), OMR_ERROR_OUT_OF_NATIVE_MEMORY);
+		rc = OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, total_categories - 1, memoryCategories,
+																 &written_count, &total_categories),
+										 OMR_ERROR_OUT_OF_NATIVE_MEMORY);
 		if (OMR_ERROR_OUT_OF_NATIVE_MEMORY != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		} else {
@@ -211,8 +211,7 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	if (OMR_ERROR_NONE == testRc) {
 		omrtty_printf("\nPositive path: get and validate categories\n");
 		rc = OMRTEST_PRINT_ERROR(
-				 ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, &written_count,
-										 &total_categories));
+			ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, &written_count, &total_categories));
 		if (OMR_ERROR_NONE != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		} else if (total_categories != written_count) {
@@ -234,7 +233,8 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	written_count = -1;
 	if (OMR_ERROR_NONE == testRc) {
 		omrtty_printf("\nPositive path: get and validate categories and total_categories is null\n");
-		rc = OMRTEST_PRINT_ERROR(ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, &written_count, total_categories_null));
+		rc = OMRTEST_PRINT_ERROR(ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, &written_count,
+														 total_categories_null));
 		if (OMR_ERROR_NONE != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		} else if (total_categories != written_count) {
@@ -253,7 +253,7 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	if (OMR_ERROR_NONE == testRc) {
 		omrmem_free_memory(memoryCategories);
 		memoryCategories = omrmem_allocate_memory((total_categories + 1) * sizeof(OMR_TI_MemoryCategory),
-						   OMRMEM_CATEGORY_PORT_LIBRARY);
+												  OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (NULL == memoryCategories) {
 			testRc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 		} else {
@@ -264,10 +264,10 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	/* Positive path: get and validate categories with oversized max_categories and oversized buffer */
 	written_count = -1;
 	if (OMR_ERROR_NONE == testRc) {
-		omrtty_printf("\nPositive path: get and validate categories with oversized max_categories and oversized buffer\n");
-		rc = OMRTEST_PRINT_ERROR(
-				 ti->GetMemoryCategories(vmThread, (total_categories + 1), memoryCategories, &written_count,
-										 &total_categories));
+		omrtty_printf(
+			"\nPositive path: get and validate categories with oversized max_categories and oversized buffer\n");
+		rc = OMRTEST_PRINT_ERROR(ti->GetMemoryCategories(vmThread, (total_categories + 1), memoryCategories,
+														 &written_count, &total_categories));
 		if (OMR_ERROR_NONE != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		} else if (total_categories != written_count) {
@@ -288,8 +288,10 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	/* Positive path: get and validate categories with oversized buffer and total_categories is null */
 	written_count = -1;
 	if (OMR_ERROR_NONE == testRc) {
-		omrtty_printf("\nPositive path: get and validate categories with oversized buffer and total_categories is null\n");
-		rc = OMRTEST_PRINT_ERROR(ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, &written_count, total_categories_null));
+		omrtty_printf(
+			"\nPositive path: get and validate categories with oversized buffer and total_categories is null\n");
+		rc = OMRTEST_PRINT_ERROR(ti->GetMemoryCategories(vmThread, total_categories, memoryCategories, &written_count,
+														 total_categories_null));
 		if (OMR_ERROR_NONE != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		} else if (total_categories != written_count) {
@@ -307,8 +309,11 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	/* Positive path: get and validate categories with oversized max_categories, oversized buffer and total_categories is null*/
 	written_count = -1;
 	if (OMR_ERROR_NONE == testRc) {
-		omrtty_printf("\nPositive path: get and validate categories with oversized max_categories, oversized buffer and total_categories is null\n");
-		rc = OMRTEST_PRINT_ERROR(ti->GetMemoryCategories(vmThread, (total_categories + 1), memoryCategories, &written_count, total_categories_null));
+		omrtty_printf(
+			"\nPositive path: get and validate categories with oversized max_categories, oversized buffer and "
+			"total_categories is null\n");
+		rc = OMRTEST_PRINT_ERROR(ti->GetMemoryCategories(vmThread, (total_categories + 1), memoryCategories,
+														 &written_count, total_categories_null));
 		if (OMR_ERROR_NONE != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		} else if (total_categories != written_count) {
@@ -325,7 +330,9 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 
 	/* Negative path: get categories with oversized max_categories, oversized buffer and a NULL written_count_ptr */
 	if (OMR_ERROR_NONE == testRc) {
-		rc = OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, (total_categories + 1), memoryCategories, NULL, &total_categories), OMR_ERROR_ILLEGAL_ARGUMENT);
+		rc = OMRTEST_PRINT_UNEXPECTED_RC(
+			ti->GetMemoryCategories(vmThread, (total_categories + 1), memoryCategories, NULL, &total_categories),
+			OMR_ERROR_ILLEGAL_ARGUMENT);
 		if (OMR_ERROR_ILLEGAL_ARGUMENT != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		}
@@ -333,7 +340,9 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 
 	/* Negative path: get categories with oversized max_categories, buffer is NULL */
 	if (OMR_ERROR_NONE == testRc) {
-		rc = OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, (total_categories + 1), NULL, &written_count, NULL), OMR_ERROR_ILLEGAL_ARGUMENT);
+		rc = OMRTEST_PRINT_UNEXPECTED_RC(
+			ti->GetMemoryCategories(vmThread, (total_categories + 1), NULL, &written_count, NULL),
+			OMR_ERROR_ILLEGAL_ARGUMENT);
 		if (OMR_ERROR_ILLEGAL_ARGUMENT != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		}
@@ -341,7 +350,8 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 
 	/* Allocate our buffer */
 	if (OMR_ERROR_NONE == testRc) {
-		memoryCategories = omrmem_allocate_memory((total_categories - 1) * sizeof(OMR_TI_MemoryCategory), OMRMEM_CATEGORY_PORT_LIBRARY);
+		memoryCategories = omrmem_allocate_memory((total_categories - 1) * sizeof(OMR_TI_MemoryCategory),
+												  OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (NULL == memoryCategories) {
 			testRc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 		} else {
@@ -352,7 +362,9 @@ testMemoryCategoriesFromAttachedThread(OMR_VMThread *vmThread, OMR_TI const *ti,
 	/* Negative path: get categories with undersized max_categories and oversized buffer */
 	written_count = -1;
 	if (OMR_ERROR_NONE == testRc) {
-		rc = OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, total_categories - 2, memoryCategories, &written_count, total_categories_null), OMR_ERROR_OUT_OF_NATIVE_MEMORY);
+		rc = OMRTEST_PRINT_UNEXPECTED_RC(ti->GetMemoryCategories(vmThread, total_categories - 2, memoryCategories,
+																 &written_count, total_categories_null),
+										 OMR_ERROR_OUT_OF_NATIVE_MEMORY);
 		if (OMR_ERROR_OUT_OF_NATIVE_MEMORY != rc) {
 			testRc = OMR_ERROR_INTERNAL;
 		} else {
@@ -433,14 +445,15 @@ validateCategoryPointer(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *valu
 
 	if (value < categories_buffer || value > (categories_buffer + written_count)) {
 		omrtty_err_printf(
-			"%s:%d:Category pointer out of range. Value = %p, categories_buffer = %p, top of buffer = %p\n",
-			__FILE__, __LINE__, value, categories_buffer, categories_buffer + written_count);
+			"%s:%d:Category pointer out of range. Value = %p, categories_buffer = %p, top of buffer = %p\n", __FILE__,
+			__LINE__, value, categories_buffer, categories_buffer + written_count);
 		return FALSE;
 	}
 
 	if (((char *)value - (char *)categories_buffer) % sizeof(OMR_TI_MemoryCategory)) {
 		omrtty_err_printf(
-			"%s:%d:Misaligned category pointer = %p. Categories_buffer=%p, sizeof(OMR_TI_MemoryCategory)=%u, remainder=%d\n",
+			"%s:%d:Misaligned category pointer = %p. Categories_buffer=%p, sizeof(OMR_TI_MemoryCategory)=%u, "
+			"remainder=%d\n",
 			__FILE__, __LINE__, value, categories_buffer, (unsigned int)sizeof(OMR_TI_MemoryCategory),
 			(int)((value - categories_buffer) % sizeof(OMR_TI_MemoryCategory)));
 		return FALSE;
@@ -473,22 +486,21 @@ validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categorie
 
 		/* Shallow counters should be >= 0 */
 		if (thisCategory->liveBytesShallow < 0) {
-			omrtty_err_printf("%s:%d:liveBytesShallow negative for category %s. Index = %d\n", __FILE__,
-							  __LINE__, thisCategory->name, i);
+			omrtty_err_printf("%s:%d:liveBytesShallow negative for category %s. Index = %d\n", __FILE__, __LINE__,
+							  thisCategory->name, i);
 			return FALSE;
 		}
 
 		if (thisCategory->liveAllocationsShallow < 0) {
-			omrtty_err_printf("%s:%d:liveAllocationsShallow negative for category %s. Index = %d\n", __FILE__,
-							  __LINE__, thisCategory->name, i);
+			omrtty_err_printf("%s:%d:liveAllocationsShallow negative for category %s. Index = %d\n", __FILE__, __LINE__,
+							  thisCategory->name, i);
 			return FALSE;
 		}
 
 		/* Deep counters should be >= shallow counters */
 		if (thisCategory->liveBytesShallow > thisCategory->liveBytesDeep) {
-			omrtty_err_printf(
-				"%s:%d:liveBytesShallow is larger than liveBytesDeep for category %s. Index = %d\n", __FILE__,
-				__LINE__, thisCategory->name, i);
+			omrtty_err_printf("%s:%d:liveBytesShallow is larger than liveBytesDeep for category %s. Index = %d\n",
+							  __FILE__, __LINE__, thisCategory->name, i);
 			return FALSE;
 		}
 
@@ -503,8 +515,8 @@ validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categorie
 		if (thisCategory->parent != NULL) {
 
 			if (!validateCategoryPointer(portLibrary, thisCategory->parent, categories_buffer, written_count)) {
-				omrtty_err_printf("%s:%d:Parent link for category %s  failed validation. Index = %d\n",
-								  __FILE__, __LINE__, thisCategory->name, i);
+				omrtty_err_printf("%s:%d:Parent link for category %s  failed validation. Index = %d\n", __FILE__,
+								  __LINE__, thisCategory->name, i);
 				return FALSE;
 			}
 
@@ -519,8 +531,8 @@ validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categorie
 		/* Validate child link */
 		if (thisCategory->firstChild != NULL) {
 			if (!validateCategoryPointer(portLibrary, thisCategory->firstChild, categories_buffer, written_count)) {
-				omrtty_err_printf("%s:%d:firstChild link for category %s  failed validation. Index = %d\n",
-								  __FILE__, __LINE__, thisCategory->name, i);
+				omrtty_err_printf("%s:%d:firstChild link for category %s  failed validation. Index = %d\n", __FILE__,
+								  __LINE__, thisCategory->name, i);
 				return FALSE;
 			}
 
@@ -537,8 +549,8 @@ validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categorie
 			OMR_TI_MemoryCategory *ptr1, *ptr2;
 
 			if (!validateCategoryPointer(portLibrary, thisCategory->nextSibling, categories_buffer, written_count)) {
-				omrtty_err_printf("%s:%d:nextSibling link for category %s  failed validation. Index = %d\n",
-								  __FILE__, __LINE__, thisCategory->name, i);
+				omrtty_err_printf("%s:%d:nextSibling link for category %s  failed validation. Index = %d\n", __FILE__,
+								  __LINE__, thisCategory->name, i);
 				return FALSE;
 			}
 
@@ -553,8 +565,8 @@ validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categorie
 			ptr2 = thisCategory->nextSibling;
 
 			if (ptr2 && ptr2->nextSibling == ptr1) {
-				omrtty_err_printf("%s:%d:1-2-1 loop found in nextSibling chain for category %s. Index = %d\n",
-								  __FILE__, __LINE__, thisCategory->name, i);
+				omrtty_err_printf("%s:%d:1-2-1 loop found in nextSibling chain for category %s. Index = %d\n", __FILE__,
+								  __LINE__, thisCategory->name, i);
 				return FALSE;
 			} else {
 				while (ptr1 && ptr2) {
@@ -571,9 +583,7 @@ validateCategories(OMRPortLibrary *portLibrary, OMR_TI_MemoryCategory *categorie
 				}
 			}
 		}
-
 	}
 
 	return TRUE;
 }
-

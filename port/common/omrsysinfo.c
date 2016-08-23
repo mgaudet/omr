@@ -24,8 +24,6 @@
 #include "omrport.h"
 #include <string.h>
 
-
-
 /**
  * Sets the number of entitled CPUs, which is specified by the user.
  *
@@ -67,12 +65,12 @@ omrsysinfo_process_exists(struct OMRPortLibrary *portLibrary, uintptr_t pid)
 const char *
 omrsysinfo_get_CPU_architecture(struct OMRPortLibrary *portLibrary)
 {
-#if   defined(J9HAMMER)
+#if defined(J9HAMMER)
 	return OMRPORT_ARCH_HAMMER;
 #elif defined(PPC64)
 #ifdef OMR_ENV_LITTLE_ENDIAN
 	return OMRPORT_ARCH_PPC64LE;
-#else /* OMR_ENV_LITTLE_ENDIAN */
+#else  /* OMR_ENV_LITTLE_ENDIAN */
 	return OMRPORT_ARCH_PPC64;
 #endif /* OMR_ENV_LITTLE_ENDIAN */
 #elif defined(PPC)
@@ -561,7 +559,8 @@ omrsysinfo_limit_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoL
  * @note The caller must not modify the value returned by name, hardValue or softValue.
  */
 int32_t
-omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimitIteratorState *state, J9SysinfoUserLimitElement *limitElement)
+omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimitIteratorState *state,
+							   J9SysinfoUserLimitElement *limitElement)
 {
 	return OMRPORT_ERROR_SYSINFO_OPFAILED;
 }
@@ -590,7 +589,8 @@ omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimi
  *			\arg OMRPORT_ERROR_NOT_SUPPORTED_ON_THIS_PLATFORM if the iterator is not supported on this platform
  */
 int32_t
-omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, void *buffer, uintptr_t bufferSizeBytes)
+omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, void *buffer,
+							 uintptr_t bufferSizeBytes)
 {
 	return OMRPORT_ERROR_SYSINFO_OPFAILED;
 }
@@ -604,10 +604,7 @@ omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIte
  * @return TRUE if @ref omrsysinfo_env_iterator_next() will return another limit element, FALSE otherwise.
 */
 BOOLEAN
-omrsysinfo_env_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state)
-{
-	return FALSE;
-}
+omrsysinfo_env_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state) { return FALSE; }
 
 /**
  * Provides a pointer to the null terminated name=value pair in the process' environment
@@ -624,7 +621,8 @@ omrsysinfo_env_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoEnv
  * @return 	0 if another element has been returned, otherwise portable error code.
  */
 int32_t
-omrsysinfo_env_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, J9SysinfoEnvElement *envElement)
+omrsysinfo_env_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state,
+							 J9SysinfoEnvElement *envElement)
 {
 	return OMRPORT_ERROR_SYSINFO_OPFAILED;
 }
@@ -694,7 +692,6 @@ omrsysinfo_get_cwd(struct OMRPortLibrary *portLibrary, char *buf, uintptr_t bufL
 	return -1;
 }
 
-
 /**
  * Provides the path of the TMP directory of the process.
  *
@@ -737,4 +734,3 @@ omrsysinfo_get_open_file_count(struct OMRPortLibrary *portLibrary, uint64_t *cou
 {
 	return OMRPORT_ERROR_SYSINFO_GET_OPEN_FILES_NOT_SUPPORTED;
 }
-

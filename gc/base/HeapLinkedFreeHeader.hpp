@@ -23,7 +23,7 @@
 #include "modronbase.h"
 /* #include "ModronAssertions.h" -- removed for now because it causes a compile error in TraceOutput.cpp on xlC */
 
-#include"AtomicOperations.hpp"
+#include "AtomicOperations.hpp"
 
 /* Split pointer for all compressed platforms */
 #if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
@@ -55,15 +55,14 @@ class MM_HeapLinkedFreeHeader
 public:
 protected:
 #if defined(SPLIT_NEXT_POINTER)
-	uint32_t _next; /**< tagged pointer to the next free list entry, or a tagged pointer to NULL */
+	uint32_t _next;			/**< tagged pointer to the next free list entry, or a tagged pointer to NULL */
 	uint32_t _nextHighBits; /**< the high 32 bits of the next pointer on 64-bit builds */
-#else /* defined(SPLIT_NEXT_POINTER) */
+#else						/* defined(SPLIT_NEXT_POINTER) */
 	uintptr_t _next; /**< tagged pointer to the next free list entry, or a tagged pointer to NULL */
-#endif /* defined(SPLIT_NEXT_POINTER) */
-	uintptr_t _size; /**< size in bytes (including header) of the free list entry */
+#endif						/* defined(SPLIT_NEXT_POINTER) */
+	uintptr_t _size;		/**< size in bytes (including header) of the free list entry */
 
 private:
-
 	/*
 	 * CMVC 130331
 	 * The following private member functions must be declared before the public functions
@@ -82,15 +81,15 @@ private:
 	MMINLINE uintptr_t
 	getNextImpl()
 	{
-#if defined(SPLIT_NEXT_POINTER)		
+#if defined(SPLIT_NEXT_POINTER)
 		uintptr_t lowBits = _next;
 		uintptr_t highBits = _nextHighBits;
 		return (highBits << 32) | lowBits;
-#else /* defined(SPLIT_NEXT_POINTER) */
+#else  /* defined(SPLIT_NEXT_POINTER) */
 		return _next;
 #endif /* defined(SPLIT_NEXT_POINTER) */
 	}
-	
+
 	/**
 	 * Encoded the specified value as the next pointer.
 	 * Since the encoding may be different depending on the header shape
@@ -105,7 +104,7 @@ private:
 #if defined(SPLIT_NEXT_POINTER)
 		_next = (uint32_t)value;
 		_nextHighBits = (uint32_t)(value >> 32);
-#else /* defined(SPLIT_NEXT_POINTER) */
+#else  /* defined(SPLIT_NEXT_POINTER) */
 		_next = value;
 #endif /* defined(SPLIT_NEXT_POINTER) */
 	}
@@ -114,47 +113,69 @@ public:
 	/**
 	 * Convert a pointer to a dead object to a HeapLinkedFreeHeader.
 	 */
-	static MMINLINE MM_HeapLinkedFreeHeader *getHeapLinkedFreeHeader(void* pointer) { return (MM_HeapLinkedFreeHeader*)pointer; }
+	static MMINLINE MM_HeapLinkedFreeHeader *
+	getHeapLinkedFreeHeader(void *pointer)
+	{
+		return (MM_HeapLinkedFreeHeader *)pointer;
+	}
 
 	/**
 	 * Get the next free header in the linked list of free entries
 	 * @return the next entry or NULL
 	 */
-	MMINLINE MM_HeapLinkedFreeHeader *getNext() {
+	MMINLINE MM_HeapLinkedFreeHeader *
+	getNext()
+	{
 		/* Assert_MM_true(0 != ((getNextImpl()) & J9_GC_OBJ_HEAP_HOLE)); */
-		return (MM_HeapLinkedFreeHeader*)((getNextImpl()) & ~((uintptr_t)J9_GC_OBJ_HEAP_HOLE_MASK));
+		return (MM_HeapLinkedFreeHeader *)((getNextImpl()) & ~((uintptr_t)J9_GC_OBJ_HEAP_HOLE_MASK));
 	}
 
 	/**
 	 * Set the next free header in the linked list and mark the receiver as a multi-slot hole
 	 * Set to NULL to terminate the list.
 	 */
-	MMINLINE void setNext(MM_HeapLinkedFreeHeader* freeEntryPtr) { setNextImpl( ((uintptr_t)freeEntryPtr) | ((uintptr_t)J9_GC_MULTI_SLOT_HOLE) ); }
+	MMINLINE void
+	setNext(MM_HeapLinkedFreeHeader *freeEntryPtr)
+	{
+		setNextImpl(((uintptr_t)freeEntryPtr) | ((uintptr_t)J9_GC_MULTI_SLOT_HOLE));
+	}
 
 	/**
 	 * Set the next free header in the linked list, preserving the type of the receiver
 	 * Set to NULL to terminate the list.
 	 */
-	MMINLINE void updateNext(MM_HeapLinkedFreeHeader* freeEntryPtr) { setNextImpl( ((uintptr_t)freeEntryPtr) | (getNextImpl() & (uintptr_t)J9_GC_OBJ_HEAP_HOLE_MASK) ); }
+	MMINLINE void
+	updateNext(MM_HeapLinkedFreeHeader *freeEntryPtr)
+	{
+		setNextImpl(((uintptr_t)freeEntryPtr) | (getNextImpl() & (uintptr_t)J9_GC_OBJ_HEAP_HOLE_MASK));
+	}
 
 	/**
 	 * Get the size in bytes of this free entry. The size is measured
 	 * from the beginning of the header.
 	 * @return size in bytes
 	 */
-	MMINLINE uintptr_t getSize() { return _size; }
+	MMINLINE uintptr_t
+	getSize()
+	{
+		return _size;
+	}
 
 	/**
 	 * Set the size in bytes of this free entry.
 	 */
-	MMINLINE void setSize(uintptr_t size) {
+	MMINLINE void
+	setSize(uintptr_t size)
+	{
 		_size = size;
 	}
 
 	/**
 	 * Expand this entry by the specified number of bytes.
 	 */
-	MMINLINE void expandSize(uintptr_t increment) {
+	MMINLINE void
+	expandSize(uintptr_t increment)
+	{
 		_size += increment;
 	}
 
@@ -163,7 +184,11 @@ public:
 	 * described by this header
 	 * @return address following this free section
 	 */
-	MMINLINE MM_HeapLinkedFreeHeader* afterEnd() { return (MM_HeapLinkedFreeHeader*)( ((uintptr_t)this) + getSize() ); }
+	MMINLINE MM_HeapLinkedFreeHeader *
+	afterEnd()
+	{
+		return (MM_HeapLinkedFreeHeader *)(((uintptr_t) this) + getSize());
+	}
 
 	/**
 	 * Mark the specified region of memory as all single slot holes
@@ -171,17 +196,17 @@ public:
 	 * @param freeEntrySize the number of bytes to be consumed
 	 */
 	MMINLINE static void
-	fillWithSingleSlotHoles(void* addrBase, uintptr_t freeEntrySize)
+	fillWithSingleSlotHoles(void *addrBase, uintptr_t freeEntrySize)
 	{
 #if defined(SPLIT_NEXT_POINTER)
-		uint32_t *freeSlot = (uint32_t *) addrBase;
-		while(freeEntrySize) {
+		uint32_t *freeSlot = (uint32_t *)addrBase;
+		while (freeEntrySize) {
 			*freeSlot++ = J9_GC_SINGLE_SLOT_HOLE;
 			freeEntrySize -= sizeof(uint32_t);
 		}
-#else /* defined(SPLIT_NEXT_POINTER) */
-		uintptr_t *freeSlot = (uintptr_t*) addrBase;
-		while(freeEntrySize) {
+#else  /* defined(SPLIT_NEXT_POINTER) */
+		uintptr_t *freeSlot = (uintptr_t *)addrBase;
+		while (freeEntrySize) {
 			*freeSlot++ = J9_GC_SINGLE_SLOT_HOLE;
 			freeEntrySize -= sizeof(uintptr_t);
 		}
@@ -194,8 +219,8 @@ public:
 	 * @param[in] freeEntrySize the number of bytes to be consumed (must be a multiple of sizeof(uintptr_t))
 	 * @return The header written or null if the space was too small and was filled with single-slot holes
 	 */
-	MMINLINE static MM_HeapLinkedFreeHeader*
-	fillWithHoles(void* addrBase, uintptr_t freeEntrySize)
+	MMINLINE static MM_HeapLinkedFreeHeader *
+	fillWithHoles(void *addrBase, uintptr_t freeEntrySize)
 	{
 		MM_HeapLinkedFreeHeader *freeEntry = NULL;
 		if (freeEntrySize < sizeof(MM_HeapLinkedFreeHeader)) {
@@ -218,7 +243,7 @@ public:
 	 * @note Caller must set nextHead->_size
 	 */
 	MMINLINE static void
-	linkInAsHead(volatile uintptr_t *currentHead, MM_HeapLinkedFreeHeader* nextHead)
+	linkInAsHead(volatile uintptr_t *currentHead, MM_HeapLinkedFreeHeader *nextHead)
 	{
 		uintptr_t oldValue, newValue;
 		do {
@@ -231,7 +256,6 @@ public:
 
 protected:
 private:
-
 };
 
 #undef SPLIT_NEXT_POINTER

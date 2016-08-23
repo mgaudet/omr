@@ -34,7 +34,8 @@ omr_error_t OMR_Initialize(void *languageVM, OMR_VM **vmSlot);
  */
 omr_error_t OMR_Shutdown(OMR_VM *omrVM);
 
-omr_error_t OMR_Initialize_VM(OMR_VM **omrVMSlot, OMR_VMThread **omrVMThreadSlot, void *languageVM, void *languageVMThread);
+omr_error_t OMR_Initialize_VM(OMR_VM **omrVMSlot, OMR_VMThread **omrVMThreadSlot, void *languageVM,
+							  void *languageVMThread);
 
 omr_error_t OMR_Shutdown_VM(OMR_VM *omrVM, OMR_VMThread *omrVMThread);
 
@@ -77,13 +78,13 @@ omr_error_t OMR_Thread_Free(OMR_VMThread *omrVMThread);
 /**
  * @brief Helper for OMR_Thread_Init(). Use instead of OMR_Thread_Init() when certain that the current thread is not attached to OMR.
  */
-omr_error_t OMR_Thread_FirstInit(OMR_VM *omrVM, omrthread_t self, void *language_vm_thread, OMR_VMThread **threadSlot, const char *threadName);
+omr_error_t OMR_Thread_FirstInit(OMR_VM *omrVM, omrthread_t self, void *language_vm_thread, OMR_VMThread **threadSlot,
+								 const char *threadName);
 
 /**
  * @brief Helper for OMR_Thread_Free(). Use instead of OMR_Thread_Free() when certain that omrVMThread is only attached to OMR once.
  */
 omr_error_t OMR_Thread_LastFree(OMR_VMThread *omrVMThread);
-
 
 #ifdef __cplusplus
 } /* extern "C" { */

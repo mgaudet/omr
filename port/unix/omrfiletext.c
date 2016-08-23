@@ -48,22 +48,24 @@
 /* a2e overrides nl_langinfo to return ASCII strings. We need the native EBCDIC string */
 #if defined(J9ZOS390)
 #include "atoe.h"
-#if defined (nl_langinfo)
+#if defined(nl_langinfo)
 #undef nl_langinfo
 #endif
 #endif
 
 #if defined(J9VM_USE_ICONV)
-static int growBuffer(struct OMRPortLibrary *portLibrary, char *stackBuf, char **bufStart, char **cursor, size_t *bytesLeft, uintptr_t *bufLen);
-static intptr_t file_write_using_iconv(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf, intptr_t nbytes);
+static int growBuffer(struct OMRPortLibrary *portLibrary, char *stackBuf, char **bufStart, char **cursor,
+					  size_t *bytesLeft, uintptr_t *bufLen);
+static intptr_t file_write_using_iconv(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf,
+									   intptr_t nbytes);
 #endif
 
 #if defined(J9VM_USE_WCTOMB)
 static intptr_t walkUTF8String(const uint8_t *buf, intptr_t nbytes);
 static void translateUTF8String(const uint8_t *in, uint8_t *out, intptr_t nbytes);
-static intptr_t file_write_using_wctomb(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf, intptr_t nbytes);
+static intptr_t file_write_using_wctomb(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf,
+										intptr_t nbytes);
 #endif
-
 
 intptr_t
 omrfile_write_text(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf, intptr_t nbytes)
@@ -103,7 +105,6 @@ omrfile_write_text(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *
 #else
 	return file_write_using_iconv(portLibrary, fd, buf, nbytes);
 #endif
-
 }
 
 #if defined(J9VM_USE_WCTOMB)
@@ -162,7 +163,6 @@ walkUTF8String(const uint8_t *buf, intptr_t nbytes)
 
 #endif /* J9VM_USE_WCTOMB */
 
-
 #if defined(J9VM_USE_WCTOMB)
 
 /**
@@ -196,7 +196,6 @@ translateUTF8String(const uint8_t *in, uint8_t *out, intptr_t nbytes)
 
 #endif /* J9VM_USE_WCTOMB */
 
-
 #if defined(J9VM_USE_WCTOMB)
 
 static intptr_t
@@ -211,7 +210,8 @@ file_write_using_wctomb(struct OMRPortLibrary *portLibrary, intptr_t fd, const c
 
 	if (newLength) {
 		if (newLength > sizeof(stackBuf)) {
-			newBuf = portLibrary->mem_allocate_memory(portLibrary, newLength, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			newBuf = portLibrary->mem_allocate_memory(portLibrary, newLength, OMR_GET_CALLSITE(),
+													  OMRMEM_CATEGORY_PORT_LIBRARY);
 		}
 		if (newBuf) {
 			translateUTF8String((uint8_t *)buf, (uint8_t *)newBuf, nbytes);
@@ -230,7 +230,6 @@ file_write_using_wctomb(struct OMRPortLibrary *portLibrary, intptr_t fd, const c
 }
 
 #endif /* J9VM_USE_WCTOMB */
-
 
 #if defined(J9VM_USE_ICONV)
 
@@ -252,7 +251,8 @@ file_write_using_wctomb(struct OMRPortLibrary *portLibrary, intptr_t fd, const c
  * @return 0 on success, -1 on failure (out of memory).
  */
 static int
-growBuffer(struct OMRPortLibrary *portLibrary, char *stackBuf, char **bufStart, char **cursor, size_t *bytesLeft, uintptr_t *bufLen)
+growBuffer(struct OMRPortLibrary *portLibrary, char *stackBuf, char **bufStart, char **cursor, size_t *bytesLeft,
+		   uintptr_t *bufLen)
 {
 #define SIZE_OF_INCREMENT 512
 
@@ -300,7 +300,7 @@ file_write_using_iconv(struct OMRPortLibrary *portLibrary, intptr_t fd, const ch
 	/* LIR 1280 (z/OS only) - every failed call to iconv_open() is recorded on the operator console, so don't retry */
 	if (FALSE == PPG_file_text_iconv_open_failed) {
 
-		/* iconv_get is not an a2e function, so we need to pass it honest-to-goodness EBCDIC strings */
+/* iconv_get is not an a2e function, so we need to pass it honest-to-goodness EBCDIC strings */
 #pragma convlit(suspend)
 #endif
 
@@ -311,10 +311,8 @@ file_write_using_iconv(struct OMRPortLibrary *portLibrary, intptr_t fd, const ch
 		if (J9VM_INVALID_ICONV_DESCRIPTOR == converter) {
 			PPG_file_text_iconv_open_failed = TRUE;
 		}
-
 	}
 #endif
-
 
 	if (J9VM_INVALID_ICONV_DESCRIPTOR == converter) {
 		/* no converter available for this code set. Just dump the UTF-8 chars */
@@ -362,7 +360,8 @@ file_write_using_iconv(struct OMRPortLibrary *portLibrary, intptr_t fd, const ch
 				escapedLength = 1;
 				escapedStr[0] = '?';
 			} else {
-				escapedLength = portLibrary->str_printf(portLibrary, escapedStr, J9FILETEXT_ESCAPE_STR_SIZE, unicodeFormat, (uintptr_t)unicodeC);
+				escapedLength = portLibrary->str_printf(portLibrary, escapedStr, J9FILETEXT_ESCAPE_STR_SIZE,
+														unicodeFormat, (uintptr_t)unicodeC);
 			}
 
 			inbytesleft -= utf8Length;

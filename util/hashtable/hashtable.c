@@ -70,10 +70,11 @@
 
 static uint32_t hashTableNextSize(uint32_t size);
 static uintptr_t hashTableGrow(J9HashTable *table);
-static J9HashTable *hashTableNewImpl(OMRPortLibrary *portLibrary, const char *tableName,
-	uint32_t tableSize, uint32_t entrySize, uint32_t entryAlignment, uint32_t flags, uint32_t memoryCategory, uint32_t listToTreeThreshold,
-	J9HashTableHashFn hashFn, J9HashTableEqualFn hashEqualFn, J9HashTableComparatorFn comparatorFn, J9HashTablePrintFn printFn,
-	void *functionUserData);
+static J9HashTable *hashTableNewImpl(OMRPortLibrary *portLibrary, const char *tableName, uint32_t tableSize,
+									 uint32_t entrySize, uint32_t entryAlignment, uint32_t flags,
+									 uint32_t memoryCategory, uint32_t listToTreeThreshold, J9HashTableHashFn hashFn,
+									 J9HashTableEqualFn hashEqualFn, J9HashTableComparatorFn comparatorFn,
+									 J9HashTablePrintFn printFn, void *functionUserData);
 static void **hashTableFindNodeSpaceOpt(J9HashTable *table, void *entry, void **head);
 static void **hashTableFindNodeInList(J9HashTable *table, void *entry, void **head);
 static void *hashTableFindNodeInTree(J9HashTable *table, void *entry, void **head);
@@ -90,29 +91,9 @@ static uintptr_t hashTableGrowListNodes(J9HashTable *table, uint32_t newSize);
 static uintptr_t collisionResilientHashTableGrow(J9HashTable *table, uint32_t newSize);
 
 static const uint32_t primesTable[] = {
-	17,
-	37,
-	73,
-	149,
-	293,
-	587,
-	811,
-	1171,
-	1693,
-	2347,
-	3511,
-	4691,
-	9391,
-	18787,
-	37573,
-	75149,
-	150299,
-	300007,
-	600071,
-	1200077,
-	2200103,
+	17,   37,   73,	149,   293,   587,	811,	1171,   1693,	2347,	3511,
+	4691, 9391, 18787, 37573, 75149, 150299, 300007, 600071, 1200077, 2200103,
 };
-
 
 /*****************************************************************************
  *  Hash Table statistics defines
@@ -180,20 +161,14 @@ comparatorToEqualFn(void *leftKey, void *rightKey, void *userData)
  *
  */
 J9HashTable *
-collisionResilientHashTableNew(
-	OMRPortLibrary *portLibrary,
-	const char *tableName,
-	uint32_t tableSize,
-	uint32_t entrySize,
-	uint32_t flags,
-	uint32_t memoryCategory,
-	uint32_t listToTreeThreshold,
-	J9HashTableHashFn hashFn,
-	J9HashTableComparatorFn comparatorFn,
-	J9HashTablePrintFn printFn,
-	void *functionUserData)
+collisionResilientHashTableNew(OMRPortLibrary *portLibrary, const char *tableName, uint32_t tableSize,
+							   uint32_t entrySize, uint32_t flags, uint32_t memoryCategory,
+							   uint32_t listToTreeThreshold, J9HashTableHashFn hashFn,
+							   J9HashTableComparatorFn comparatorFn, J9HashTablePrintFn printFn, void *functionUserData)
 {
-	return hashTableNewImpl(portLibrary, tableName, tableSize, entrySize, sizeof(uintptr_t), flags | J9HASH_TABLE_COLLISION_RESILIENT, memoryCategory, listToTreeThreshold, hashFn, NULL, comparatorFn, printFn, functionUserData);
+	return hashTableNewImpl(portLibrary, tableName, tableSize, entrySize, sizeof(uintptr_t),
+							flags | J9HASH_TABLE_COLLISION_RESILIENT, memoryCategory, listToTreeThreshold, hashFn, NULL,
+							comparatorFn, printFn, functionUserData);
 }
 
 /**
@@ -233,37 +208,19 @@ collisionResilientHashTableNew(
  *
  */
 J9HashTable *
-hashTableNew(
-	OMRPortLibrary *portLibrary,
-	const char *tableName,
-	uint32_t tableSize,
-	uint32_t entrySize,
-	uint32_t entryAlignment,
-	uint32_t flags,
-	uint32_t memoryCategory,
-	J9HashTableHashFn hashFn,
-	J9HashTableEqualFn hashEqualFn,
-	J9HashTablePrintFn printFn,
-	void *functionUserData)
+hashTableNew(OMRPortLibrary *portLibrary, const char *tableName, uint32_t tableSize, uint32_t entrySize,
+			 uint32_t entryAlignment, uint32_t flags, uint32_t memoryCategory, J9HashTableHashFn hashFn,
+			 J9HashTableEqualFn hashEqualFn, J9HashTablePrintFn printFn, void *functionUserData)
 {
-	return hashTableNewImpl(portLibrary, tableName, tableSize, entrySize, entryAlignment, flags, memoryCategory, U_32_MAX, hashFn, hashEqualFn, NULL, printFn, functionUserData);
+	return hashTableNewImpl(portLibrary, tableName, tableSize, entrySize, entryAlignment, flags, memoryCategory,
+							U_32_MAX, hashFn, hashEqualFn, NULL, printFn, functionUserData);
 }
 
 static J9HashTable *
-hashTableNewImpl(
-	OMRPortLibrary *portLibrary,
-	const char *tableName,
-	uint32_t tableSize,
-	uint32_t entrySize,
-	uint32_t entryAlignment,
-	uint32_t flags,
-	uint32_t memoryCategory,
-	uint32_t listToTreeThreshold,
-	J9HashTableHashFn hashFn,
-	J9HashTableEqualFn hashEqualFn,
-	J9HashTableComparatorFn comparatorFn,
-	J9HashTablePrintFn printFn,
-	void *functionUserData)
+hashTableNewImpl(OMRPortLibrary *portLibrary, const char *tableName, uint32_t tableSize, uint32_t entrySize,
+				 uint32_t entryAlignment, uint32_t flags, uint32_t memoryCategory, uint32_t listToTreeThreshold,
+				 J9HashTableHashFn hashFn, J9HashTableEqualFn hashEqualFn, J9HashTableComparatorFn comparatorFn,
+				 J9HashTablePrintFn printFn, void *functionUserData)
 {
 	J9HashTable *hashTable = NULL;
 	BOOLEAN spaceOpt = FALSE;
@@ -299,8 +256,12 @@ hashTableNewImpl(
 	hashTable->entrySize = entrySize;
 	/* listNodeSize is sizeof user-data + a next-pointer */
 	if (entryAlignment) {
-		hashTable->listNodeSize = (((ROUND_TO_SIZEOF_UDATA(entrySize) + sizeof(uintptr_t)) + entryAlignment - 1) / entryAlignment) * entryAlignment;
-		hashTable->treeNodeSize = (((ROUND_TO_SIZEOF_UDATA(entrySize) + sizeof(J9AVLTreeNode)) + entryAlignment - 1) / entryAlignment) * entryAlignment;
+		hashTable->listNodeSize =
+			(((ROUND_TO_SIZEOF_UDATA(entrySize) + sizeof(uintptr_t)) + entryAlignment - 1) / entryAlignment)
+			* entryAlignment;
+		hashTable->treeNodeSize =
+			(((ROUND_TO_SIZEOF_UDATA(entrySize) + sizeof(J9AVLTreeNode)) + entryAlignment - 1) / entryAlignment)
+			* entryAlignment;
 	} else {
 		hashTable->listNodeSize = ROUND_TO_SIZEOF_UDATA(entrySize) + sizeof(uintptr_t);
 		hashTable->treeNodeSize = ROUND_TO_SIZEOF_UDATA(entrySize) + sizeof(J9AVLTreeNode);
@@ -308,13 +269,11 @@ hashTableNewImpl(
 	hashTable->nodeAlignment = entryAlignment;
 
 	if (J9HASH_TABLE_ALLOW_SIZE_OPTIMIZATION == ((flags & J9HASH_TABLE_ALLOW_SIZE_OPTIMIZATION))
-		&& (hashTable->listNodeSize == (2 * sizeof(uintptr_t)))
-		&& (hashTable->tableSize <= SPACE_OPT_LIMIT)
+		&& (hashTable->listNodeSize == (2 * sizeof(uintptr_t))) && (hashTable->tableSize <= SPACE_OPT_LIMIT)
 #if defined(OMR_ENV_DATA64)
 		&& (0 == (flags & J9HASH_TABLE_ALLOCATE_ELEMENTS_USING_MALLOC32))
 #endif /* OMR_ENV_DATA64 */
-		&& (!(J9HASH_TABLE_COLLISION_RESILIENT == (flags & J9HASH_TABLE_COLLISION_RESILIENT)))
-	) {
+		&& (!(J9HASH_TABLE_COLLISION_RESILIENT == (flags & J9HASH_TABLE_COLLISION_RESILIENT)))) {
 		/* create a hashTable with no backing pool */
 		spaceOpt = TRUE;
 	}
@@ -324,11 +283,13 @@ hashTableNewImpl(
 	} else {
 #if defined(OMR_ENV_DATA64)
 		if (J9HASH_TABLE_ALLOCATE_ELEMENTS_USING_MALLOC32 == (flags & J9HASH_TABLE_ALLOCATE_ELEMENTS_USING_MALLOC32)) {
-			hashTable->listNodePool = pool_new(hashTable->listNodeSize, tableSize, entryAlignment, POOL_NO_ZERO, tableName, memoryCategory, POOL_FOR_PORT_PUDDLE32(portLibrary));
+			hashTable->listNodePool = pool_new(hashTable->listNodeSize, tableSize, entryAlignment, POOL_NO_ZERO,
+											   tableName, memoryCategory, POOL_FOR_PORT_PUDDLE32(portLibrary));
 		} else
 #endif /* OMR_ENV_DATA64 */
 		{
-			hashTable->listNodePool = pool_new(hashTable->listNodeSize, tableSize, entryAlignment, POOL_NO_ZERO, tableName, memoryCategory, POOL_FOR_PORT(portLibrary));
+			hashTable->listNodePool = pool_new(hashTable->listNodeSize, tableSize, entryAlignment, POOL_NO_ZERO,
+											   tableName, memoryCategory, POOL_FOR_PORT(portLibrary));
 		}
 
 		if (NULL == hashTable->listNodePool) {
@@ -338,18 +299,21 @@ hashTableNewImpl(
 
 	if (J9HASH_TABLE_COLLISION_RESILIENT == (flags & J9HASH_TABLE_COLLISION_RESILIENT)) {
 		/* Additional initialization for capability to turn lists to trees */
-		hashTable->treePool = pool_new(sizeof(J9AVLTree), 0, sizeof(uintptr_t), 0, tableName, memoryCategory, POOL_FOR_PORT(portLibrary));
+		hashTable->treePool =
+			pool_new(sizeof(J9AVLTree), 0, sizeof(uintptr_t), 0, tableName, memoryCategory, POOL_FOR_PORT(portLibrary));
 		if (NULL == hashTable->treePool) {
 			goto error;
 		}
 		/* Create an AVLTree template we need for comparatorToEqualFn.  Malloc the memory instead of using the pool, as we clear the pool on growing */
-		hashTable->avlTreeTemplate = portLibrary->mem_allocate_memory(portLibrary, sizeof(J9AVLTree), tableName, memoryCategory);
+		hashTable->avlTreeTemplate =
+			portLibrary->mem_allocate_memory(portLibrary, sizeof(J9AVLTree), tableName, memoryCategory);
 		if (NULL == hashTable->avlTreeTemplate) {
 			goto error;
 		}
 		memset(hashTable->avlTreeTemplate, 0, sizeof(J9AVLTree));
 		hashTable->avlTreeTemplate->insertionComparator = comparatorFn;
-		hashTable->avlTreeTemplate->searchComparator = (intptr_t (*)(struct J9AVLTree *, uintptr_t, J9AVLTreeNode *))comparatorFn;
+		hashTable->avlTreeTemplate->searchComparator =
+			(intptr_t(*)(struct J9AVLTree *, uintptr_t, J9AVLTreeNode *))comparatorFn;
 		hashTable->avlTreeTemplate->portLibrary = portLibrary;
 		hashTable->avlTreeTemplate->userData = functionUserData;
 		hashTable->avlTreeTemplate->rootNode = NULL;
@@ -359,11 +323,13 @@ hashTableNewImpl(
 
 #if defined(OMR_ENV_DATA64)
 		if (J9HASH_TABLE_ALLOCATE_ELEMENTS_USING_MALLOC32 == (flags & J9HASH_TABLE_ALLOCATE_ELEMENTS_USING_MALLOC32)) {
-			hashTable->treeNodePool = pool_new(hashTable->treeNodeSize, 0, entryAlignment, 0, OMR_GET_CALLSITE(), memoryCategory, POOL_FOR_PORT_PUDDLE32(portLibrary));
+			hashTable->treeNodePool = pool_new(hashTable->treeNodeSize, 0, entryAlignment, 0, OMR_GET_CALLSITE(),
+											   memoryCategory, POOL_FOR_PORT_PUDDLE32(portLibrary));
 		} else
-#endif  /* OMR_ENV_DATA64 */
+#endif /* OMR_ENV_DATA64 */
 		{
-			hashTable->treeNodePool = pool_new(hashTable->treeNodeSize, 0, entryAlignment, 0, tableName, memoryCategory, POOL_FOR_PORT(portLibrary));
+			hashTable->treeNodePool = pool_new(hashTable->treeNodeSize, 0, entryAlignment, 0, tableName, memoryCategory,
+											   POOL_FOR_PORT(portLibrary));
 		}
 		if (NULL == hashTable->treeNodePool) {
 			goto error;
@@ -373,7 +339,8 @@ hashTableNewImpl(
 		hashTable->hashEqualFn = hashEqualFn;
 	}
 
-	hashTable->nodes = portLibrary->mem_allocate_memory(portLibrary, sizeof(uintptr_t) * hashTable->tableSize, tableName, memoryCategory);
+	hashTable->nodes = portLibrary->mem_allocate_memory(portLibrary, sizeof(uintptr_t) * hashTable->tableSize,
+														tableName, memoryCategory);
 	if (NULL == hashTable->nodes) {
 		goto error;
 	}
@@ -448,7 +415,7 @@ hashTableFind(J9HashTable *table, void *entry)
 		void **node = hashTableFindNodeSpaceOpt(table, entry, head);
 		findNode = (NULL != *node) ? node : NULL;
 	} else if (NULL == *head) {
-		findNode =  NULL;
+		findNode = NULL;
 	} else if (AVL_TREE_TAGGED(*head)) {
 		findNode = hashTableFindNodeInTree(table, entry, head);
 	} else {
@@ -480,7 +447,6 @@ hashTableFindNodeInList(J9HashTable *table, void *entry, void **head)
 	}
 	return node;
 }
-
 
 static void *
 hashTableFindNodeInTree(J9HashTable *table, void *entry, void **head)
@@ -654,7 +620,7 @@ listToTree(J9HashTable *table, void **head, uintptr_t listLength)
 			void *nodeToCopy = *head;
 
 			while (NULL != nodeToCopy) {
-				J9AVLTreeNode *newTreeNode = (J9AVLTreeNode *) pool_newElement(table->treeNodePool);
+				J9AVLTreeNode *newTreeNode = (J9AVLTreeNode *)pool_newElement(table->treeNodePool);
 				J9AVLTreeNode *insertNode = NULL;
 				J9AVLTreeNode *nextListNode = NEXT(nodeToCopy);
 				/* We ensured capacity so this can't fail */
@@ -794,8 +760,6 @@ hashTableRemoveNodeInTree(J9HashTable *table, void *entry, void **head)
 	return rc;
 }
 
-
-
 /**
  * \brief         Call a user-defined function for all nodes in the hash table
  * \ingroup     hash_table
@@ -822,7 +786,7 @@ hashTableForEachDo(J9HashTable *table, J9HashTableDoFn doFn, void *opaque)
 		Assert_hashTable_unreachable();
 	}
 
-	node = hashTableStartDo(table,  &walkState);
+	node = hashTableStartDo(table, &walkState);
 	while (NULL != node) {
 		if (doFn(node, opaque)) {
 			hashTableDoRemove(&walkState);
@@ -847,7 +811,7 @@ hashTableRehash(J9HashTable *table)
 {
 	uint32_t i = 0;
 	void *chain = NULL;
-	void  *tail = NULL;
+	void *tail = NULL;
 	uintptr_t tableSize = table->tableSize;
 
 	if (NULL == table->listNodePool) {
@@ -904,7 +868,8 @@ collisionResilientHashTableGrow(J9HashTable *table, uint32_t newSize)
 
 	/* Need to ensure we have enough nodes to turn all tree nodes into list nodes */
 	if (0 == pool_ensureCapacity(table->listNodePool, table->numberOfNodes)) {
-		void **newNodes = (void **)table->portLibrary->mem_allocate_memory(table->portLibrary, newSize * sizeof(uintptr_t), table->tableName, table->memoryCategory);
+		void **newNodes = (void **)table->portLibrary->mem_allocate_memory(
+			table->portLibrary, newSize * sizeof(uintptr_t), table->tableName, table->memoryCategory);
 		if (NULL != newNodes) {
 			memset(newNodes, 0, newSize * sizeof(uintptr_t));
 			rebuildFromPools(table, newSize, newNodes);
@@ -981,7 +946,6 @@ rebuildFromPools(J9HashTable *table, uint32_t newSize, void **newNodes)
 	table->nodes = newNodes;
 }
 
-
 /**
  * \brief       Begin an iteration over all nodes of a hash-table.
  * \ingroup     hash_table
@@ -995,7 +959,7 @@ rebuildFromPools(J9HashTable *table, uint32_t newSize, void **newNodes)
  *	Pass in a pointer to an empty J9HashTableState and it will be filled in.
  */
 void *
-hashTableStartDo(J9HashTable *table,  J9HashTableState *handle)
+hashTableStartDo(J9HashTable *table, J9HashTableState *handle)
 {
 	void *result = NULL;
 	uint32_t numberOfListNodes = table->numberOfNodes - table->numberOfTreeNodes;
@@ -1024,13 +988,13 @@ hashTableStartDo(J9HashTable *table,  J9HashTableState *handle)
 		 */
 		if (numberOfListNodes > 0) {
 			while ((handle->bucketIndex < table->tableSize)
-				&& ((NULL == *handle->pointerToCurrentNode) || AVL_TREE_TAGGED(*handle->pointerToCurrentNode))
-			) {
+				   && ((NULL == *handle->pointerToCurrentNode) || AVL_TREE_TAGGED(*handle->pointerToCurrentNode))) {
 				handle->bucketIndex += 1;
 				handle->pointerToCurrentNode = &table->nodes[handle->bucketIndex];
 			}
 			/* Had to have found a listNode in the table unless numberOfListNodes was incorrect */
-			HASHTABLE_ASSERT(!(NULL == *handle->pointerToCurrentNode) || AVL_TREE_TAGGED(*handle->pointerToCurrentNode));
+			HASHTABLE_ASSERT(!(NULL == *handle->pointerToCurrentNode)
+							 || AVL_TREE_TAGGED(*handle->pointerToCurrentNode));
 			result = *handle->pointerToCurrentNode;
 			handle->iterateState = J9HASH_TABLE_ITERATE_STATE_LIST_NODES;
 		} else if (table->numberOfTreeNodes > 0) {
@@ -1044,11 +1008,11 @@ hashTableStartDo(J9HashTable *table,  J9HashTableState *handle)
 		}
 	}
 
-	hashTable_printf("hashTableStartDo <%s>: handle=%p, table=%p, bucket=%u, node=%p\n", table->tableName, handle, table, handle->bucketIndex, result);
+	hashTable_printf("hashTableStartDo <%s>: handle=%p, table=%p, bucket=%u, node=%p\n", table->tableName, handle,
+					 table, handle->bucketIndex, result);
 
 	return result;
 }
-
 
 /**
  * \brief       Continue an iteration over all nodes of a hash-table.
@@ -1060,7 +1024,7 @@ hashTableStartDo(J9HashTable *table,  J9HashTableState *handle)
  *
  * Continue an iteration set that will return when code is to be executed.
  */
-void  *
+void *
 hashTableNextDo(J9HashTableState *handle)
 {
 	J9HashTable *table = handle->table;
@@ -1090,8 +1054,7 @@ hashTableNextDo(J9HashTableState *handle)
 			handle->didDeleteCurrentNode = FALSE;
 
 			while ((handle->bucketIndex < table->tableSize)
-				&& ((NULL == *handle->pointerToCurrentNode) || AVL_TREE_TAGGED(*handle->pointerToCurrentNode))
-			) {
+				   && ((NULL == *handle->pointerToCurrentNode) || AVL_TREE_TAGGED(*handle->pointerToCurrentNode))) {
 				handle->bucketIndex += 1;
 				handle->pointerToCurrentNode = &table->nodes[handle->bucketIndex];
 			}
@@ -1131,11 +1094,11 @@ hashTableNextDo(J9HashTableState *handle)
 		}
 	}
 
-	hashTable_printf("hashTableNextDo <%s>: handle=%p, table=%p, bucket=%u, node=%p\n", table->tableName, handle, table, handle->bucketIndex, result);
+	hashTable_printf("hashTableNextDo <%s>: handle=%p, table=%p, bucket=%u, node=%p\n", table->tableName, handle, table,
+					 handle->bucketIndex, result);
 
 	return result;
 }
-
 
 /**
  * \brief       Remove the current node in the hash-table iteration
@@ -1159,7 +1122,8 @@ hashTableDoRemove(J9HashTableState *handle)
 		Assert_hashTable_unreachable();
 	} else {
 		void *currentNode = NULL;
-		hashTable_printf("hashTableDoRemove <%s>: handle=%p, table=%p, bucket=%u, removedElement=%p\n", table->tableName, handle, table, handle->bucketIndex, currentNode);
+		hashTable_printf("hashTableDoRemove <%s>: handle=%p, table=%p, bucket=%u, removedElement=%p\n",
+						 table->tableName, handle, table, handle->bucketIndex, currentNode);
 		switch (handle->iterateState) {
 		case J9HASH_TABLE_ITERATE_STATE_LIST_NODES:
 			currentNode = *(handle->pointerToCurrentNode);
@@ -1187,7 +1151,6 @@ hashTableDoRemove(J9HashTableState *handle)
 	return rc;
 }
 
-
 /**
  * \brief       Return the number of entries in a hash-table
  * \ingroup     hash_table
@@ -1209,7 +1172,8 @@ hashTableGrowListNodes(J9HashTable *table, uint32_t newSize)
 	OMRPORT_ACCESS_FROM_OMRPORT(table->portLibrary);
 	uintptr_t rc = 1;
 
-	void **newNodes = table->portLibrary->mem_allocate_memory(table->portLibrary, sizeof(uintptr_t) * newSize, table->tableName, table->memoryCategory);
+	void **newNodes = table->portLibrary->mem_allocate_memory(table->portLibrary, sizeof(uintptr_t) * newSize,
+															  table->tableName, table->memoryCategory);
 	if (NULL != newNodes) {
 		uint32_t i = 0;
 		uint32_t numberOfNodes = 0;
@@ -1239,7 +1203,6 @@ hashTableGrowListNodes(J9HashTable *table, uint32_t newSize)
 	return rc;
 }
 
-
 static uintptr_t
 hashTableGrowSpaceOpt(J9HashTable *table, uint32_t newSize)
 {
@@ -1249,7 +1212,8 @@ hashTableGrowSpaceOpt(J9HashTable *table, uint32_t newSize)
 	uintptr_t hash = 0;
 	OMRPORT_ACCESS_FROM_OMRPORT(table->portLibrary);
 
-	newNodes = table->portLibrary->mem_allocate_memory(table->portLibrary, sizeof(uintptr_t) * newSize, table->tableName, table->memoryCategory);
+	newNodes = table->portLibrary->mem_allocate_memory(table->portLibrary, sizeof(uintptr_t) * newSize,
+													   table->tableName, table->memoryCategory);
 	if (NULL == newNodes) {
 		goto error;
 	}
@@ -1258,7 +1222,8 @@ hashTableGrowSpaceOpt(J9HashTable *table, uint32_t newSize)
 
 	if (newSize > SPACE_OPT_LIMIT) {
 		/* start using a pool */
-		table->listNodePool = pool_new(table->listNodeSize, table->tableSize, table->nodeAlignment, POOL_NO_ZERO, table->tableName, table->memoryCategory, POOL_FOR_PORT(table->portLibrary));
+		table->listNodePool = pool_new(table->listNodeSize, table->tableSize, table->nodeAlignment, POOL_NO_ZERO,
+									   table->tableName, table->memoryCategory, POOL_FOR_PORT(table->portLibrary));
 		if (NULL == table->listNodePool) {
 			goto error;
 		}
@@ -1316,7 +1281,6 @@ error:
 	table->listNodePool = NULL;
 	return 1;
 }
-
 
 static uintptr_t
 hashTableGrow(J9HashTable *table)

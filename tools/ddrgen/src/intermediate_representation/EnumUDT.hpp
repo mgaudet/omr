@@ -24,7 +24,7 @@
 
 using std::vector;
 
-class EnumUDT: public UDT
+class EnumUDT : public UDT
 {
 public:
 	vector<EnumMember *> _enumMembers;
@@ -33,7 +33,7 @@ public:
 	virtual ~EnumUDT();
 
 	bool isAnonymousType();
-	virtual bool equal(Type const& type, set<Type const*> *checked) const;
+	virtual bool equal(Type const &type, set<Type const *> *checked) const;
 	virtual void replaceType(Type *typeToReplace, Type *replaceWith);
 	virtual string getSymbolTypeName();
 

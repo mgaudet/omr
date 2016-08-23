@@ -33,7 +33,7 @@
 #include <sys/sem.h>
 #include <errno.h>
 #define PROCESS_HELPER_SEM_KEY 0x05CAC8E /* Reads OSCACHE */
-#endif /* defined(LINUX) || defined(J9ZOS390) || defined(AIXPPC) || defined(OSX) */
+#endif									 /* defined(LINUX) || defined(J9ZOS390) || defined(AIXPPC) || defined(OSX) */
 
 #if defined(J9ZOS390)
 #include <spawn.h>
@@ -58,17 +58,18 @@
 #else
 /* according to X/OPEN we have to define it ourselves */
 union semun {
-	int val;                    /* value for SETVAL */
-	struct semid_ds *buf;       /* buffer for IPC_STAT, IPC_SET */
-	unsigned short int *array;  /* array for GETALL, SETALL */
-	struct seminfo *__buf;      /* buffer for IPC_INFO */
+	int val;				   /* value for SETVAL */
+	struct semid_ds *buf;	  /* buffer for IPC_STAT, IPC_SET */
+	unsigned short int *array; /* array for GETALL, SETALL */
+	struct seminfo *__buf;	 /* buffer for IPC_INFO */
 };
 #endif
 
 #if !defined(WIN32)
 static int setFdCloexec(int fd);
 #if !defined(OSX)
-static intptr_t translateModifiedUtf8ToPlatform(OMRPortLibrary *portLibrary, const char *inBuffer, uintptr_t inBufferSize, char **outBuffer);
+static intptr_t translateModifiedUtf8ToPlatform(OMRPortLibrary *portLibrary, const char *inBuffer,
+												uintptr_t inBufferSize, char **outBuffer);
 #endif /* !defined(OSX) */
 #endif /* !defined(WIN32) */
 
@@ -107,7 +108,7 @@ intptr_t
 ReleaseLaunchSemaphore(OMRPortLibrary *portLibrary, intptr_t semaphore, uintptr_t nProcess)
 {
 	/* we want to subtract from the launch semaphore so negate the value */
-	const intptr_t val = ((intptr_t) nProcess * (-1));
+	const intptr_t val = ((intptr_t)nProcess * (-1));
 	struct sembuf buffer;
 
 	buffer.sem_num = 0;
@@ -168,7 +169,7 @@ SetLaunchSemaphore(OMRPortLibrary *portLibrary, intptr_t semaphore, uintptr_t nP
 intptr_t
 ReleaseLaunchSemaphore(OMRPortLibrary *portLibrary, intptr_t semaphore, uintptr_t nProcess)
 {
-	HANDLE semHandle = (HANDLE) semaphore;
+	HANDLE semHandle = (HANDLE)semaphore;
 	if (ReleaseSemaphore(semHandle, (LONG)nProcess, NULL)) {
 		return 0;
 	} else {
@@ -237,12 +238,15 @@ launchChildProcess(OMRPortLibrary *portLibrary, const char *testname, const char
 		int32_t portableErrno = omrerror_last_error_number();
 		const char *errMsg = omrerror_last_error_message();
 		if (NULL == errMsg) {
-			omrtty_printf("%s: launchChildProcess: omrsysinfo_get_executable_name failed!\n\tportableErrno = %d\n", testname, portableErrno);
+			omrtty_printf("%s: launchChildProcess: omrsysinfo_get_executable_name failed!\n\tportableErrno = %d\n",
+						  testname, portableErrno);
 		} else {
-			omrtty_printf("%s: launchChildProcess: omrsysinfo_get_executable_name failed!\n\tportableErrno = %d portableErrMsg = %s\n", testname, portableErrno, errMsg);
+			omrtty_printf(
+				"%s: launchChildProcess: omrsysinfo_get_executable_name failed!\n\tportableErrno = %d portableErrMsg = "
+				"%s\n",
+				testname, portableErrno, errMsg);
 		}
 		goto done;
-
 	}
 
 	command[1] = (char *)options;
@@ -271,9 +275,12 @@ launchChildProcess(OMRPortLibrary *portLibrary, const char *testname, const char
 		int32_t portableErrno = omrerror_last_error_number();
 		const char *errMsg = omrerror_last_error_message();
 		if (NULL == errMsg) {
-			omrtty_printf("%s: launchChildProcess: Failed to start process '%s %s'\n\tportableErrno = %d\n", testname, command[0], command[1], portableErrno);
+			omrtty_printf("%s: launchChildProcess: Failed to start process '%s %s'\n\tportableErrno = %d\n", testname,
+						  command[0], command[1], portableErrno);
 		} else {
-			omrtty_printf("%s: launchChildProcess: Failed to start process '%s %s'\n\tportableErrno = %d portableErrMsg = %s\n", testname, command[0], command[1], portableErrno, errMsg);
+			omrtty_printf(
+				"%s: launchChildProcess: Failed to start process '%s %s'\n\tportableErrno = %d portableErrMsg = %s\n",
+				testname, command[0], command[1], portableErrno, errMsg);
 		}
 
 		processHandle = NULL;
@@ -283,7 +290,6 @@ launchChildProcess(OMRPortLibrary *portLibrary, const char *testname, const char
 
 done:
 	return processHandle;
-
 }
 
 intptr_t
@@ -301,9 +307,10 @@ waitForTestProcess(OMRPortLibrary *portLibrary, OMRProcessHandle processHandle)
 		int32_t portableErrno = omrerror_last_error_number();
 		const char *errMsg = omrerror_last_error_message();
 		if (NULL == errMsg) {
-			omrtty_printf("waitForTestProcess: j9process_waitfor() failed\n\tportableErrno = %d\n" , portableErrno);
+			omrtty_printf("waitForTestProcess: j9process_waitfor() failed\n\tportableErrno = %d\n", portableErrno);
 		} else {
-			omrtty_printf("waitForTestProcess: j9process_waitfor() failed\n\tportableErrno = %d portableErrMsg = %s\n" , portableErrno, errMsg);
+			omrtty_printf("waitForTestProcess: j9process_waitfor() failed\n\tportableErrno = %d portableErrMsg = %s\n",
+						  portableErrno, errMsg);
 		}
 
 		goto done;
@@ -315,9 +322,10 @@ waitForTestProcess(OMRPortLibrary *portLibrary, OMRProcessHandle processHandle)
 		int32_t portableErrno = omrerror_last_error_number();
 		const char *errMsg = omrerror_last_error_message();
 		if (NULL == errMsg) {
-			omrtty_printf("waitForTestProcess: j9process_close() failed\n\tportableErrno = %d\n" , portableErrno);
+			omrtty_printf("waitForTestProcess: j9process_close() failed\n\tportableErrno = %d\n", portableErrno);
 		} else {
-			omrtty_printf("waitForTestProcess: j9process_close() failed\n\tportableErrno = %d portableErrMsg = %s\n" , portableErrno, errMsg);
+			omrtty_printf("waitForTestProcess: j9process_close() failed\n\tportableErrno = %d portableErrMsg = %s\n",
+						  portableErrno, errMsg);
 		}
 		goto done;
 	}
@@ -353,7 +361,8 @@ setFdCloexec(int fd)
 
 #if !defined(OSX)
 static intptr_t
-translateModifiedUtf8ToPlatform(OMRPortLibrary *portLibrary, const char *inBuffer, uintptr_t inBufferSize, char **outBuffer)
+translateModifiedUtf8ToPlatform(OMRPortLibrary *portLibrary, const char *inBuffer, uintptr_t inBufferSize,
+								char **outBuffer)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	char *result = 0;
@@ -361,8 +370,7 @@ translateModifiedUtf8ToPlatform(OMRPortLibrary *portLibrary, const char *inBuffe
 	int32_t resultLength = 0;
 
 	*outBuffer = NULL;
-	bufferLength = 	omrstr_convert(J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_RAW,
-								   inBuffer, inBufferSize, NULL, 0);
+	bufferLength = omrstr_convert(J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_RAW, inBuffer, inBufferSize, NULL, 0);
 	/* get the size of the platform string */
 
 	if (bufferLength < 0) {
@@ -372,12 +380,12 @@ translateModifiedUtf8ToPlatform(OMRPortLibrary *portLibrary, const char *inBuffe
 	}
 
 	result = (char *)omrmem_allocate_memory(bufferLength, OMRMEM_CATEGORY_PORT_LIBRARY);
-	if (NULL == result)  {
+	if (NULL == result) {
 		return OMRPORT_ERROR_STRING_MEM_ALLOCATE_FAILED;
 	}
 
-	resultLength = omrstr_convert(J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_RAW,
-								  inBuffer, inBufferSize, result, bufferLength);
+	resultLength =
+		omrstr_convert(J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_RAW, inBuffer, inBufferSize, result, bufferLength);
 	/* do the conversion */
 
 	if (resultLength < 0) {
@@ -420,19 +428,19 @@ j9process_close(OMRPortLibrary *portLibrary, OMRProcessHandle *processHandle, ui
 			rc = OMRPROCESS_ERROR;
 		}
 	}
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 	if (OMRPROCESS_INVALID_FD != processHandleStruct->inHandle) {
-		if (0 != close((int) processHandleStruct->inHandle)) {
+		if (0 != close((int)processHandleStruct->inHandle)) {
 			rc = OMRPROCESS_ERROR;
 		}
 	}
 	if (OMRPROCESS_INVALID_FD != processHandleStruct->outHandle) {
-		if (0 != close((int) processHandleStruct->outHandle)) {
+		if (0 != close((int)processHandleStruct->outHandle)) {
 			rc = OMRPROCESS_ERROR;
 		}
 	}
 	if (OMRPROCESS_INVALID_FD != processHandleStruct->errHandle) {
-		if (0 != (close((int) processHandleStruct->errHandle) != 0)) {
+		if (0 != (close((int)processHandleStruct->errHandle) != 0)) {
 			rc = OMRPROCESS_ERROR;
 		}
 	}
@@ -443,22 +451,23 @@ j9process_close(OMRPortLibrary *portLibrary, OMRProcessHandle *processHandle, ui
 	return rc;
 }
 
-intptr_t j9process_waitfor(OMRPortLibrary *portLibrary, OMRProcessHandle processHandle)
+intptr_t
+j9process_waitfor(OMRPortLibrary *portLibrary, OMRProcessHandle processHandle)
 {
-	OMRProcessHandleStruct *processHandleStruct = (OMRProcessHandleStruct *) processHandle;
+	OMRProcessHandleStruct *processHandleStruct = (OMRProcessHandleStruct *)processHandle;
 	intptr_t rc = OMRPROCESS_ERROR;
 #if defined(WIN32)
-	if (WAIT_OBJECT_0 == WaitForSingleObject((HANDLE) processHandleStruct->procHandle, INFINITE)) {
+	if (WAIT_OBJECT_0 == WaitForSingleObject((HANDLE)processHandleStruct->procHandle, INFINITE)) {
 		DWORD procstat = 0;
 
 		if (0 != GetExitCodeProcess((HANDLE)processHandleStruct->procHandle, (LPDWORD)&procstat)) {
-			processHandleStruct->exitCode = (intptr_t) procstat;
+			processHandleStruct->exitCode = (intptr_t)procstat;
 			rc = 0;
 		}
 	}
 
 	return rc;
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 	int statusLocation = -1;
 	pid_t retVal = waitpid((pid_t)processHandleStruct->procHandle, &statusLocation, 0);
 
@@ -501,10 +510,8 @@ static void
 closeAndDestroyPipes(OMRProcessWin32Pipes *pipes)
 {
 	intptr_t i, numHandles;
-	HANDLE *handles[] = { &pipes->inR, &pipes->inW, &pipes->inDup,
-						  &pipes->outR, &pipes->outW, &pipes->outDup,
-						  &pipes->errR, &pipes->errW, &pipes->errDup
-						};
+	HANDLE *handles[] = {&pipes->inR,	&pipes->inW,  &pipes->inDup, &pipes->outR,  &pipes->outW,
+						 &pipes->outDup, &pipes->errR, &pipes->errW,  &pipes->errDup};
 
 	numHandles = sizeof(handles) / sizeof(HANDLE *);
 
@@ -537,7 +544,8 @@ convertFromUTF8(OMRPortLibrary *portLibrary, const char *string, wchar_t *unicod
 			return NULL;
 		}
 	}
-	if (0 == MultiByteToWideChar(OS_ENCODING_CODE_PAGE, OS_ENCODING_MB_FLAGS, string, -1, unicodeString, (int)length + 1)) {
+	if (0 == MultiByteToWideChar(OS_ENCODING_CODE_PAGE, OS_ENCODING_MB_FLAGS, string, -1, unicodeString,
+								 (int)length + 1)) {
 		omrerror_set_last_error(GetLastError(), OMRPORT_ERROR_OPFAILED);
 		if (unicodeString != unicodeBuffer) {
 			omrmem_free_memory(unicodeString);
@@ -554,7 +562,8 @@ convertFromUTF8(OMRPortLibrary *portLibrary, const char *string, wchar_t *unicod
  * @returns 0 upon success, negative portable error code upon failure
  */
 static intptr_t
-getUnicodeCmdline(struct OMRPortLibrary *portLibrary, const char *command[], uintptr_t commandLength, wchar_t **unicodeCmdline)
+getUnicodeCmdline(struct OMRPortLibrary *portLibrary, const char *command[], uintptr_t commandLength,
+				  wchar_t **unicodeCmdline)
 {
 	char *needToBeQuoted = NULL;
 	size_t length, l;
@@ -591,13 +600,13 @@ getUnicodeCmdline(struct OMRPortLibrary *portLibrary, const char *command[], uin
 			if (commandILength > 0) {
 				commandStart = command[i];
 				if (commandStart[0] != '"' /*"XXX*/) {
-					for (j = 0; j < (intptr_t)commandILength ; j += 1) {
+					for (j = 0; j < (intptr_t)commandILength; j += 1) {
 						if (commandStart[j] == ' ') {
 							needToBeQuoted[i] = '\1'; /* a random value, different from zero though*/
-							length += 2; /* two quotes are added */
+							length += 2;			  /* two quotes are added */
 							if (commandILength > 1 && commandStart[commandILength - 1] == '\\'
 								&& commandStart[commandILength - 2] != '\\') {
-								length++;    /* need to double slash */
+								length++; /* need to double slash */
 							}
 							break;
 						}
@@ -613,10 +622,10 @@ getUnicodeCmdline(struct OMRPortLibrary *portLibrary, const char *command[], uin
 		} else {
 			uintptr_t k;
 
-			for (k = 0; k < commandLength ; k += 1) {
+			for (k = 0; k < commandLength; k += 1) {
 				l = strlen(argi = command[k]);
 				if (needToBeQuoted[k]) {
-					*ptr++ = '"' /*"XXX*/ ;
+					*ptr++ = '"' /*"XXX*/;
 				}
 				memcpy(ptr, argi, l);
 				ptr += l;
@@ -624,7 +633,7 @@ getUnicodeCmdline(struct OMRPortLibrary *portLibrary, const char *command[], uin
 					if (l > 1 && *(ptr - 1) == '\\' && *(ptr - 2) != '\\') {
 						*ptr++ = '\\';
 					}
-					*ptr++ = '"' /*"XXX*/ ;
+					*ptr++ = '"' /*"XXX*/;
 				}
 				*ptr++ = ' '; /* put a <blank> between each token */
 			}
@@ -647,7 +656,8 @@ getUnicodeCmdline(struct OMRPortLibrary *portLibrary, const char *command[], uin
 #endif /* defined(WIN32) */
 
 intptr_t
-j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t commandLength, const char *dir, uint32_t options, OMRProcessHandle *processHandle)
+j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t commandLength, const char *dir,
+				 uint32_t options, OMRProcessHandle *processHandle)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	intptr_t rc = 0;
@@ -661,13 +671,14 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 	wchar_t *unicodeCmdline = NULL;
 	wchar_t *unicodeEnv = NULL;
 	OMRProcessWin32Pipes pipes;
-	DWORD dwMode = PIPE_NOWAIT;	/* it's only used if OMRPORT_PROCESS_NONBLOCKING_IO is set */
+	DWORD dwMode = PIPE_NOWAIT; /* it's only used if OMRPORT_PROCESS_NONBLOCKING_IO is set */
 
 	if (0 == commandLength) {
 		return OMRPROCESS_ERROR;
 	}
 
-	processHandleStruct = (OMRProcessHandleStruct *)omrmem_allocate_memory(sizeof(OMRProcessHandleStruct), OMRMEM_CATEGORY_PORT_LIBRARY);
+	processHandleStruct =
+		(OMRProcessHandleStruct *)omrmem_allocate_memory(sizeof(OMRProcessHandleStruct), OMRMEM_CATEGORY_PORT_LIBRARY);
 
 	ZeroMemory(&sinfo, sizeof(sinfo));
 	ZeroMemory(&pinfo, sizeof(pinfo));
@@ -687,8 +698,8 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 		closeAndDestroyPipes(&pipes);
 		return OMRPROCESS_ERROR;
 	} else {
-		if (0 == DuplicateHandle(GetCurrentProcess(), pipes.inW, GetCurrentProcess(),
-								 &(pipes.inDup), 0, FALSE, DUPLICATE_SAME_ACCESS)) {
+		if (0 == DuplicateHandle(GetCurrentProcess(), pipes.inW, GetCurrentProcess(), &(pipes.inDup), 0, FALSE,
+								 DUPLICATE_SAME_ACCESS)) {
 			closeAndDestroyPipes(&pipes);
 			return OMRPROCESS_ERROR;
 		}
@@ -716,8 +727,8 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 			closeAndDestroyPipes(&pipes);
 			return OMRPROCESS_ERROR;
 		} else {
-			if (0 == DuplicateHandle(GetCurrentProcess(), pipes.outR, GetCurrentProcess(),
-									 &(pipes.outDup), 0, FALSE, DUPLICATE_SAME_ACCESS)) {
+			if (0 == DuplicateHandle(GetCurrentProcess(), pipes.outR, GetCurrentProcess(), &(pipes.outDup), 0, FALSE,
+									 DUPLICATE_SAME_ACCESS)) {
 				closeAndDestroyPipes(&pipes);
 				return OMRPROCESS_ERROR;
 			}
@@ -735,8 +746,8 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 			closeAndDestroyPipes(&pipes);
 			return OMRPROCESS_ERROR;
 		} else {
-			if (0 == DuplicateHandle(GetCurrentProcess(), pipes.errR, GetCurrentProcess(),
-									 &(pipes.errDup), 0, FALSE, DUPLICATE_SAME_ACCESS)) {
+			if (0 == DuplicateHandle(GetCurrentProcess(), pipes.errR, GetCurrentProcess(), &(pipes.errDup), 0, FALSE,
+									 DUPLICATE_SAME_ACCESS)) {
 				closeAndDestroyPipes(&pipes);
 				return OMRPROCESS_ERROR;
 			}
@@ -768,28 +779,22 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 			if (0 == rc) {
 				DWORD creationFlags = CREATE_UNICODE_ENVIRONMENT;
 
-				if (0 == CreateProcessW( /* CreateProcessW returns 0 upon failure */
-						NULL,
-						unicodeCmdline,
-						NULL,
-						NULL,
-						TRUE,
-						creationFlags,		/* add DEBUG_ONLY_THIS_PROCESS for smoother debugging */
-						unicodeEnv,
-						unicodeDir,
-						&sinfo,
-						&pinfo)				/* Pointer to PROCESS_INFORMATION structure; */
-				) {
+				if (0 == CreateProcessW(/* CreateProcessW returns 0 upon failure */
+										NULL, unicodeCmdline, NULL, NULL, TRUE,
+										creationFlags, /* add DEBUG_ONLY_THIS_PROCESS for smoother debugging */
+										unicodeEnv, unicodeDir, &sinfo,
+										&pinfo) /* Pointer to PROCESS_INFORMATION structure; */
+					) {
 					rc = OMRPROCESS_ERROR;
 				} else {
-					processHandleStruct->procHandle = (intptr_t) pinfo.hProcess;
+					processHandleStruct->procHandle = (intptr_t)pinfo.hProcess;
 					/* Close Handles passed to child if there is any */
 					CloseHandle(pipes.inR);
 					if (OMRPROCESS_DEBUG != options) {
 						CloseHandle(pipes.outW);
 						CloseHandle(pipes.errW);
 					}
-					CloseHandle(pinfo.hThread);	/* Implicitly created, a leak otherwise*/
+					CloseHandle(pinfo.hThread); /* Implicitly created, a leak otherwise*/
 				}
 			}
 		}
@@ -890,12 +895,13 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 	}
 	memset(newCommand, 0, newCommandSize);
 
-	for (i = 0 ; i < commandLength; i += 1) {
+	for (i = 0; i < commandLength; i += 1) {
 #if defined(OSX)
 		newCommand[i] = (char *)omrmem_allocate_memory(strlen(command[i]) + 1, OMRMEM_CATEGORY_PORT_LIBRARY);
 		omrstr_printf(newCommand[i], strlen(command[i]) + 1, command[i]);
-#else /* defined(OSX) */
-		intptr_t translateStatus = translateModifiedUtf8ToPlatform(OMRPORTLIB, command[i], strlen(command[i]), &(newCommand[i]));
+#else  /* defined(OSX) */
+		intptr_t translateStatus =
+			translateModifiedUtf8ToPlatform(OMRPORTLIB, command[i], strlen(command[i]), &(newCommand[i]));
 		if (0 != translateStatus) {
 			unsigned int j = 0;
 			/* most likely out of memory, free the strings we just converted. */
@@ -929,7 +935,7 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 		}
 
 		/* tells the parent that that very process is running */
-		rc = write(forkedChildProcess[1], (void *) &dummy, 1);
+		rc = write(forkedChildProcess[1], (void *)&dummy, 1);
 
 		if ((-1 != rc) && dir) {
 			rc = chdir(dir);
@@ -994,7 +1000,8 @@ j9process_create(OMRPortLibrary *portLibrary, const char *command[], uintptr_t c
 		}
 
 		/* Store the rw handles to the childs io */
-		processHandleStruct = (OMRProcessHandleStruct *)omrmem_allocate_memory(sizeof(OMRProcessHandleStruct), OMRMEM_CATEGORY_PORT_LIBRARY);
+		processHandleStruct = (OMRProcessHandleStruct *)omrmem_allocate_memory(sizeof(OMRProcessHandleStruct),
+																			   OMRMEM_CATEGORY_PORT_LIBRARY);
 		processHandleStruct->inHandle = (intptr_t)newFD[0][1];
 		if (OMRPROCESS_DEBUG == options) {
 			processHandleStruct->outHandle = OMRPROCESS_INVALID_FD;

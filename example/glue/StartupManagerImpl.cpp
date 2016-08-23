@@ -69,7 +69,7 @@ MM_StartupManagerImpl::createCollectorLanguageInterface(MM_EnvironmentBase *env)
 }
 
 MM_VerboseManagerBase *
-MM_StartupManagerImpl::createVerboseManager(MM_EnvironmentBase* env)
+MM_StartupManagerImpl::createVerboseManager(MM_EnvironmentBase *env)
 {
 	return MM_VerboseManagerImpl::newInstance(env, env->getOmrVM());
 }
@@ -93,7 +93,7 @@ MM_StartupManagerImpl::createConfiguration(MM_EnvironmentBase *env, MM_Configura
 	} else
 #endif /* OMR_GC_SEGREGATED_HEAP */
 #if defined(OMR_GC_MODRON_SCAVENGER)
-	if (ext->scavengerEnabled) {
+		if (ext->scavengerEnabled) {
 		return MM_ConfigurationGenerational::newInstance(env, cli);
 	} else
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */

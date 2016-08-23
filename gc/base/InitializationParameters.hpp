@@ -26,14 +26,16 @@
 /**
  * Wrapper class for passing memoryspace parameters into newInstance() methods
  */
-class MM_InitializationParameters : public MM_BaseNonVirtual {
+class MM_InitializationParameters : public MM_BaseNonVirtual
+{
 public:
 	uintptr_t _minimumSpaceSize;
 	uintptr_t _minimumNewSpaceSize, _initialNewSpaceSize, _maximumNewSpaceSize;
 	uintptr_t _minimumOldSpaceSize, _initialOldSpaceSize, _maximumOldSpaceSize;
 	uintptr_t _maximumSpaceSize;
 
-	MMINLINE void clear()
+	MMINLINE void
+	clear()
 	{
 		_minimumSpaceSize = 0;
 		_minimumNewSpaceSize = 0;
@@ -45,8 +47,7 @@ public:
 		_maximumSpaceSize = 0;
 	}
 
-	MM_InitializationParameters()
-		: MM_BaseNonVirtual()
+	MM_InitializationParameters() : MM_BaseNonVirtual()
 	{
 		_typeId = __FUNCTION__;
 		clear();

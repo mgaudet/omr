@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include <string.h>
 #include "algorithm_test_internal.h"
 #include "omrTest.h"
@@ -99,7 +98,8 @@ showResult(OMRPortLibrary *portlib, uintptr_t passCount, uintptr_t failCount, in
 	omrtty_printf("total failures: %d\n", failCount);
 
 	/* want to report failures even if suites skipped or failed */
-	EXPECT_TRUE(0 == numSuitesNotRun) << numSuitesNotRun << " SUITE" << (numSuitesNotRun != 1 ? "S" : "") << " NOT RUN!!!";
+	EXPECT_TRUE(0 == numSuitesNotRun) << numSuitesNotRun << " SUITE" << (numSuitesNotRun != 1 ? "S" : "")
+									  << " NOT RUN!!!";
 	EXPECT_TRUE(0 == failCount) << "THERE WERE FAILURES!!!";
 
 	if ((0 == numSuitesNotRun) && (0 == failCount)) {

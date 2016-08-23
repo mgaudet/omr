@@ -49,7 +49,7 @@ MM_GlobalAllocationManager::flushAllocationContexts(MM_EnvironmentBase *env)
 	}
 }
 
-void 
+void
 MM_GlobalAllocationManager::flushAllocationContextsForShutdown(MM_EnvironmentBase *env)
 {
 	Assert_MM_true(_managedAllocationContextCount > 0);

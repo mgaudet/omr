@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omr.h"
 
 #include "WorkPacketsStandard.hpp"
@@ -31,16 +30,17 @@ MM_WorkPacketsStandard *
 MM_WorkPacketsStandard::newInstance(MM_EnvironmentBase *env)
 {
 	MM_WorkPacketsStandard *workPackets;
-	
-	workPackets = (MM_WorkPacketsStandard *)env->getForge()->allocate(sizeof(MM_WorkPacketsStandard), MM_AllocationCategory::WORK_PACKETS, OMR_GET_CALLSITE());
+
+	workPackets = (MM_WorkPacketsStandard *)env->getForge()->allocate(
+		sizeof(MM_WorkPacketsStandard), MM_AllocationCategory::WORK_PACKETS, OMR_GET_CALLSITE());
 	if (NULL != workPackets) {
-		new(workPackets) MM_WorkPacketsStandard(env);
+		new (workPackets) MM_WorkPacketsStandard(env);
 		if (!workPackets->initialize(env)) {
 			workPackets->kill(env);
-			workPackets = NULL;	
+			workPackets = NULL;
 		}
 	}
-	
+
 	return workPackets;
 }
 
@@ -49,4 +49,3 @@ MM_WorkPacketsStandard::createOverflowHandler(MM_EnvironmentBase *env, MM_WorkPa
 {
 	return MM_OverflowStandard::newInstance(env, this);
 }
-

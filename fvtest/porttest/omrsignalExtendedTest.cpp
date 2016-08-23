@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup PortTest
@@ -41,19 +40,12 @@
 #include "testHelpers.hpp"
 
 #if defined(LINUX) || defined(OSX)
-typedef enum SignalEvent {
-	INVALID,
-	READY,
-	SIGMASK,
-	PTHREADKILL,
-	FINISHED,
-	EXIT
-} SignalEvent;
+typedef enum SignalEvent { INVALID, READY, SIGMASK, PTHREADKILL, FINISHED, EXIT } SignalEvent;
 
 typedef enum SignalStatus {
 	NOTSIGNALED = 1, /* no signal was received */
-	SIGNALED,        /* the correct signal was received */
-	INCORRECT        /* an incorrect signal was received */
+	SIGNALED,		 /* the correct signal was received */
+	INCORRECT		 /* an incorrect signal was received */
 } SignalStatus;
 
 typedef struct SigMaskTestInfo {
@@ -72,11 +64,13 @@ typedef struct SigMaskTestInfo {
 	} bulletinBoard;
 } SigMaskTestInfo;
 
-static void setSigMaskTestInfo(SigMaskTestInfo *info, struct OMRPortLibrary *portLibrary, const char *testName, omrthread_monitor_t monitor, omrsig_protected_fn fn, SignalEvent event);
+static void setSigMaskTestInfo(SigMaskTestInfo *info, struct OMRPortLibrary *portLibrary, const char *testName,
+							   omrthread_monitor_t monitor, omrsig_protected_fn fn, SignalEvent event);
 static omrthread_t create_thread(struct OMRPortLibrary *portLibrary, omrthread_entrypoint_t entpoint, void *entarg);
 static BOOLEAN waitForEvent(const char *testName, SigMaskTestInfo *info, SignalEvent event, void *result, size_t size);
 static void sendEvent(SigMaskTestInfo *info, SignalEvent event, void *value, size_t size);
-static uintptr_t sigHandlerFunction(struct OMRPortLibrary *portLibrary, uint32_t gpType, void *gpInfo, void *handler_arg);
+static uintptr_t sigHandlerFunction(struct OMRPortLibrary *portLibrary, uint32_t gpType, void *gpInfo,
+									void *handler_arg);
 static uintptr_t maskProtectedFunction(struct OMRPortLibrary *portLibrary, void *arg);
 static uintptr_t unmaskProtectedFunction(struct OMRPortLibrary *portLibrary, void *arg);
 static int sigMaskThread(void *arg);
@@ -90,7 +84,8 @@ static int sigMaskThread(void *arg);
  * @param event The initial event
  */
 static void
-setSigMaskTestInfo(SigMaskTestInfo *info, struct OMRPortLibrary *portLibrary, const char *testName, omrthread_monitor_t monitor, omrsig_protected_fn fn, SignalEvent event)
+setSigMaskTestInfo(SigMaskTestInfo *info, struct OMRPortLibrary *portLibrary, const char *testName,
+				   omrthread_monitor_t monitor, omrsig_protected_fn fn, SignalEvent event)
 {
 	info->portLibrary = portLibrary;
 	info->testName = testName;
@@ -155,9 +150,11 @@ waitForEvent(const char *testName, SigMaskTestInfo *info, SignalEvent event, voi
 		}
 	} else {
 		if (J9THREAD_TIMED_OUT == waitRC) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "timed out without being notified. expected (%d), received (%d)\n", event, info->bulletinBoard.event);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "timed out without being notified. expected (%d), received (%d)\n",
+							   event, info->bulletinBoard.event);
 		} else {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "expected event(%d) was not received. bulletinBoard(%d)\n", event, info->bulletinBoard.event);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "expected event(%d) was not received. bulletinBoard(%d)\n", event,
+							   info->bulletinBoard.event);
 		}
 	}
 
@@ -295,7 +292,8 @@ sigMaskThread(void *arg)
 		}
 	}
 
-	outputComment(OMRPORTLIB, "\t%s\t:pthread_sigmask test has been done. send result back to main thread.\n", testName);
+	outputComment(OMRPORTLIB, "\t%s\t:pthread_sigmask test has been done. send result back to main thread.\n",
+				  testName);
 	sendEvent(info, READY, &mask, sizeof(mask));
 
 	/* pthread_kill */
@@ -308,11 +306,7 @@ sigMaskThread(void *arg)
 		operationNotSupported(OMRPORTLIB, "the specified signals are");
 		return -1;
 	} else {
-		protectResult = omrsig_protect(
-							info->fn, (void *)info,
-							sigHandlerFunction, (void *)info,
-							flags,
-							&result);
+		protectResult = omrsig_protect(info->fn, (void *)info, sigHandlerFunction, (void *)info, flags, &result);
 
 		if ((OMRPORT_SIG_EXCEPTION_OCCURRED == protectResult) && (0 != result)) {
 			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected 0 in *result\n");
@@ -403,7 +397,8 @@ TEST(PortSignalExtendedTests, sig_ext_test1)
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrthread_monitor_init_with_name failed with %i\n", monitorRC);
 		FAIL();
 	}
-	setSigMaskTestInfo(&unmaskThreadInfo, OMRPORTLIB, "Unmasked Thread", unmaskMonitor, unmaskProtectedFunction, INVALID);
+	setSigMaskTestInfo(&unmaskThreadInfo, OMRPORTLIB, "Unmasked Thread", unmaskMonitor, unmaskProtectedFunction,
+					   INVALID);
 
 	mainThread = omrthread_self();
 	maskThread = create_thread(OMRPORTLIB, (omrthread_entrypoint_t)sigMaskThread, &maskThreadInfo);
@@ -439,7 +434,8 @@ TEST(PortSignalExtendedTests, sig_ext_test1)
 		if (!waitForEvent(testName, &unmaskThreadInfo, READY, &unmaskThread_mask, sizeof(unmaskThread_mask))) {
 			goto exit;
 		}
-		outputComment(OMRPORTLIB, "\t%s\t:operation pthread_sigmask has been done. checking pthread_sigmask result...\n", testName);
+		outputComment(OMRPORTLIB,
+					  "\t%s\t:operation pthread_sigmask has been done. checking pthread_sigmask result...\n", testName);
 
 		/*
 		 * Expected behavior:
@@ -453,7 +449,8 @@ TEST(PortSignalExtendedTests, sig_ext_test1)
 		}
 		/* check whether main thread signal mask was affected by child thread pthread_sigmask operation */
 		if (0 != (memcmp_ret = memcmp(&currentMask, &mask, sizeof(currentMask)))) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "main thread mask was modified (old=0x%X, new=0x%X), %X\n", *((uint32_t *)&mask), *((uint32_t *)&currentMask), memcmp_ret);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "main thread mask was modified (old=0x%X, new=0x%X), %X\n",
+							   *((uint32_t *)&mask), *((uint32_t *)&currentMask), memcmp_ret);
 			goto exit;
 		} else {
 			outputComment(OMRPORTLIB, "\t%s\t:main thread signal mask was not affected.\n", testName);
@@ -461,7 +458,9 @@ TEST(PortSignalExtendedTests, sig_ext_test1)
 
 		/* UNIX opengroup example says that newly created thread shall inherit the mask */
 		if (!sigismember(&maskThread_mask, SIGILL) || !sigismember(&unmaskThread_mask, SIGILL)) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "created threads did not inherit mask.(maskThreadInfo=0x%X, unmaskThreadInfo=0x%X)\n", *((uint32_t *)&maskThread_mask), *((uint32_t *)&unmaskThread_mask));
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "created threads did not inherit mask.(maskThreadInfo=0x%X, unmaskThreadInfo=0x%X)\n",
+							   *((uint32_t *)&maskThread_mask), *((uint32_t *)&unmaskThread_mask));
 			goto exit;
 		} else {
 			outputComment(OMRPORTLIB, "\t%s\t:child thread inherited main thread's signal mask.\n", testName);
@@ -469,10 +468,14 @@ TEST(PortSignalExtendedTests, sig_ext_test1)
 
 		/* Check whether two child threads' pthread_sigmask operation can interfere each other. */
 		if (!sigismember(&maskThread_mask, SIGBUS) || sigismember(&unmaskThread_mask, SIGBUS)) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "pthread_sigmask did not work.(maskThreadInfo=0x%X, unmaskThreadInfo=0x%X)\n", *((uint32_t *)&maskThread_mask), *((uint32_t *)&unmaskThread_mask));
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "pthread_sigmask did not work.(maskThreadInfo=0x%X, unmaskThreadInfo=0x%X)\n",
+							   *((uint32_t *)&maskThread_mask), *((uint32_t *)&unmaskThread_mask));
 			goto exit;
 		} else {
-			outputComment(OMRPORTLIB, "\t%s\t:pthread_sigmask operation in each child thread did not interfere each other.\n", testName);
+			outputComment(OMRPORTLIB,
+						  "\t%s\t:pthread_sigmask operation in each child thread did not interfere each other.\n",
+						  testName);
 		}
 
 		/*
@@ -482,22 +485,25 @@ TEST(PortSignalExtendedTests, sig_ext_test1)
 		 * will send report to this main thread.
 		 */
 		flags = OMRPORT_SIG_FLAG_MAY_RETURN | OMRPORT_SIG_FLAG_SIGSEGV; /* SIGSEGV shall be received */
-		outputComment(OMRPORTLIB, "\t%s\t:configure unmask thread to prepare for unmasked signal SIGSEGV test.\n", testName);
+		outputComment(OMRPORTLIB, "\t%s\t:configure unmask thread to prepare for unmasked signal SIGSEGV test.\n",
+					  testName);
 		sendEvent(&unmaskThreadInfo, PTHREADKILL, &flags, sizeof(flags));
 
 		if (!waitForEvent(testName, &unmaskThreadInfo, FINISHED, NULL, 0)) {
 			goto exit;
 		} else {
-			outputComment(OMRPORTLIB, "\t%s\t:unmasked thread finished. checking unmask thread's signal status...\n", testName);
+			outputComment(OMRPORTLIB, "\t%s\t:unmasked thread finished. checking unmask thread's signal status...\n",
+						  testName);
 
-			if (unmaskThreadInfo.bulletinBoard.status ==  SIGNALED) {
+			if (unmaskThreadInfo.bulletinBoard.status == SIGNALED) {
 				outputComment(OMRPORTLIB, "\t%s\t:unmasked thread received signal as expected.\n", testName);
 			} else {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "unmasked thread did not received signal as expected.(SignalStatus=%d)\n", unmaskThreadInfo.bulletinBoard.status);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "unmasked thread did not received signal as expected.(SignalStatus=%d)\n",
+								   unmaskThreadInfo.bulletinBoard.status);
 				goto exit;
 			}
 		}
-
 
 		/*
 		 * test mask thread signal handling behavior
@@ -526,17 +532,19 @@ TEST(PortSignalExtendedTests, sig_ext_test1)
 		if (!waitForEvent(testName, &maskThreadInfo, FINISHED, NULL, 0)) {
 			goto exit;
 		} else {
-			outputComment(OMRPORTLIB, "\t%s\t:masked thread finished. checking mask thread's signal status...\n", testName);
-			if (maskThreadInfo.bulletinBoard.status ==  NOTSIGNALED) {
+			outputComment(OMRPORTLIB, "\t%s\t:masked thread finished. checking mask thread's signal status...\n",
+						  testName);
+			if (maskThreadInfo.bulletinBoard.status == NOTSIGNALED) {
 				outputComment(OMRPORTLIB, "\t%s\t:masked thread did not receive signal as expected.\n", testName);
 			} else {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "masked thread received signal as not expected.(SignalStatus=%d)\n", maskThreadInfo.bulletinBoard.status);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "masked thread received signal as not expected.(SignalStatus=%d)\n",
+								   maskThreadInfo.bulletinBoard.status);
 				goto exit;
 			}
 		}
 
 		outputComment(OMRPORTLIB, "\t%s\t:pthread_sigmask works on each individual thread.\n", testName);
-
 	}
 
 	outputComment(OMRPORTLIB, "\t%s\t:destroying unmaskMonitor...\n", testName);
@@ -558,4 +566,3 @@ cleanup:
 	reportTestExit(OMRPORTLIB, testName);
 }
 #endif /* defined(LINUX) || defined(OSX) */
-

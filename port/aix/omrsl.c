@@ -22,7 +22,6 @@
  * @brief shared library
  */
 
-
 /*
  *	Standard unix shared libraries
  *	(AIX: 4.2 and higher only)
@@ -43,7 +42,6 @@
 #else
 #include "omriconvhelpers.h"
 #endif
-
 
 #if defined(J9VM_USE_MBTOWC) || defined(J9VM_USE_ICONV)
 #include <nl_types.h>
@@ -71,14 +69,10 @@
 static void convertWithMBTOWC(struct OMRPortLibrary *portLibrary, char *error, char *errBuf, uintptr_t bufLen);
 #endif /* J9VM_USE_MBTOWC (autogen) */
 
-
-
 #if (defined(J9VM_USE_ICONV)) /* priv. proto (autogen) */
 
 static void convertWithIConv(struct OMRPortLibrary *portLibrary, const char *error, char *errBuf, uintptr_t bufLen);
 #endif /* J9VM_USE_ICONV (autogen) */
-
-
 
 static void getDLError(struct OMRPortLibrary *portLibrary, char *errBuf, uintptr_t bufLen);
 static uintptr_t getDirectoryOfLibrary(struct OMRPortLibrary *portLibrary, char *buf, uintptr_t bufLen);
@@ -142,7 +136,8 @@ isFileinLibPath(struct OMRPortLibrary *portLibrary, char *fileName)
 	envLibPathLen = strlen(envLibPath) + 1;
 	fileLen = strlen(fileName) + 1;
 
-	libPath = portLibrary->mem_allocate_memory(portLibrary, envLibPathLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	libPath =
+		portLibrary->mem_allocate_memory(portLibrary, envLibPathLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 
 	if (NULL == libPath) {
 		return 0;
@@ -157,7 +152,8 @@ isFileinLibPath(struct OMRPortLibrary *portLibrary, char *fileName)
 		char *pathBuf = NULL;
 
 		if (totalPathLen >= EsMaxPath) {
-			tmpPath = portLibrary->mem_allocate_memory(portLibrary, totalPathLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			tmpPath = portLibrary->mem_allocate_memory(portLibrary, totalPathLen, OMR_GET_CALLSITE(),
+													   OMRMEM_CATEGORY_PORT_LIBRARY);
 			if (NULL == tmpPath) {
 				/* move on to next path in LIBPATH if we can't allocate enough memory to inspect current path */
 				continue;
@@ -183,7 +179,8 @@ isFileinLibPath(struct OMRPortLibrary *portLibrary, char *fileName)
 }
 
 /* This macro will seek out whether specified path is indeed a file in current folder or in any folders specified by LIBPATH */
-#define IS_FILE_VISIBLE(portlib,path) ((EsIsFile == isFile(portLibrary, path)) || (1 == isFileinLibPath(portLibrary, path)))
+#define IS_FILE_VISIBLE(portlib, path)                                                                                 \
+	((EsIsFile == isFile(portLibrary, path)) || (1 == isFileinLibPath(portLibrary, path)))
 
 /**
  * Close a shared library.
@@ -193,15 +190,16 @@ isFileinLibPath(struct OMRPortLibrary *portLibrary, char *fileName)
  *
  * @return 0 on success, any other value on failure.
  */
-uintptr_t omrsl_close_shared_library(struct OMRPortLibrary *portLibrary, uintptr_t descriptor)
+uintptr_t
+omrsl_close_shared_library(struct OMRPortLibrary *portLibrary, uintptr_t descriptor)
 {
 	uintptr_t result = 0;
 
 	Trc_PRT_sl_close_shared_library_Entry(descriptor);
 #if defined(J9OS_I5)
-	result = (uintptr_t) Xj9dlclose((void *)descriptor);
+	result = (uintptr_t)Xj9dlclose((void *)descriptor);
 #else
-	result = (uintptr_t) dlclose((void *)descriptor);
+	result = (uintptr_t)dlclose((void *)descriptor);
 #endif
 
 	Trc_PRT_sl_close_shared_library_Exit(result);
@@ -231,9 +229,12 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 	if (!openExec && decorate) {
 		if (NULL != fileName) {
 			/* the names specifies a path */
-			pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%.*slib%s" PLATFORM_DLL_EXTENSION, (uintptr_t)fileName + 1 - (uintptr_t)name, name, fileName + 1);
+			pathLength =
+				portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%.*slib%s" PLATFORM_DLL_EXTENSION,
+										(uintptr_t)fileName + 1 - (uintptr_t)name, name, fileName + 1);
 		} else {
-			pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "lib%s" PLATFORM_DLL_EXTENSION, name);
+			pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1),
+												 "lib%s" PLATFORM_DLL_EXTENSION, name);
 		}
 		if (pathLength >= EsMaxPath) {
 			result = OMRPORT_SL_UNSUPPORTED;
@@ -276,7 +277,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 		size_t suffixLength = strlen(openName) + 1 + 1;
 
 		/* last ditch, try dir port lib DLL is in */
-		if ((suffixLength < sizeof(portLibDir)) && (0 != getDirectoryOfLibrary(portLibrary, portLibDir, sizeof(portLibDir) - suffixLength))) {
+		if ((suffixLength < sizeof(portLibDir))
+			&& (0 != getDirectoryOfLibrary(portLibrary, portLibDir, sizeof(portLibDir) - suffixLength))) {
 			strcat(portLibDir, "/");
 			strcat(portLibDir, openName);
 			loadAndInit(portLibDir, L_RTLD_LOCAL, NULL);
@@ -305,9 +307,12 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 				if (decorate) {
 					if (NULL != fileName) {
 						/* the names specifies a path */
-						pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%.*slib%s.a", (uintptr_t)fileName + 1 - (uintptr_t)name, name, fileName + 1);
+						pathLength =
+							portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%.*slib%s.a",
+													(uintptr_t)fileName + 1 - (uintptr_t)name, name, fileName + 1);
 					} else {
-						pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "lib%s.a", name);
+						pathLength =
+							portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "lib%s.a", name);
 					}
 					if (pathLength >= EsMaxPath) {
 						result = OMRPORT_SL_UNSUPPORTED;
@@ -323,7 +328,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 						/* update the error string and return code only if a file was actually found */
 						if ((ENOENT != lastErrno) && (IS_FILE_VISIBLE(portLibrary, mangledName))) {
 							getDLError(portLibrary, errBuf, sizeof(errBuf));
-							result = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_SL_INVALID, errBuf);
+							result =
+								portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_SL_INVALID, errBuf);
 						}
 #if defined(J9OS_I5)
 						/* now check to see if it is an iSeries library */
@@ -332,13 +338,17 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 							/* was an error message return?  */
 							if ('\0' != errBuf[0]) {
 								/* Yes, save it */
-								result = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_SL_INVALID, errBuf);
+								result = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_SL_INVALID,
+																						errBuf);
 							}
 							if (NULL != fileName) {
 								/* the names specifies a path */
-								pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%.*s%s.srvpgm", (uintptr_t)fileName + 1 - (uintptr_t)name, name, fileName + 1);
+								pathLength = portLibrary->str_printf(
+									portLibrary, mangledName, (EsMaxPath + 1), "%.*s%s.srvpgm",
+									(uintptr_t)fileName + 1 - (uintptr_t)name, name, fileName + 1);
 							} else {
-								pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%s.srvpgm", name);
+								pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1),
+																	 "%s.srvpgm", name);
 							}
 							if (pathLength >= EsMaxPath) {
 								result = OMRPORT_SL_UNSUPPORTED;
@@ -352,7 +362,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 								/* update the error string and return code only if a file was actually found */
 								if ((ENOENT != lastErrno) && (IS_FILE_VISIBLE(portLibrary, mangledName))) {
 									getDLError(portLibrary, errBuf, sizeof(errBuf));
-									result = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_SL_INVALID, errBuf);
+									result = portLibrary->error_set_last_error_with_message(portLibrary,
+																							OMRPORT_SL_INVALID, errBuf);
 								}
 								/* now check to see if it is an iSeries library */
 								handle = Xj9LoadIleLibrary(mangledName, errBuf, sizeof(errBuf));
@@ -360,7 +371,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 									/* was an error message return?  */
 									if ('\0' != errBuf[0]) {
 										/* Yes, save it */
-										result = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_SL_INVALID, errBuf);
+										result = portLibrary->error_set_last_error_with_message(
+											portLibrary, OMRPORT_SL_INVALID, errBuf);
 									}
 								}
 #endif
@@ -381,18 +393,17 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 										lastErrno = errno;
 
 										pathLength = portLibrary->str_printf(
-																		portLibrary, mangledName, (EsMaxPath + 1), "%.*s%.*s",
-																		(uintptr_t)fileName + 1 - (uintptr_t)name,
-																		name,
-																		(uintptr_t)actualFileName - 1 - (uintptr_t)fileName,
-																		fileName + 1);
+											portLibrary, mangledName, (EsMaxPath + 1), "%.*s%.*s",
+											(uintptr_t)fileName + 1 - (uintptr_t)name, name,
+											(uintptr_t)actualFileName - 1 - (uintptr_t)fileName, fileName + 1);
 										if (pathLength >= EsMaxPath) {
 											result = OMRPORT_SL_UNSUPPORTED;
 											goto exit;
 										}
 										if ((ENOENT != lastErrno) && (IS_FILE_VISIBLE(portLibrary, mangledName))) {
 											getDLError(portLibrary, errBuf, sizeof(errBuf));
-											result = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_SL_INVALID, errBuf);
+											result = portLibrary->error_set_last_error_with_message(
+												portLibrary, OMRPORT_SL_INVALID, errBuf);
 										}
 									}
 								}
@@ -416,7 +427,7 @@ exit:
 	}
 
 	Trc_PRT_sl_open_shared_library_Exit1(handle);
-	*descriptor = (uintptr_t) handle;
+	*descriptor = (uintptr_t)handle;
 	return 0;
 }
 
@@ -454,7 +465,8 @@ exit:
  * @note contents of func are undefined on failure.
  */
 uintptr_t
-omrsl_lookup_name(struct OMRPortLibrary *portLibrary, uintptr_t descriptor, char *name, uintptr_t *func, const char *argSignature)
+omrsl_lookup_name(struct OMRPortLibrary *portLibrary, uintptr_t descriptor, char *name, uintptr_t *func,
+				  const char *argSignature)
 {
 	void *address = NULL;
 
@@ -469,7 +481,7 @@ omrsl_lookup_name(struct OMRPortLibrary *portLibrary, uintptr_t descriptor, char
 		Trc_PRT_sl_lookup_name_Exit2(name, argSignature, descriptor, 1);
 		return 1;
 	}
-	*func = (uintptr_t) address;
+	*func = (uintptr_t)address;
 
 	Trc_PRT_sl_lookup_name_Exit1(*func);
 	return 0;
@@ -496,10 +508,8 @@ getDLError(struct OMRPortLibrary *portLibrary, char *errBuf, uintptr_t bufLen)
 		if (loadquery(L_GETMESSAGES, buffer, sizeof(buffer)) != -1) {
 			/* This checks for an error loading a dependant module which dlopen seems to report incorrectly */
 			if ((L_ERROR_NOLIB == atoi(buffer[0])) && (L_ERROR_DEPENDENT == atoi(buffer[1]))) {
-				error = portLibrary->nls_lookup_message(portLibrary,
-														J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-														J9NLS_PORT_SL_ERROR_LOADING_DEPENDANT_MODULE,
-														NULL);
+				error = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+														J9NLS_PORT_SL_ERROR_LOADING_DEPENDANT_MODULE, NULL);
 				portLibrary->str_printf(portLibrary, errBuf, bufLen, error, &buffer[1][3]);
 				return;
 			}
@@ -508,10 +518,8 @@ getDLError(struct OMRPortLibrary *portLibrary, char *errBuf, uintptr_t bufLen)
 		/* Testing shows that this special case occurs
 		 * when there is a symbol resolution problem
 		 */
-		error = portLibrary->nls_lookup_message(portLibrary,
-												J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-												J9NLS_PORT_SL_SYMBOL_RESOLUTION_FAILURE,
-												NULL);
+		error = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+												J9NLS_PORT_SL_SYMBOL_RESOLUTION_FAILURE, NULL);
 		strncpy(errBuf, error, bufLen);
 		errBuf[bufLen - 1] = '\0';
 		return;
@@ -519,10 +527,8 @@ getDLError(struct OMRPortLibrary *portLibrary, char *errBuf, uintptr_t bufLen)
 
 	if ((NULL == error) || ('\0' == error[0])) {
 		/* just in case another thread consumed our error message */
-		error = portLibrary->nls_lookup_message(portLibrary,
-												J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-												J9NLS_PORT_SL_UNKOWN_ERROR,
-												NULL);
+		error = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+												J9NLS_PORT_SL_UNKOWN_ERROR, NULL);
 		strncpy(errBuf, error, bufLen);
 		errBuf[bufLen - 1] = '\0';
 		return;
@@ -549,8 +555,8 @@ static uintptr_t
 getDirectoryOfLibrary(struct OMRPortLibrary *portLib, char *buf, uintptr_t bufLen)
 {
 	struct ld_info *linfo, *linfop;
-	int             linfoSize, rc;
-	char           *myAddress;
+	int linfoSize, rc;
+	char *myAddress;
 	uintptr_t pathLength = 0;
 
 	/* get loader information */
@@ -565,7 +571,8 @@ getDirectoryOfLibrary(struct OMRPortLibrary *portLib, char *buf, uintptr_t bufLe
 			break;
 		}
 		linfoSize *= 2; /* insufficient buffer size - increase */
-		linfop = portLib->mem_reallocate_memory(portLib, linfo, linfoSize, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+		linfop =
+			portLib->mem_reallocate_memory(portLib, linfo, linfoSize, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (NULL == linfop) {
 			portLib->mem_free_memory(portLib, linfo);
 			return 0;
@@ -576,8 +583,8 @@ getDirectoryOfLibrary(struct OMRPortLibrary *portLib, char *buf, uintptr_t bufLe
 	/* find entry for my loaded object */
 	myAddress = ((char **)&omrsl_open_shared_library)[0];
 	for (linfop = linfo;;) {
-		char *textorg  = (char *)linfop->ldinfo_textorg;
-		char *textend  = textorg + (unsigned long)linfop->ldinfo_textsize;
+		char *textorg = (char *)linfop->ldinfo_textorg;
+		char *textend = textorg + (unsigned long)linfop->ldinfo_textsize;
 		if ((myAddress >= textorg) && (myAddress < textend)) {
 			break;
 		}

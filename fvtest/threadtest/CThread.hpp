@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef J9THREADTEST_CTHREAD_HPP_INCLUDED
 #define J9THREADTEST_CTHREAD_HPP_INCLUDED
 
@@ -31,7 +30,7 @@ public:
 	virtual void Start(void);
 
 	/* disable assignment */
-	CThread& operator=(const CThread&);
+	CThread &operator=(const CThread &);
 
 	bool Terminated(void);
 	omrthread_t GetId(void) const;

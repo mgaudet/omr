@@ -80,7 +80,8 @@ typedef struct UtTracePointIterator UtTracePointIterator;
  * @return OMR_ERROR_OUT_OF_NATIVE_MEMORY if memory for the iterator structure cannot be allocated.
  * @return OMR_ERROR_NOT_AVAILABLE if the specified file cannot be opened.
  */
-omr_error_t omr_trc_getTraceFileIterator(OMRPortLibrary *portLib, char *fileName, UtTraceFileIterator **iteratorPtr, FormatStringCallback getFormatString);
+omr_error_t omr_trc_getTraceFileIterator(OMRPortLibrary *portLib, char *fileName, UtTraceFileIterator **iteratorPtr,
+										 FormatStringCallback getFormatString);
 
 /**
  * @deprecated
@@ -105,7 +106,8 @@ omr_error_t omr_trc_freeTraceFileIterator(UtTraceFileIterator *iter);
  * @return OMR_ERROR_OUT_OF_NATIVE_MEMORY if memory for the iterator structure cannot be allocated.
  * @return OMR_ERROR_INTERNAL if the file ends unexpectedly.
  */
-omr_error_t omr_trc_getTracePointIteratorForNextBuffer(UtTraceFileIterator *fileIter, UtTracePointIterator **bufferIteratorPtr);
+omr_error_t omr_trc_getTracePointIteratorForNextBuffer(UtTraceFileIterator *fileIter,
+													   UtTracePointIterator **bufferIteratorPtr);
 
 /**
  * @deprecated

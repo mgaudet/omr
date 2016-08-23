@@ -24,4 +24,3 @@ MM_ScavengerHotFieldStats::initialize(MM_EnvironmentBase *env)
 }
 
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) || defined(OMR_GC_VLHGC) */
-

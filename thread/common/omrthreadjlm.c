@@ -71,7 +71,6 @@ omrthread_jlm_init(uintptr_t flags)
 		lib->flags &= ~J9THREAD_LIB_FLAG_JLM_HAS_BEEN_ENABLED;
 	}
 
-
 	GLOBAL_UNLOCK(self);
 
 	return retVal;
@@ -213,8 +212,6 @@ jlm_adaptive_spin_init(void)
 }
 #endif /* OMR_THR_ADAPTIVE_SPIN */
 
-
-
 /**
  * Allocate (if not done already) the pools for JLM tracing structures.
  *
@@ -229,14 +226,18 @@ jlm_init_pools(omrthread_library_t lib)
 	ASSERT(lib);
 
 	if (NULL == lib->monitor_tracing_pool) {
-		lib->monitor_tracing_pool = pool_new(sizeof(J9ThreadMonitorTracing), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_THREADS, omrthread_mallocWrapper, omrthread_freeWrapper, lib);
+		lib->monitor_tracing_pool =
+			pool_new(sizeof(J9ThreadMonitorTracing), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_THREADS,
+					 omrthread_mallocWrapper, omrthread_freeWrapper, lib);
 		if (NULL == lib->monitor_tracing_pool) {
 			return -1;
 		}
 	}
 #if defined(OMR_THR_JLM_HOLD_TIMES)
 	if (NULL == lib->thread_tracing_pool) {
-		lib->thread_tracing_pool = pool_new(sizeof(J9ThreadTracing), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_THREADS, omrthread_mallocWrapper, omrthread_freeWrapper, lib);
+		lib->thread_tracing_pool =
+			pool_new(sizeof(J9ThreadTracing), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_THREADS,
+					 omrthread_mallocWrapper, omrthread_freeWrapper, lib);
 		if (NULL == lib->thread_tracing_pool) {
 			return -1;
 		}
@@ -244,9 +245,7 @@ jlm_init_pools(omrthread_library_t lib)
 #endif
 
 	return 0;
-
 }
-
 
 /**
  * Initialize special tracing for GC
@@ -271,9 +270,7 @@ jlm_gc_lock_init(omrthread_library_t lib)
 	}
 
 	return (NULL == lib->gc_lock_tracing) ? -1 : 0;
-
 }
-
 
 /**
  * Return tracing info.
@@ -288,7 +285,6 @@ omrthread_jlm_get_gc_lock_tracing(void)
 	ASSERT(self->library);
 	return self->library->gc_lock_tracing;
 }
-
 
 /**
  * Initialize and clear a thread's JLM tracing information.
@@ -317,9 +313,7 @@ jlm_thread_init(omrthread_t thread)
 #else
 	return 0;
 #endif
-
 }
-
 
 /**
  * Clear (reset) a thread's JLM tracing structure.
@@ -333,12 +327,11 @@ static void
 jlm_thread_clear(omrthread_t thread)
 {
 	ASSERT(thread);
-#if	defined(OMR_THR_JLM_HOLD_TIMES)
+#if defined(OMR_THR_JLM_HOLD_TIMES)
 	ASSERT(thread->tracing);
 	memset(thread->tracing, 0, sizeof(*thread->tracing));
 #endif
 }
-
 
 /**
  * Free a monitor's JLM tracing information.
@@ -362,7 +355,6 @@ jlm_thread_free(omrthread_library_t lib, omrthread_t thread)
 	}
 #endif
 }
-
 
 /**
  * Initialize and clear a monitor's JLM tracing information.
@@ -390,7 +382,6 @@ jlm_monitor_init(omrthread_library_t lib, omrthread_monitor_t monitor)
 	return (NULL == monitor->tracing) ? -1 : 0;
 }
 
-
 /**
  * Clear (reset) a monitor's JLM tracing structure.
  *
@@ -407,7 +398,6 @@ jlm_monitor_clear(omrthread_library_t lib, omrthread_monitor_t monitor)
 	ASSERT(monitor->tracing);
 	memset(monitor->tracing, 0, sizeof(*monitor->tracing));
 }
-
 
 /**
  * Free a monitor's JLM tracing information.
@@ -428,5 +418,4 @@ jlm_monitor_free(omrthread_library_t lib, omrthread_monitor_t monitor)
 		pool_removeElement(lib->monitor_tracing_pool, monitor->tracing);
 		monitor->tracing = NULL;
 	}
-
 }

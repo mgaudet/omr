@@ -31,10 +31,9 @@ protected:
 	 * and has to be done by the constructor of each subclass.
 	 * e.g. _typeId = __FUNCTION__;
 	 */
-	const char* _typeId;
-	
+	const char *_typeId;
+
 public:
-	
 	/**
 	 * Create a Base Non Virtual object.
 	 */

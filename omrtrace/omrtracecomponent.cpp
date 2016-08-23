@@ -45,7 +45,8 @@ initialiseComponentData(UtComponentData **componentDataPtr, UtModuleInfo *module
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(OMR_TRACEGLOBAL(portLibrary));
 
-	UtComponentData *componentData = (UtComponentData *)omrmem_allocate_memory(sizeof(UtComponentData), OMRMEM_CATEGORY_TRACE);
+	UtComponentData *componentData =
+		(UtComponentData *)omrmem_allocate_memory(sizeof(UtComponentData), OMRMEM_CATEGORY_TRACE);
 
 	UT_DBGOUT(2, ("<UT> initialiseComponentData: %s\n", componentName));
 	if (componentData == NULL) {
@@ -65,8 +66,10 @@ initialiseComponentData(UtComponentData **componentDataPtr, UtModuleInfo *module
 	 * freed already. */
 	if (moduleInfo->traceVersionInfo->traceVersion >= 7 && moduleInfo->containerModule != NULL) {
 		char qualifiedName[MAX_QUALIFIED_NAME_LENGTH];
-		omrstr_printf(qualifiedName, MAX_QUALIFIED_NAME_LENGTH, "%s(%s)", moduleInfo->name, moduleInfo->containerModule->name);
-		componentData->qualifiedComponentName = (char *)omrmem_allocate_memory(strlen(qualifiedName) + 1, OMRMEM_CATEGORY_TRACE);
+		omrstr_printf(qualifiedName, MAX_QUALIFIED_NAME_LENGTH, "%s(%s)", moduleInfo->name,
+					  moduleInfo->containerModule->name);
+		componentData->qualifiedComponentName =
+			(char *)omrmem_allocate_memory(strlen(qualifiedName) + 1, OMRMEM_CATEGORY_TRACE);
 		if (componentData->qualifiedComponentName == NULL) {
 			UT_DBGOUT(1, ("<UT> Unable to allocate componentData's name field for %s\n", componentName));
 			return OMR_ERROR_OUT_OF_NATIVE_MEMORY;
@@ -77,9 +80,11 @@ initialiseComponentData(UtComponentData **componentDataPtr, UtModuleInfo *module
 	}
 
 	if (moduleInfo->formatStringsFileName != NULL) {
-		componentData->formatStringsFileName = (char *)omrmem_allocate_memory(strlen(moduleInfo->formatStringsFileName) + 1, OMRMEM_CATEGORY_TRACE);
+		componentData->formatStringsFileName =
+			(char *)omrmem_allocate_memory(strlen(moduleInfo->formatStringsFileName) + 1, OMRMEM_CATEGORY_TRACE);
 		if (componentData->formatStringsFileName == NULL) {
-			UT_DBGOUT(1, ("<UT> Unable to allocate componentData's format strings file name field for %s\n", componentName));
+			UT_DBGOUT(
+				1, ("<UT> Unable to allocate componentData's format strings file name field for %s\n", componentName));
 			return OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 		}
 		strcpy(componentData->formatStringsFileName, moduleInfo->formatStringsFileName);
@@ -134,7 +139,8 @@ freeComponentData(OMR_TraceGlobal *global, UtComponentData *componentDataPtr)
 		omrmem_free_memory(componentDataPtr->tracepointcounters);
 	}
 
-	if (componentDataPtr->qualifiedComponentName != componentDataPtr->componentName && componentDataPtr->qualifiedComponentName != NULL) {
+	if (componentDataPtr->qualifiedComponentName != componentDataPtr->componentName
+		&& componentDataPtr->qualifiedComponentName != NULL) {
 		omrmem_free_memory(componentDataPtr->qualifiedComponentName);
 	}
 
@@ -157,7 +163,8 @@ initialiseComponentList(UtComponentList **componentListPtr)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(OMR_TRACEGLOBAL(portLibrary));
 
-	UtComponentList *componentList = (UtComponentList *)omrmem_allocate_memory(sizeof(UtComponentList), OMRMEM_CATEGORY_TRACE);
+	UtComponentList *componentList =
+		(UtComponentList *)omrmem_allocate_memory(sizeof(UtComponentList), OMRMEM_CATEGORY_TRACE);
 	UT_DBGOUT(2, ("<UT> initialiseComponentList: %p\n", componentListPtr));
 	if (componentList == NULL) {
 		UT_DBGOUT(1, ("<UT> Unable to allocate component list\n"));
@@ -191,14 +198,16 @@ freeComponentList(OMR_TraceGlobal *global, UtComponentList *componentList)
 
 	while (compData != NULL) {
 		tempCD = compData->next;
-		UT_DBGOUT_NOGLOBAL(2, global->traceDebug, ("<UT> freeComponentList: freeing CI [%p] from [%p]\n", compData, componentList));
+		UT_DBGOUT_NOGLOBAL(2, global->traceDebug,
+						   ("<UT> freeComponentList: freeing CI [%p] from [%p]\n", compData, componentList));
 		freeComponentData(global, compData);
 		compData = tempCD;
 	}
 
 	while (configInfo != NULL) {
 		tempCI = configInfo->next;
-		UT_DBGOUT_NOGLOBAL(2, global->traceDebug, ("<UT> freeComponentList: freeing CI [%p] from [%p]\n", configInfo, componentList));
+		UT_DBGOUT_NOGLOBAL(2, global->traceDebug,
+						   ("<UT> freeComponentList: freeing CI [%p] from [%p]\n", configInfo, componentList));
 		if (configInfo->groupName != NULL) {
 			omrmem_free_memory(configInfo->groupName);
 		}
@@ -243,7 +252,8 @@ addComponentToList(UtComponentData *componentData, UtComponentList *componentLis
 			UT_DBGOUT(1, ("<UT> addComponentToList: component %s found\n", componentData->componentName));
 			if (compDataCursor->moduleInfo != NULL && componentData->moduleInfo->traceVersionInfo->traceVersion >= 6) {
 				/* mirror existing active info into newly registering module */
-				memcpy(componentData->moduleInfo->active, compDataCursor->moduleInfo->active, compDataCursor->moduleInfo->count);
+				memcpy(componentData->moduleInfo->active, compDataCursor->moduleInfo->active,
+					   compDataCursor->moduleInfo->count);
 				componentData->moduleInfo->next = compDataCursor->moduleInfo;
 			}
 		}
@@ -276,18 +286,21 @@ processComponentDefferedConfig(UtComponentData *componentData, UtComponentList *
 	UtDeferredConfigInfo *configInfo;
 
 	if (componentList == NULL || componentData == NULL) {
-		UT_DBGOUT(1, ("<UT> Can't process config info for a NULL component [%p] or NULL component list [%p]\n", componentData, componentList));
+		UT_DBGOUT(1, ("<UT> Can't process config info for a NULL component [%p] or NULL component list [%p]\n",
+					  componentData, componentList));
 		return OMR_ERROR_ILLEGAL_ARGUMENT;
 	}
 
 	if (componentData->moduleInfo == NULL) {
-		UT_DBGOUT(1, ("<UT> Can't process defferred config info on a non live component: %s\n", componentData->componentName));
+		UT_DBGOUT(1, ("<UT> Can't process defferred config info on a non live component: %s\n",
+					  componentData->componentName));
 		return OMR_ERROR_ILLEGAL_ARGUMENT;
 	}
 
 	/* all the pent up config needs to be released */
 	if (componentList->deferredConfigInfoHead != NULL) {
-		UT_DBGOUT(2, ("<UT> processComponentDefferedConfig: component %s - applying global deferred config info\n", componentData->componentName));
+		UT_DBGOUT(2, ("<UT> processComponentDefferedConfig: component %s - applying global deferred config info\n",
+					  componentData->componentName));
 		configInfo = componentList->deferredConfigInfoHead;
 		while (configInfo != NULL) {
 			BOOLEAN configAppliesToAll = j9_cmdla_stricmp(configInfo->componentName, UT_ALL) == 0;
@@ -298,11 +311,10 @@ processComponentDefferedConfig(UtComponentData *componentData, UtComponentList *
 				 * We suppress messages when applying "all" options to new components.
 				 */
 				BOOLEAN suppressMessages = configAppliesToAll;
-				omr_error_t err = setTracePointsTo(componentData->componentName, componentList,
-												   configInfo->all, configInfo->firstTracePoint,
-												   configInfo->lastTracePoint, configInfo->value,
-												   configInfo->level, configInfo->groupName,
-												   suppressMessages, configInfo->setActive);
+				omr_error_t err =
+					setTracePointsTo(componentData->componentName, componentList, configInfo->all,
+									 configInfo->firstTracePoint, configInfo->lastTracePoint, configInfo->value,
+									 configInfo->level, configInfo->groupName, suppressMessages, configInfo->setActive);
 				if (OMR_ERROR_NONE != err) {
 					if (!suppressMessages) {
 						UT_DBGOUT(1, ("<UT> can't activate deferred trace opts on %s\n", componentData->componentName));
@@ -312,10 +324,13 @@ processComponentDefferedConfig(UtComponentData *componentData, UtComponentList *
 			}
 			configInfo = configInfo->next;
 		}
-		UT_DBGOUT(2, ("<UT> processComponentDefferedConfig: component %s - apply global deferred config info complete\n", componentData->componentName));
+		UT_DBGOUT(2,
+				  ("<UT> processComponentDefferedConfig: component %s - apply global deferred config info complete\n",
+				   componentData->componentName));
 	}
 
-	UT_DBGOUT(2, ("<UT> addComponentToList: component %s processed deferred config info\n", componentData->componentName));
+	UT_DBGOUT(2,
+			  ("<UT> addComponentToList: component %s processed deferred config info\n", componentData->componentName));
 	return rc;
 }
 
@@ -324,14 +339,16 @@ removeModuleFromList(UtModuleInfo *module, UtComponentList *componentList)
 {
 	UtComponentData *compDataCursor = componentList->head;
 	UtComponentData *prevCompData;
-	UT_DBGOUT(2, ("<UT> removeModuleFromList: searching for module %s in componentList %p\n", module->name, componentList));
+	UT_DBGOUT(
+		2, ("<UT> removeModuleFromList: searching for module %s in componentList %p\n", module->name, componentList));
 
 	/* for flight controller functinality, any unloaded components should be moved onto an unloaded list, so their
 	   formatting strings and a memcpy of their moduleInfo is available */
 	while (compDataCursor != NULL) {
 		if (0 == strcmp(compDataCursor->componentName, module->name)) {
 
-			UT_DBGOUT(2, ("<UT> removeModuleFromList: found component %s in componentList %p\n", module->name, componentList));
+			UT_DBGOUT(2, ("<UT> removeModuleFromList: found component %s in componentList %p\n", module->name,
+						  componentList));
 
 			/* remove this module from the linked list within the component */
 			if (module->traceVersionInfo->traceVersion < 6) {
@@ -382,7 +399,8 @@ removeModuleFromList(UtModuleInfo *module, UtComponentList *componentList)
 		compDataCursor = compDataCursor->next;
 	}
 
-	UT_DBGOUT(2, ("<UT> removeModuleFromList: didn't find component %s in componentList %p\n", module->name, componentList));
+	UT_DBGOUT(
+		2, ("<UT> removeModuleFromList: didn't find component %s in componentList %p\n", module->name, componentList));
 	return OMR_ERROR_INTERNAL;
 }
 
@@ -398,7 +416,8 @@ getComponentDataNext(const char *componentName, UtComponentList *componentList, 
 		/* Resuming search from the last component found with this name. */
 		compDataCursor = position->next;
 	}
-	UT_DBGOUT(4, ("<UT> getComponentData: searching for component %s in componentList %p\n", (componentName) ? componentName : "NULL", componentList));
+	UT_DBGOUT(4, ("<UT> getComponentData: searching for component %s in componentList %p\n",
+				  (componentName) ? componentName : "NULL", componentList));
 
 	if (componentName == NULL) {
 		UT_DBGOUT(1, ("<UT> Can't get ComponentData for NULL componentName\n"));
@@ -408,12 +427,14 @@ getComponentDataNext(const char *componentName, UtComponentList *componentList, 
 	while (compDataCursor != NULL) {
 		char *tempName = compDataCursor->componentName;
 		if (try_scan(&tempName, (char *)componentName) && *tempName == '\0') {
-			UT_DBGOUT(4, ("<UT> getComponentData: found component %s [%p] in componentList %p\n", componentName, compDataCursor, componentList));
+			UT_DBGOUT(4, ("<UT> getComponentData: found component %s [%p] in componentList %p\n", componentName,
+						  compDataCursor, componentList));
 			return compDataCursor;
 		}
 		compDataCursor = compDataCursor->next;
 	}
-	UT_DBGOUT(4, ("<UT> getComponentData: didn't find component %s in componentList %p\n", componentName, componentList));
+	UT_DBGOUT(4,
+			  ("<UT> getComponentData: didn't find component %s in componentList %p\n", componentName, componentList));
 	return NULL;
 }
 
@@ -431,16 +452,19 @@ getComponentDataForModule(UtModuleInfo *moduleInfo, UtComponentList *componentLi
 	/* Beginning search from the first component */
 	compDataCursor = componentList->head;
 
-	UT_DBGOUT(4, ("<UT> getComponentData: searching for component for module %p in componentList %p\n", moduleInfo, componentList));
+	UT_DBGOUT(4, ("<UT> getComponentData: searching for component for module %p in componentList %p\n", moduleInfo,
+				  componentList));
 
 	while (compDataCursor != NULL) {
 		if (compDataCursor->moduleInfo == moduleInfo) {
-			UT_DBGOUT(4, ("<UT> getComponentData: found component %s [%p] in componentList %p\n", compDataCursor->qualifiedComponentName, compDataCursor, componentList));
+			UT_DBGOUT(4, ("<UT> getComponentData: found component %s [%p] in componentList %p\n",
+						  compDataCursor->qualifiedComponentName, compDataCursor, componentList));
 			return compDataCursor;
 		}
 		compDataCursor = compDataCursor->next;
 	}
-	UT_DBGOUT(4, ("<UT> getComponentData: didn't find component for module %p in componentList %p\n", moduleInfo, componentList));
+	UT_DBGOUT(4, ("<UT> getComponentData: didn't find component for module %p in componentList %p\n", moduleInfo,
+				  componentList));
 	return NULL;
 }
 
@@ -474,7 +498,6 @@ updateActiveArray(UtComponentData *compData, int32_t first, int32_t last, unsign
 		}
 	}
 }
-
 
 /* Utility function for parsing command line options */
 static char *
@@ -527,9 +550,8 @@ parseNumFromBuffer(const char *buffer, int ret)
 }
 
 static omr_error_t
-addDeferredConfigToList(const char *componentName, int32_t all, int32_t first, int32_t last,
-						unsigned char value, int level, const char *groupName,
-						UtDeferredConfigInfo **configList, int32_t setActive)
+addDeferredConfigToList(const char *componentName, int32_t all, int32_t first, int32_t last, unsigned char value,
+						int level, const char *groupName, UtDeferredConfigInfo **configList, int32_t setActive)
 {
 	UtDeferredConfigInfo *dconfiginfo;
 	UtDeferredConfigInfo *temp;
@@ -546,7 +568,8 @@ addDeferredConfigToList(const char *componentName, int32_t all, int32_t first, i
 
 	dconfiginfo->componentName = (char *)omrmem_allocate_memory(strlen(componentName) + 1, OMRMEM_CATEGORY_TRACE);
 	if (dconfiginfo->componentName == NULL) {
-		UT_DBGOUT(1, ("<UT> Unable to set tracepoints in %s - can't allocate config info componentName\n", componentName));
+		UT_DBGOUT(1,
+				  ("<UT> Unable to set tracepoints in %s - can't allocate config info componentName\n", componentName));
 		return OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 	}
 	strcpy(dconfiginfo->componentName, componentName);
@@ -563,7 +586,8 @@ addDeferredConfigToList(const char *componentName, int32_t all, int32_t first, i
 	} else {
 		dconfiginfo->groupName = (char *)omrmem_allocate_memory(strlen(groupName) + 1, OMRMEM_CATEGORY_TRACE);
 		if (dconfiginfo->groupName == NULL) {
-			UT_DBGOUT(1, ("<UT> Unable to set tracepoints in %s - can't allocate config info groupName\n", componentName));
+			UT_DBGOUT(1,
+					  ("<UT> Unable to set tracepoints in %s - can't allocate config info groupName\n", componentName));
 			return OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 		}
 		strcpy(dconfiginfo->groupName, groupName);
@@ -586,18 +610,17 @@ addDeferredConfigToList(const char *componentName, int32_t all, int32_t first, i
 /* for this function, we assume that componentName has been parsed, and contains a single
  * component name only. */
 static omr_error_t
-setTracePointsForComponent(const char *componentName, UtComponentList *componentList, int32_t all, int32_t first, int32_t last,
-						   unsigned char value, int level, const char *groupName, BOOLEAN suppressMessages, int32_t setActive)
+setTracePointsForComponent(const char *componentName, UtComponentList *componentList, int32_t all, int32_t first,
+						   int32_t last, unsigned char value, int level, const char *groupName,
+						   BOOLEAN suppressMessages, int32_t setActive)
 {
 	UtComponentData *compData;
 	UtModuleInfo *modInfo = NULL;
 	omr_error_t rc = OMR_ERROR_NONE;
 
 	if (0 == j9_cmdla_strnicmp(componentName, UT_ALL, strlen(UT_ALL))) {
-		rc = addDeferredConfigToList(componentName,
-									 all, first, last, value, level, groupName,
-									 &componentList->deferredConfigInfoHead,
-									 setActive);
+		rc = addDeferredConfigToList(componentName, all, first, last, value, level, groupName,
+									 &componentList->deferredConfigInfoHead, setActive);
 
 		compData = componentList->head;
 		while (compData != NULL) {
@@ -627,8 +650,7 @@ setTracePointsForComponent(const char *componentName, UtComponentList *component
 	compData = getComponentData(componentName, componentList);
 	if (compData == NULL) {
 		/* add the information to the deferred configuration list */
-		addDeferredConfigToList(componentName,
-								all, first, last, value, level, groupName,
+		addDeferredConfigToList(componentName, all, first, last, value, level, groupName,
 								&componentList->deferredConfigInfoHead, setActive);
 	} else {
 		while (compData != NULL) { /* configuring live and registered module */
@@ -641,18 +663,23 @@ setTracePointsForComponent(const char *componentName, UtComponentList *component
 			}
 			modInfo = compData->moduleInfo;
 			if (first > maxTraceId) {
-				reportCommandLineError(suppressMessages, "Unable to set tracepoint %d in %s - tracepoint id out of range", first, componentName);
+				reportCommandLineError(suppressMessages,
+									   "Unable to set tracepoint %d in %s - tracepoint id out of range", first,
+									   componentName);
 				return OMR_ERROR_INTERNAL;
 			}
 			if (last > maxTraceId) {
-				reportCommandLineError(suppressMessages, "Tracepoint %d not in range 0->%d %s", last, maxTraceId, componentName);
+				reportCommandLineError(suppressMessages, "Tracepoint %d not in range 0->%d %s", last, maxTraceId,
+									   componentName);
 				last = maxTraceId;
 				return OMR_ERROR_INTERNAL;
 			}
 
 			/* Auxiliary tracepoints can't be set */
 			if (MODULE_IS_AUXILIARY(modInfo)) {
-				reportCommandLineError(suppressMessages, "Component %s is marked auxiliary and cannot be configured directly.", componentName);
+				reportCommandLineError(suppressMessages,
+									   "Component %s is marked auxiliary and cannot be configured directly.",
+									   componentName);
 				return OMR_ERROR_INTERNAL;
 			}
 
@@ -682,8 +709,8 @@ setTracePointsForComponent(const char *componentName, UtComponentList *component
  * and so on
  */
 static omr_error_t
-parseAndSetTracePointsInRange(const char *componentName,
-							  unsigned char value, int32_t setActive, BOOLEAN suppressMessages)
+parseAndSetTracePointsInRange(const char *componentName, unsigned char value, int32_t setActive,
+							  BOOLEAN suppressMessages)
 {
 	int length = 0;
 	const char *p;
@@ -702,14 +729,11 @@ parseAndSetTracePointsInRange(const char *componentName,
 	/*
 	 *  Tracepoint ID specified ?
 	 */
-	if (0 == j9_cmdla_strnicmp(p, UT_TPID, strlen(UT_TPID)) &&
-		(p[strlen(UT_TPID)] == '(' || p[strlen(UT_TPID)] == '{')
-	) {
+	if (0 == j9_cmdla_strnicmp(p, UT_TPID, strlen(UT_TPID))
+		&& (p[strlen(UT_TPID)] == '(' || p[strlen(UT_TPID)] == '{')) {
 		reportCommandLineError(suppressMessages, "Invalid trace options, use: tpnid{componentName.[integer_offset]}");
 		return OMR_ERROR_ILLEGAL_ARGUMENT;
-	} else if (0 == j9_cmdla_strnicmp(p, UT_TPNID, strlen(UT_TPNID)) &&
-			   p[strlen(UT_TPNID)] == '{'
-	) {
+	} else if (0 == j9_cmdla_strnicmp(p, UT_TPNID, strlen(UT_TPNID)) && p[strlen(UT_TPNID)] == '{') {
 		length = 0;
 		length += (int)strlen(UT_TPNID) + 1; /* the prefix and the open brace */
 
@@ -753,7 +777,7 @@ parseAndSetTracePointsInRange(const char *componentName,
 		}
 
 		length += ret + 1;
-		p += ret + 1;    /* plus one for the full-stop */
+		p += ret + 1; /* plus one for the full-stop */
 
 		ret = 0;
 		temp = p;
@@ -771,7 +795,9 @@ parseAndSetTracePointsInRange(const char *componentName,
 			length++; /* plus one for the dash */
 			ret = 0;
 			if (!isdigit(*temp)) {
-				reportCommandLineError(suppressMessages, "Expecting tracepoint range specified as tpnid{componentName.offset1-offset2} e.g. tpnid{j9trc.2-6}");
+				reportCommandLineError(suppressMessages,
+									   "Expecting tracepoint range specified as tpnid{componentName.offset1-offset2} "
+									   "e.g. tpnid{j9trc.2-6}");
 				return OMR_ERROR_ILLEGAL_ARGUMENT;
 			}
 			while (isdigit(*temp)) {
@@ -785,12 +811,14 @@ parseAndSetTracePointsInRange(const char *componentName,
 				firsttpid = lasttpid;
 				lasttpid = temptpid;
 			}
-			rc = setTracePointsForComponent(compName, OMR_TRACEGLOBAL(componentList), FALSE, firsttpid, lasttpid, value, -1, NULL, suppressMessages, setActive);
+			rc = setTracePointsForComponent(compName, OMR_TRACEGLOBAL(componentList), FALSE, firsttpid, lasttpid, value,
+											-1, NULL, suppressMessages, setActive);
 			length += ret;
 			p += ret;
-		} else	{
+		} else {
 			firsttpid = lasttpid = parseNumFromBuffer(p, ret);
-			rc = setTracePointsForComponent(compName, OMR_TRACEGLOBAL(componentList), FALSE, firsttpid, lasttpid, value, -1, NULL, suppressMessages, setActive);
+			rc = setTracePointsForComponent(compName, OMR_TRACEGLOBAL(componentList), FALSE, firsttpid, lasttpid, value,
+											-1, NULL, suppressMessages, setActive);
 			p += ret;
 		}
 		freeSubString(compName);
@@ -820,7 +848,8 @@ setTracePointsTo(const char *componentName, UtComponentList *componentList, int3
 		return OMR_ERROR_ILLEGAL_ARGUMENT;
 	}
 
-	UT_DBGOUT(1, ("<UT> setTracePointsTo: component %s all= %s first=%d last=%d value=%d\n", componentName, (all ? "TRUE" : "FALSE"), first, last));
+	UT_DBGOUT(1, ("<UT> setTracePointsTo: component %s all= %s first=%d last=%d value=%d\n", componentName,
+				  (all ? "TRUE" : "FALSE"), first, last));
 
 	/* check for multiple components */
 	tempstr = strchr(componentName, ',');
@@ -832,7 +861,8 @@ setTracePointsTo(const char *componentName, UtComponentList *componentList, int3
 			/* option is a list of components enclosed in braces */
 			componentName++;
 			stripbraces = TRUE;
-		} else if ((0 == j9_cmdla_strnicmp(componentName, UT_TPNID, strlen(UT_TPNID))) && (tempstr < strchr(componentName, '}'))) {
+		} else if ((0 == j9_cmdla_strnicmp(componentName, UT_TPNID, strlen(UT_TPNID)))
+				   && (tempstr < strchr(componentName, '}'))) {
 			/* option is 'tpnid' followed by a list of components enclosed in braces */
 			componentName += (int)strlen(UT_TPNID) + 1; /* skip over the prefix and the open brace */
 			stripbraces = TRUE;
@@ -848,7 +878,8 @@ setTracePointsTo(const char *componentName, UtComponentList *componentList, int3
 		strncpy(compNamesBuffer, componentName, namelength);
 		compNamesBuffer[namelength] = '\0'; /* replace the comma and terminate the string */
 
-		rc = setTracePointsToParsed(compNamesBuffer, componentList, all, first, last, value, level, groupName, suppressMessages, setActive);
+		rc = setTracePointsToParsed(compNamesBuffer, componentList, all, first, last, value, level, groupName,
+									suppressMessages, setActive);
 		if (rc != OMR_ERROR_NONE) {
 			omrmem_free_memory(compNamesBuffer);
 			return rc;
@@ -861,7 +892,8 @@ setTracePointsTo(const char *componentName, UtComponentList *componentList, int3
 			compNamesBuffer[namelength - 1] = '\0'; /* blat the close brace out of the allocated copy */
 		}
 		/* recurse here in case the remainder is still a comma separated list */
-		rc = setTracePointsTo(compNamesBuffer, componentList, all, first, last, value, level, groupName, suppressMessages, setActive);
+		rc = setTracePointsTo(compNamesBuffer, componentList, all, first, last, value, level, groupName,
+							  suppressMessages, setActive);
 		omrmem_free_memory(compNamesBuffer);
 		return rc;
 	}
@@ -877,17 +909,20 @@ setTracePointsTo(const char *componentName, UtComponentList *componentList, int3
 		namelength = strlen(componentName);
 		strcpy(compNamesBuffer, componentName);
 		compNamesBuffer[namelength - 1] = '\0'; /* blat the close brace out of the allocated copy */
-		rc = setTracePointsToParsed(compNamesBuffer, componentList, all, first, last, value, level, groupName, suppressMessages, setActive);
+		rc = setTracePointsToParsed(compNamesBuffer, componentList, all, first, last, value, level, groupName,
+									suppressMessages, setActive);
 		omrmem_free_memory(compNamesBuffer);
 	} else {
-		rc = setTracePointsToParsed(componentName, componentList, all, first, last, value, level, groupName, suppressMessages, setActive);
+		rc = setTracePointsToParsed(componentName, componentList, all, first, last, value, level, groupName,
+									suppressMessages, setActive);
 	}
 	return rc;
 }
 
 omr_error_t
-setTracePointsToParsed(const char *componentName, UtComponentList *componentList, int32_t all, int32_t first, int32_t last,
-					   unsigned char value, int level, const char *groupName, BOOLEAN suppressMessages, int32_t setActive)
+setTracePointsToParsed(const char *componentName, UtComponentList *componentList, int32_t all, int32_t first,
+					   int32_t last, unsigned char value, int level, const char *groupName, BOOLEAN suppressMessages,
+					   int32_t setActive)
 {
 	const char *tempstr = NULL;
 	char *newstr = NULL;
@@ -934,8 +969,8 @@ setTracePointsToParsed(const char *componentName, UtComponentList *componentList
 
 		tempstr++; /* points at first option char now */
 
-		if (0 == j9_cmdla_strnicmp(tempstr, UT_LEVEL_KEYWORD, strlen(UT_LEVEL_KEYWORD))  ||
-			*tempstr == 'l' || *tempstr == 'L') {
+		if (0 == j9_cmdla_strnicmp(tempstr, UT_LEVEL_KEYWORD, strlen(UT_LEVEL_KEYWORD)) || *tempstr == 'l'
+			|| *tempstr == 'L') {
 			while (!isdigit(*tempstr)) {
 				if (*tempstr == ',' || *tempstr == '}' || *tempstr == '\0') {
 					reportCommandLineError(suppressMessages, "Trace level required without an integer level specifier");
@@ -981,8 +1016,8 @@ setTracePointsToParsed(const char *componentName, UtComponentList *componentList
 		}
 	}
 
-	rc = setTracePointsForComponent(componentName, componentList, all, first, last,
-									value, level, groupName, suppressMessages, setActive);
+	rc = setTracePointsForComponent(componentName, componentList, all, first, last, value, level, groupName,
+									suppressMessages, setActive);
 
 	/* tidy up */
 	if (newstr != NULL) {
@@ -993,7 +1028,6 @@ setTracePointsToParsed(const char *componentName, UtComponentList *componentList
 	}
 	return rc;
 }
-
 
 /*******************************************************************************
  * name        - openFileFromDirectorySearchList
@@ -1038,7 +1072,8 @@ openFileFromDirectorySearchList(char *searchPath, char *fileName, int32_t flags,
 		}
 
 		offset += currentPathEntryEndsAt + 1;
-		nextPathEntry += currentPathEntryEndsAt + 1;;
+		nextPathEntry += currentPathEntryEndsAt + 1;
+		;
 	}
 
 	return fileHandle;
@@ -1085,20 +1120,24 @@ loadFormatStringsForComponent(UtComponentData *componentData)
 	UT_DBGOUT(2, ("<UT> loadFormatStringsForComponent %s\n", componentData->componentName));
 
 	if (componentData->alreadyfailedtoloaddetails != 0) {
-		UT_DBGOUT(2, ("<UT> loadFormatStringsForComponent %s returning due to previous load failure\n", componentData->componentName));
+		UT_DBGOUT(2, ("<UT> loadFormatStringsForComponent %s returning due to previous load failure\n",
+					  componentData->componentName));
 		return OMR_ERROR_INTERNAL;
 	}
 
-	UT_DBGOUT(2, ("<UT> loadFormatStringsForComponent %s parsing filename = %s\n", componentData->componentName, componentData->formatStringsFileName));
+	UT_DBGOUT(2, ("<UT> loadFormatStringsForComponent %s parsing filename = %s\n", componentData->componentName,
+				  componentData->formatStringsFileName));
 	/* buffer format files into memory at some point */
 	if (fileContents == NULL) {
 		/* look in jre/lib directory first */
-		UT_DBGOUT(1, ("<UT> loadFormatStringsForComponent trying to load = %s\n", componentData->formatStringsFileName));
-		formatFileFD = openFileFromDirectorySearchList(OMR_TRACEGLOBAL(traceFormatSpec),
-					   componentData->formatStringsFileName,
-					   EsOpenText | EsOpenRead, 0);
+		UT_DBGOUT(1,
+				  ("<UT> loadFormatStringsForComponent trying to load = %s\n", componentData->formatStringsFileName));
+		formatFileFD = openFileFromDirectorySearchList(
+			OMR_TRACEGLOBAL(traceFormatSpec), componentData->formatStringsFileName, EsOpenText | EsOpenRead, 0);
 		if (formatFileFD == -1) {
-			UT_DBGOUT(1, ("<UT> loadFormatStringsForComponent can't load = %s, from current directory either - marking it unfindeable\n", componentData->formatStringsFileName));
+			UT_DBGOUT(1, ("<UT> loadFormatStringsForComponent can't load = %s, from current directory either - marking "
+						  "it unfindeable\n",
+						  componentData->formatStringsFileName));
 			rc = OMR_ERROR_INTERNAL;
 			goto epilogue;
 		}
@@ -1114,7 +1153,7 @@ loadFormatStringsForComponent(UtComponentData *componentData)
 			rc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
 			goto epilogue;
 		}
-		if (omrfile_read(formatFileFD, fileContents, (int32_t)fileSize) != (int32_t) fileSize) {
+		if (omrfile_read(formatFileFD, fileContents, (int32_t)fileSize) != (int32_t)fileSize) {
 			UT_DBGOUT(1, ("<UT> can't read the file into the buffer\n"));
 			rc = OMR_ERROR_INTERNAL;
 			goto epilogue;
@@ -1135,7 +1174,8 @@ loadFormatStringsForComponent(UtComponentData *componentData)
 	}
 
 	formatStringsComponentArraySize = numFormats * sizeof(char *);
-	formatStringsComponentArray = (char **)omrmem_allocate_memory(formatStringsComponentArraySize, OMRMEM_CATEGORY_TRACE);
+	formatStringsComponentArray =
+		(char **)omrmem_allocate_memory(formatStringsComponentArraySize, OMRMEM_CATEGORY_TRACE);
 	if (formatStringsComponentArray == NULL) {
 		UT_DBGOUT(1, ("<UT> can't allocate formatStrings array\n"));
 		rc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
@@ -1177,7 +1217,8 @@ loadFormatStringsForComponent(UtComponentData *componentData)
 				int field;
 
 				for (field = 0; field < 4; field++) {
-					while (*++tempPtr != ' ');
+					while (*++tempPtr != ' ')
+						;
 				}
 				tempPtr++;
 
@@ -1199,7 +1240,8 @@ loadFormatStringsForComponent(UtComponentData *componentData)
 				}
 
 				tempLen = (unsigned int)(tempPtr2 - tempPtr);
-				formatStringsComponentArray[currenttp] = (char *)omrmem_allocate_memory(tempLen + 1, OMRMEM_CATEGORY_TRACE);
+				formatStringsComponentArray[currenttp] =
+					(char *)omrmem_allocate_memory(tempLen + 1, OMRMEM_CATEGORY_TRACE);
 				if (formatStringsComponentArray[currenttp] == NULL) {
 					UT_DBGOUT(1, ("<UT> can't allocate a format string\n"));
 					rc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
@@ -1260,7 +1302,8 @@ getFormatString(const char *componentName, int32_t tracepoint)
 		/* search the unloaded components */
 		compData = getComponentData(componentName, OMR_TRACEGLOBAL(unloadedComponentList));
 		if (compData == NULL) {
-			UT_DBGOUT(1, ("<UT> Unable to get formatString for %s.%d component not registered\n", componentName, tracepoint));
+			UT_DBGOUT(
+				1, ("<UT> Unable to get formatString for %s.%d component not registered\n", componentName, tracepoint));
 			return NULL;
 		}
 	}
@@ -1279,7 +1322,9 @@ getFormatString(const char *componentName, int32_t tracepoint)
 	}
 
 	if (tracepoint >= compData->tracepointCount) {
-		UT_DBGOUT(1, ("<UT> Unable to get formatString for %s.%d - no such tracepoint - maximum allowable tracepoint for that component is %d\n", componentName, tracepoint, compData->moduleInfo->count));
+		UT_DBGOUT(1, ("<UT> Unable to get formatString for %s.%d - no such tracepoint - maximum allowable tracepoint "
+					  "for that component is %d\n",
+					  componentName, tracepoint, compData->moduleInfo->count));
 		return NULL;
 	}
 
@@ -1287,7 +1332,8 @@ getFormatString(const char *componentName, int32_t tracepoint)
 }
 
 omr_error_t
-setTracePointGroupTo(const char *groupName, UtComponentData *componentData, unsigned char value, BOOLEAN suppressMessages, int32_t setActive)
+setTracePointGroupTo(const char *groupName, UtComponentData *componentData, unsigned char value,
+					 BOOLEAN suppressMessages, int32_t setActive)
 {
 	UtGroupDetails *groupDetails;
 	char *tempgrpname;
@@ -1306,7 +1352,8 @@ setTracePointGroupTo(const char *groupName, UtComponentData *componentData, unsi
 	}
 
 	if (componentData->moduleInfo == NULL) {
-		UT_DBGOUT(1, ("<UT> setTracePointGroupTo called on unregistered component: %s\n", componentData->componentName));
+		UT_DBGOUT(1,
+				  ("<UT> setTracePointGroupTo called on unregistered component: %s\n", componentData->componentName));
 		return OMR_ERROR_ILLEGAL_ARGUMENT;
 	}
 
@@ -1346,7 +1393,7 @@ setTracePointGroupTo(const char *groupName, UtComponentData *componentData, unsi
 		if (!j9_cmdla_strnicmp(groupName, groupDetails->groupName, strlen(groupDetails->groupName))) {
 			/* found the group, now enable its tracepoints */
 			groupFound = TRUE;
-			for (i = 0 ; i < groupDetails->count ; i++) {
+			for (i = 0; i < groupDetails->count; i++) {
 				tpid = groupDetails->tpids[i];
 				updateActiveArray(componentData, tpid, tpid, value, setActive);
 			}
@@ -1357,7 +1404,8 @@ setTracePointGroupTo(const char *groupName, UtComponentData *componentData, unsi
 	if (groupFound) {
 		return OMR_ERROR_NONE;
 	} else {
-		reportCommandLineError(suppressMessages, "There is no group %s in component %s", groupName, componentData->moduleInfo->name);
+		reportCommandLineError(suppressMessages, "There is no group %s in component %s", groupName,
+							   componentData->moduleInfo->name);
 		return OMR_ERROR_ILLEGAL_ARGUMENT;
 	}
 }
@@ -1375,7 +1423,8 @@ setTracePointsByLevelTo(UtComponentData *componentData, int level, unsigned char
 	}
 
 	if (componentData->moduleInfo == NULL) {
-		UT_DBGOUT(1, ("<UT> setTracepointsByLevelTo called on unregistered component: %s\n", componentData->componentName));
+		UT_DBGOUT(
+			1, ("<UT> setTracepointsByLevelTo called on unregistered component: %s\n", componentData->componentName));
 		return OMR_ERROR_ILLEGAL_ARGUMENT;
 	}
 
@@ -1411,12 +1460,14 @@ incrementTraceCounter(UtModuleInfo *moduleInfo, UtComponentList *componentList, 
 		return 0;
 	}
 	if (compData->moduleInfo == NULL) {
-		UT_DBGOUT(1, ("<UT> Unable to increment trace counter %s.%d - no such loaded component\n", moduleInfo->name, tracepoint));
+		UT_DBGOUT(1, ("<UT> Unable to increment trace counter %s.%d - no such loaded component\n", moduleInfo->name,
+					  tracepoint));
 		return 0;
 	}
 	if (compData->tracepointcounters == NULL) {
 		/* first time anything in this component has been counted */
-		compData->tracepointcounters = (uint64_t *) omrmem_allocate_memory(sizeof(uint64_t) * compData->moduleInfo->count, OMRMEM_CATEGORY_TRACE);
+		compData->tracepointcounters =
+			(uint64_t *)omrmem_allocate_memory(sizeof(uint64_t) * compData->moduleInfo->count, OMRMEM_CATEGORY_TRACE);
 		if (compData->tracepointcounters == NULL) {
 			UT_DBGOUT(1, ("<UT> Unable to allocate trace counter buffers for %s\n", moduleInfo->name));
 			return 0;
@@ -1426,4 +1477,3 @@ incrementTraceCounter(UtModuleInfo *moduleInfo, UtComponentList *componentList, 
 
 	return ++compData->tracepointcounters[tracepoint];
 }
-

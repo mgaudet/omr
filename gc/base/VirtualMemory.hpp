@@ -40,28 +40,33 @@ struct J9PortVmemParams;
  * @todo Provide class documentation
  * @ingroup GC_Base_Core
  */
-class MM_VirtualMemory : public MM_BaseVirtual {
-/*
+class MM_VirtualMemory : public MM_BaseVirtual
+{
+	/*
  * Data members
  */
 private:
-	uintptr_t _pageSize; /**< Page size for this virtual memory object (before reservation requested, after reservation real) */
+	uintptr_t
+		_pageSize; /**< Page size for this virtual memory object (before reservation requested, after reservation real) */
 	uintptr_t _pageFlags; /**< Flags describing the pages used for the virtual memory object */
-	uintptr_t _tailPadding; /**< The number of bytes of padding at the end of the virtual memory. This padding will be committed into, but not reported as available */
-	void* _heapBase; /**< The lowest usable address in the reserved block, once alignment and padding are taken into account */
-	void* _heapTop; /**< One byte past the highest usable address in the reserved block, once alignment and padding are taken into account */
-	uintptr_t _reserveSize; /**< The total number of bytes reserved, starting from _baseAddress */
-	uintptr_t _mode; /**< requested memory mode (memory flags combination) */
+	uintptr_t
+		_tailPadding; /**< The number of bytes of padding at the end of the virtual memory. This padding will be committed into, but not reported as available */
+	void *
+		_heapBase; /**< The lowest usable address in the reserved block, once alignment and padding are taken into account */
+	void *
+		_heapTop;			  /**< One byte past the highest usable address in the reserved block, once alignment and padding are taken into account */
+	uintptr_t _reserveSize;   /**< The total number of bytes reserved, starting from _baseAddress */
+	uintptr_t _mode;		  /**< requested memory mode (memory flags combination) */
 	uintptr_t _consumerCount; /**< number of memory consumers attached to this virtual memory instance */
 	J9PortVmemIdentifier _identifier;
 
 protected:
-	MM_GCExtensionsBase* _extensions;
-	void* _baseAddress; /**< The address returned from port - needed for freeing memory at shutdown */
+	MM_GCExtensionsBase *_extensions;
+	void *_baseAddress; /**< The address returned from port - needed for freeing memory at shutdown */
 	uintptr_t _heapAlignment;
 
 public:
-/*
+	/*
  * Function members
  */
 private:
@@ -71,35 +76,30 @@ protected:
 	/*
 	 * use "OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE" for mode
 	 */
-	static MM_VirtualMemory* newInstance(MM_EnvironmentBase* env, uintptr_t heapAlignment, uintptr_t size, uintptr_t pageSize, uintptr_t pageFlags, uintptr_t tailPadding, void* preferredAddress, void* ceiling, uintptr_t mode, uintptr_t options, uint32_t memoryCategory);
+	static MM_VirtualMemory *newInstance(MM_EnvironmentBase *env, uintptr_t heapAlignment, uintptr_t size,
+										 uintptr_t pageSize, uintptr_t pageFlags, uintptr_t tailPadding,
+										 void *preferredAddress, void *ceiling, uintptr_t mode, uintptr_t options,
+										 uint32_t memoryCategory);
 
-	bool initialize(MM_EnvironmentBase* env, uintptr_t size, void* preferredAddress, void* ceiling, uintptr_t options, uint32_t memoryCategory);
-	virtual void tearDown(MM_EnvironmentBase* env);
+	bool initialize(MM_EnvironmentBase *env, uintptr_t size, void *preferredAddress, void *ceiling, uintptr_t options,
+					uint32_t memoryCategory);
+	virtual void tearDown(MM_EnvironmentBase *env);
 
-	virtual void* reserveMemory(J9PortVmemParams* params);
+	virtual void *reserveMemory(J9PortVmemParams *params);
 
-	MM_VirtualMemory(MM_EnvironmentBase* env, uintptr_t heapAlignment, uintptr_t pageSize, uintptr_t pageFlags, uintptr_t tailPadding, uintptr_t mode)
-		: MM_BaseVirtual()
-		, _pageSize(pageSize)
-		, _pageFlags(pageFlags)
-		, _tailPadding(tailPadding)
-		, _heapBase(0)
-		, _heapTop(0)
-		, _reserveSize(0)
-		, _mode(mode)
-		, _consumerCount(0)
-		, _identifier()
-		, _extensions(env->getExtensions())
-		, _baseAddress(NULL)
-		, _heapAlignment(heapAlignment)
+	MM_VirtualMemory(MM_EnvironmentBase *env, uintptr_t heapAlignment, uintptr_t pageSize, uintptr_t pageFlags,
+					 uintptr_t tailPadding, uintptr_t mode)
+		: MM_BaseVirtual(), _pageSize(pageSize), _pageFlags(pageFlags), _tailPadding(tailPadding), _heapBase(0),
+		  _heapTop(0), _reserveSize(0), _mode(mode), _consumerCount(0), _identifier(),
+		  _extensions(env->getExtensions()), _baseAddress(NULL), _heapAlignment(heapAlignment)
 	{
 		_typeId = __FUNCTION__;
 	}
 
-	virtual void kill(MM_EnvironmentBase* env);
+	virtual void kill(MM_EnvironmentBase *env);
 
-	virtual bool commitMemory(void* address, uintptr_t size);
-	virtual bool decommitMemory(void* address, uintptr_t size, void* lowValidAddress, void* highValidAddress);
+	virtual bool commitMemory(void *address, uintptr_t size);
+	virtual bool decommitMemory(void *address, uintptr_t size, void *lowValidAddress, void *highValidAddress);
 	void roundDownTop(uintptr_t rounding);
 
 	/*
@@ -111,12 +111,13 @@ protected:
 	 * 
 	 * @return true on success, false on failure
 	 */
-	virtual bool setNumaAffinity(uintptr_t numaNode, void* address, uintptr_t byteAmount);
+	virtual bool setNumaAffinity(uintptr_t numaNode, void *address, uintptr_t byteAmount);
 
 	/**
 	 * Return the heap base of the virtual memory object.
 	 */
-	MMINLINE void* getHeapBase()
+	MMINLINE void *
+	getHeapBase()
 	{
 		return _heapBase;
 	};
@@ -124,7 +125,8 @@ protected:
 	/**
 	 * Return the top of the heap of the virtual memory object.
 	 */
-	MMINLINE void* getHeapTop()
+	MMINLINE void *
+	getHeapTop()
 	{
 		return _heapTop;
 	};
@@ -132,7 +134,8 @@ protected:
 	/** 
 	 * Return the size of the pages used in the virtual memory object
 	 */
-	MMINLINE uintptr_t getPageSize()
+	MMINLINE uintptr_t
+	getPageSize()
 	{
 		return _pageSize;
 	}
@@ -140,7 +143,8 @@ protected:
 	/** 
 	 * Return the flags describing the pages used in the virtual memory object
 	 */
-	MMINLINE uintptr_t getPageFlags()
+	MMINLINE uintptr_t
+	getPageFlags()
 	{
 		return _pageFlags;
 	}
@@ -149,7 +153,8 @@ protected:
 	 * Return number of memory consumers attached to this virtual memory object
 	 * @return consumers number
 	 */
-	MMINLINE uintptr_t getConsumerCount()
+	MMINLINE uintptr_t
+	getConsumerCount()
 	{
 		return _consumerCount;
 	}
@@ -157,7 +162,8 @@ protected:
 	/**
 	 * Increment number of memory consumers attached to this virtual memory object by one
 	 */
-	MMINLINE void incrementConsumerCount()
+	MMINLINE void
+	incrementConsumerCount()
 	{
 		_consumerCount += 1;
 	}
@@ -165,13 +171,14 @@ protected:
 	/**
 	 * Decrement number of memory consumers attached to this virtual memory object by one
 	 */
-	MMINLINE void decrementConsumerCount()
+	MMINLINE void
+	decrementConsumerCount()
 	{
 		_consumerCount -= 1;
 	}
 
 public:
-/*
+	/*
  * friends
  */
 	friend class MM_MemoryManager;

@@ -71,8 +71,8 @@ MM_ParallelScavengeTask::synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase
 	uint64_t endTime = omrtime_hires_clock();
 
 	env->_scavengerStats.addToSyncStallTime(startTime, endTime);
-	
-	return result;	
+
+	return result;
 }
 
 bool

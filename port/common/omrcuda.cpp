@@ -28,7 +28,7 @@
  * If we're using a version of xlC that doesn't define __GNUC__,
  * define it now so CUDA header files will be acceptable.
  */
-#if (defined(__xlC__) || defined(__ibmxl__)) && ! defined(__GNUC__)
+#if (defined(__xlC__) || defined(__ibmxl__)) && !defined(__GNUC__)
 #define __GNUC__ 4
 #define __GNUC_MINOR__ 8
 #define __GNUC_PATCHLEVEL__ 0
@@ -37,15 +37,13 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#define J9CUDA_ALLOCATE_MEMORY(byteCount) \
-		OMRPORTLIB->mem_allocate_memory(OMRPORTLIB, byteCount, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_CUDA)
+#define J9CUDA_ALLOCATE_MEMORY(byteCount)                                                                              \
+	OMRPORTLIB->mem_allocate_memory(OMRPORTLIB, byteCount, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_CUDA)
 
-#define J9CUDA_FREE_MEMORY(buffer) \
-		OMRPORTLIB->mem_free_memory(OMRPORTLIB, buffer)
+#define J9CUDA_FREE_MEMORY(buffer) OMRPORTLIB->mem_free_memory(OMRPORTLIB, buffer)
 
 /* Statically assert that 'condition' is true (non-zero). */
-#define J9CUDA_STATIC_ASSERT(name, condition) \
-		typedef char omrcuda_static_assertion_ ## name[(condition) ? 1 : -1];
+#define J9CUDA_STATIC_ASSERT(name, condition) typedef char omrcuda_static_assertion_##name[(condition) ? 1 : -1];
 
 #define LENGTH_OF(array) (sizeof(array) / sizeof((array)[0]))
 
@@ -88,7 +86,8 @@ struct J9CudaEntryDescriptor {
  * @return 0 on success, any other value on failure
  */
 int32_t
-initializeTable(OMRPortLibrary *portLibrary, uintptr_t dllHandle, uint32_t libraryVersion, const J9CudaEntryDescriptor *entries, uintptr_t entryCount, uintptr_t *table)
+initializeTable(OMRPortLibrary *portLibrary, uintptr_t dllHandle, uint32_t libraryVersion,
+				const J9CudaEntryDescriptor *entries, uintptr_t entryCount, uintptr_t *table)
 {
 	Trc_PRT_cuda_initializeTable_entry();
 
@@ -109,12 +108,8 @@ initializeTable(OMRPortLibrary *portLibrary, uintptr_t dllHandle, uint32_t libra
 			continue;
 		}
 
-		if (0 != portLibrary->sl_lookup_name(
-				portLibrary,
-				dllHandle,
-				(char *)entry->name,
-				&function,
-				entry->signature)) {
+		if (0
+			!= portLibrary->sl_lookup_name(portLibrary, dllHandle, (char *)entry->name, &function, entry->signature)) {
 			Trc_PRT_cuda_symbol_not_found(entry->name, entry->signature);
 			result = 1;
 			break;
@@ -160,7 +155,8 @@ getDeviceData(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaDeviceDescri
 
 		memcpy(deviceData, &details[deviceId], sizeof(*deviceData));
 
-		if (J9CUDA_NO_ERROR != omrcuda_deviceGetMemInfo(portLibrary, deviceId, &deviceData->availableMemory, &deviceData->totalMemory)) {
+		if (J9CUDA_NO_ERROR != omrcuda_deviceGetMemInfo(portLibrary, deviceId, &deviceData->availableMemory,
+														&deviceData->totalMemory)) {
 			/* on failure, we mark 'availableMemory' unknown */
 			deviceData->availableMemory = ~(uintptr_t)0;
 		}
@@ -219,83 +215,90 @@ getSummaryData(OMRPortLibrary *portLibrary, J9CudaSummaryDescriptor *summaryData
  */
 struct J9CudaFunctionTable {
 	/* The signatures of the following must match the driver API declared in cuda.h. */
-	CUresult (CUDAAPI *DeviceGet)(CUdevice *device, int ordinal);
-	CUresult (CUDAAPI *DeviceGetName)(char *nameOut, int nameSize, CUdevice device);
-	CUresult (CUDAAPI *FuncGetAttribute)(int *value, CUfunction_attribute attribute, CUfunction function);
-	CUresult (CUDAAPI *FuncSetCacheConfig)(CUfunction function, CUfunc_cache config);
-	CUresult (CUDAAPI *FuncSetSharedMemConfig)(CUfunction function, CUsharedconfig config);
-	CUresult (CUDAAPI *GetDriverErrorString)(CUresult error, const char **nameOut);
-	CUresult (CUDAAPI *LaunchKernel)(CUfunction function,
-									 unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ,
-									 unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ,
-									 unsigned int sharedMemBytes, CUstream stream, void **kernelParms, void **extra);
-	CUresult (CUDAAPI *LinkAddData)(CUlinkState state, CUjitInputType type, void *data,
-								    size_t size, const char *name, unsigned int numOptions, CUjit_option *options, void **optionValues);
-	CUresult (CUDAAPI *LinkComplete)(CUlinkState state, void **cubinOut, size_t *sizeOut);
-	CUresult (CUDAAPI *LinkCreate)(unsigned int numOptions, CUjit_option *options, void **optionValues, CUlinkState *stateOut);
-	CUresult (CUDAAPI *LinkDestroy)(CUlinkState state);
-	CUresult (CUDAAPI *MemsetD8Async)(CUdeviceptr dstDevice, unsigned char value, size_t count, CUstream stream);
-	CUresult (CUDAAPI *MemsetD16Async)(CUdeviceptr dstDevice, unsigned short value, size_t count, CUstream stream);
-	CUresult (CUDAAPI *MemsetD32Async)(CUdeviceptr dstDevice, unsigned int value, size_t count, CUstream stream);
-	CUresult (CUDAAPI *ModuleGetFunction)(CUfunction *functionOut, CUmodule module, const char *name);
-	CUresult (CUDAAPI *ModuleGetGlobal)(CUdeviceptr *addressOut, size_t *sizeOut, CUmodule module, const char *name);
-	CUresult (CUDAAPI *ModuleGetSurfRef)(CUsurfref *surfRefOut, CUmodule module, const char *name);
-	CUresult (CUDAAPI *ModuleGetTexRef)(CUtexref *texRefOut, CUmodule module, const char *name);
-	CUresult (CUDAAPI *ModuleLoadDataEx)(CUmodule *module, const void *image, unsigned int numOptions, CUjit_option *options, void **optionValues);
-	CUresult (CUDAAPI *ModuleUnload)(CUmodule module);
-	CUresult (CUDAAPI *OccupancyMaxActiveBlocksPerMultiprocessorWithFlags)(int *numBlocks, CUfunction function, int blockSize, size_t dynamicSMemSize, unsigned int flags);
+	CUresult(CUDAAPI *DeviceGet)(CUdevice *device, int ordinal);
+	CUresult(CUDAAPI *DeviceGetName)(char *nameOut, int nameSize, CUdevice device);
+	CUresult(CUDAAPI *FuncGetAttribute)(int *value, CUfunction_attribute attribute, CUfunction function);
+	CUresult(CUDAAPI *FuncSetCacheConfig)(CUfunction function, CUfunc_cache config);
+	CUresult(CUDAAPI *FuncSetSharedMemConfig)(CUfunction function, CUsharedconfig config);
+	CUresult(CUDAAPI *GetDriverErrorString)(CUresult error, const char **nameOut);
+	CUresult(CUDAAPI *LaunchKernel)(CUfunction function, unsigned int gridDimX, unsigned int gridDimY,
+									unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY,
+									unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream stream,
+									void **kernelParms, void **extra);
+	CUresult(CUDAAPI *LinkAddData)(CUlinkState state, CUjitInputType type, void *data, size_t size, const char *name,
+								   unsigned int numOptions, CUjit_option *options, void **optionValues);
+	CUresult(CUDAAPI *LinkComplete)(CUlinkState state, void **cubinOut, size_t *sizeOut);
+	CUresult(CUDAAPI *LinkCreate)(unsigned int numOptions, CUjit_option *options, void **optionValues,
+								  CUlinkState *stateOut);
+	CUresult(CUDAAPI *LinkDestroy)(CUlinkState state);
+	CUresult(CUDAAPI *MemsetD8Async)(CUdeviceptr dstDevice, unsigned char value, size_t count, CUstream stream);
+	CUresult(CUDAAPI *MemsetD16Async)(CUdeviceptr dstDevice, unsigned short value, size_t count, CUstream stream);
+	CUresult(CUDAAPI *MemsetD32Async)(CUdeviceptr dstDevice, unsigned int value, size_t count, CUstream stream);
+	CUresult(CUDAAPI *ModuleGetFunction)(CUfunction *functionOut, CUmodule module, const char *name);
+	CUresult(CUDAAPI *ModuleGetGlobal)(CUdeviceptr *addressOut, size_t *sizeOut, CUmodule module, const char *name);
+	CUresult(CUDAAPI *ModuleGetSurfRef)(CUsurfref *surfRefOut, CUmodule module, const char *name);
+	CUresult(CUDAAPI *ModuleGetTexRef)(CUtexref *texRefOut, CUmodule module, const char *name);
+	CUresult(CUDAAPI *ModuleLoadDataEx)(CUmodule *module, const void *image, unsigned int numOptions,
+										CUjit_option *options, void **optionValues);
+	CUresult(CUDAAPI *ModuleUnload)(CUmodule module);
+	CUresult(CUDAAPI *OccupancyMaxActiveBlocksPerMultiprocessorWithFlags)(int *numBlocks, CUfunction function,
+																		  int blockSize, size_t dynamicSMemSize,
+																		  unsigned int flags);
 
 	/* The signatures of the following must match the runtime API declared in cuda_runtime_api.h. */
-	cudaError_t (CUDARTAPI *DeviceCanAccessPeer)(int *canAccessPeerOut, int device, int peerDevice);
-	cudaError_t (CUDARTAPI *DeviceDisablePeerAccess)(int peerDevice);
-	cudaError_t (CUDARTAPI *DeviceEnablePeerAccess)(int peerDevice, unsigned int flags);
-	cudaError_t (CUDARTAPI *DeviceGetAttribute)(int *value, cudaDeviceAttr attr, int device);
-	cudaError_t (CUDARTAPI *DeviceGetCacheConfig)(cudaFuncCache *config);
-	cudaError_t (CUDARTAPI *DeviceGetLimit)(size_t *pValue, cudaLimit limit);
-	cudaError_t (CUDARTAPI *DeviceGetSharedMemConfig)(cudaSharedMemConfig *config);
-	cudaError_t (CUDARTAPI *DeviceReset)(void);
-	cudaError_t (CUDARTAPI *DeviceGetStreamPriorityRange)(int *leastPriority, int *greatestPriority);
-	cudaError_t (CUDARTAPI *DeviceSetCacheConfig)(cudaFuncCache config);
-	cudaError_t (CUDARTAPI *DeviceSetLimit)(cudaLimit limit, size_t value);
-	cudaError_t (CUDARTAPI *DeviceSetSharedMemConfig)(cudaSharedMemConfig config);
-	cudaError_t (CUDARTAPI *DeviceSynchronize)(void);
-	cudaError_t (CUDARTAPI *EventCreateWithFlags)(cudaEvent_t *event, unsigned int flags);
-	cudaError_t (CUDARTAPI *EventDestroy)(cudaEvent_t event);
-	cudaError_t (CUDARTAPI *EventElapsedTime)(float *elapsedMillis, cudaEvent_t start, cudaEvent_t end);
-	cudaError_t (CUDARTAPI *EventQuery)(cudaEvent_t event);
-	cudaError_t (CUDARTAPI *EventRecord)(cudaEvent_t event, cudaStream_t stream);
-	cudaError_t (CUDARTAPI *EventSynchronize)(cudaEvent_t event);
-	cudaError_t (CUDARTAPI *Free)(void *deviceAddress);
-	cudaError_t (CUDARTAPI *FreeHost)(void *ptr);
-	cudaError_t (CUDARTAPI *GetDevice)(int *deviceId);
+	cudaError_t(CUDARTAPI *DeviceCanAccessPeer)(int *canAccessPeerOut, int device, int peerDevice);
+	cudaError_t(CUDARTAPI *DeviceDisablePeerAccess)(int peerDevice);
+	cudaError_t(CUDARTAPI *DeviceEnablePeerAccess)(int peerDevice, unsigned int flags);
+	cudaError_t(CUDARTAPI *DeviceGetAttribute)(int *value, cudaDeviceAttr attr, int device);
+	cudaError_t(CUDARTAPI *DeviceGetCacheConfig)(cudaFuncCache *config);
+	cudaError_t(CUDARTAPI *DeviceGetLimit)(size_t *pValue, cudaLimit limit);
+	cudaError_t(CUDARTAPI *DeviceGetSharedMemConfig)(cudaSharedMemConfig *config);
+	cudaError_t(CUDARTAPI *DeviceReset)(void);
+	cudaError_t(CUDARTAPI *DeviceGetStreamPriorityRange)(int *leastPriority, int *greatestPriority);
+	cudaError_t(CUDARTAPI *DeviceSetCacheConfig)(cudaFuncCache config);
+	cudaError_t(CUDARTAPI *DeviceSetLimit)(cudaLimit limit, size_t value);
+	cudaError_t(CUDARTAPI *DeviceSetSharedMemConfig)(cudaSharedMemConfig config);
+	cudaError_t(CUDARTAPI *DeviceSynchronize)(void);
+	cudaError_t(CUDARTAPI *EventCreateWithFlags)(cudaEvent_t *event, unsigned int flags);
+	cudaError_t(CUDARTAPI *EventDestroy)(cudaEvent_t event);
+	cudaError_t(CUDARTAPI *EventElapsedTime)(float *elapsedMillis, cudaEvent_t start, cudaEvent_t end);
+	cudaError_t(CUDARTAPI *EventQuery)(cudaEvent_t event);
+	cudaError_t(CUDARTAPI *EventRecord)(cudaEvent_t event, cudaStream_t stream);
+	cudaError_t(CUDARTAPI *EventSynchronize)(cudaEvent_t event);
+	cudaError_t(CUDARTAPI *Free)(void *deviceAddress);
+	cudaError_t(CUDARTAPI *FreeHost)(void *ptr);
+	cudaError_t(CUDARTAPI *GetDevice)(int *deviceId);
 	const char *(CUDARTAPI *GetErrorString)(cudaError_t error);
-	cudaError_t (CUDARTAPI *HostAlloc)(void **pHost, size_t size, unsigned int flags);
-	cudaError_t (CUDARTAPI *Malloc)(void **deviceAddressOut, size_t size);
-	cudaError_t (CUDARTAPI *Memcpy)(void *dst, const void *src, size_t count, cudaMemcpyKind kind);
-	cudaError_t (CUDARTAPI *MemcpyAsync)(void *dst, const void *src, size_t count, cudaMemcpyKind kind, cudaStream_t stream);
-	cudaError_t (CUDARTAPI *Memcpy2D)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind);
-	cudaError_t (CUDARTAPI *Memcpy2DAsync)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind, cudaStream_t stream);
-	cudaError_t (CUDARTAPI *MemcpyPeer)(void *dst, int dstDevice, const void *src, int srcDevice, size_t count);
-	cudaError_t (CUDARTAPI *MemcpyPeerAsync)(void *dst, int dstDevice, const void *src, int srcDevice, size_t count, cudaStream_t stream);
-	cudaError_t (CUDARTAPI *MemGetInfo)(size_t *free, size_t *total);
-	cudaError_t (CUDARTAPI *SetDevice)(int deviceId);
-	cudaError_t (CUDARTAPI *StreamAddCallback)(cudaStream_t stream, cudaStreamCallback_t callback, void *userData, unsigned int flags);
-	cudaError_t (CUDARTAPI *StreamCreate)(cudaStream_t *stream);
-	cudaError_t (CUDARTAPI *StreamCreateWithPriority)(cudaStream_t *stream, unsigned int flags, int priority);
-	cudaError_t (CUDARTAPI *StreamDestroy)(cudaStream_t stream);
-	cudaError_t (CUDARTAPI *StreamGetFlags)(cudaStream_t stream, unsigned int *flags);
-	cudaError_t (CUDARTAPI *StreamGetPriority)(cudaStream_t stream, int *priority);
-	cudaError_t (CUDARTAPI *StreamQuery)(cudaStream_t stream);
-	cudaError_t (CUDARTAPI *StreamSynchronize)(cudaStream_t stream);
-	cudaError_t (CUDARTAPI *StreamWaitEvent)(cudaStream_t stream, cudaEvent_t event, unsigned int flags);
+	cudaError_t(CUDARTAPI *HostAlloc)(void **pHost, size_t size, unsigned int flags);
+	cudaError_t(CUDARTAPI *Malloc)(void **deviceAddressOut, size_t size);
+	cudaError_t(CUDARTAPI *Memcpy)(void *dst, const void *src, size_t count, cudaMemcpyKind kind);
+	cudaError_t(CUDARTAPI *MemcpyAsync)(void *dst, const void *src, size_t count, cudaMemcpyKind kind,
+										cudaStream_t stream);
+	cudaError_t(CUDARTAPI *Memcpy2D)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width,
+									 size_t height, cudaMemcpyKind kind);
+	cudaError_t(CUDARTAPI *Memcpy2DAsync)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width,
+										  size_t height, cudaMemcpyKind kind, cudaStream_t stream);
+	cudaError_t(CUDARTAPI *MemcpyPeer)(void *dst, int dstDevice, const void *src, int srcDevice, size_t count);
+	cudaError_t(CUDARTAPI *MemcpyPeerAsync)(void *dst, int dstDevice, const void *src, int srcDevice, size_t count,
+											cudaStream_t stream);
+	cudaError_t(CUDARTAPI *MemGetInfo)(size_t *free, size_t *total);
+	cudaError_t(CUDARTAPI *SetDevice)(int deviceId);
+	cudaError_t(CUDARTAPI *StreamAddCallback)(cudaStream_t stream, cudaStreamCallback_t callback, void *userData,
+											  unsigned int flags);
+	cudaError_t(CUDARTAPI *StreamCreate)(cudaStream_t *stream);
+	cudaError_t(CUDARTAPI *StreamCreateWithPriority)(cudaStream_t *stream, unsigned int flags, int priority);
+	cudaError_t(CUDARTAPI *StreamDestroy)(cudaStream_t stream);
+	cudaError_t(CUDARTAPI *StreamGetFlags)(cudaStream_t stream, unsigned int *flags);
+	cudaError_t(CUDARTAPI *StreamGetPriority)(cudaStream_t stream, int *priority);
+	cudaError_t(CUDARTAPI *StreamQuery)(cudaStream_t stream);
+	cudaError_t(CUDARTAPI *StreamSynchronize)(cudaStream_t stream);
+	cudaError_t(CUDARTAPI *StreamWaitEvent)(cudaStream_t stream, cudaEvent_t event, unsigned int flags);
 };
 
 /**
  * The function table in J9CudaGlobalData must be the same size as J9CudaFunctionTable.
  */
-J9CUDA_STATIC_ASSERT(
-	functionTable_size,
-	sizeof(J9CudaFunctionTable) == sizeof(((J9CudaGlobalData *)0)->functionTable));
+J9CUDA_STATIC_ASSERT(functionTable_size, sizeof(J9CudaFunctionTable) == sizeof(((J9CudaGlobalData *)0)->functionTable));
 
 /**
  * Translate a driver API error to a runtime API error code.
@@ -374,7 +377,7 @@ translate(CUresult result)
 		return cudaErrorUnsupportedLimit;
 
 	default:
-		return (cudaError_t)-(int32_t)result;
+		return (cudaError_t) - (int32_t)result;
 	}
 }
 
@@ -611,7 +614,7 @@ initConfigData(OMRPortLibrary *portLibrary)
 	}
 
 	if (cudaSuccess != result) {
-fail:
+	fail:
 		J9CUDA_FREE_MEMORY(config);
 		config = NULL;
 		goto done;
@@ -635,10 +638,14 @@ done:
  * @param name is a function pointer field of J9CudaFunctionTable
  * @param signature is a C (i.e. NUL-terminated) string (see omrsl.c)
  */
-#define J9CUDA_DRIVER_ENTRY_v1(version, name, signature) \
-	{ "cu" #name, signature, (uint32_t)offsetof(J9CudaFunctionTable, name), version }
-#define J9CUDA_DRIVER_ENTRY_v2(version, name, signature) \
-	{ "cu" #name "_v2", signature, (uint32_t)offsetof(J9CudaFunctionTable, name), version }
+#define J9CUDA_DRIVER_ENTRY_v1(version, name, signature)                                                               \
+	{                                                                                                                  \
+		"cu" #name, signature, (uint32_t)offsetof(J9CudaFunctionTable, name), version                                  \
+	}
+#define J9CUDA_DRIVER_ENTRY_v2(version, name, signature)                                                               \
+	{                                                                                                                  \
+		"cu" #name "_v2", signature, (uint32_t)offsetof(J9CudaFunctionTable, name), version                            \
+	}
 
 /**
  * Descriptors of required CUDA driver functions.
@@ -668,8 +675,7 @@ const J9CudaEntryDescriptor driverDescriptors[] = {
 	J9CUDA_DRIVER_ENTRY_v1(7000, OccupancyMaxActiveBlocksPerMultiprocessorWithFlags, "iPPILi"),
 
 	/* GetDriverErrorString is so named to avoid clashing with the runtime entry GetErrorString. */
-	{ "cuGetErrorString", "iiP", offsetof(J9CudaFunctionTable, GetDriverErrorString), 6000 }
-};
+	{"cuGetErrorString", "iiP", offsetof(J9CudaFunctionTable, GetDriverErrorString), 6000}};
 
 /**
  * Expands to a J9CudaEntryDescriptor initializer for a runtime API functioln.
@@ -679,56 +685,56 @@ const J9CudaEntryDescriptor driverDescriptors[] = {
  * suffix is appended to form the full name of the CUDA API function
  * signature is a C (i.e. NUL-terminated) string (see omrsl.c)
  */
-#define J9CUDA_RUNTIME_ENTRY(version, name, signature) \
-	{ "cuda" #name, signature, (uint32_t)offsetof(J9CudaFunctionTable, name), version }
+#define J9CUDA_RUNTIME_ENTRY(version, name, signature)                                                                 \
+	{                                                                                                                  \
+		"cuda" #name, signature, (uint32_t)offsetof(J9CudaFunctionTable, name), version                                \
+	}
 
 /**
  * Descriptors of required CUDA runtime functions.
  */
-const J9CudaEntryDescriptor runtimeDescriptors[] = {
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceCanAccessPeer, "iPII"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceDisablePeerAccess, "iI"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceEnablePeerAccess, "iIi"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceGetAttribute, "iPiI"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceGetCacheConfig, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceGetLimit, "iPi"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceGetSharedMemConfig, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceGetStreamPriorityRange, "iPP"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceSetCacheConfig, "ii"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceReset, "i"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceSetLimit, "iiL"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceSetSharedMemConfig, "ii"),
-	J9CUDA_RUNTIME_ENTRY(5050, DeviceSynchronize, "i"),
-	J9CUDA_RUNTIME_ENTRY(5050, EventCreateWithFlags, "iPI"),
-	J9CUDA_RUNTIME_ENTRY(5050, EventDestroy, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, EventElapsedTime, "iPPP"),
-	J9CUDA_RUNTIME_ENTRY(5050, EventQuery, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, EventRecord, "iPP"),
-	J9CUDA_RUNTIME_ENTRY(5050, EventSynchronize, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, Free, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, FreeHost, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, GetDevice, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, GetErrorString, "Pi"),
-	J9CUDA_RUNTIME_ENTRY(5050, HostAlloc, "iPLi"),
-	J9CUDA_RUNTIME_ENTRY(5050, Malloc, "iPL"),
-	J9CUDA_RUNTIME_ENTRY(5050, Memcpy, "iPPLi"),
-	J9CUDA_RUNTIME_ENTRY(5050, MemcpyAsync, "iPPLiP"),
-	J9CUDA_RUNTIME_ENTRY(5050, Memcpy2D, "iPLPLLLi"),
-	J9CUDA_RUNTIME_ENTRY(5050, Memcpy2DAsync, "iPLPLLLiP"),
-	J9CUDA_RUNTIME_ENTRY(5050, MemcpyPeer, "iPIPIL"),
-	J9CUDA_RUNTIME_ENTRY(5050, MemcpyPeerAsync, "iPIPILP"),
-	J9CUDA_RUNTIME_ENTRY(5050, MemGetInfo, "iPP"),
-	J9CUDA_RUNTIME_ENTRY(5050, SetDevice, "iI"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamAddCallback, "iPPPi"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamCreate, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamCreateWithPriority, "iPiI"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamDestroy, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamGetFlags, "iPP"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamGetPriority, "iPP"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamQuery, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamSynchronize, "iP"),
-	J9CUDA_RUNTIME_ENTRY(5050, StreamWaitEvent, "iPPi")
-};
+const J9CudaEntryDescriptor runtimeDescriptors[] = {J9CUDA_RUNTIME_ENTRY(5050, DeviceCanAccessPeer, "iPII"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceDisablePeerAccess, "iI"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceEnablePeerAccess, "iIi"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceGetAttribute, "iPiI"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceGetCacheConfig, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceGetLimit, "iPi"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceGetSharedMemConfig, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceGetStreamPriorityRange, "iPP"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceSetCacheConfig, "ii"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceReset, "i"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceSetLimit, "iiL"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceSetSharedMemConfig, "ii"),
+													J9CUDA_RUNTIME_ENTRY(5050, DeviceSynchronize, "i"),
+													J9CUDA_RUNTIME_ENTRY(5050, EventCreateWithFlags, "iPI"),
+													J9CUDA_RUNTIME_ENTRY(5050, EventDestroy, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, EventElapsedTime, "iPPP"),
+													J9CUDA_RUNTIME_ENTRY(5050, EventQuery, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, EventRecord, "iPP"),
+													J9CUDA_RUNTIME_ENTRY(5050, EventSynchronize, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, Free, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, FreeHost, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, GetDevice, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, GetErrorString, "Pi"),
+													J9CUDA_RUNTIME_ENTRY(5050, HostAlloc, "iPLi"),
+													J9CUDA_RUNTIME_ENTRY(5050, Malloc, "iPL"),
+													J9CUDA_RUNTIME_ENTRY(5050, Memcpy, "iPPLi"),
+													J9CUDA_RUNTIME_ENTRY(5050, MemcpyAsync, "iPPLiP"),
+													J9CUDA_RUNTIME_ENTRY(5050, Memcpy2D, "iPLPLLLi"),
+													J9CUDA_RUNTIME_ENTRY(5050, Memcpy2DAsync, "iPLPLLLiP"),
+													J9CUDA_RUNTIME_ENTRY(5050, MemcpyPeer, "iPIPIL"),
+													J9CUDA_RUNTIME_ENTRY(5050, MemcpyPeerAsync, "iPIPILP"),
+													J9CUDA_RUNTIME_ENTRY(5050, MemGetInfo, "iPP"),
+													J9CUDA_RUNTIME_ENTRY(5050, SetDevice, "iI"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamAddCallback, "iPPPi"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamCreate, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamCreateWithPriority, "iPiI"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamDestroy, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamGetFlags, "iPP"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamGetPriority, "iPP"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamQuery, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamSynchronize, "iP"),
+													J9CUDA_RUNTIME_ENTRY(5050, StreamWaitEvent, "iPPi")};
 
 /**
  * Possible states of the CUDA access layer.
@@ -766,25 +772,20 @@ openDriver(OMRPortLibrary *portLibrary)
 	int version = 0;
 
 	/* open the driver shared library */
-	if (0 != portLibrary->sl_open_shared_library(
-			portLibrary,
-			(char *)driverLibrary,
-			&globals->driverHandle,
-			OMRPORT_SLOPEN_LAZY)) {
+	if (0
+		!= portLibrary->sl_open_shared_library(portLibrary, (char *)driverLibrary, &globals->driverHandle,
+											   OMRPORT_SLOPEN_LAZY)) {
 		Trc_PRT_cuda_library_not_found(driverLibrary);
 		goto fail;
 	}
 
 	/* initialize the driver */
 	{
-		CUresult (CUDAAPI *driverInit)(unsigned int flags) = NULL;
+		CUresult(CUDAAPI * driverInit)(unsigned int flags) = NULL;
 
-		if (0 != portLibrary->sl_lookup_name(
-				portLibrary,
-				globals->driverHandle,
-				(char *)"cuInit",
-				(uintptr_t *)&driverInit,
-				"iI")) {
+		if (0
+			!= portLibrary->sl_lookup_name(portLibrary, globals->driverHandle, (char *)"cuInit",
+										   (uintptr_t *)&driverInit, "iI")) {
 			Trc_PRT_cuda_symbol_not_found("cuInit", "iI");
 			goto fail;
 		}
@@ -796,14 +797,11 @@ openDriver(OMRPortLibrary *portLibrary)
 
 	/* query the driver version */
 	{
-		CUresult (CUDAAPI *driverGetVersion)(int *version) = NULL;
+		CUresult(CUDAAPI * driverGetVersion)(int *version) = NULL;
 
-		if (0 != portLibrary->sl_lookup_name(
-				portLibrary,
-				globals->driverHandle,
-				(char *)"cuDriverGetVersion",
-				(uintptr_t *)&driverGetVersion,
-				"iP")) {
+		if (0
+			!= portLibrary->sl_lookup_name(portLibrary, globals->driverHandle, (char *)"cuDriverGetVersion",
+										   (uintptr_t *)&driverGetVersion, "iP")) {
 			Trc_PRT_cuda_symbol_not_found("cuDriverGetVersion", "iP");
 			goto fail;
 		}
@@ -819,14 +817,11 @@ openDriver(OMRPortLibrary *portLibrary)
 
 	/* query the number of available devices */
 	{
-		CUresult (CUDAAPI *deviceGetCount)(int *count) = NULL;
+		CUresult(CUDAAPI * deviceGetCount)(int *count) = NULL;
 
-		if (0 != portLibrary->sl_lookup_name(
-				portLibrary,
-				globals->driverHandle,
-				(char *)"cuDeviceGetCount",
-				(uintptr_t *)&deviceGetCount,
-				"iP")) {
+		if (0
+			!= portLibrary->sl_lookup_name(portLibrary, globals->driverHandle, (char *)"cuDeviceGetCount",
+										   (uintptr_t *)&deviceGetCount, "iP")) {
 			Trc_PRT_cuda_symbol_not_found("cuDeviceGetCount", "iP");
 			goto fail;
 		}
@@ -841,14 +836,9 @@ openDriver(OMRPortLibrary *portLibrary)
 	}
 
 	/* find the driver functions */
-	if (0 != initializeTable(
-			portLibrary,
-			globals->driverHandle,
-			(uint32_t)version,
-			driverDescriptors,
-			LENGTH_OF(driverDescriptors),
-			(uintptr_t *)globals->functionTable)) {
-fail:
+	if (0 != initializeTable(portLibrary, globals->driverHandle, (uint32_t)version, driverDescriptors,
+							 LENGTH_OF(driverDescriptors), (uintptr_t *)globals->functionTable)) {
+	fail:
 		deviceCount = 0;
 		version = 0;
 	}
@@ -878,25 +868,18 @@ openRuntimeAndGetVersion(OMRPortLibrary *portLibrary, uint32_t bestVersion, cons
 	int version = 0;
 
 	/* open the runtime shared library */
-	if (0 != portLibrary->sl_open_shared_library(
-			portLibrary,
-			(char *)library,
-			&dllHandle,
-			OMRPORT_SLOPEN_LAZY)) {
+	if (0 != portLibrary->sl_open_shared_library(portLibrary, (char *)library, &dllHandle, OMRPORT_SLOPEN_LAZY)) {
 		Trc_PRT_cuda_library_not_found(library);
 		goto notFound;
 	}
 
 	/* query the runtime version */
 	{
-		cudaError_t (CUDARTAPI *runtimeGetVersion)(int *runtimeVersion) = NULL;
+		cudaError_t(CUDARTAPI * runtimeGetVersion)(int *runtimeVersion) = NULL;
 
-		if (0 != portLibrary->sl_lookup_name(
-				portLibrary,
-				dllHandle,
-				(char *)"cudaRuntimeGetVersion",
-				(uintptr_t *)&runtimeGetVersion,
-				"iP")) {
+		if (0
+			!= portLibrary->sl_lookup_name(portLibrary, dllHandle, (char *)"cudaRuntimeGetVersion",
+										   (uintptr_t *)&runtimeGetVersion, "iP")) {
 			Trc_PRT_cuda_symbol_not_found("cudaRuntimeGetVersion", "iP");
 			goto fail;
 		}
@@ -918,13 +901,8 @@ openRuntimeAndGetVersion(OMRPortLibrary *portLibrary, uint32_t bestVersion, cons
 	memset(&localFunctions, 0, sizeof(localFunctions));
 
 	/* find the runtime functions */
-	if (0 == initializeTable(
-			portLibrary,
-			dllHandle,
-			(uint32_t)version,
-			runtimeDescriptors,
-			LENGTH_OF(runtimeDescriptors),
-			(uintptr_t *)&localFunctions)) {
+	if (0 == initializeTable(portLibrary, dllHandle, (uint32_t)version, runtimeDescriptors,
+							 LENGTH_OF(runtimeDescriptors), (uintptr_t *)&localFunctions)) {
 		/* close the previous runtime shared library if necessary */
 		if (0 != globals->runtimeHandle) {
 			portLibrary->sl_close_shared_library(portLibrary, globals->runtimeHandle);
@@ -942,12 +920,12 @@ openRuntimeAndGetVersion(OMRPortLibrary *portLibrary, uint32_t bestVersion, cons
 			*(uintptr_t *)(globalTable + offset) = *(uintptr_t *)(localTable + offset);
 		}
 	} else {
-fail:
+	fail:
 		if (0 != dllHandle) {
 			portLibrary->sl_close_shared_library(portLibrary, dllHandle);
 		}
 
-notFound:
+	notFound:
 		version = 0;
 	}
 
@@ -972,33 +950,33 @@ struct J9CudaLibraryDescriptor {
  * minimize the time spent loading older versions.
  */
 const J9CudaLibraryDescriptor runtimeLibraries[] = {
-	/*
+/*
 	 * This special entry must appear first for forward compatiblity. In normal
 	 * installations, it is a link to the newest version available.
 	 */
 #if defined(LINUX) && defined(OMR_ENV_DATA64)
-	{ 5050, "libcudart.so" },
+	{5050, "libcudart.so"},
 #elif defined(OSX)
-	{ 5050, "libcudart.dylib" },
+	{5050, "libcudart.dylib"},
 #endif /* LINUX && OMR_ENV_DATA64 */
 
 #if defined(LINUX) && defined(OMR_ENV_DATA64)
-#   define OMRCUDA_LIBRARY_NAME(major, minor) ("libcudart.so." #major "." #minor)
+#define OMRCUDA_LIBRARY_NAME(major, minor) ("libcudart.so." #major "." #minor)
 #elif defined(OSX)
-#   define OMRCUDA_LIBRARY_NAME(major, minor) ("libcudart." #major "." #minor ".dylib")
+#define OMRCUDA_LIBRARY_NAME(major, minor) ("libcudart." #major "." #minor ".dylib")
 #elif defined(WIN32) && defined(OMR_ENV_DATA64)
-#   define OMRCUDA_LIBRARY_NAME(major, minor) ("cudart64_" #major #minor ".dll")
+#define OMRCUDA_LIBRARY_NAME(major, minor) ("cudart64_" #major #minor ".dll")
 #elif defined(WIN32)
-#   define OMRCUDA_LIBRARY_NAME(major, minor) ("cudart32_" #major #minor ".dll")
+#define OMRCUDA_LIBRARY_NAME(major, minor) ("cudart32_" #major #minor ".dll")
 #endif /* defined(LINUX) && defined(OMR_ENV_DATA64) */
 
-#define OMRCUDA_LIBRARY_ENTRY(major, minor) { ((major) * 1000) + ((minor) * 10), OMRCUDA_LIBRARY_NAME(major, minor) }
+#define OMRCUDA_LIBRARY_ENTRY(major, minor)                                                                            \
+	{                                                                                                                  \
+		((major)*1000) + ((minor)*10), OMRCUDA_LIBRARY_NAME(major, minor)                                              \
+	}
 
-	OMRCUDA_LIBRARY_ENTRY(7, 5),
-	OMRCUDA_LIBRARY_ENTRY(7, 0),
-	OMRCUDA_LIBRARY_ENTRY(6, 5),
-	OMRCUDA_LIBRARY_ENTRY(6, 0),
-	OMRCUDA_LIBRARY_ENTRY(5, 5)
+	OMRCUDA_LIBRARY_ENTRY(7, 5), OMRCUDA_LIBRARY_ENTRY(7, 0), OMRCUDA_LIBRARY_ENTRY(6, 5),
+	OMRCUDA_LIBRARY_ENTRY(6, 0), OMRCUDA_LIBRARY_ENTRY(5, 5)
 
 #undef OMRCUDA_LIBRARY_ENTRY
 #undef OMRCUDA_LIBRARY_NAME
@@ -1078,7 +1056,7 @@ attemptInitialization(OMRPortLibrary *portLibrary)
 		}
 
 		if (openDriver(portLibrary) < J9CUDA_DRIVER_VERSION_MINIMUM) {
-fail:
+		fail:
 			globals->deviceCount = 0;
 			newState = J9CUDA_STATE_FAILED;
 		}
@@ -1308,7 +1286,7 @@ private:
 
 		uint32_t shift = deviceId & 0x1f;
 
-		*getStateWord(deviceId) &= ~(((uint32_t) 1U) << shift);
+		*getStateWord(deviceId) &= ~(((uint32_t)1U) << shift);
 
 		Trc_PRT_cuda_ThreadState_clear_exit();
 	}
@@ -1580,7 +1558,7 @@ struct InitializedBefore : public InitializerNotNeeded {
  * @param[in] operation the operation to be performed
  * @return cudaSuccess on success, any other value on failure
  */
-template<typename Operation>
+template <typename Operation>
 VMINLINE cudaError_t
 withDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, Operation &operation)
 {
@@ -1633,7 +1611,7 @@ withDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, Operation &operation)
 			Trc_PRT_cuda_withDevice_onSuccess_fail(result);
 		}
 
-restore:
+	restore:
 		if (current != (int)deviceId) {
 			cudaError_t restoreResult = functions->SetDevice(current);
 
@@ -1708,7 +1686,7 @@ omrcuda_shutdown(OMRPortLibrary *portLibrary)
 	switch (globals->state) {
 	case J9CUDA_STATE_INITIALIZED:
 		resetDevices(globals);
-		/* FALL-THROUGH */
+	/* FALL-THROUGH */
 
 	case J9CUDA_STATE_STARTED:
 		closeLibraries(portLibrary);
@@ -1742,8 +1720,7 @@ struct Allocate : public InitializedAfter {
 
 	explicit VMINLINE
 	Allocate(uintptr_t byteCount)
-		: byteCount(byteCount)
-		, deviceAddress(NULL)
+		: byteCount(byteCount), deviceAddress(NULL)
 	{
 	}
 
@@ -1795,7 +1772,8 @@ omrcuda_deviceAlloc(OMRPortLibrary *portLibrary, uint32_t deviceId, uintptr_t si
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_deviceCanAccessPeer(OMRPortLibrary *portLibrary, uint32_t deviceId, uint32_t peerDeviceId, BOOLEAN *canAccessPeerOut)
+omrcuda_deviceCanAccessPeer(OMRPortLibrary *portLibrary, uint32_t deviceId, uint32_t peerDeviceId,
+							BOOLEAN *canAccessPeerOut)
 {
 	Trc_PRT_cuda_deviceCanAccessPeer_entry(deviceId, peerDeviceId);
 
@@ -1981,7 +1959,8 @@ omrcuda_deviceFree(OMRPortLibrary *portLibrary, uint32_t deviceId, void *deviceA
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_deviceGetAttribute(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaDeviceAttribute attribute, int32_t *valueOut)
+omrcuda_deviceGetAttribute(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaDeviceAttribute attribute,
+						   int32_t *valueOut)
 {
 	Trc_PRT_cuda_deviceGetAttribute_entry(deviceId, attribute);
 
@@ -2269,10 +2248,7 @@ struct DeviceGetCacheConfig : public InitializedAfter {
 	cudaFuncCache config;
 
 	VMINLINE
-	DeviceGetCacheConfig()
-		: config(cudaFuncCachePreferNone)
-	{
-	}
+	DeviceGetCacheConfig() : config(cudaFuncCachePreferNone) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -2372,8 +2348,7 @@ struct DeviceGetLimit : public InitializedAfter {
 
 	explicit VMINLINE
 	DeviceGetLimit(J9CudaDeviceLimit limit)
-		: limit(limit)
-		, value(0)
+		: limit(limit), value(0)
 	{
 	}
 
@@ -2454,11 +2429,7 @@ struct DeviceGetMemInfo : public InitializedAfter {
 	size_t totalBytes;
 
 	VMINLINE
-	DeviceGetMemInfo()
-		: freeBytes(0)
-		, totalBytes(0)
-	{
-	}
+	DeviceGetMemInfo() : freeBytes(0), totalBytes(0) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -2539,10 +2510,7 @@ struct DeviceGetSharedMemConfig : public InitializedAfter {
 	cudaSharedMemConfig config;
 
 	VMINLINE
-	DeviceGetSharedMemConfig()
-		: config(cudaSharedMemBankSizeDefault)
-	{
-	}
+	DeviceGetSharedMemConfig() : config(cudaSharedMemBankSizeDefault) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -2612,11 +2580,7 @@ struct DeviceGetPriorities : public InitializedAfter {
 	int leastPriority;
 
 	VMINLINE
-	DeviceGetPriorities()
-		: greatestPriority(0)
-		, leastPriority(0)
-	{
-	}
+	DeviceGetPriorities() : greatestPriority(0), leastPriority(0) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -2639,7 +2603,8 @@ struct DeviceGetPriorities : public InitializedAfter {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_deviceGetStreamPriorityRange(OMRPortLibrary *portLibrary, uint32_t deviceId, int32_t *leastPriorityOut, int32_t *greatestPriorityOut)
+omrcuda_deviceGetStreamPriorityRange(OMRPortLibrary *portLibrary, uint32_t deviceId, int32_t *leastPriorityOut,
+									 int32_t *greatestPriorityOut)
 {
 	Trc_PRT_cuda_deviceGetStreamPriorityRange_entry(deviceId);
 
@@ -2648,9 +2613,7 @@ omrcuda_deviceGetStreamPriorityRange(OMRPortLibrary *portLibrary, uint32_t devic
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
 	if (cudaSuccess == result) {
-		Trc_PRT_cuda_deviceGetStreamPriorityRange_result(
-			operation.leastPriority,
-			operation.greatestPriority);
+		Trc_PRT_cuda_deviceGetStreamPriorityRange_result(operation.leastPriority, operation.greatestPriority);
 
 		*leastPriorityOut = operation.leastPriority;
 		*greatestPriorityOut = operation.greatestPriority;
@@ -2670,9 +2633,7 @@ namespace
  */
 struct DeviceReset : public InitializerNotNeeded {
 	VMINLINE
-	DeviceReset()
-	{
-	}
+	DeviceReset() {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions) const
@@ -2805,11 +2766,7 @@ struct DeviceSetLimit : public InitializedAfter {
 	uintptr_t const value;
 
 	VMINLINE
-	DeviceSetLimit(J9CudaDeviceLimit limit, uintptr_t value)
-		: limit(limit)
-		, value(value)
-	{
-	}
+	DeviceSetLimit(J9CudaDeviceLimit limit, uintptr_t value) : limit(limit), value(value) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions) const
@@ -3020,17 +2977,15 @@ struct EventCreate : public InitializedAfter {
 
 	explicit VMINLINE
 	EventCreate(uint32_t flags)
-		: event(NULL)
-		, flags(flags)
+		: event(NULL), flags(flags)
 	{
 	}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
 	{
-		const uint32_t allFlags = J9CUDA_EVENT_FLAG_BLOCKING_SYNC
-								  | J9CUDA_EVENT_FLAG_DISABLE_TIMING
-								  | J9CUDA_EVENT_FLAG_INTERPROCESS;
+		const uint32_t allFlags =
+			J9CUDA_EVENT_FLAG_BLOCKING_SYNC | J9CUDA_EVENT_FLAG_DISABLE_TIMING | J9CUDA_EVENT_FLAG_INTERPROCESS;
 
 		cudaError_t error = cudaErrorInvalidValue;
 
@@ -3127,7 +3082,8 @@ omrcuda_eventDestroy(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaEvent
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_eventElapsedTime(OMRPortLibrary *portLibrary, J9CudaEvent startEvent, J9CudaEvent endEvent, float *elapsedMillisOut)
+omrcuda_eventElapsedTime(OMRPortLibrary *portLibrary, J9CudaEvent startEvent, J9CudaEvent endEvent,
+						 float *elapsedMillisOut)
 {
 	Trc_PRT_cuda_eventElapsedTime_entry(startEvent, endEvent);
 
@@ -3186,11 +3142,7 @@ struct EventRecord : public InitializedAfter {
 	cudaStream_t const stream;
 
 	VMINLINE
-	EventRecord(cudaStream_t stream, cudaEvent_t event)
-		: event(event)
-		, stream(stream)
-	{
-	}
+	EventRecord(cudaStream_t stream, cudaEvent_t event) : event(event), stream(stream) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions) const
@@ -3266,9 +3218,7 @@ struct FunctionGetAttribute : public InitializedBefore {
 
 	VMINLINE
 	FunctionGetAttribute(J9CudaFunctionAttribute attribute, CUfunction function)
-		: attribute(attribute)
-		, function(function)
-		, value(0)
+		: attribute(attribute), function(function), value(0)
 	{
 	}
 
@@ -3322,7 +3272,8 @@ struct FunctionGetAttribute : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_funcGetAttribute(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function, J9CudaFunctionAttribute attribute, int32_t *valueOut)
+omrcuda_funcGetAttribute(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function,
+						 J9CudaFunctionAttribute attribute, int32_t *valueOut)
 {
 	Trc_PRT_cuda_funcGetAttribute_entry(deviceId, function, attribute);
 
@@ -3363,29 +3314,17 @@ struct FunctionMaxActiveBlocks : public InitializedBefore {
 	int numBlocks;
 
 	VMINLINE
-	FunctionMaxActiveBlocks(
-			CUfunction function,
-			uint32_t blockSize,
-			uint32_t dynamicSharedMemorySize,
-			uint32_t flags)
-		: blockSize(blockSize)
-		, dynamicSharedMemorySize(dynamicSharedMemorySize)
-		, flags(flags)
-		, function(function)
-		, numBlocks(0)
+	FunctionMaxActiveBlocks(CUfunction function, uint32_t blockSize, uint32_t dynamicSharedMemorySize, uint32_t flags)
+		: blockSize(blockSize), dynamicSharedMemorySize(dynamicSharedMemorySize), flags(flags), function(function),
+		  numBlocks(0)
 	{
 	}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
 	{
-		return translate(
-				   functions->OccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
-					   &numBlocks,
-					   function,
-					   (int)blockSize,
-					   (size_t)dynamicSharedMemorySize,
-					   (int)flags));
+		return translate(functions->OccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
+			&numBlocks, function, (int)blockSize, (size_t)dynamicSharedMemorySize, (int)flags));
 	}
 };
 
@@ -3406,21 +3345,12 @@ struct FunctionMaxActiveBlocks : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_funcMaxActiveBlocksPerMultiprocessor(
-	OMRPortLibrary *portLibrary,
-	uint32_t deviceId,
-	J9CudaFunction function,
-	uint32_t blockSize,
-	uint32_t dynamicSharedMemorySize,
-	uint32_t flags,
-	uint32_t *valueOut)
+omrcuda_funcMaxActiveBlocksPerMultiprocessor(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function,
+											 uint32_t blockSize, uint32_t dynamicSharedMemorySize, uint32_t flags,
+											 uint32_t *valueOut)
 {
-	Trc_PRT_cuda_funcMaxActiveBlocksPerMultiprocessor_entry(
-		deviceId,
-		function,
-		blockSize,
-		dynamicSharedMemorySize,
-		flags);
+	Trc_PRT_cuda_funcMaxActiveBlocksPerMultiprocessor_entry(deviceId, function, blockSize, dynamicSharedMemorySize,
+															flags);
 
 	J9CudaFunctionTable *functions = getFunctions(portLibrary);
 	cudaError_t result = validateDeviceId(portLibrary, deviceId);
@@ -3467,7 +3397,7 @@ namespace
  * @return bestBlockCountPerMultiProcessor the minimum number of blocks per multiprocessor
  * that achieves maximal occupancy
  */
-struct FunctionPotentialBlockSize: public InitializedBefore {
+struct FunctionPotentialBlockSize : public InitializedBefore {
 	uint32_t bestBlockCountPerMultiProcessor;
 	uint32_t bestBlockSize;
 	uint32_t const blockSizeLimit;
@@ -3479,23 +3409,12 @@ struct FunctionPotentialBlockSize: public InitializedBefore {
 	uint32_t const warpSize;
 
 	VMINLINE
-	FunctionPotentialBlockSize(
-			CUfunction function,
-			J9CudaBlockToDynamicSharedMemorySize dynamicSharedMemoryFunction,
-			uintptr_t userData,
-			uint32_t blockSizeLimit,
-			uint32_t flags,
-			uint32_t maxThreadsPerMultiProcessor,
-			uint32_t warpSize)
-		: bestBlockCountPerMultiProcessor(0)
-		, bestBlockSize(0)
-		, blockSizeLimit(blockSizeLimit)
-		, callback(dynamicSharedMemoryFunction)
-		, flags(flags)
-		, function(function)
-		, maxThreadsPerMultiProcessor(maxThreadsPerMultiProcessor)
-		, userData(userData)
-		, warpSize(warpSize)
+	FunctionPotentialBlockSize(CUfunction function, J9CudaBlockToDynamicSharedMemorySize dynamicSharedMemoryFunction,
+							   uintptr_t userData, uint32_t blockSizeLimit, uint32_t flags,
+							   uint32_t maxThreadsPerMultiProcessor, uint32_t warpSize)
+		: bestBlockCountPerMultiProcessor(0), bestBlockSize(0), blockSizeLimit(blockSizeLimit),
+		  callback(dynamicSharedMemoryFunction), flags(flags), function(function),
+		  maxThreadsPerMultiProcessor(maxThreadsPerMultiProcessor), userData(userData), warpSize(warpSize)
 	{
 	}
 
@@ -3519,11 +3438,7 @@ struct FunctionPotentialBlockSize: public InitializedBefore {
 			int blocksPerMultiProcessor = 0;
 
 			result = functions->OccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
-						 &blocksPerMultiProcessor,
-						 function,
-						 (int)blockSize,
-						 (size_t)dynamicSharedMemorySize,
-						 (int)flags);
+				&blocksPerMultiProcessor, function, (int)blockSize, (size_t)dynamicSharedMemorySize, (int)flags);
 
 			if (CUDA_SUCCESS != result) {
 				break;
@@ -3573,24 +3488,13 @@ struct FunctionPotentialBlockSize: public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_funcMaxPotentialBlockSize(
-	OMRPortLibrary *portLibrary,
-	uint32_t deviceId,
-	J9CudaFunction function,
-	J9CudaBlockToDynamicSharedMemorySize dynamicSharedMemoryFunction,
-	uintptr_t userData,
-	uint32_t blockSizeLimit,
-	uint32_t flags,
-	uint32_t *minGridSizeOut,
-	uint32_t *maxBlockSizeOut)
+omrcuda_funcMaxPotentialBlockSize(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function,
+								  J9CudaBlockToDynamicSharedMemorySize dynamicSharedMemoryFunction, uintptr_t userData,
+								  uint32_t blockSizeLimit, uint32_t flags, uint32_t *minGridSizeOut,
+								  uint32_t *maxBlockSizeOut)
 {
-	Trc_PRT_cuda_funcMaxPotentialBlockSize_entry(
-		deviceId,
-		function,
-		dynamicSharedMemoryFunction,
-		userData,
-		blockSizeLimit,
-		flags);
+	Trc_PRT_cuda_funcMaxPotentialBlockSize_entry(deviceId, function, dynamicSharedMemoryFunction, userData,
+												 blockSizeLimit, flags);
 
 	J9CudaFunctionTable *functions = getFunctions(portLibrary);
 	cudaError_t result = validateDeviceId(portLibrary, deviceId);
@@ -3612,15 +3516,15 @@ omrcuda_funcMaxPotentialBlockSize(
 		Assert_PRT_true(NULL != functions->DeviceGetAttribute);
 		Assert_PRT_true(NULL != functions->FuncGetAttribute);
 
-#define GET_DEVICE_ATTRIBUTE(attribute) \
-		do { \
-			int value = 0; \
-			result = functions->DeviceGetAttribute(&value, (cudaDevAttr ## attribute), (int)deviceId); \
-			if (cudaSuccess != result) { \
-				goto done; \
-			} \
-			device ## attribute = (uint32_t)value; \
-		} while (0)
+#define GET_DEVICE_ATTRIBUTE(attribute)                                                                                \
+	do {                                                                                                               \
+		int value = 0;                                                                                                 \
+		result = functions->DeviceGetAttribute(&value, (cudaDevAttr##attribute), (int)deviceId);                       \
+		if (cudaSuccess != result) {                                                                                   \
+			goto done;                                                                                                 \
+		}                                                                                                              \
+		device##attribute = (uint32_t)value;                                                                           \
+	} while (0)
 
 		GET_DEVICE_ATTRIBUTE(MaxThreadsPerBlock);
 		GET_DEVICE_ATTRIBUTE(MaxThreadsPerMultiProcessor);
@@ -3635,10 +3539,8 @@ omrcuda_funcMaxPotentialBlockSize(
 		}
 
 		int value = 0;
-		CUresult error = functions->FuncGetAttribute(
-							 &value,
-							 CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK,
-							 (CUfunction)function);
+		CUresult error =
+			functions->FuncGetAttribute(&value, CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, (CUfunction)function);
 
 		if (CUDA_SUCCESS != error) {
 			result = translate(error);
@@ -3655,14 +3557,9 @@ omrcuda_funcMaxPotentialBlockSize(
 			blockSizeLimit = functionMaxThreadsPerBlock;
 		}
 
-		FunctionPotentialBlockSize operation(
-			(CUfunction)function,
-			dynamicSharedMemoryFunction,
-			userData,
-			blockSizeLimit,
-			flags,
-			(uint32_t)deviceMaxThreadsPerMultiProcessor,
-			(uint32_t)deviceWarpSize);
+		FunctionPotentialBlockSize operation((CUfunction)function, dynamicSharedMemoryFunction, userData,
+											 blockSizeLimit, flags, (uint32_t)deviceMaxThreadsPerMultiProcessor,
+											 (uint32_t)deviceWarpSize);
 
 		result = withDevice(portLibrary, deviceId, operation);
 
@@ -3695,11 +3592,7 @@ struct FunctionSetCacheConfig : public InitializedBefore {
 	CUfunction const function;
 
 	VMINLINE
-	FunctionSetCacheConfig(CUfunction function, J9CudaCacheConfig config)
-		: config(config)
-		, function(function)
-	{
-	}
+	FunctionSetCacheConfig(CUfunction function, J9CudaCacheConfig config) : config(config), function(function) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions) const
@@ -3742,7 +3635,8 @@ struct FunctionSetCacheConfig : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_funcSetCacheConfig(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function, J9CudaCacheConfig config)
+omrcuda_funcSetCacheConfig(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function,
+						   J9CudaCacheConfig config)
 {
 	Trc_PRT_cuda_funcSetCacheConfig_entry(deviceId, function, config);
 
@@ -3770,9 +3664,7 @@ struct FunctionSetSharedMemConfig : public InitializedBefore {
 	CUfunction const function;
 
 	VMINLINE
-	FunctionSetSharedMemConfig(CUfunction function, J9CudaSharedMemConfig config)
-		: config(config)
-		, function(function)
+	FunctionSetSharedMemConfig(CUfunction function, J9CudaSharedMemConfig config) : config(config), function(function)
 	{
 	}
 
@@ -3814,7 +3706,8 @@ struct FunctionSetSharedMemConfig : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_funcSetSharedMemConfig(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function, J9CudaSharedMemConfig config)
+omrcuda_funcSetSharedMemConfig(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function,
+							   J9CudaSharedMemConfig config)
 {
 	Trc_PRT_cuda_funcSetSharedMemConfig_entry(deviceId, function, config);
 
@@ -3947,9 +3840,7 @@ omrcuda_hostAlloc(OMRPortLibrary *portLibrary, uintptr_t size, uint32_t flags, v
 {
 	Trc_PRT_cuda_hostAlloc_entry(size, flags);
 
-	const uint32_t allFlags = J9CUDA_HOST_ALLOC_MAPPED
-							  | J9CUDA_HOST_ALLOC_PORTABLE
-							  | J9CUDA_HOST_ALLOC_WRITE_COMBINED;
+	const uint32_t allFlags = J9CUDA_HOST_ALLOC_MAPPED | J9CUDA_HOST_ALLOC_PORTABLE | J9CUDA_HOST_ALLOC_WRITE_COMBINED;
 
 	J9CudaFunctionTable *functions = getFunctions(portLibrary);
 	cudaError_t result = cudaErrorNoDevice;
@@ -4034,32 +3925,17 @@ struct Launch : public InitializedBefore {
 	void **const args;
 
 	VMINLINE
-	Launch(CUfunction function, const dim3 &gridDim, const dim3 &blockDim, uint32_t sharedMem, CUstream stream, void **args)
-		: function(function)
-		, gridDim(gridDim)
-		, blockDim(blockDim)
-		, sharedMem(sharedMem)
-		, stream(stream)
-		, args(args)
+	Launch(CUfunction function, const dim3 &gridDim, const dim3 &blockDim, uint32_t sharedMem, CUstream stream,
+		   void **args)
+		: function(function), gridDim(gridDim), blockDim(blockDim), sharedMem(sharedMem), stream(stream), args(args)
 	{
 	}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions) const
 	{
-		return translate(
-				   functions->LaunchKernel(
-					   function,
-					   gridDim.x,
-					   gridDim.y,
-					   gridDim.z,
-					   blockDim.x,
-					   blockDim.y,
-					   blockDim.z,
-					   sharedMem,
-					   stream,
-					   args,
-					   NULL));
+		return translate(functions->LaunchKernel(function, gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y,
+												 blockDim.z, sharedMem, stream, args, NULL));
 	}
 };
 
@@ -4083,30 +3959,17 @@ struct Launch : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_launchKernel(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function,
-					uint32_t gridDimX, uint32_t gridDimY, uint32_t gridDimZ,
-					uint32_t blockDimX, uint32_t blockDimY, uint32_t blockDimZ,
-					uint32_t sharedMemBytes, J9CudaStream stream, void **kernelParms)
+omrcuda_launchKernel(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function, uint32_t gridDimX,
+					 uint32_t gridDimY, uint32_t gridDimZ, uint32_t blockDimX, uint32_t blockDimY, uint32_t blockDimZ,
+					 uint32_t sharedMemBytes, J9CudaStream stream, void **kernelParms)
 {
-	Trc_PRT_cuda_launchKernel_entry(
-		deviceId,
-		function,
-		gridDimX, gridDimY, gridDimZ,
-		blockDimX, blockDimY, blockDimZ,
-		sharedMemBytes,
-		stream,
-		kernelParms);
+	Trc_PRT_cuda_launchKernel_entry(deviceId, function, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ,
+									sharedMemBytes, stream, kernelParms);
 
 	const dim3 gridDim(gridDimX, gridDimY, gridDimZ);
 	const dim3 blockDim(blockDimX, blockDimY, blockDimZ);
 
-	const Launch operation(
-		(CUfunction)function,
-		gridDim,
-		blockDim,
-		sharedMemBytes,
-		(CUstream)stream,
-		kernelParms);
+	const Launch operation((CUfunction)function, gridDim, blockDim, sharedMemBytes, (CUstream)stream, kernelParms);
 
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
@@ -4133,13 +3996,9 @@ private:
 
 public:
 	VMINLINE
-	JitOptions()
-		: count(0)
-	{
-	}
+	JitOptions() : count(0) {}
 
-	cudaError_t
-	set(J9CudaJitOptions *j9Ooptions);
+	cudaError_t set(J9CudaJitOptions *j9Ooptions);
 
 	VMINLINE uint32_t
 	getCount() const
@@ -4468,11 +4327,7 @@ struct J9CudaLinkerState {
 	CUlinkState state;
 
 	VMINLINE
-	J9CudaLinkerState()
-		: createOptions()
-		, state(NULL)
-	{
-	}
+	J9CudaLinkerState() : createOptions(), state(NULL) {}
 };
 
 namespace
@@ -4498,13 +4353,9 @@ struct LinkerAdd : public InitializedBefore {
 	J9CudaJitInputType const type;
 
 	VMINLINE
-	LinkerAdd(J9CudaLinker linker, J9CudaJitInputType type, void *image, size_t imageSize, const char *name, J9CudaJitOptions *options)
-		: image(image)
-		, imageSize(imageSize)
-		, linker(linker)
-		, name(name)
-		, options(options)
-		, type(type)
+	LinkerAdd(J9CudaLinker linker, J9CudaJitInputType type, void *image, size_t imageSize, const char *name,
+			  J9CudaJitOptions *options)
+		: image(image), imageSize(imageSize), linker(linker), name(name), options(options), type(type)
 	{
 	}
 
@@ -4540,19 +4391,12 @@ struct LinkerAdd : public InitializedBefore {
 				break;
 			}
 
-			result = translate(
-						 functions->LinkAddData(
-							 linker->state,
-							 inputType,
-							 image,
-							 imageSize,
-							 name,
-							 addOptions.getCount(),
-							 addOptions.getKeys(),
-							 addOptions.getValues()));
+			result =
+				translate(functions->LinkAddData(linker->state, inputType, image, imageSize, name,
+												 addOptions.getCount(), addOptions.getKeys(), addOptions.getValues()));
 		}
 
-done:
+	done:
 		return result;
 	}
 };
@@ -4573,8 +4417,8 @@ done:
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_linkerAddData(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaLinker linker,
-	J9CudaJitInputType type, void *data, uintptr_t size, const char *name, J9CudaJitOptions *options)
+omrcuda_linkerAddData(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaLinker linker, J9CudaJitInputType type,
+					  void *data, uintptr_t size, const char *name, J9CudaJitOptions *options)
 {
 	Trc_PRT_cuda_linkerAddData_entry(deviceId, linker, type, data, size, name, options);
 
@@ -4605,9 +4449,7 @@ struct LinkerComplete : public InitializedBefore {
 
 	explicit VMINLINE
 	LinkerComplete(J9CudaLinker linker)
-		: data(NULL)
-		, linker(linker)
-		, size(0)
+		: data(NULL), linker(linker), size(0)
 	{
 	}
 
@@ -4633,7 +4475,8 @@ struct LinkerComplete : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_linkerComplete(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaLinker linker, void **cubinOut, uintptr_t *sizeOut)
+omrcuda_linkerComplete(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaLinker linker, void **cubinOut,
+					   uintptr_t *sizeOut)
 {
 	Trc_PRT_cuda_linkerComplete_entry(deviceId, linker);
 
@@ -4675,12 +4518,8 @@ struct LinkerCreate : public InitializedBefore {
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions) const
 	{
-		return translate(
-				   functions->LinkCreate(
-					   linker->createOptions.getCount(),
-					   linker->createOptions.getKeys(),
-					   linker->createOptions.getValues(),
-					   &linker->state));
+		return translate(functions->LinkCreate(linker->createOptions.getCount(), linker->createOptions.getKeys(),
+											   linker->createOptions.getValues(), &linker->state));
 	}
 };
 
@@ -4812,45 +4651,18 @@ struct Copy2D : public InitializedAfter {
 	size_t const width;
 
 	VMINLINE
-	Copy2D(
-			void *targetAddress,
-			size_t targetPitch,
-			const void *sourceAddress,
-			size_t sourcePitch,
-			size_t width,
-			size_t height,
-			cudaMemcpyKind direction)
-		: direction(direction)
-		, height(height)
-		, sourceAddress(sourceAddress)
-		, sourcePitch(sourcePitch)
-		, stream(NULL)
-		, sync(true)
-		, targetAddress(targetAddress)
-		, targetPitch(targetPitch)
-		, width(width)
+	Copy2D(void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, size_t width,
+		   size_t height, cudaMemcpyKind direction)
+		: direction(direction), height(height), sourceAddress(sourceAddress), sourcePitch(sourcePitch), stream(NULL),
+		  sync(true), targetAddress(targetAddress), targetPitch(targetPitch), width(width)
 	{
 	}
 
 	VMINLINE
-	Copy2D(
-			void *targetAddress,
-			size_t targetPitch,
-			const void *sourceAddress,
-			size_t sourcePitch,
-			size_t width,
-			size_t height,
-			cudaMemcpyKind direction,
-			J9CudaStream stream)
-		: direction(direction)
-		, height(height)
-		, sourceAddress(sourceAddress)
-		, sourcePitch(sourcePitch)
-		, stream(stream)
-		, sync(false)
-		, targetAddress(targetAddress)
-		, targetPitch(targetPitch)
-		, width(width)
+	Copy2D(void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, size_t width,
+		   size_t height, cudaMemcpyKind direction, J9CudaStream stream)
+		: direction(direction), height(height), sourceAddress(sourceAddress), sourcePitch(sourcePitch), stream(stream),
+		  sync(false), targetAddress(targetAddress), targetPitch(targetPitch), width(width)
 	{
 	}
 
@@ -4858,15 +4670,11 @@ struct Copy2D : public InitializedAfter {
 	execute(J9CudaFunctionTable *functions) const
 	{
 		if (sync) {
-			return functions->Memcpy2D(
-					   targetAddress, targetPitch,
-					   sourceAddress, sourcePitch,
-					   width, height, direction);
+			return functions->Memcpy2D(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+									   direction);
 		} else {
-			return functions->Memcpy2DAsync(
-					   targetAddress, targetPitch,
-					   sourceAddress, sourcePitch,
-					   width, height, direction, (cudaStream_t)stream);
+			return functions->Memcpy2DAsync(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+											direction, (cudaStream_t)stream);
 		}
 	}
 };
@@ -4887,11 +4695,14 @@ struct Copy2D : public InitializedAfter {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpy2DDeviceToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height)
+omrcuda_memcpy2DDeviceToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch,
+							   const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height)
 {
-	Trc_PRT_cuda_memcpy2D_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToDevice);
+	Trc_PRT_cuda_memcpy2D_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+								cudaMemcpyDeviceToDevice);
 
-	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToDevice);
+	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+						   cudaMemcpyDeviceToDevice);
 
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
@@ -4915,11 +4726,15 @@ omrcuda_memcpy2DDeviceToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, v
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpy2DDeviceToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height, J9CudaStream stream)
+omrcuda_memcpy2DDeviceToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+									size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width,
+									uintptr_t height, J9CudaStream stream)
 {
-	Trc_PRT_cuda_memcpy2DAsync_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToDevice, stream);
+	Trc_PRT_cuda_memcpy2DAsync_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+									 cudaMemcpyDeviceToDevice, stream);
 
-	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToDevice, stream);
+	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+						   cudaMemcpyDeviceToDevice, stream);
 
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
@@ -4942,11 +4757,14 @@ omrcuda_memcpy2DDeviceToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t device
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpy2DDeviceToHost(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height)
+omrcuda_memcpy2DDeviceToHost(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch,
+							 const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height)
 {
-	Trc_PRT_cuda_memcpy2D_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToHost);
+	Trc_PRT_cuda_memcpy2D_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+								cudaMemcpyDeviceToHost);
 
-	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToHost);
+	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+						   cudaMemcpyDeviceToHost);
 
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
@@ -4970,11 +4788,15 @@ omrcuda_memcpy2DDeviceToHost(OMRPortLibrary *portLibrary, uint32_t deviceId, voi
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpy2DDeviceToHostAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height, J9CudaStream stream)
+omrcuda_memcpy2DDeviceToHostAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+								  size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width,
+								  uintptr_t height, J9CudaStream stream)
 {
-	Trc_PRT_cuda_memcpy2DAsync_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToHost, stream);
+	Trc_PRT_cuda_memcpy2DAsync_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+									 cudaMemcpyDeviceToHost, stream);
 
-	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyDeviceToHost, stream);
+	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+						   cudaMemcpyDeviceToHost, stream);
 
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
@@ -4997,11 +4819,14 @@ omrcuda_memcpy2DDeviceToHostAsync(OMRPortLibrary *portLibrary, uint32_t deviceId
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpy2DHostToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height)
+omrcuda_memcpy2DHostToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch,
+							 const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height)
 {
-	Trc_PRT_cuda_memcpy2D_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyHostToDevice);
+	Trc_PRT_cuda_memcpy2D_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+								cudaMemcpyHostToDevice);
 
-	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyHostToDevice);
+	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+						   cudaMemcpyHostToDevice);
 
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
@@ -5025,11 +4850,15 @@ omrcuda_memcpy2DHostToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, voi
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpy2DHostToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width, uintptr_t height, J9CudaStream stream)
+omrcuda_memcpy2DHostToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+								  size_t targetPitch, const void *sourceAddress, size_t sourcePitch, uintptr_t width,
+								  uintptr_t height, J9CudaStream stream)
 {
-	Trc_PRT_cuda_memcpy2DAsync_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyHostToDevice, stream);
+	Trc_PRT_cuda_memcpy2DAsync_entry(deviceId, targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+									 cudaMemcpyHostToDevice, stream);
 
-	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height, cudaMemcpyHostToDevice, stream);
+	const Copy2D operation(targetAddress, targetPitch, sourceAddress, sourcePitch, width, height,
+						   cudaMemcpyHostToDevice, stream);
 
 	cudaError_t result = withDevice(portLibrary, deviceId, operation);
 
@@ -5060,23 +4889,16 @@ struct Copy : public InitializedAfter {
 
 	VMINLINE
 	Copy(void *targetAddress, void const *sourceAddress, uintptr_t byteCount, cudaMemcpyKind direction)
-		: byteCount(byteCount)
-		, direction(direction)
-		, sourceAddress(sourceAddress)
-		, stream(NULL)
-		, sync(true)
-		, targetAddress(targetAddress)
+		: byteCount(byteCount), direction(direction), sourceAddress(sourceAddress), stream(NULL), sync(true),
+		  targetAddress(targetAddress)
 	{
 	}
 
 	VMINLINE
-	Copy(void *targetAddress, void const *sourceAddress, uintptr_t byteCount, cudaMemcpyKind direction, J9CudaStream stream)
-		: byteCount(byteCount)
-		, direction(direction)
-		, sourceAddress(sourceAddress)
-		, stream(stream)
-		, sync(false)
-		, targetAddress(targetAddress)
+	Copy(void *targetAddress, void const *sourceAddress, uintptr_t byteCount, cudaMemcpyKind direction,
+		 J9CudaStream stream)
+		: byteCount(byteCount), direction(direction), sourceAddress(sourceAddress), stream(stream), sync(false),
+		  targetAddress(targetAddress)
 	{
 	}
 
@@ -5104,7 +4926,8 @@ struct Copy : public InitializedAfter {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpyDeviceToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, const void *sourceAddress, uintptr_t byteCount)
+omrcuda_memcpyDeviceToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+							 const void *sourceAddress, uintptr_t byteCount)
 {
 	Trc_PRT_cuda_memcpy_entry(deviceId, targetAddress, sourceAddress, byteCount, cudaMemcpyDeviceToDevice);
 
@@ -5129,7 +4952,8 @@ omrcuda_memcpyDeviceToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, voi
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpyDeviceToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
+omrcuda_memcpyDeviceToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+								  const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
 {
 	Trc_PRT_cuda_memcpyAsync_entry(deviceId, targetAddress, sourceAddress, byteCount, cudaMemcpyDeviceToDevice, stream);
 
@@ -5153,7 +4977,8 @@ omrcuda_memcpyDeviceToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpyDeviceToHost(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, const void *sourceAddress, uintptr_t byteCount)
+omrcuda_memcpyDeviceToHost(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+						   const void *sourceAddress, uintptr_t byteCount)
 {
 	Trc_PRT_cuda_memcpy_entry(deviceId, targetAddress, sourceAddress, byteCount, cudaMemcpyDeviceToHost);
 
@@ -5178,7 +5003,8 @@ omrcuda_memcpyDeviceToHost(OMRPortLibrary *portLibrary, uint32_t deviceId, void 
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpyDeviceToHostAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
+omrcuda_memcpyDeviceToHostAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+								const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
 {
 	Trc_PRT_cuda_memcpyAsync_entry(deviceId, targetAddress, sourceAddress, byteCount, cudaMemcpyDeviceToHost, stream);
 
@@ -5202,7 +5028,8 @@ omrcuda_memcpyDeviceToHostAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, 
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpyHostToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, const void *sourceAddress, uintptr_t byteCount)
+omrcuda_memcpyHostToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+						   const void *sourceAddress, uintptr_t byteCount)
 {
 	Trc_PRT_cuda_memcpy_entry(deviceId, targetAddress, sourceAddress, byteCount, cudaMemcpyHostToDevice);
 
@@ -5227,7 +5054,8 @@ omrcuda_memcpyHostToDevice(OMRPortLibrary *portLibrary, uint32_t deviceId, void 
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpyHostToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress, const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
+omrcuda_memcpyHostToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, void *targetAddress,
+								const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
 {
 	Trc_PRT_cuda_memcpyAsync_entry(deviceId, targetAddress, sourceAddress, byteCount, cudaMemcpyHostToDevice, stream);
 
@@ -5253,8 +5081,8 @@ omrcuda_memcpyHostToDeviceAsync(OMRPortLibrary *portLibrary, uint32_t deviceId, 
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memcpyPeer(OMRPortLibrary *portLibrary, uint32_t targetDeviceId, void *targetAddress,
-				  uint32_t sourceDeviceId, const void *sourceAddress, uintptr_t byteCount)
+omrcuda_memcpyPeer(OMRPortLibrary *portLibrary, uint32_t targetDeviceId, void *targetAddress, uint32_t sourceDeviceId,
+				   const void *sourceAddress, uintptr_t byteCount)
 {
 	Trc_PRT_cuda_memcpyPeer_entry(targetDeviceId, targetAddress, sourceDeviceId, sourceAddress, byteCount);
 
@@ -5266,9 +5094,7 @@ omrcuda_memcpyPeer(OMRPortLibrary *portLibrary, uint32_t targetDeviceId, void *t
 	}
 
 	if ((cudaSuccess == result) && (NULL != functions->MemcpyPeer)) {
-		result = functions->MemcpyPeer(
-					 targetAddress, targetDeviceId,
-					 sourceAddress, sourceDeviceId, byteCount);
+		result = functions->MemcpyPeer(targetAddress, targetDeviceId, sourceAddress, sourceDeviceId, byteCount);
 	}
 
 	Trc_PRT_cuda_memcpyPeer_exit(result);
@@ -5290,7 +5116,7 @@ omrcuda_memcpyPeer(OMRPortLibrary *portLibrary, uint32_t targetDeviceId, void *t
  */
 extern "C" int32_t
 omrcuda_memcpyPeerAsync(OMRPortLibrary *portLibrary, uint32_t targetDeviceId, void *targetAddress,
-					   uint32_t sourceDeviceId, const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
+						uint32_t sourceDeviceId, const void *sourceAddress, uintptr_t byteCount, J9CudaStream stream)
 {
 	Trc_PRT_cuda_memcpyPeerAsync_entry(targetDeviceId, targetAddress, sourceDeviceId, sourceAddress, byteCount, stream);
 
@@ -5302,9 +5128,8 @@ omrcuda_memcpyPeerAsync(OMRPortLibrary *portLibrary, uint32_t targetDeviceId, vo
 	}
 
 	if ((cudaSuccess == result) && (NULL != functions->MemcpyPeerAsync)) {
-		result = functions->MemcpyPeerAsync(
-					 targetAddress, targetDeviceId,
-					 sourceAddress, sourceDeviceId, byteCount, (cudaStream_t)stream);
+		result = functions->MemcpyPeerAsync(targetAddress, targetDeviceId, sourceAddress, sourceDeviceId, byteCount,
+											(cudaStream_t)stream);
 	}
 
 	Trc_PRT_cuda_memcpyPeerAsync_exit(result);
@@ -5332,10 +5157,7 @@ struct Fill8 : InitializedBefore {
 
 	VMINLINE
 	Fill8(void *deviceAddress, uint8_t value, uintptr_t count, J9CudaStream stream)
-		: count(count)
-		, deviceAddress(deviceAddress)
-		, stream(stream)
-		, value(value)
+		: count(count), deviceAddress(deviceAddress), stream(stream), value(value)
 	{
 	}
 
@@ -5360,7 +5182,8 @@ struct Fill8 : InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memset8Async(OMRPortLibrary *portLibrary, uint32_t deviceId, void *deviceAddress, uint8_t value, uintptr_t count, J9CudaStream stream)
+omrcuda_memset8Async(OMRPortLibrary *portLibrary, uint32_t deviceId, void *deviceAddress, uint8_t value,
+					 uintptr_t count, J9CudaStream stream)
 {
 	Trc_PRT_cuda_memset8_entry(deviceId, deviceAddress, value, count, stream);
 
@@ -5393,10 +5216,7 @@ struct Fill16 : public InitializedBefore {
 
 	VMINLINE
 	Fill16(void *deviceAddress, uint16_t value, uintptr_t count, J9CudaStream stream)
-		: count(count)
-		, deviceAddress(deviceAddress)
-		, stream(stream)
-		, value(value)
+		: count(count), deviceAddress(deviceAddress), stream(stream), value(value)
 	{
 	}
 
@@ -5421,7 +5241,8 @@ struct Fill16 : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memset16Async(OMRPortLibrary *portLibrary, uint32_t deviceId, void *deviceAddress, uint16_t value, uintptr_t count, J9CudaStream stream)
+omrcuda_memset16Async(OMRPortLibrary *portLibrary, uint32_t deviceId, void *deviceAddress, uint16_t value,
+					  uintptr_t count, J9CudaStream stream)
 {
 	Trc_PRT_cuda_memset16_entry(deviceId, deviceAddress, value, count, stream);
 
@@ -5454,10 +5275,7 @@ struct Fill32 : public InitializedBefore {
 
 	VMINLINE
 	Fill32(void *deviceAddress, uint32_t value, uintptr_t count, J9CudaStream stream)
-		: count(count)
-		, deviceAddress(deviceAddress)
-		, stream(stream)
-		, value(value)
+		: count(count), deviceAddress(deviceAddress), stream(stream), value(value)
 	{
 	}
 
@@ -5482,7 +5300,8 @@ struct Fill32 : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_memset32Async(OMRPortLibrary *portLibrary, uint32_t deviceId, void *deviceAddress, uint32_t value, uintptr_t count, J9CudaStream stream)
+omrcuda_memset32Async(OMRPortLibrary *portLibrary, uint32_t deviceId, void *deviceAddress, uint32_t value,
+					  uintptr_t count, J9CudaStream stream)
 {
 	Trc_PRT_cuda_memset32_entry(deviceId, deviceAddress, value, count, stream);
 
@@ -5512,12 +5331,7 @@ struct GetFunction : public InitializedBefore {
 	const char *const name;
 
 	VMINLINE
-	GetFunction(CUmodule module, const char *name)
-		: function(NULL)
-		, module(module)
-		, name(name)
-	{
-	}
+	GetFunction(CUmodule module, const char *name) : function(NULL), module(module), name(name) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -5539,7 +5353,8 @@ struct GetFunction : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_moduleGetFunction(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name, J9CudaFunction *functionOut)
+omrcuda_moduleGetFunction(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name,
+						  J9CudaFunction *functionOut)
 {
 	Trc_PRT_cuda_moduleGetFunction_entry(deviceId, module, name);
 
@@ -5577,13 +5392,7 @@ struct GetGlobal : public InitializedBefore {
 	CUdeviceptr symbol;
 
 	VMINLINE
-	GetGlobal(CUmodule module, const char *name)
-		: module(module)
-		, name(name)
-		, size(0)
-		, symbol(0)
-	{
-	}
+	GetGlobal(CUmodule module, const char *name) : module(module), name(name), size(0), symbol(0) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -5606,7 +5415,8 @@ struct GetGlobal : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_moduleGetGlobal(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name, uintptr_t *addressOut, uintptr_t *sizeOut)
+omrcuda_moduleGetGlobal(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name,
+						uintptr_t *addressOut, uintptr_t *sizeOut)
 {
 	Trc_PRT_cuda_moduleGetGlobal_entry(deviceId, module, name);
 
@@ -5643,12 +5453,7 @@ struct GetSurface : public InitializedBefore {
 	CUsurfref surface;
 
 	VMINLINE
-	GetSurface(CUmodule module, const char *name)
-		: module(module)
-		, name(name)
-		, surface(NULL)
-	{
-	}
+	GetSurface(CUmodule module, const char *name) : module(module), name(name), surface(NULL) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -5670,7 +5475,8 @@ struct GetSurface : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_moduleGetSurfaceRef(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name, uintptr_t *surfRefOut)
+omrcuda_moduleGetSurfaceRef(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name,
+							uintptr_t *surfRefOut)
 {
 	Trc_PRT_cuda_moduleGetSurfRef_entry(deviceId, module, name);
 
@@ -5706,12 +5512,7 @@ struct GetTexture : public InitializedBefore {
 	CUtexref texture;
 
 	VMINLINE
-	GetTexture(CUmodule module, const char *name)
-		: module(module)
-		, name(name)
-		, texture(NULL)
-	{
-	}
+	GetTexture(CUmodule module, const char *name) : module(module), name(name), texture(NULL) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -5733,7 +5534,8 @@ struct GetTexture : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_moduleGetTextureRef(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name, uintptr_t *texRefOut)
+omrcuda_moduleGetTextureRef(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaModule module, const char *name,
+							uintptr_t *texRefOut)
 {
 	Trc_PRT_cuda_moduleGetTexRef_entry(deviceId, module, name);
 
@@ -5769,12 +5571,7 @@ struct Load : public InitializedBefore {
 	J9CudaJitOptions *const options;
 
 	VMINLINE
-	Load(const void *image, J9CudaJitOptions *options)
-		: image(image)
-		, module(NULL)
-		, options(options)
-	{
-	}
+	Load(const void *image, J9CudaJitOptions *options) : image(image), module(NULL), options(options) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -5784,13 +5581,8 @@ struct Load : public InitializedBefore {
 		cudaError_t result = loadOptions.set(options);
 
 		if (cudaSuccess == result) {
-			result = translate(
-						 functions->ModuleLoadDataEx(
-							 &module,
-							 image,
-							 loadOptions.getCount(),
-							 loadOptions.getKeys(),
-							 loadOptions.getValues()));
+			result = translate(functions->ModuleLoadDataEx(&module, image, loadOptions.getCount(),
+														   loadOptions.getKeys(), loadOptions.getValues()));
 		}
 
 		return result;
@@ -5810,7 +5602,8 @@ struct Load : public InitializedBefore {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_moduleLoad(OMRPortLibrary *portLibrary, uint32_t deviceId, const void *image, J9CudaJitOptions *options, J9CudaModule *moduleOut)
+omrcuda_moduleLoad(OMRPortLibrary *portLibrary, uint32_t deviceId, const void *image, J9CudaJitOptions *options,
+				   J9CudaModule *moduleOut)
 {
 	Trc_PRT_cuda_moduleLoad_entry(deviceId, image, options);
 
@@ -5950,11 +5743,7 @@ struct StreamAddCallback : public InitializedAfter {
 	cudaStream_t const stream;
 
 	VMINLINE
-	StreamAddCallback(cudaStream_t stream, StreamCallback *callback)
-		: callback(callback)
-		, stream(stream)
-	{
-	}
+	StreamAddCallback(cudaStream_t stream, StreamCallback *callback) : callback(callback), stream(stream) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions) const
@@ -5976,7 +5765,8 @@ struct StreamAddCallback : public InitializedAfter {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_streamAddCallback(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaStream stream, J9CudaStreamCallback clientFunction, uintptr_t clientData)
+omrcuda_streamAddCallback(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaStream stream,
+						  J9CudaStreamCallback clientFunction, uintptr_t clientData)
 {
 	Trc_PRT_cuda_streamAddCallback_entry(deviceId, stream, (void *)clientFunction, clientData);
 
@@ -6021,10 +5811,7 @@ struct StreamCreate : public InitializedAfter {
 	cudaStream_t stream;
 
 	VMINLINE
-	StreamCreate()
-		: stream(NULL)
-	{
-	}
+	StreamCreate() : stream(NULL) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -6080,12 +5867,7 @@ struct StreamCreateEx : public InitializedAfter {
 	cudaStream_t stream;
 
 	VMINLINE
-	StreamCreateEx(uint32_t flags, int32_t priority)
-		: flags(flags)
-		, priority(priority)
-		, stream(NULL)
-	{
-	}
+	StreamCreateEx(uint32_t flags, int32_t priority) : flags(flags), priority(priority), stream(NULL) {}
 
 	VMINLINE cudaError_t
 	execute(J9CudaFunctionTable *functions)
@@ -6123,7 +5905,8 @@ struct StreamCreateEx : public InitializedAfter {
  * @return J9CUDA_NO_ERROR on success, any other value on failure
  */
 extern "C" int32_t
-omrcuda_streamCreateWithPriority(OMRPortLibrary *portLibrary, uint32_t deviceId, int32_t priority, uint32_t flags, J9CudaStream *streamOut)
+omrcuda_streamCreateWithPriority(OMRPortLibrary *portLibrary, uint32_t deviceId, int32_t priority, uint32_t flags,
+								 J9CudaStream *streamOut)
 {
 	Trc_PRT_cuda_streamCreateWithPriority_entry(deviceId, priority, flags);
 

@@ -76,7 +76,8 @@ omrthread_numa_get_max_node(void)
 }
 
 intptr_t
-omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t nodeCount, uint32_t flags)
+omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t nodeCount,
+										uint32_t flags)
 {
 	intptr_t result = J9THREAD_NUMA_OK;
 	HANDLE processHandle = GetCurrentProcess();
@@ -120,8 +121,8 @@ omrthread_numa_set_node_affinity(omrthread_t thread, const uintptr_t *numaNodes,
 			THREAD_UNLOCK(thread);
 		}
 	} else {
-		result = J9THREAD_NUMA_OK;	
-	} 
+		result = J9THREAD_NUMA_OK;
+	}
 	return result;
 }
 

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "StartupManagerTestExample.hpp"
 #include "GCExtensionsBase.hpp"
 #include <string.h>
@@ -29,7 +28,8 @@ MM_StartupManagerTestExample::parseLanguageOptions(MM_GCExtensionsBase *extensio
 	pugi::xml_document doc;
 	pugi::xml_parse_result parseResult = doc.load_file(_configFile);
 	if (!parseResult) {
-		gcTestEnv->log(LEVEL_ERROR, "Failed to load test configuration file (%s) with error description: %s.\n", _configFile, parseResult.description());
+		gcTestEnv->log(LEVEL_ERROR, "Failed to load test configuration file (%s) with error description: %s.\n",
+					   _configFile, parseResult.description());
 		result = false;
 	} else {
 		/* parse options */
@@ -86,12 +86,14 @@ MM_StartupManagerTestExample::parseLanguageOptions(MM_GCExtensionsBase *extensio
 #if defined(OMR_GC_MODRON_SCAVENGER)
 					extensions->scavengerEnabled = (0 == j9_cmdla_stricmp(attr.value(), "gencon"));
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
-					extensions->concurrentMark = extensions->scavengerEnabled || (0 == j9_cmdla_stricmp(attr.value(), "optavgpause"));
+					extensions->concurrentMark =
+						extensions->scavengerEnabled || (0 == j9_cmdla_stricmp(attr.value(), "optavgpause"));
 #endif /* defined(OMR_GC_MODRON_CONCURRENT_MARK)*/
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */
 				} else if (0 == strcmp(attr.name(), "forceBackOut")) {
 					extensions->fvtest_forceScavengerBackout = (0 == j9_cmdla_stricmp(attr.value(), "true"));
-				} else if ((0 == strcmp(attr.name(), "verboseLog")) || (0 == strcmp(attr.name(), "numOfFiles")) || (0 == strcmp(attr.name(), "numOfCycles")) || (0 == strcmp(attr.name(), "sizeUnit"))) {
+				} else if ((0 == strcmp(attr.name(), "verboseLog")) || (0 == strcmp(attr.name(), "numOfFiles"))
+						   || (0 == strcmp(attr.name(), "numOfCycles")) || (0 == strcmp(attr.name(), "sizeUnit"))) {
 				} else {
 					result = false;
 					gcTestEnv->log(LEVEL_ERROR, "Failed: Unrecognized option: %s\n", attr.name());

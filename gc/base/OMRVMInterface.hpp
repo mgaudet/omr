@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(OMRVMINTERFACE_HPP_)
 #define OMRVMINTERFACE_HPP_
 
@@ -35,11 +34,11 @@ class GC_OMRVMInterface
 private:
 protected:
 public:
-	static void flushCachesForWalk(OMR_VM* omrVM);
+	static void flushCachesForWalk(OMR_VM *omrVM);
 	static void flushCachesForGC(MM_EnvironmentBase *env);
 	static void flushNonAllocationCaches(MM_EnvironmentBase *env);
 	static void initializeExtensions(MM_GCExtensionsBase *extensions);
-	static J9HookInterface** getOmrHookInterface(MM_GCExtensionsBase *extensions);
+	static J9HookInterface **getOmrHookInterface(MM_GCExtensionsBase *extensions);
 };
 
 #endif /* OMRVMINTERFACE_HPP_ */

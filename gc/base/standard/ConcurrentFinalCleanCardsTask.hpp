@@ -42,11 +42,15 @@ class MM_ConcurrentFinalCleanCardsTask : public MM_ParallelTask
 {
 private:
 	MM_ConcurrentGC *_collector;
-	MM_CycleState *_cycleState;  /**< Collection cycle state active for the task */
+	MM_CycleState *_cycleState; /**< Collection cycle state active for the task */
 
 public:
-	virtual UDATA getVMStateID() { return J9VMSTATE_GC_CONCURRENT_MARK_FINAL_CLEAN_CARDS; };
-	
+	virtual UDATA
+	getVMStateID()
+	{
+		return J9VMSTATE_GC_CONCURRENT_MARK_FINAL_CLEAN_CARDS;
+	};
+
 	virtual void run(MM_EnvironmentBase *env);
 	virtual void setup(MM_EnvironmentBase *env);
 	virtual void cleanup(MM_EnvironmentBase *env);
@@ -54,10 +58,9 @@ public:
 	/**
 	 * Create a ConcurrentFinalCleanCardsTask object
 	 */
-	MM_ConcurrentFinalCleanCardsTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_ConcurrentGC *collector, MM_CycleState *cycleState) :
-		MM_ParallelTask(env, dispatcher)
-		,_collector(collector)
-		,_cycleState(cycleState)
+	MM_ConcurrentFinalCleanCardsTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_ConcurrentGC *collector,
+									 MM_CycleState *cycleState)
+		: MM_ParallelTask(env, dispatcher), _collector(collector), _cycleState(cycleState)
 	{
 		_typeId = __FUNCTION__;
 	};

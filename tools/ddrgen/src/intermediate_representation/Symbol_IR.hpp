@@ -28,7 +28,8 @@
 
 using std::vector;
 
-class Symbol_IR {
+class Symbol_IR
+{
 public:
 	std::vector<Type *> _types;
 

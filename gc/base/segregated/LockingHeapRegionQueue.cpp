@@ -35,15 +35,17 @@
  * on the list.
  */
 MM_LockingHeapRegionQueue *
-MM_LockingHeapRegionQueue::newInstance(MM_EnvironmentBase *env, RegionListKind regionListKind, bool singleRegionsOnly, bool concurrentAccess, bool trackFreeBytes)
+MM_LockingHeapRegionQueue::newInstance(MM_EnvironmentBase *env, RegionListKind regionListKind, bool singleRegionsOnly,
+									   bool concurrentAccess, bool trackFreeBytes)
 {
-	MM_LockingHeapRegionQueue *regionList = (MM_LockingHeapRegionQueue *)env->getForge()->allocate(sizeof(MM_LockingHeapRegionQueue), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	MM_LockingHeapRegionQueue *regionList = (MM_LockingHeapRegionQueue *)env->getForge()->allocate(
+		sizeof(MM_LockingHeapRegionQueue), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (regionList) {
 		new (regionList) MM_LockingHeapRegionQueue(regionListKind, singleRegionsOnly, concurrentAccess, trackFreeBytes);
 		if (!regionList->initialize(env)) {
 			regionList->kill(env);
 			return NULL;
-		}		
+		}
 	}
 	return regionList;
 }
@@ -61,10 +63,10 @@ MM_LockingHeapRegionQueue::initialize(MM_EnvironmentBase *env)
 	if (_needLock && (0 != omrthread_monitor_init_with_name(&_lockMonitor, 0, "RegionList lock monitor"))) {
 		return false;
 	}
-	
+
 	return true;
 }
-	
+
 void
 MM_LockingHeapRegionQueue::tearDown(MM_EnvironmentBase *env)
 {
@@ -96,7 +98,7 @@ MM_LockingHeapRegionQueue::showList(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	uintptr_t index = 0;
-	uintptr_t count = 0;	
+	uintptr_t count = 0;
 	lock();
 	omrtty_printf("LockingHeapRegionList 0x%x: ", this);
 	for (MM_HeapRegionDescriptorSegregated *cur = _head; cur != NULL; cur = cur->getNext()) {

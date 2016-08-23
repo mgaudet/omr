@@ -16,22 +16,20 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "RegionPool.hpp"
 
-bool 
+bool
 MM_RegionPool::initialize(MM_EnvironmentBase *env)
 {
 	return true;
 }
 
-void 
+void
 MM_RegionPool::tearDown(MM_EnvironmentBase *env)
 {
-	
 }
 
-void 
+void
 MM_RegionPool::kill(MM_EnvironmentBase *env)
 {
 	tearDown(env);

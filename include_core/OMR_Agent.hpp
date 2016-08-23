@@ -26,10 +26,8 @@
 #include "omr.h"
 #include "omragent.h"
 
-
-struct OMR_Agent
-{
-/*
+struct OMR_Agent {
+	/*
  * Data members
  */
 public:
@@ -37,7 +35,8 @@ public:
 
 	/* The following private data has been made public so that this header file can be processed for DDR */
 
-	typedef omr_error_t (*onloadfunc_t)(OMR_TI const *ti, OMR_VM *vm, char const *options, OMR_AgentCallbacks *agentCallbacks, ...);
+	typedef omr_error_t (*onloadfunc_t)(OMR_TI const *ti, OMR_VM *vm, char const *options,
+										OMR_AgentCallbacks *agentCallbacks, ...);
 	typedef omr_error_t (*onunloadfunc_t)(OMR_TI const *ti, OMR_VM *vm);
 
 	enum State {
@@ -63,9 +62,7 @@ public:
 
 protected:
 private:
-
-
-/*
+	/*
  * Function members
  */
 public:
@@ -85,7 +82,7 @@ public:
 	 *
 	 * @param[in] agent The OMR agent.
 	 */
-	static void	destroyAgent(OMR_Agent *agent);
+	static void destroyAgent(OMR_Agent *agent);
 
 	/**
 	 * Load the agent library, and lookup the OnLoad and OnUnload functions.
@@ -126,10 +123,10 @@ public:
 	omr_error_t callOnPostForkChild(void);
 
 protected:
-
 private:
 	OMR_Agent(OMR_VM *vm, char const *arg);
-	void *operator new(size_t size, void *memoryPtr)
+	void *
+	operator new(size_t size, void *memoryPtr)
 	{
 		return memoryPtr;
 	}

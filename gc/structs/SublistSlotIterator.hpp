@@ -40,20 +40,15 @@ class GC_SublistSlotIterator
 	MM_SublistPuddle *_puddle;
 	uintptr_t *_scanPtr;
 	uintptr_t _removedCount; /**< keep a running count of elements removed from puddle */
-	
+
 	bool _returnedFilledSlot; /**< if last slot returned was filled or null */
 
 public:
-	GC_SublistSlotIterator(MM_SublistPuddle *sublist) :
-		_puddle(sublist),
-		_scanPtr(sublist->_listBase),
-		_removedCount(0),
-		_returnedFilledSlot(false)
-	{};
+	GC_SublistSlotIterator(MM_SublistPuddle *sublist)
+		: _puddle(sublist), _scanPtr(sublist->_listBase), _removedCount(0), _returnedFilledSlot(false){};
 
 	void *nextSlot();
 	void removeSlot();
 };
 
 #endif /* SUBLISTSLOTITERATOR_HPP_ */
-

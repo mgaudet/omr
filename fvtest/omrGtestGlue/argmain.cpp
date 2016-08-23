@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /*
  * Perform platform-specific conversions on (argc, argv) before invoking the generic
  * test main function.

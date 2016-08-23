@@ -20,10 +20,7 @@
 
 #include "config.hpp"
 
-EnumUDT::EnumUDT(unsigned int lineNumber)
-	: UDT(ENUM, 4, lineNumber)
-{
-};
+EnumUDT::EnumUDT(unsigned int lineNumber) : UDT(ENUM, 4, lineNumber){};
 
 EnumUDT::~EnumUDT()
 {
@@ -31,7 +28,7 @@ EnumUDT::~EnumUDT()
 		if (_enumMembers[i] == NULL) {
 			ERRMSG("Null member, cannot free");
 		} else {
-			delete(_enumMembers[i]);
+			delete (_enumMembers[i]);
 		}
 	}
 	_enumMembers.clear();
@@ -44,7 +41,7 @@ EnumUDT::isAnonymousType()
 }
 
 bool
-EnumUDT::equal(Type const& type, set<Type const*> *checked) const
+EnumUDT::equal(Type const &type, set<Type const *> *checked) const
 {
 	bool ret = false;
 	if (checked->find(this) != checked->end()) {
@@ -57,8 +54,7 @@ EnumUDT::equal(Type const& type, set<Type const*> *checked) const
 			if (membersEqual) {
 				for (size_t i = 0; i < _enumMembers.size(); i += 1) {
 					if ((_enumMembers[i]->_name != enumUDT->_enumMembers[i]->_name)
-						|| (_enumMembers[i]->_value != enumUDT->_enumMembers[i]->_value)
-					) {
+						|| (_enumMembers[i]->_value != enumUDT->_enumMembers[i]->_value)) {
 						membersEqual = false;
 						break;
 					}
@@ -77,10 +73,7 @@ EnumUDT::replaceType(Type *typeToReplace, Type *replaceWith)
 }
 
 DDR_RC
-EnumUDT::scanChildInfo(Scanner *scanner, void *data)
-{
-	return scanner->dispatchScanChildInfo(this, data);
-}
+EnumUDT::scanChildInfo(Scanner *scanner, void *data) { return scanner->dispatchScanChildInfo(this, data); }
 
 string
 EnumUDT::getSymbolTypeName()

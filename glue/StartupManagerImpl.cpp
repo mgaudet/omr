@@ -64,7 +64,7 @@ MM_StartupManagerImpl::createCollectorLanguageInterface(MM_EnvironmentBase *env)
 }
 
 MM_VerboseManagerBase *
-MM_StartupManagerImpl::createVerboseManager(MM_EnvironmentBase* env)
+MM_StartupManagerImpl::createVerboseManager(MM_EnvironmentBase *env)
 {
 	return MM_VerboseManagerImpl::newInstance(env, env->getOmrVM());
 }

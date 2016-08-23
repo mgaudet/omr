@@ -47,7 +47,7 @@ private:
 
 public:
 	virtual uintptr_t getVMStateID();
-	
+
 	virtual void run(MM_EnvironmentBase *env);
 	virtual void setup(MM_EnvironmentBase *env);
 	virtual void cleanup(MM_EnvironmentBase *env);
@@ -55,11 +55,10 @@ public:
 	/**
 	 * Create an ParallelCompactTask object.
 	 */
-	MM_ParallelCompactTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_CompactScheme *compactScheme, bool rebuildMarkBits, bool aggressive) :
-		MM_ParallelTask(env, dispatcher),
-		_compactScheme(compactScheme),
-		_rebuildMarkBits(rebuildMarkBits),
-		_aggressive(aggressive)
+	MM_ParallelCompactTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_CompactScheme *compactScheme,
+						   bool rebuildMarkBits, bool aggressive)
+		: MM_ParallelTask(env, dispatcher), _compactScheme(compactScheme), _rebuildMarkBits(rebuildMarkBits),
+		  _aggressive(aggressive)
 	{
 		_typeId = __FUNCTION__;
 	};

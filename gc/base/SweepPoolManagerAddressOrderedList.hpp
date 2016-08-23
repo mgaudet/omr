@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base
@@ -37,21 +36,16 @@
 class MM_SweepPoolManagerAddressOrderedList : public MM_SweepPoolManagerAddressOrderedListBase
 {
 private:
-
 protected:
-
 public:
-
 	static MM_SweepPoolManagerAddressOrderedList *newInstance(MM_EnvironmentBase *env);
 
 	/**
 	 * Create a SweepPoolManager object.
 	 */
-	MM_SweepPoolManagerAddressOrderedList(MM_EnvironmentBase *env)
-		: MM_SweepPoolManagerAddressOrderedListBase(env)
+	MM_SweepPoolManagerAddressOrderedList(MM_EnvironmentBase *env) : MM_SweepPoolManagerAddressOrderedListBase(env)
 	{
 		_typeId = __FUNCTION__;
 	}
-
 };
 #endif /* SWEEPPOOLMANAGERADDRESSORDEREDLIST_HPP_ */

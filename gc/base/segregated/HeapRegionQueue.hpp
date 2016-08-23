@@ -37,16 +37,14 @@
  */
 class MM_HeapRegionQueue : public MM_HeapRegionList
 {
-/* Data members & types */		
-public:		
-protected:
-private:	
-	
-/* Methods */	
+	/* Data members & types */
 public:
-
+protected:
+private:
+	/* Methods */
+public:
 	virtual void kill(MM_EnvironmentBase *env) = 0;
-	
+
 	virtual bool initialize(MM_EnvironmentBase *env) = 0;
 	virtual void tearDown(MM_EnvironmentBase *env) = 0;
 
@@ -56,12 +54,12 @@ public:
 	 * region push and pop operations are used and updateCounts doesn't get called on a region that lives
 	 * on the list.
 	 */
-	MM_HeapRegionQueue(RegionListKind regionListKind, bool singleRegionsOnly, bool trackFreeBytes) : 
-		MM_HeapRegionList(regionListKind, singleRegionsOnly)
+	MM_HeapRegionQueue(RegionListKind regionListKind, bool singleRegionsOnly, bool trackFreeBytes)
+		: MM_HeapRegionList(regionListKind, singleRegionsOnly)
 	{
 		_typeId = __FUNCTION__;
 	}
-	
+
 	virtual void enqueue(MM_HeapRegionDescriptorSegregated *region) = 0;
 
 	virtual void enqueue(MM_HeapRegionQueue *target) = 0;

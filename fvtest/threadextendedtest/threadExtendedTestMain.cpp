@@ -34,7 +34,8 @@ testMain(int argc, char **argv, char **envp)
 	 * check for fatal failures in sub-routine thrExtendedTestSetUp().
 	 */
 	if (!testing::Test::HasFatalFailure()) {
-		omrTestEnv = (ThreadExtendedTestEnvironment *)testing::AddGlobalTestEnvironment(new ThreadExtendedTestEnvironment(argc, argv, &portLibrary));
+		omrTestEnv = (ThreadExtendedTestEnvironment *)testing::AddGlobalTestEnvironment(
+			new ThreadExtendedTestEnvironment(argc, argv, &portLibrary));
 
 		OMRPORT_ACCESS_FROM_OMRPORT(&portLibrary);
 

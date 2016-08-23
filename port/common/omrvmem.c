@@ -73,7 +73,8 @@ omrvmem_startup(struct OMRPortLibrary *portLibrary)
  * @return pointer to the allocated memory on success, NULL on failure.
  */
 void *
-omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+					  struct J9PortVmemIdentifier *identifier)
 {
 	return NULL;
 }
@@ -93,7 +94,8 @@ omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr
  * @return 0 on success, non zero on failure.
  */
 intptr_t
-omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+						struct J9PortVmemIdentifier *identifier)
 {
 	return OMRPORT_ERROR_VMEM_OPFAILED;
 }
@@ -111,7 +113,8 @@ omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintp
  * @return 0 on success, non zero on failure.
  */
 int32_t
-omrvmem_free_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_free_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+					struct J9PortVmemIdentifier *identifier)
 {
 	return OMRPORT_ERROR_VMEM_OPFAILED;
 }
@@ -168,11 +171,11 @@ omrvmem_vmem_params_init(struct OMRPortLibrary *portLibrary, struct J9PortVmemPa
  * can not be allocated the result would be an infinite loop.
  */
 void *
-omrvmem_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize, uint32_t category)
+omrvmem_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+					   struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize, uint32_t category)
 {
 	return NULL;
 }
-
 
 /**
  * Reserve memory
@@ -191,7 +194,8 @@ omrvmem_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintpt
  * @return pointer to the reserved memory on success, NULL on failure.
  */
 void *
-omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, struct J9PortVmemParams *params)
+omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+						  struct J9PortVmemParams *params)
 {
 	return NULL;
 }
@@ -263,7 +267,8 @@ omrvmem_supported_page_flags(struct OMRPortLibrary *portLibrary)
  * @return void
  */
 void
-omrvmem_default_large_page_size_ex(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize, uintptr_t *pageFlags)
+omrvmem_default_large_page_size_ex(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize,
+								   uintptr_t *pageFlags)
 {
 	return;
 }
@@ -294,7 +299,8 @@ omrvmem_default_large_page_size_ex(struct OMRPortLibrary *portLibrary, uintptr_t
  * @return 0 on success, does not fail.
  */
 intptr_t
-omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize, uintptr_t *pageFlags, BOOLEAN *isSizeSupported)
+omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize,
+							 uintptr_t *pageFlags, BOOLEAN *isSizeSupported)
 {
 	return 0;
 }
@@ -319,7 +325,8 @@ omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode,
 * @return	0, if no errors occurred, otherwise the (negative) error code.
 */
 intptr_t
-omrvmem_numa_set_affinity(struct OMRPortLibrary *portLibrary, uintptr_t numaNode, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_numa_set_affinity(struct OMRPortLibrary *portLibrary, uintptr_t numaNode, void *address, uintptr_t byteAmount,
+						  struct J9PortVmemIdentifier *identifier)
 {
 	return OMRPORT_ERROR_VMEM_OPFAILED;
 }

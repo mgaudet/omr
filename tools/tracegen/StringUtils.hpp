@@ -29,7 +29,6 @@ class StringUtils
 private:
 protected:
 public:
-
 	/*
 	 * Function members
 	 */

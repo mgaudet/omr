@@ -24,7 +24,6 @@
  * Do not enable OMR_PORT_NUMA_SUPPORT until these issues have been resolved
  */
 
-
 /**
  * @file
  * @ingroup Thread
@@ -38,22 +37,20 @@
 #include <stdio.h> /* for printf debugging */
 #include <dlfcn.h>
 
-
 /* This ifdef is specifically provided to allow compilation on AIX 5.3 of features which we can only use on 6.1 */
 #if !defined(__ENHANCED_AFFINITY)
 #include <sys/systemcfg.h>
-#define __ENHANCED_AFFINITY_MASK    0x1000
-#define __ENHANCED_AFFINITY() \
-           (_system_configuration.kernel & __ENHANCED_AFFINITY_MASK)
+#define __ENHANCED_AFFINITY_MASK 0x1000
+#define __ENHANCED_AFFINITY() (_system_configuration.kernel & __ENHANCED_AFFINITY_MASK)
 
 /* sys/processor.h */
 typedef short sradid_t;
 
 /* sys/rset.h */
-#define R_SRADSDL       R_MCMSDL
-#define RS_SRADID_LOADAVG   2
-#define R_SRADID        13
-#define SRADID_ANY          (-1)
+#define R_SRADSDL R_MCMSDL
+#define RS_SRADID_LOADAVG 2
+#define R_SRADID 13
+#define SRADID_ANY (-1)
 typedef struct loadavg_info {
 	int load_average;
 	int cpu_count;
@@ -62,15 +59,15 @@ typedef struct loadavg_info {
 #if !defined(_AIX61) || defined(J9OS_I5_V6R1)
 /* create rsid_t_MODIFIED since rsid_t is already defined in 5.3 but is missing the at_sradid field */
 typedef union {
-	pid_t at_pid;           /* Process id (for R_PROCESS and R_PROCMEM */
-	tid_t at_tid;           /* Kernel thread id (for R_THREAD) */
-	int at_shmid;           /* Shared memory id (for R_SHM) */
-	int at_fd;              /* File descriptor (for R_FILDES) */
-	rsethandle_t at_rset;   /* Resource set handle (for R_RSET) */
-	subrange_t *at_subrange;  /* Memory ranges (for R_SUBRANGE) */
-	sradid_t at_sradid;     /* SRAD id (for R_SRADID) */
+	pid_t at_pid;			 /* Process id (for R_PROCESS and R_PROCMEM */
+	tid_t at_tid;			 /* Kernel thread id (for R_THREAD) */
+	int at_shmid;			 /* Shared memory id (for R_SHM) */
+	int at_fd;				 /* File descriptor (for R_FILDES) */
+	rsethandle_t at_rset;	/* Resource set handle (for R_RSET) */
+	subrange_t *at_subrange; /* Memory ranges (for R_SUBRANGE) */
+	sradid_t at_sradid;		 /* SRAD id (for R_SRADID) */
 #ifdef _KERNEL
-	ulong_t at_raw_val;     /* raw value: used to avoid copy typecasting */
+	ulong_t at_raw_val; /* raw value: used to avoid copy typecasting */
 #endif
 } rsid_t_MODIFIED;
 #endif
@@ -92,7 +89,7 @@ struct vm_srad_meminfo {
 	int vmsrad_aff_priv_pct;
 	int vmsrad_aff_avail_pct;
 };
-#define VM_SRAD_MEMINFO        106
+#define VM_SRAD_MEMINFO 106
 
 #endif /* !defined(__ENHANCED_AFFINITY) */
 
@@ -114,7 +111,6 @@ static BOOLEAN isNumaAvailable = FALSE;
  */
 static intptr_t bindThreadToNode(omrthread_t thread, uintptr_t nodeNumber);
 
-
 /**
  *
  * This function must only be called *once*. It is called from omrthread_init().
@@ -122,7 +118,7 @@ static intptr_t bindThreadToNode(omrthread_t thread, uintptr_t nodeNumber);
 void
 omrthread_numa_init(omrthread_library_t threadLibrary)
 {
-	PTR_rs_get_homesrad = (sradid_t (*)(void))dlsym(RTLD_DEFAULT, "rs_get_homesrad");
+	PTR_rs_get_homesrad = (sradid_t(*)(void))dlsym(RTLD_DEFAULT, "rs_get_homesrad");
 #if !defined(_AIX61) || defined(J9OS_I5_V6R1)
 	PTR_ra_attach = (int (*)(rstype_t, rsid_t, rstype_t, rsid_t_MODIFIED, uint_t))dlsym(RTLD_DEFAULT, "ra_attach");
 #else
@@ -178,7 +174,8 @@ omrthread_numa_get_max_node(void)
 }
 
 intptr_t
-omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t numaCount, uint32_t flags)
+omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t numaCount,
+										uint32_t flags)
 {
 	intptr_t result = 0;
 #if defined(OMR_PORT_NUMA_SUPPORT)

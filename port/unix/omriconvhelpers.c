@@ -54,7 +54,8 @@ const char *ebcdic = "IBM-1047";
  * @return TRUE on success, FALSE on failure
  */
 static BOOLEAN
-openIconvDescriptor(iconv_t *globalConverter, MUTEX *globalConverterMutex, uint32_t index, const char *toCode, const char *fromCode, uint32_t *initializedConvertors)
+openIconvDescriptor(iconv_t *globalConverter, MUTEX *globalConverterMutex, uint32_t index, const char *toCode,
+					const char *fromCode, uint32_t *initializedConvertors)
 {
 	BOOLEAN success = TRUE;
 	iconv_t tmpConverter = iconv_open(toCode, fromCode);
@@ -112,13 +113,18 @@ iconv_global_init(struct OMRPortLibrary *portLibrary)
 	char *langinfo = nl_langinfo(CODESET);
 
 	Assert_PRT_true(UNCACHED_ICONV_DESCRIPTOR <= 32); /* ensure we have the right number of bits */
-	success =
-		openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_UTF8_TO_EBCDIC_ICONV_DESCRIPTOR, ebcdic, utf8, &initializedConvertors)
-		&& openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_EBCDIC_TO_UTF8_ICONV_DESCRIPTOR, utf8, ebcdic, &initializedConvertors)
-		&& openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_UTF8_TO_LANG_ICONV_DESCRIPTOR, langinfo, utf8, &initializedConvertors)
-		&& openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_LANG_TO_UTF8_ICONV_DESCRIPTOR, utf8, langinfo, &initializedConvertors)
-		&& openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_UTF16_TO_LANG_ICONV_DESCRIPTOR, langinfo, utf16, &initializedConvertors)
-		&& openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_LANG_TO_UTF16_ICONV_DESCRIPTOR, utf16, langinfo, &initializedConvertors);
+	success = openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_UTF8_TO_EBCDIC_ICONV_DESCRIPTOR,
+								  ebcdic, utf8, &initializedConvertors)
+			  && openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_EBCDIC_TO_UTF8_ICONV_DESCRIPTOR,
+									 utf8, ebcdic, &initializedConvertors)
+			  && openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_UTF8_TO_LANG_ICONV_DESCRIPTOR,
+									 langinfo, utf8, &initializedConvertors)
+			  && openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_LANG_TO_UTF8_ICONV_DESCRIPTOR, utf8,
+									 langinfo, &initializedConvertors)
+			  && openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_UTF16_TO_LANG_ICONV_DESCRIPTOR,
+									 langinfo, utf16, &initializedConvertors)
+			  && openIconvDescriptor(globalConverter, globalConverterMutex, OMRPORT_LANG_TO_UTF16_ICONV_DESCRIPTOR,
+									 utf16, langinfo, &initializedConvertors);
 
 	if (success) {
 		rc = 0;
@@ -221,7 +227,7 @@ iconv_get(struct OMRPortLibrary *portLibrary, J9IconvName converterName, const c
 #endif
 
 	if (converterName < UNCACHED_ICONV_DESCRIPTOR) {
-		ptBuffer = (PortlibPTBuffers_t) omrport_tls_get(portLibrary);
+		ptBuffer = (PortlibPTBuffers_t)omrport_tls_get(portLibrary);
 	}
 
 	if (NULL != ptBuffer) {
@@ -264,7 +270,7 @@ iconv_free(struct OMRPortLibrary *portLibrary, J9IconvName converterName, iconv_
 	}
 #endif
 	if (converterName < UNCACHED_ICONV_DESCRIPTOR) {
-		PortlibPTBuffers_t ptBuffer = (PortlibPTBuffers_t) omrport_tls_get(portLibrary);
+		PortlibPTBuffers_t ptBuffer = (PortlibPTBuffers_t)omrport_tls_get(portLibrary);
 		if (ptBuffer && (converter == ptBuffer->converterCache[converterName])) {
 			/* Don't close the iconv descriptor if it is cached. */
 			return;

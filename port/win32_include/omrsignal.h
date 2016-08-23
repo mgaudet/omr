@@ -33,6 +33,4 @@ typedef struct J9Win32SignalInfo {
 	char moduleName[_MAX_PATH];
 } J9Win32SignalInfo;
 
-#endif     /* omrsignal_h */
-
-
+#endif /* omrsignal_h */

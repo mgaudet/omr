@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef TESTENVIRONMENT_HPP_
 #define TESTENVIRONMENT_HPP_
 
@@ -41,18 +40,12 @@
 #include "omrthread.h"
 #include "omrTest.h"
 
-enum LogLevel {
-	LEVEL_VERBOSE = 0,
-	LEVEL_INFO,
-	LEVEL_WARN,
-	LEVEL_ERROR,
-	LEVEL_OFF
-};
+enum LogLevel { LEVEL_VERBOSE = 0, LEVEL_INFO, LEVEL_WARN, LEVEL_ERROR, LEVEL_OFF };
 
 /**
  * BaseEnvironment provides access to command line arguments for all tests run from main().
  */
-class BaseEnvironment: public ::testing::Environment
+class BaseEnvironment : public ::testing::Environment
 {
 	/*
 	 * Data members
@@ -60,6 +53,7 @@ class BaseEnvironment: public ::testing::Environment
 private:
 protected:
 	LogLevel _minLevel;
+
 public:
 	int _argc;
 	char **_argv;
@@ -86,16 +80,22 @@ protected:
 					_minLevel = LEVEL_ERROR;
 				} else if (0 == strcmp(logLevelStr, "off")) {
 					_minLevel = LEVEL_OFF;
-				}	else {
-					FAIL() << "Unrecognized -logLevel option, the valid log levels are verbose, info, warn, error, off.";
+				} else {
+					FAIL()
+						<< "Unrecognized -logLevel option, the valid log levels are verbose, info, warn, error, off.";
 				}
 			}
 		}
 	}
 
-	virtual void TearDown() { }
+	virtual void
+	TearDown()
+	{
+	}
 
-	virtual void log_vprintf(LogLevel ll, const char *format, va_list args) {
+	virtual void
+	log_vprintf(LogLevel ll, const char *format, va_list args)
+	{
 		if (NULL != portLib) {
 			OMRPORT_ACCESS_FROM_OMRPORT(portLib);
 			if (ll >= _minLevel) {
@@ -108,11 +108,7 @@ protected:
 
 public:
 	BaseEnvironment(int argc, char **argv)
-		: ::testing::Environment()
-		, _minLevel(LEVEL_INFO)
-		, _argc(argc)
-		, _argv(argv)
-		, portLib(NULL)
+		: ::testing::Environment(), _minLevel(LEVEL_INFO), _argc(argc), _argv(argv), portLib(NULL)
 	{
 	}
 
@@ -130,7 +126,7 @@ public:
 		log_vprintf(LEVEL_INFO, format, args);
 		va_end(args);
 	}
-	
+
 	virtual void
 	log(LogLevel ll, const char *format, ...)
 	{
@@ -150,16 +146,15 @@ public:
  * Note that Googletest's ASSERT_*() macros cannot be used in this context. Those macros can
  * only be used in methods that return void.
  */
-#define ATTACH_J9THREAD() \
-	do { \
-		intptr_t rc = omrthread_attach_ex(NULL, J9THREAD_ATTR_DEFAULT); \
-		if (0 != rc) { \
-			fprintf(stderr, "omrthread_attach_ex(NULL, J9THREAD_ATTR_DEFAULT) failed, rc=%d\n", (int)rc); \
-		} \
+#define ATTACH_J9THREAD()                                                                                              \
+	do {                                                                                                               \
+		intptr_t rc = omrthread_attach_ex(NULL, J9THREAD_ATTR_DEFAULT);                                                \
+		if (0 != rc) {                                                                                                 \
+			fprintf(stderr, "omrthread_attach_ex(NULL, J9THREAD_ATTR_DEFAULT) failed, rc=%d\n", (int)rc);              \
+		}                                                                                                              \
 	} while (0)
 
 #define DETACH_J9THREAD() omrthread_detach(NULL)
-
 
 /**
  * PortEnvironment provides BaseEnvironment and initializes/finalizes the j9port
@@ -169,16 +164,16 @@ public:
  * down after RUN_ALL_TESTS(). The ATTACH_J9THREAD() and DETACH_J9THREAD() macros can be used
  * for this purpose.
  */
-class PortEnvironment: public BaseEnvironment
+class PortEnvironment : public BaseEnvironment
 {
 	/*
 	 * Data members
 	 */
 private:
 	OMRPortLibrary _portLibrary;
+
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
@@ -204,11 +199,9 @@ protected:
 
 		BaseEnvironment::TearDown();
 	}
+
 public:
-	PortEnvironment(int argc, char **argv)
-		: BaseEnvironment(argc, argv)
-	{
-	}
+	PortEnvironment(int argc, char **argv) : BaseEnvironment(argc, argv) {}
 };
 
 #endif /* TESTENVIRONMENT_HPP_ */

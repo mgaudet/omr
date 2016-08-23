@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /*
  * $RCSfile: omrheapTest.c,v $
  * $Revision: 1.27 $
@@ -53,15 +52,15 @@ extern PortTestEnvironment *portTestEnv;
  * This information is required for us to walk the heap and check its integrity after an allocation or free.
  */
 struct J9Heap {
-	uintptr_t heapSize; /* total size of the heap in number of slots */
-	uintptr_t firstFreeBlock; /* slot number of the first free block within the heap */
-	uintptr_t lastAllocSlot; /* slot number for the last allocation */
+	uintptr_t heapSize;				   /* total size of the heap in number of slots */
+	uintptr_t firstFreeBlock;		   /* slot number of the first free block within the heap */
+	uintptr_t lastAllocSlot;		   /* slot number for the last allocation */
 	uintptr_t largestAllocSizeVisited; /* largest free list entry visited while performing the last allocation */
 };
 
 #define NON_J9HEAP_HEAP_OVERHEAD 2
 #define SIZE_OF_J9HEAP_HEADER (sizeof(J9Heap))
-#define HEAP_MANAGEMENT_OVERHEAD (SIZE_OF_J9HEAP_HEADER + NON_J9HEAP_HEAP_OVERHEAD*sizeof(uint64_t))
+#define HEAP_MANAGEMENT_OVERHEAD (SIZE_OF_J9HEAP_HEADER + NON_J9HEAP_HEAP_OVERHEAD * sizeof(uint64_t))
 #define MINIMUM_HEAP_SIZE (HEAP_MANAGEMENT_OVERHEAD + sizeof(uint64_t))
 
 typedef struct AllocListElement {
@@ -71,13 +70,15 @@ typedef struct AllocListElement {
 } AllocListElement;
 
 static void walkHeap(struct OMRPortLibrary *portLibrary, J9Heap *heapBase, const char *testName);
-static void verifySubAllocMem(struct OMRPortLibrary *portLibrary, void *subAllocMem, uintptr_t allocSize, J9Heap *heapBase, const char *testName);
+static void verifySubAllocMem(struct OMRPortLibrary *portLibrary, void *subAllocMem, uintptr_t allocSize,
+							  J9Heap *heapBase, const char *testName);
 static void iteratePool(struct OMRPortLibrary *portLibrary, J9Pool *allocPool);
 static void *removeItemFromPool(struct OMRPortLibrary *portLibrary, J9Pool *allocPool, uintptr_t removeIndex);
 static AllocListElement *getElementFromPool(struct OMRPortLibrary *portLibrary, J9Pool *allocPool, uintptr_t index);
 static uintptr_t allocLargestChunkPossible(struct OMRPortLibrary *portLibrary, J9Heap *heapBase, uintptr_t heapSize);
 static void freeRemainingElementsInPool(struct OMRPortLibrary *portLibrary, J9Heap *heapBase, J9Pool *allocPool);
-static void verifyHeapOutofRegionWrite(struct OMRPortLibrary *portLibrary, uint8_t *memAllocStart, uint8_t *heapEnd, uintptr_t heapStartOffset, const char *testName);
+static void verifyHeapOutofRegionWrite(struct OMRPortLibrary *portLibrary, uint8_t *memAllocStart, uint8_t *heapEnd,
+									   uintptr_t heapStartOffset, const char *testName);
 
 /**
  * Verify port library heap sub-allocator.
@@ -158,8 +159,10 @@ TEST(PortHeapTest, heap_test1)
 
 			memset(allocPtr, 0xff, memAllocAmount);
 			heapBase = omrheap_create(allocPtrAdjusted, heapSize[j], 0);
-			if (((NULL == heapBase) && heapSize[j] > MINIMUM_HEAP_SIZE) || ((NULL != heapBase) && heapSize[j] < MINIMUM_HEAP_SIZE)) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to create heap at %p with size %zu\n", allocPtrAdjusted, heapSize[j]);
+			if (((NULL == heapBase) && heapSize[j] > MINIMUM_HEAP_SIZE)
+				|| ((NULL != heapBase) && heapSize[j] < MINIMUM_HEAP_SIZE)) {
+				outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to create heap at %p with size %zu\n", allocPtrAdjusted,
+								   heapSize[j]);
 				goto exit;
 			}
 			if (NULL == heapBase) {
@@ -171,7 +174,9 @@ TEST(PortHeapTest, heap_test1)
 					uintptr_t querySize = omrheap_query_size(heapBase, subAllocPtr);
 					/*The size returned may have been rounded-up to the nearest U64, and may have an extra 2 slots added in some circumstances*/
 					if (querySize < subAllocSize || querySize > (subAllocSize + 3 * sizeof(uint64_t))) {
-						outputErrorMessage(PORTTEST_ERROR_ARGS, "omrheap_query_size returned the wrong size. Expected %zu, got %zu\n", subAllocSize, querySize);
+						outputErrorMessage(PORTTEST_ERROR_ARGS,
+										   "omrheap_query_size returned the wrong size. Expected %zu, got %zu\n",
+										   subAllocSize, querySize);
 						omrheap_free(heapBase, subAllocPtr);
 						break;
 					}
@@ -179,10 +184,11 @@ TEST(PortHeapTest, heap_test1)
 				walkHeap(OMRPORTLIB, heapBase, testName);
 				omrheap_free(heapBase, subAllocPtr);
 				walkHeap(OMRPORTLIB, heapBase, testName);
-				subAllocSize  += 1;
+				subAllocSize += 1;
 			} while (NULL != subAllocPtr);
 
-			verifyHeapOutofRegionWrite(OMRPORTLIB, allocPtr, allocPtrAdjusted + heapSize[j], heapStartOffset + i, testName);
+			verifyHeapOutofRegionWrite(OMRPORTLIB, allocPtr, allocPtrAdjusted + heapSize[j], heapStartOffset + i,
+									   testName);
 		}
 	}
 	omrmem_free_memory(allocPtr);
@@ -228,7 +234,8 @@ omrheap_test2(struct OMRPortLibrary *portLibrary, int randomSeed)
 
 	reportTestEntry(OMRPORTLIB, testName);
 
-	allocPool = pool_new(sizeof(AllocListElement),  0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY, POOL_FOR_PORT(OMRPORTLIB));
+	allocPool = pool_new(sizeof(AllocListElement), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY,
+						 POOL_FOR_PORT(OMRPORTLIB));
 	if (NULL == allocPool) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to allocate pool\n", heapSize);
 		goto exit;
@@ -258,7 +265,9 @@ omrheap_test2(struct OMRPortLibrary *portLibrary, int randomSeed)
 	if (0 == randomSeed) {
 		randomSeed = (int)omrtime_current_time_millis();
 	}
-	outputComment(OMRPORTLIB, "Random seed value: %d. Add -srand:[seed] to the command line to reproduce this test manually.\n", randomSeed);
+	outputComment(OMRPORTLIB,
+				  "Random seed value: %d. Add -srand:[seed] to the command line to reproduce this test manually.\n",
+				  randomSeed);
 	srand(randomSeed);
 
 	while (freeSerialNumber <= serialNumberTop) {
@@ -292,7 +301,8 @@ omrheap_test2(struct OMRPortLibrary *portLibrary, int randomSeed)
 
 #if defined(HEAPTEST_VERBOSE)
 			if (0 == allocSerialNumber % outputInterval) {
-				outputComment(OMRPORTLIB, "Alloc: size=%zu, allocSerialNumber=%zu, elementCount=%zu\n", allocSize, allocSerialNumber, pool_numElements(allocPool));
+				outputComment(OMRPORTLIB, "Alloc: size=%zu, allocSerialNumber=%zu, elementCount=%zu\n", allocSize,
+							  allocSerialNumber, pool_numElements(allocPool));
 			}
 #endif
 			verifySubAllocMem(OMRPORTLIB, subAllocMem, allocSize, heapBase, testName);
@@ -321,7 +331,8 @@ omrheap_test2(struct OMRPortLibrary *portLibrary, int randomSeed)
 
 #if defined(HEAPTEST_VERBOSE)
 			if (0 == reallocSerialNumber % outputInterval) {
-				outputComment(OMRPORTLIB, "Realloc: index=%zu, size=%zu, result=%p, reallocSerialNumber=%zu, elementCount=%zu\n",
+				outputComment(OMRPORTLIB,
+							  "Realloc: index=%zu, size=%zu, result=%p, reallocSerialNumber=%zu, elementCount=%zu\n",
 							  reallocIndex, allocSize, subAllocMem, freeSerialNumber, pool_numElements(allocPool));
 			}
 #endif
@@ -341,7 +352,8 @@ omrheap_test2(struct OMRPortLibrary *portLibrary, int randomSeed)
 			omrheap_free(heapBase, subAllocPtr);
 #if defined(HEAPTEST_VERBOSE)
 			if (0 == freeSerialNumber % outputInterval) {
-				outputComment(OMRPORTLIB, "Freed: index=%zu, freeSerialNumber=%zu, elementCount=%zu\n", removeIndex, freeSerialNumber, pool_numElements(allocPool));
+				outputComment(OMRPORTLIB, "Freed: index=%zu, freeSerialNumber=%zu, elementCount=%zu\n", removeIndex,
+							  freeSerialNumber, pool_numElements(allocPool));
 			}
 #endif
 			walkHeap(OMRPORTLIB, heapBase, testName);
@@ -352,8 +364,10 @@ omrheap_test2(struct OMRPortLibrary *portLibrary, int randomSeed)
 	freeRemainingElementsInPool(OMRPORTLIB, heapBase, allocPool);
 	walkHeap(OMRPORTLIB, heapBase, testName);
 	if (NULL == omrheap_allocate(heapBase, largestAllocSize)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Possible memory leak on the heap: "
-						   "we cannot allocate the previously determined largest chunk size after sequence of random allocate/free\n");
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"Possible memory leak on the heap: "
+			"we cannot allocate the previously determined largest chunk size after sequence of random allocate/free\n");
 		goto exit;
 	}
 	walkHeap(OMRPORTLIB, heapBase, testName);
@@ -474,14 +488,13 @@ TEST(PortHeapTest, heap_realloc_test0)
 	subAllocPtr = (uint8_t *)omrheap_reallocate(heapBase, subAllocPtr, 256);
 	walkHeap(OMRPORTLIB, heapBase, testName);
 	if (subAllocPtr != subAllocPtrSaved) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpected (subAllocPtr (%p) != subAllocPtrSaved (%p))\n",
-						   subAllocPtr, subAllocPtrSaved);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpected (subAllocPtr (%p) != subAllocPtrSaved (%p))\n", subAllocPtr,
+						   subAllocPtrSaved);
 		goto exit;
 	}
 	for (i = 0; i < 128; i++) {
 		if (subAllocPtr[i] != i) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpected (subAllocPtr[i] (%d) != i (%d))\n",
-							   subAllocPtr[i], i);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpected (subAllocPtr[i] (%d) != i (%d))\n", subAllocPtr[i], i);
 			goto exit;
 		}
 	}
@@ -584,18 +597,26 @@ TEST(PortHeapTest, heap_grow_test)
 	 *
 	 */
 	if (128 != heapBase->heapSize) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_create failed to set the heap->heapSize correctly. Expected :  128, Found : %zu \n", heapBase->heapSize);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "heap_create failed to set the heap->heapSize correctly. Expected :  128, Found : %zu \n",
+						   heapBase->heapSize);
 		goto exit;
 	}
 
 	if (initialFirstFreeBlockValue != heapBase->firstFreeBlock) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_create failed to set the heap->firstFreeBlock correctly. Expected :  %zu, Found : %zu \n", initialFirstFreeBlockValue, heapBase->firstFreeBlock);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_create failed to set the heap->firstFreeBlock correctly. Expected :  %zu, Found : %zu \n",
+			initialFirstFreeBlockValue, heapBase->firstFreeBlock);
 		goto exit;
 	}
 
 	/* 2 slots are being used for the head and tail of the free block */
 	if (initialNumberOfSlots - 2 != baseSlot[heapBase->firstFreeBlock]) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate failed to set the firstFreeBlock's head value correctly. Expected :  %zu, Found : %zd \n", initialNumberOfSlots - 2, baseSlot[heapBase->firstFreeBlock]);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_allocate failed to set the firstFreeBlock's head value correctly. Expected :  %zu, Found : %zd \n",
+			initialNumberOfSlots - 2, baseSlot[heapBase->firstFreeBlock]);
 		goto exit;
 	}
 
@@ -624,17 +645,25 @@ TEST(PortHeapTest, heap_grow_test)
 	walkHeap(OMRPORTLIB, heapBase, testName);
 
 	if (128 != heapBase->heapSize) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate corrupted heapBase->heapSize. Expected :  128, Found : %zu \n", heapBase->heapSize);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "heap_allocate corrupted heapBase->heapSize. Expected :  128, Found : %zu \n",
+						   heapBase->heapSize);
 		goto exit;
 	}
 
 	if (initialFirstFreeBlockValue + 10 != heapBase->firstFreeBlock) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate failed to set the heap->firstFreeBlock correctly. Expected :  %zu, Found : %zu \n", initialFirstFreeBlockValue + 10, heapBase->firstFreeBlock);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_allocate failed to set the heap->firstFreeBlock correctly. Expected :  %zu, Found : %zu \n",
+			initialFirstFreeBlockValue + 10, heapBase->firstFreeBlock);
 		goto exit;
 	}
 
 	if (initialNumberOfSlots - 12 != baseSlot[heapBase->firstFreeBlock]) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate failed to set the firstFreeBlock's head value correctly. Expected :  %zu, Found : %zd \n", initialNumberOfSlots - 10, baseSlot[heapBase->firstFreeBlock]);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_allocate failed to set the firstFreeBlock's head value correctly. Expected :  %zu, Found : %zd \n",
+			initialNumberOfSlots - 10, baseSlot[heapBase->firstFreeBlock]);
 		goto exit;
 	}
 
@@ -657,13 +686,18 @@ TEST(PortHeapTest, heap_grow_test)
 	walkHeap(OMRPORTLIB, heapBase, testName);
 
 	if (128 != heapBase->heapSize) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate corrupted heapBase->heapSize. Expected :  128, Found : %zu \n", heapBase->heapSize);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "heap_allocate corrupted heapBase->heapSize. Expected :  128, Found : %zu \n",
+						   heapBase->heapSize);
 		goto exit;
 	}
 
 	/* firstFreeBlock is set to 0 once the heap is completely full */
 	if (0 != heapBase->firstFreeBlock) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate failed to set the heap->firstFreeBlock correctly. Expected :  0, Found : %zu \n", heapBase->firstFreeBlock);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_allocate failed to set the heap->firstFreeBlock correctly. Expected :  0, Found : %zu \n",
+			heapBase->firstFreeBlock);
 		goto exit;
 	}
 
@@ -682,13 +716,18 @@ TEST(PortHeapTest, heap_grow_test)
 	walkHeap(OMRPORTLIB, heapBase, testName);
 
 	if (128 != heapBase->heapSize) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate corrupted heapBase->heapSize. Expected :  128, Found : %zu \n", heapBase->heapSize);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "heap_allocate corrupted heapBase->heapSize. Expected :  128, Found : %zu \n",
+						   heapBase->heapSize);
 		goto exit;
 	}
 
 	/* firstFreeBlock is set to 0 once the heap is completely full */
 	if (0 != heapBase->firstFreeBlock) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate failed to set the heap->firstFreeBlock correctly. Expected :  0, Found : %zu \n", heapBase->firstFreeBlock);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_allocate failed to set the heap->firstFreeBlock correctly. Expected :  0, Found : %zu \n",
+			heapBase->firstFreeBlock);
 		goto exit;
 	}
 
@@ -716,22 +755,33 @@ TEST(PortHeapTest, heap_grow_test)
 	walkHeap(OMRPORTLIB, heapBase, testName);
 
 	if (138 != heapBase->heapSize) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate corrupted heapBase->heapSize. Expected :  138, Found : %zu", heapBase->heapSize);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "heap_allocate corrupted heapBase->heapSize. Expected :  138, Found : %zu",
+						   heapBase->heapSize);
 		goto exit;
 	}
 
 	if (128 != heapBase->firstFreeBlock) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrheap_grow() failed to set firstFreeBlock correctly. Expected value = 128, Found : %zu \n", heapBase->firstFreeBlock);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"omrheap_grow() failed to set firstFreeBlock correctly. Expected value = 128, Found : %zu \n",
+			heapBase->firstFreeBlock);
 		goto exit;
 	}
 
 	if (8 != baseSlot[heapBase->firstFreeBlock]) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate failed to set the firstFreeBlock's head value correctly. Expected :  8, Found : %zd", baseSlot[heapBase->firstFreeBlock]);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_allocate failed to set the firstFreeBlock's head value correctly. Expected :  8, Found : %zd",
+			baseSlot[heapBase->firstFreeBlock]);
 		goto exit;
 	}
 
 	if (8 != baseSlot[heapBase->heapSize - 1]) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "heap_allocate failed to set the firstFreeBlock's tail value correctly. Expected :  8, Found : %zd", baseSlot[heapBase->firstFreeBlock]);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"heap_allocate failed to set the firstFreeBlock's tail value correctly. Expected :  8, Found : %zd",
+			baseSlot[heapBase->firstFreeBlock]);
 		goto exit;
 	}
 
@@ -777,7 +827,6 @@ TEST(PortHeapTest, heap_grow_test)
 			goto exit;
 		}
 	}
-
 
 	omrmem_free_memory(allocPtr);
 
@@ -846,7 +895,6 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *FYI : Each segment is the size of uint64_t
 	 */
 
-
 	if (NULL == heapBase) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "failed to create the heap\n");
 		goto exit;
@@ -879,8 +927,7 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-
-	alloc1 = omrheap_allocate(heapBase, 16);  /* 16/8 = 2   Alloc 2 slots. Slot Size = sizeof(uint64_t) */
+	alloc1 = omrheap_allocate(heapBase, 16); /* 16/8 = 2   Alloc 2 slots. Slot Size = sizeof(uint64_t) */
 	/*
 	 *
 	 *
@@ -895,7 +942,6 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 * 0        1       2       3         4  5  	7  8  9	 	11	12 13		     																						99	100
 	 *
 	 */
-
 
 	omrheap_allocate(heapBase, 16); /* 16/8 = 2   Alloc 2 slots. Slot Size = sizeof(uint64_t) */
 	/*
@@ -929,7 +975,7 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-	alloc4_1 = omrheap_allocate(heapBase, 64);  /* 64/8 = 8   Alloc 8 Slots. Slot Size = sizeof(uint64_t)*/
+	alloc4_1 = omrheap_allocate(heapBase, 64); /* 64/8 = 8   Alloc 8 Slots. Slot Size = sizeof(uint64_t)*/
 	/*
 	 *
 	 *
@@ -945,8 +991,7 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-
-	omrheap_allocate(heapBase, 16);  /* 16/8 = 2   Alloc 2 slots. Slot Size = sizeof(uint64_t) */
+	omrheap_allocate(heapBase, 16); /* 16/8 = 2   Alloc 2 slots. Slot Size = sizeof(uint64_t) */
 	/*
 	 *
 	 *
@@ -962,7 +1007,7 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-	omrheap_allocate(heapBase, 16);  /* 16/8 = 2   Alloc 2 slots. Slot Size = sizeof(uint64_t) */
+	omrheap_allocate(heapBase, 16); /* 16/8 = 2   Alloc 2 slots. Slot Size = sizeof(uint64_t) */
 	/*
 	 *
 	 *
@@ -1012,7 +1057,7 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-	alloc4_1 = omrheap_allocate(heapBase, 24);  /* 24/8 = 3   Alloc 3 slots. Slot Size = sizeof(uint64_t) */
+	alloc4_1 = omrheap_allocate(heapBase, 24); /* 24/8 = 3   Alloc 3 slots. Slot Size = sizeof(uint64_t) */
 	/*
 	 *
 	 *
@@ -1028,7 +1073,7 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-	alloc4_2 = omrheap_allocate(heapBase, 24);  /* 24/8 = 3   Alloc 3 slots. Slot Size = sizeof(uint64_t) */
+	alloc4_2 = omrheap_allocate(heapBase, 24); /* 24/8 = 3   Alloc 3 slots. Slot Size = sizeof(uint64_t) */
 	/*
 	 *
 	 *
@@ -1081,7 +1126,6 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-
 	alloc4_1 = omrheap_allocate(heapBase, 48);
 	/*
 	 *
@@ -1116,7 +1160,6 @@ TEST(PortHeapTest, heap_test_pmr_28277_999_760)
 	 *
 	 */
 
-
 	/*
 	 * 100 bytes is big enough to start from lastAllocSlot  (100 > largestAllocSizeVisited)
 	 * lastAllocSlot should be bogus and should have value 0 before the fix.
@@ -1128,7 +1171,6 @@ exit:
 	omrmem_free_memory(allocPtr);
 	reportTestExit(OMRPORTLIB, testName);
 }
-
 
 /**
  * Helper function that iterates all used elements in the pool and call heap_free to free each memory blocks, whose information is stored in a pool element.
@@ -1212,7 +1254,8 @@ getElementFromPool(struct OMRPortLibrary *portLibrary, J9Pool *allocPool, uintpt
  * validate sub-allocated memory pointer returned by heap_allocate.
  */
 static void
-verifySubAllocMem(struct OMRPortLibrary *portLibrary, void *subAllocMem, uintptr_t allocSize, J9Heap *heapBase, const char *testName)
+verifySubAllocMem(struct OMRPortLibrary *portLibrary, void *subAllocMem, uintptr_t allocSize, J9Heap *heapBase,
+				  const char *testName)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	uint64_t *basePtr = (uint64_t *)heapBase;
@@ -1228,29 +1271,42 @@ verifySubAllocMem(struct OMRPortLibrary *portLibrary, void *subAllocMem, uintptr
 	}
 
 	/* verify the mem ptr is within the range of heap */
-	if ((subAllocMem < (void *)&basePtr[SIZE_OF_J9HEAP_HEADER / sizeof(uint64_t)]) || (subAllocMem > (void *)&basePtr[heapSize - 1])) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Sub-allocated memory is not within the valid range of heap: 0x%p\n", subAllocMem);
+	if ((subAllocMem < (void *)&basePtr[SIZE_OF_J9HEAP_HEADER / sizeof(uint64_t)])
+		|| (subAllocMem > (void *)&basePtr[heapSize - 1])) {
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "Sub-allocated memory is not within the valid range of heap: 0x%p\n",
+						   subAllocMem);
 		return;
 	}
 
 	/* verify the mem ptr is the first slot of an empty block and the block size should not be overly large */
 	if (blockSizeStart >= 0) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Sub-allocated memory is not part of an occupied block: 0x%p, top size: %lld, bottom size: %lld\n", subAllocMem, blockSizeStart, blockSizeEnd);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"Sub-allocated memory is not part of an occupied block: 0x%p, top size: %lld, bottom size: %lld\n",
+			subAllocMem, blockSizeStart, blockSizeEnd);
 		return;
 	}
 	blockSizeEnd = blockStart[-blockSizeStart];
 	if (blockSizeStart != blockSizeEnd) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Top and bottom padding of the Sub-allocated memory do not match: 0x%p\n", subAllocMem);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Top and bottom padding of the Sub-allocated memory do not match: 0x%p\n", subAllocMem);
 		return;
 	}
 	if (0 == allocSize) {
 		if (!(1 <= -blockSizeStart && -blockSizeStart <= 3)) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "The allocated block seems to be overly large (3 or more free slots): 0x%p, request size: %zu, block size: %lld\n", subAllocMem, allocSize, blockSizeStart);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "The allocated block seems to be overly large (3 or more free slots): 0x%p, request "
+							   "size: %zu, block size: %lld\n",
+							   subAllocMem, allocSize, blockSizeStart);
 			return;
 		}
 	} else {
-		if (!(allocSize <= ((uintptr_t)(-blockSizeStart)*sizeof(uint64_t)) && ((uintptr_t)(-blockSizeStart)*sizeof(uint64_t)) < (allocSize + 3 * sizeof(uint64_t)))) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "The allocated block seems to be overly large (3 or more free slots): 0x%p, request size: %zu, block size: %lld\n", subAllocMem, allocSize, blockSizeStart);
+		if (!(allocSize <= ((uintptr_t)(-blockSizeStart) * sizeof(uint64_t))
+			  && ((uintptr_t)(-blockSizeStart) * sizeof(uint64_t)) < (allocSize + 3 * sizeof(uint64_t)))) {
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "The allocated block seems to be overly large (3 or more free slots): 0x%p, request "
+							   "size: %zu, block size: %lld\n",
+							   subAllocMem, allocSize, blockSizeStart);
 			return;
 		}
 	}
@@ -1285,7 +1341,8 @@ iteratePool(struct OMRPortLibrary *portLibrary, J9Pool *allocPool)
  * Also check for the next 500 bytes after the heap.
  */
 static void
-verifyHeapOutofRegionWrite(struct OMRPortLibrary *portLibrary, uint8_t *memAllocStart, uint8_t *heapEnd, uintptr_t heapStartOffset, const char *testName)
+verifyHeapOutofRegionWrite(struct OMRPortLibrary *portLibrary, uint8_t *memAllocStart, uint8_t *heapEnd,
+						   uintptr_t heapStartOffset, const char *testName)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	uintptr_t i;
@@ -1293,14 +1350,18 @@ verifyHeapOutofRegionWrite(struct OMRPortLibrary *portLibrary, uint8_t *memAlloc
 	/* ensure the memory location after the heap is not corrupted*/
 	for (i = 0; i <= 500; i++) {
 		if (0xff != *(heapEnd + i)) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "Address %p following the heap seems to have been modified. value: %x\n", heapEnd + i, *(heapEnd + i));
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "Address %p following the heap seems to have been modified. value: %x\n", heapEnd + i,
+							   *(heapEnd + i));
 			return;
 		}
 	}
 	/* ensure the memory location before the heap is not corrupted*/
 	for (i = 0; i < heapStartOffset; i++) {
 		if (0xff != *(memAllocStart + i)) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "Address %p before the heap seems to have been modified. value: %x\n", memAllocStart + i, *(memAllocStart + i));
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "Address %p before the heap seems to have been modified. value: %x\n", memAllocStart + i,
+							   *(memAllocStart + i));
 			return;
 		}
 	}
@@ -1352,12 +1413,16 @@ walkHeap(struct OMRPortLibrary *portLibrary, J9Heap *heapBase, const char *testN
 			absSize = -topBlockSize;
 		} else {
 			if (0 == firstFreeBlock) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "\nfirstFreeBlock indicates heap is full but found empty block @ 0x%p\n", blockTopPaddingCursor);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "\nfirstFreeBlock indicates heap is full but found empty block @ 0x%p\n",
+								   blockTopPaddingCursor);
 				return;
 			}
 			if (firstFreeUnmatched == TRUE) {
 				if (firstFreeBlock != (((uintptr_t)blockTopPaddingCursor - (uintptr_t)basePtr) / sizeof(uint64_t))) {
-					outputErrorMessage(PORTTEST_ERROR_ARGS, "\nfirstFreeBlock and the actual fist free block don't match @ 0x%p\n", blockTopPaddingCursor);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "\nfirstFreeBlock and the actual fist free block don't match @ 0x%p\n",
+									   blockTopPaddingCursor);
 					return;
 				}
 				firstFreeUnmatched = FALSE;
@@ -1365,10 +1430,11 @@ walkHeap(struct OMRPortLibrary *portLibrary, J9Heap *heapBase, const char *testN
 		}
 
 		blockBottomPaddingCursor = blockTopPaddingCursor + (absSize + 1);
-		bottomBlockSize = (I_64) * blockBottomPaddingCursor;
+		bottomBlockSize = (I_64)*blockBottomPaddingCursor;
 
 		if (topBlockSize != bottomBlockSize) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "\nsize in top and bottom block padding don't match @ 0x%p\n", blockTopPaddingCursor);
+			outputErrorMessage(PORTTEST_ERROR_ARGS, "\nsize in top and bottom block padding don't match @ 0x%p\n",
+							   blockTopPaddingCursor);
 			return;
 		}
 #if defined(HEAPTEST_VERBOSE)

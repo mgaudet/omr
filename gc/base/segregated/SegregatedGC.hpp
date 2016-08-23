@@ -42,7 +42,7 @@ protected:
 	MM_SweepSchemeSegregated *_sweepScheme;
 	MM_Dispatcher *_dispatcher;
 
-	MM_CycleState _cycleState;  /**< Embedded cycle state to be used as the master cycle state for GC activity */
+	MM_CycleState _cycleState; /**< Embedded cycle state to be used as the master cycle state for GC activity */
 	MM_CollectionStatisticsStandard _collectionStatistics; /** Common collect stats (memory, time etc.) */
 private:
 public:
@@ -75,49 +75,56 @@ public:
 	bool initialize(MM_EnvironmentBase *env);
 	void tearDown(MM_EnvironmentBase *env);
 
-	virtual bool collectorStartup(MM_GCExtensionsBase* extensions);
-	virtual void collectorShutdown(MM_GCExtensionsBase* extensions);
+	virtual bool collectorStartup(MM_GCExtensionsBase *extensions);
+	virtual void collectorShutdown(MM_GCExtensionsBase *extensions);
 
-	virtual void setupForGC(MM_EnvironmentBase*);
-	virtual void abortCollection(MM_EnvironmentBase* env, CollectionAbortReason reason);
+	virtual void setupForGC(MM_EnvironmentBase *);
+	virtual void abortCollection(MM_EnvironmentBase *env, CollectionAbortReason reason);
 
-	virtual void* createSweepPoolState(MM_EnvironmentBase* env, MM_MemoryPool* memoryPool);
-	virtual void deleteSweepPoolState(MM_EnvironmentBase* env, void* sweepPoolState);
+	virtual void *createSweepPoolState(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool);
+	virtual void deleteSweepPoolState(MM_EnvironmentBase *env, void *sweepPoolState);
 
-	virtual bool internalGarbageCollect(MM_EnvironmentBase*, MM_MemorySubSpace*, MM_AllocateDescription*);
-	virtual void internalPreCollect(MM_EnvironmentBase*, MM_MemorySubSpace*, MM_AllocateDescription*, uint32_t);
+	virtual bool internalGarbageCollect(MM_EnvironmentBase *, MM_MemorySubSpace *, MM_AllocateDescription *);
+	virtual void internalPreCollect(MM_EnvironmentBase *, MM_MemorySubSpace *, MM_AllocateDescription *, uint32_t);
 	virtual void internalPostCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace);
 
-	virtual uintptr_t getVMStateID() { return 100; }
+	virtual uintptr_t
+	getVMStateID()
+	{
+		return 100;
+	}
 
-	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace,uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
-	virtual void heapReconfigured(MM_EnvironmentBase* env);
+	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+							  void *highAddress);
+	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+								 void *highAddress, void *lowValidAddress, void *highValidAddress);
+	virtual void heapReconfigured(MM_EnvironmentBase *env);
 
-	virtual bool isMarked(void *objectPtr) { return _markingScheme->isMarked(static_cast<omrobjectptr_t>(objectPtr)); }
+	virtual bool
+	isMarked(void *objectPtr)
+	{
+		return _markingScheme->isMarked(static_cast<omrobjectptr_t>(objectPtr));
+	}
 
 	/**
 	 * Return reference to Marking Scheme
 	 */
-	MM_SegregatedMarkingScheme *getMarkingScheme()
+	MM_SegregatedMarkingScheme *
+	getMarkingScheme()
 	{
 		return _markingScheme;
 	}
-	
-	MM_SweepSchemeSegregated *getSweepScheme()
+
+	MM_SweepSchemeSegregated *
+	getSweepScheme()
 	{
 		return _sweepScheme;
 	}
 
 	MM_SegregatedGC(MM_EnvironmentBase *env, MM_CollectorLanguageInterface *cli)
-		: MM_GlobalCollector(env, cli)
-		, _extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
-		, _portLibrary(env->getPortLibrary())
-		, _markingScheme(NULL)
-		, _sweepScheme(NULL)
-		, _dispatcher(_extensions->dispatcher)
-		, _scanBytes(0)
-		, _objectsMarked(0)
+		: MM_GlobalCollector(env, cli), _extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM())),
+		  _portLibrary(env->getPortLibrary()), _markingScheme(NULL), _sweepScheme(NULL),
+		  _dispatcher(_extensions->dispatcher), _scanBytes(0), _objectsMarked(0)
 	{
 		_typeId = __FUNCTION__;
 	}

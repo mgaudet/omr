@@ -38,16 +38,19 @@
 class MM_WorkPacketStats
 {
 public:
-	uintptr_t _gcCount;  /**< Count of the number of GC cycles that have occurred */
+	uintptr_t _gcCount; /**< Count of the number of GC cycles that have occurred */
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
 	uintptr_t workPacketsAcquired;
 	uintptr_t workPacketsReleased;
-	uintptr_t workPacketsExchanged; /**< The number of output packets converted into input packets without being returned to the shared pool first */
+	uintptr_t
+		workPacketsExchanged; /**< The number of output packets converted into input packets without being returned to the shared pool first */
 	uintptr_t _workStallCount; /**< The number of times the thread stalled, and subsequently received more work */
-	uintptr_t _completeStallCount; /**< The number of times the thread stalled, and waited for all other threads to complete working */
+	uintptr_t
+		_completeStallCount; /**< The number of times the thread stalled, and waited for all other threads to complete working */
 	uint64_t _workStallTime; /**< The time, in hi-res ticks, the thread spent stalled waiting to receive more work */
-	uint64_t _completeStallTime; /**< The time, in hi-res ticks, the thread spent stalled waiting for all other threads to complete working */
-#endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
+	uint64_t
+		_completeStallTime; /**< The time, in hi-res ticks, the thread spent stalled waiting for all other threads to complete working */
+#endif						/* J9MODRON_TGC_PARALLEL_STATISTICS */
 
 protected:
 private:
@@ -56,7 +59,8 @@ private:
 	uintptr_t _stwWorkpacketCountAtOverflow;
 
 public:
-	void clear()
+	void
+	clear()
 	{
 		_stwWorkStackOverflowCount = 0;
 		_stwWorkStackOverflowOccured = false;
@@ -72,11 +76,13 @@ public:
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
 	}
 
-	void merge(MM_WorkPacketStats *statsToMerge)
+	void
+	merge(MM_WorkPacketStats *statsToMerge)
 	{
 		_stwWorkStackOverflowCount += statsToMerge->_stwWorkStackOverflowCount;
 		_stwWorkStackOverflowOccured = (_stwWorkStackOverflowOccured || statsToMerge->_stwWorkStackOverflowOccured);
-		_stwWorkpacketCountAtOverflow = OMR_MAX(_stwWorkpacketCountAtOverflow, statsToMerge->_stwWorkpacketCountAtOverflow);
+		_stwWorkpacketCountAtOverflow =
+			OMR_MAX(_stwWorkpacketCountAtOverflow, statsToMerge->_stwWorkpacketCountAtOverflow);
 
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
 		/* It may not ever be useful to merge these stats, but do it anyways */
@@ -97,60 +103,74 @@ public:
 	 * Don't need to worry about wrap (endTime < startTime as unsigned math
 	 * takes care of wrap
 	 */
-	MMINLINE void 
+	MMINLINE void
 	addToWorkStallTime(uint64_t startTime, uint64_t endTime)
 	{
 		_workStallCount += 1;
 		_workStallTime += (endTime - startTime);
 	}
-	
+
 	/**
 	 * Add time interval to complete stall time.
 	 * Time is stored in raw format, converted to resolution at time of output
 	 * Don't need to worry about wrap (endTime < startTime as unsigned math
 	 * takes care of wrap
 	 */
-	MMINLINE void 
+	MMINLINE void
 	addToCompleteStallTime(uint64_t startTime, uint64_t endTime)
 	{
 		_completeStallCount += 1;
 		_completeStallTime += (endTime - startTime);
 	}
-	
+
 	/**
 	 * Get the total stall time
 	 * @return the time in hi-res ticks
 	 */
-	MMINLINE uint64_t 
+	MMINLINE uint64_t
 	getStallTime()
 	{
 		return _workStallTime + _completeStallTime;
 	}
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
 
-	MMINLINE bool getSTWWorkStackOverflowOccured()	{ return _stwWorkStackOverflowOccured; };
-	MMINLINE void setSTWWorkStackOverflowOccured(bool overflow)	{ _stwWorkStackOverflowOccured = overflow; };
-	MMINLINE uintptr_t getSTWWorkStackOverflowCount()	{ return _stwWorkStackOverflowCount; };
-	MMINLINE uintptr_t getSTWWorkpacketCountAtOverflow() { return _stwWorkpacketCountAtOverflow; };
-	MMINLINE void setSTWWorkpacketCountAtOverflow(uintptr_t workpacketCount) { _stwWorkpacketCountAtOverflow = workpacketCount; };
-	MMINLINE void incrementSTWWorkStackOverflowCount()
+	MMINLINE bool
+	getSTWWorkStackOverflowOccured()
+	{
+		return _stwWorkStackOverflowOccured;
+	};
+	MMINLINE void
+	setSTWWorkStackOverflowOccured(bool overflow)
+	{
+		_stwWorkStackOverflowOccured = overflow;
+	};
+	MMINLINE uintptr_t
+	getSTWWorkStackOverflowCount()
+	{
+		return _stwWorkStackOverflowCount;
+	};
+	MMINLINE uintptr_t
+	getSTWWorkpacketCountAtOverflow()
+	{
+		return _stwWorkpacketCountAtOverflow;
+	};
+	MMINLINE void
+	setSTWWorkpacketCountAtOverflow(uintptr_t workpacketCount)
+	{
+		_stwWorkpacketCountAtOverflow = workpacketCount;
+	};
+	MMINLINE void
+	incrementSTWWorkStackOverflowCount()
 	{
 		MM_AtomicOperations::add(&_stwWorkStackOverflowCount, 1);
 	}
 
-	MM_WorkPacketStats() :
-		_gcCount(UDATA_MAX)
-		,workPacketsAcquired(0)
-		,workPacketsReleased(0)
-		,workPacketsExchanged(0)
-		,_workStallCount(0)
-		,_completeStallCount(0)
-		,_workStallTime(0)
-		,_completeStallTime(0)
-		,_stwWorkStackOverflowCount(0)
-		,_stwWorkStackOverflowOccured(false)
-		,_stwWorkpacketCountAtOverflow(0)
-	{}
+	MM_WorkPacketStats()
+		: _gcCount(UDATA_MAX), workPacketsAcquired(0), workPacketsReleased(0), workPacketsExchanged(0),
+		  _workStallCount(0), _completeStallCount(0), _workStallTime(0), _completeStallTime(0),
+		  _stwWorkStackOverflowCount(0), _stwWorkStackOverflowOccured(false), _stwWorkpacketCountAtOverflow(0)
+	{
+	}
 
 protected:
 private:

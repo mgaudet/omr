@@ -38,7 +38,7 @@ void **
 GC_HashTableIterator::nextSlot()
 {
 	void **value;
-	
+
 	if (_firstIteration) {
 		_firstIteration = false;
 
@@ -57,7 +57,7 @@ GC_HashTableIterator::nextSlot()
  *	Removes the current slot in a J9HashTable (not valid in Out Of Process) 
  *      
  */
-void 
+void
 GC_HashTableIterator::removeSlot()
 {
 	hashTableDoRemove(&_handle);

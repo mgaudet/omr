@@ -23,15 +23,15 @@
 #include "EnvironmentBase.hpp"
 #include "ModronAssertions.h"
 
-
 MM_WorkPacketOverflow *
 MM_WorkPacketOverflow::newInstance(MM_EnvironmentBase *env, MM_WorkPackets *workPackets)
 {
 	MM_WorkPacketOverflow *overflow;
 
-	overflow = (MM_WorkPacketOverflow *)env->getForge()->allocate(sizeof(MM_WorkPacketOverflow), MM_AllocationCategory::WORK_PACKETS, OMR_GET_CALLSITE());
+	overflow = (MM_WorkPacketOverflow *)env->getForge()->allocate(
+		sizeof(MM_WorkPacketOverflow), MM_AllocationCategory::WORK_PACKETS, OMR_GET_CALLSITE());
 	if (overflow) {
-		new(overflow) MM_WorkPacketOverflow(env, workPackets);
+		new (overflow) MM_WorkPacketOverflow(env, workPackets);
 		if (!overflow->initialize(env)) {
 			overflow->kill(env);
 			overflow = NULL;
@@ -49,10 +49,10 @@ MM_WorkPacketOverflow::newInstance(MM_EnvironmentBase *env, MM_WorkPackets *work
 bool
 MM_WorkPacketOverflow::initialize(MM_EnvironmentBase *env)
 {
-	if(omrthread_monitor_init_with_name(&_overflowListMonitor, 0, "MM_WorkPacketOverflow::overflowList")) {
+	if (omrthread_monitor_init_with_name(&_overflowListMonitor, 0, "MM_WorkPacketOverflow::overflowList")) {
 		return false;
 	}
-	
+
 	reset(env);
 	return true;
 }
@@ -95,7 +95,7 @@ MM_WorkPacketOverflow::reset(MM_EnvironmentBase *env)
 }
 
 void
-MM_WorkPacketOverflow::emptyToOverflow(MM_EnvironmentBase *env,MM_Packet *packet, MM_OverflowType type)
+MM_WorkPacketOverflow::emptyToOverflow(MM_EnvironmentBase *env, MM_Packet *packet, MM_OverflowType type)
 {
 	Assert_MM_unreachable();
 }
@@ -111,4 +111,3 @@ MM_WorkPacketOverflow::overflowItem(MM_EnvironmentBase *env, void *item, MM_Over
 {
 	Assert_MM_unreachable();
 }
-

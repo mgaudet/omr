@@ -32,16 +32,16 @@
 #if defined(J9ZOS390)
 #include "edcwccwi.h"
 /* Convert function pointer to XPLINK calling convention */
-#define OMR_COMPATIBLE_FUNCTION_POINTER(fp) ((void*)__bldxfd(fp))
+#define OMR_COMPATIBLE_FUNCTION_POINTER(fp) ((void *)__bldxfd(fp))
 #else /* J9ZOS390 */
-#define OMR_COMPATIBLE_FUNCTION_POINTER(fp) ((void*)(fp))
+#define OMR_COMPATIBLE_FUNCTION_POINTER(fp) ((void *)(fp))
 #endif /* J9ZOS390 */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define OMR_OS_STACK_SIZE	256 * 1024 /* Corresponds to desktopBigStack in builder */
+#define OMR_OS_STACK_SIZE 256 * 1024 /* Corresponds to desktopBigStack in builder */
 
 typedef enum {
 	OMR_ERROR_NONE = 0,
@@ -74,7 +74,7 @@ struct UtThreadData;
 struct OMR_TraceThread;
 
 typedef struct OMR_RuntimeConfiguration {
-	uintptr_t _maximum_vm_count;		/* 0 for unlimited */
+	uintptr_t _maximum_vm_count; /* 0 for unlimited */
 } OMR_RuntimeConfiguration;
 
 typedef struct OMR_Runtime {
@@ -88,7 +88,7 @@ typedef struct OMR_Runtime {
 } OMR_Runtime;
 
 typedef struct OMR_VMConfiguration {
-	uintptr_t _maximum_thread_count;		/* 0 for unlimited */
+	uintptr_t _maximum_thread_count; /* 0 for unlimited */
 } OMR_VMConfiguration;
 
 typedef struct movedObjectHashCode {
@@ -155,12 +155,12 @@ typedef struct OMR_VMThread {
 	uintptr_t exclusiveCount;
 
 	uint8_t *threadName;
-	BOOLEAN threadNameIsStatic; /**< threadName is managed externally; Don't free it. */
+	BOOLEAN threadNameIsStatic;			 /**< threadName is managed externally; Don't free it. */
 	omrthread_monitor_t threadNameMutex; /**< Hold this mutex to read or modify threadName. */
 
 #if defined(OMR_RAS_TDF_TRACE)
 	union {
-		struct UtThreadData *uteThread; /* used by JVM */
+		struct UtThreadData *uteThread;			/* used by JVM */
 		struct OMR_TraceThread *omrTraceThread; /* used by OMR */
 	} _trace;
 #endif /* OMR_RAS_TDF_TRACE */
@@ -318,7 +318,6 @@ void omr_vmthread_reattach(OMR_VMThread *currentThread, const char *threadName);
  */
 void omr_vmthread_redetach(OMR_VMThread *omrVMThread);
 
-
 /**
  * Get the current OMR_VMThread, if the current thread is attached.
  *
@@ -392,9 +391,6 @@ void omr_vm_postForkParent(OMR_VM *vm);
 void omr_vm_preFork(OMR_VM *vm);
 
 #endif /* defined(OMR_THR_FORK_SUPPORT) */
-
-
-
 
 /*
  * LANGUAGE VM GLUE
@@ -505,7 +501,7 @@ int OMR_Glue_GetMethodDictionaryPropertyNum(void);
  *
  * @return Method property names
  */
-const char * const *OMR_Glue_GetMethodDictionaryPropertyNames(void);
+const char *const *OMR_Glue_GetMethodDictionaryPropertyNames(void);
 
 #ifdef __cplusplus
 }

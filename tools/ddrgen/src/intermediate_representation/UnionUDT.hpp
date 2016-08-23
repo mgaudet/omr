@@ -21,7 +21,7 @@
 
 #include "ClassType.hpp"
 
-class UnionUDT: public ClassType
+class UnionUDT : public ClassType
 {
 public:
 	UnionUDT(size_t size, unsigned int lineNumber = 0);

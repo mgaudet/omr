@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "PhysicalArenaVirtualMemory.hpp"
 
 #include "omrport.h"
@@ -32,12 +31,13 @@
 /**
  * Instantiate a new MM_PhysicalArenaVirtualMemory object.
  */
-MM_PhysicalArenaVirtualMemory*
-MM_PhysicalArenaVirtualMemory::newInstance(MM_EnvironmentBase* env, MM_Heap* heap)
+MM_PhysicalArenaVirtualMemory *
+MM_PhysicalArenaVirtualMemory::newInstance(MM_EnvironmentBase *env, MM_Heap *heap)
 {
-	MM_PhysicalArenaVirtualMemory* arena;
+	MM_PhysicalArenaVirtualMemory *arena;
 
-	arena = (MM_PhysicalArenaVirtualMemory*)env->getForge()->allocate(sizeof(MM_PhysicalArenaVirtualMemory), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	arena = (MM_PhysicalArenaVirtualMemory *)env->getForge()->allocate(
+		sizeof(MM_PhysicalArenaVirtualMemory), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (arena) {
 		new (arena) MM_PhysicalArenaVirtualMemory(env, heap);
 		if (!arena->initialize(env)) {
@@ -49,7 +49,7 @@ MM_PhysicalArenaVirtualMemory::newInstance(MM_EnvironmentBase* env, MM_Heap* hea
 }
 
 bool
-MM_PhysicalArenaVirtualMemory::initialize(MM_EnvironmentBase* env)
+MM_PhysicalArenaVirtualMemory::initialize(MM_EnvironmentBase *env)
 {
 	if (!MM_PhysicalArena::initialize(env)) {
 		return false;
@@ -62,10 +62,10 @@ MM_PhysicalArenaVirtualMemory::initialize(MM_EnvironmentBase* env)
  * Remove a physical sub arena from the parent arena receiver.
  */
 void
-MM_PhysicalArenaVirtualMemory::detachSubArena(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena)
+MM_PhysicalArenaVirtualMemory::detachSubArena(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena)
 {
-	MM_PhysicalSubArenaVirtualMemory* previous, *next;
-	MM_PhysicalSubArenaVirtualMemory* currentSubArena = (MM_PhysicalSubArenaVirtualMemory*)subArena;
+	MM_PhysicalSubArenaVirtualMemory *previous, *next;
+	MM_PhysicalSubArenaVirtualMemory *currentSubArena = (MM_PhysicalSubArenaVirtualMemory *)subArena;
 
 	previous = currentSubArena->getPreviousSubArena();
 	next = currentSubArena->getNextSubArena();
@@ -92,11 +92,12 @@ MM_PhysicalArenaVirtualMemory::detachSubArena(MM_EnvironmentBase* env, MM_Physic
  * @return true if the subarena was attached successfully, false otherwise.
  */
 bool
-MM_PhysicalArenaVirtualMemory::attachSubArena(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena, uintptr_t size, uintptr_t attachPolicy)
+MM_PhysicalArenaVirtualMemory::attachSubArena(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, uintptr_t size,
+											  uintptr_t attachPolicy)
 {
-	void* candidateBase;
-	MM_PhysicalSubArenaVirtualMemory* insertionHead, *insertionTail;
-	MM_PhysicalSubArenaVirtualMemory* currentSubArena = (MM_PhysicalSubArenaVirtualMemory*)subArena;
+	void *candidateBase;
+	MM_PhysicalSubArenaVirtualMemory *insertionHead, *insertionTail;
+	MM_PhysicalSubArenaVirtualMemory *currentSubArena = (MM_PhysicalSubArenaVirtualMemory *)subArena;
 
 	/* Sanity check of the size */
 	if (_memorySpace->getMaximumSize() < size) {
@@ -130,7 +131,7 @@ MM_PhysicalArenaVirtualMemory::attachSubArena(MM_EnvironmentBase* env, MM_Physic
 		break;
 	case modron_pavm_attach_policy_high_memory:
 		/* Determine the base address of the new sub arena */
-		candidateBase = (void*)(((uintptr_t)getHighAddress()) - size);
+		candidateBase = (void *)(((uintptr_t)getHighAddress()) - size);
 
 		/* Find the tail of the list of sub arenas associated with the receiver */
 		insertionHead = NULL;
@@ -169,7 +170,7 @@ MM_PhysicalArenaVirtualMemory::attachSubArena(MM_EnvironmentBase* env, MM_Physic
 	}
 
 	currentSubArena->setLowAddress(candidateBase);
-	currentSubArena->setHighAddress((void*)(((uint8_t*)candidateBase) + size));
+	currentSubArena->setHighAddress((void *)(((uint8_t *)candidateBase) + size));
 
 #if defined(OMR_GC_MODRON_SCAVENGER)
 	/* now that address range is known, just before we commit, bind memory to NUMA node, if applicable */
@@ -177,7 +178,8 @@ MM_PhysicalArenaVirtualMemory::attachSubArena(MM_EnvironmentBase* env, MM_Physic
 		MM_GCExtensionsBase *ext = env->getExtensions();
 		uintptr_t j9NodeNumber = ext->_numaManager.getJ9NodeNumber(currentSubArena->getNumaNode());
 		if (0 != j9NodeNumber) {
-			if (!ext->memoryManager->setNumaAffinity(((MM_HeapVirtualMemory *)_heap)->getVmemHandle(), j9NodeNumber, (void*)candidateBase, size)) {
+			if (!ext->memoryManager->setNumaAffinity(((MM_HeapVirtualMemory *)_heap)->getVmemHandle(), j9NodeNumber,
+													 (void *)candidateBase, size)) {
 				return false;
 			}
 		}
@@ -193,9 +195,11 @@ MM_PhysicalArenaVirtualMemory::attachSubArena(MM_EnvironmentBase* env, MM_Physic
  * @return true if the request is valid, false otherwise.
  */
 bool
-MM_PhysicalArenaVirtualMemory::canExpand(MM_EnvironmentBase* env, MM_PhysicalSubArenaVirtualMemory* subArena, void* expandAddress, uintptr_t expandSize)
+MM_PhysicalArenaVirtualMemory::canExpand(MM_EnvironmentBase *env, MM_PhysicalSubArenaVirtualMemory *subArena,
+										 void *expandAddress, uintptr_t expandSize)
 {
-	return (expandAddress >= getLowAddress()) && (expandAddress < getHighAddress()) && (calculateOffsetToHighAddress(expandAddress) >= expandSize);
+	return (expandAddress >= getLowAddress()) && (expandAddress < getHighAddress())
+		   && (calculateOffsetToHighAddress(expandAddress) >= expandSize);
 }
 
 /**
@@ -203,7 +207,8 @@ MM_PhysicalArenaVirtualMemory::canExpand(MM_EnvironmentBase* env, MM_PhysicalSub
  * @return maximum amount sub areana can expand.
  */
 uintptr_t
-MM_PhysicalArenaVirtualMemory::maxExpansion(MM_EnvironmentBase* env, MM_PhysicalSubArenaVirtualMemory* subArena, void* expandAddress)
+MM_PhysicalArenaVirtualMemory::maxExpansion(MM_EnvironmentBase *env, MM_PhysicalSubArenaVirtualMemory *subArena,
+											void *expandAddress)
 {
 	return calculateOffsetToHighAddress(expandAddress);
 }
@@ -215,7 +220,7 @@ MM_PhysicalArenaVirtualMemory::maxExpansion(MM_EnvironmentBase* env, MM_Physical
  * @return The number of bytes that are theoretically possible to expand by starting at the given address.
  */
 uintptr_t
-MM_PhysicalArenaVirtualMemory::getPhysicalMaximumExpandSizeHigh(MM_EnvironmentBase* env, void* address)
+MM_PhysicalArenaVirtualMemory::getPhysicalMaximumExpandSizeHigh(MM_EnvironmentBase *env, void *address)
 {
 	/* Sanity check if the given address is out of range */
 	if (getHighAddress() < address) {
@@ -232,7 +237,7 @@ MM_PhysicalArenaVirtualMemory::getPhysicalMaximumExpandSizeHigh(MM_EnvironmentBa
  * @return The number of bytes that are theoretically possible to contract by starting at the given address.
  */
 uintptr_t
-MM_PhysicalArenaVirtualMemory::getPhysicalMaximumContractSizeLow(MM_EnvironmentBase* env, void* address)
+MM_PhysicalArenaVirtualMemory::getPhysicalMaximumContractSizeLow(MM_EnvironmentBase *env, void *address)
 {
 	/* Sanity check if the given address is out of range */
 	if (getLowAddress() > address) {
@@ -247,7 +252,7 @@ MM_PhysicalArenaVirtualMemory::getPhysicalMaximumContractSizeLow(MM_EnvironmentB
  * @return true if the successful, false otherwise.
  */
 bool
-MM_PhysicalArenaVirtualMemory::inflate(MM_EnvironmentBase* env)
+MM_PhysicalArenaVirtualMemory::inflate(MM_EnvironmentBase *env)
 {
 	/* Attach to the virtual memory heap store */
 	return _heap->attachArena(env, this, _memorySpace->getMaximumSize());
@@ -259,11 +264,11 @@ MM_PhysicalArenaVirtualMemory::inflate(MM_EnvironmentBase* env)
  * address range.
  * @return the next highest valid range, or NULL if there is none.
  */
-void*
-MM_PhysicalArenaVirtualMemory::findAdjacentHighValidAddress(MM_EnvironmentBase* env)
+void *
+MM_PhysicalArenaVirtualMemory::findAdjacentHighValidAddress(MM_EnvironmentBase *env)
 {
 	/* Is there a valid higher address? */
-	MM_PhysicalArena* next = getNextArena();
+	MM_PhysicalArena *next = getNextArena();
 	if (NULL == next) {
 		return NULL;
 	}

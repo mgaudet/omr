@@ -28,15 +28,14 @@
 OMR_VMThread *
 GC_OMRVMThreadListIterator::nextOMRVMThread()
 {
-	if(_omrVMThread) {
+	if (_omrVMThread) {
 		OMR_VMThread *currentOMRVMThread;
 		currentOMRVMThread = _omrVMThread;
 		_omrVMThread = _omrVMThread->_linkNext;
-		if(_omrVMThread == _initialOMRVMThread) {
+		if (_omrVMThread == _initialOMRVMThread) {
 			_omrVMThread = NULL;
 		}
 		return currentOMRVMThread;
 	}
 	return NULL;
 }
-

@@ -46,32 +46,32 @@ class GC_ObjectScanner : public MM_BaseVirtual
 {
 	/* Data Members */
 private:
-
 protected:
 	static const intptr_t _bitsPerScanMap = sizeof(uintptr_t) << 3;
 
-	omrobjectptr_t const _parentObjectPtr;	/**< Object being scanned */
-	uintptr_t _scanMap;						/**< Bit map of reference slots in object being scanned (32/64-bit window) */
-	fomrobject_t *_scanPtr;					/**< Pointer to base of object slots mapped by current _scanMap */
-	GC_SlotObject _slotObject;				/**< Create own SlotObject class to provide output */
-	uintptr_t _flags;						/**< Scavenger context flags (scanRoots, scanHeap, ...) */
-	uintptr_t _hotFieldsDescriptor;			/**< Hot fields descriptor for languages that support hot field tracking */
-	
+	omrobjectptr_t const _parentObjectPtr; /**< Object being scanned */
+	uintptr_t _scanMap;					   /**< Bit map of reference slots in object being scanned (32/64-bit window) */
+	fomrobject_t *_scanPtr;				   /**< Pointer to base of object slots mapped by current _scanMap */
+	GC_SlotObject _slotObject;			   /**< Create own SlotObject class to provide output */
+	uintptr_t _flags;					   /**< Scavenger context flags (scanRoots, scanHeap, ...) */
+	uintptr_t _hotFieldsDescriptor;		   /**< Hot fields descriptor for languages that support hot field tracking */
+
 public:
 	/**
 	 *  Instantiation flags used to specialize scanner for specific scavenger operations
 	 */
-	enum InstanceFlags
-	{
-		scanRoots = 1			/* scavenge roots phase -- scan & copy/forward root objects */
-		, scanHeap = 2			/* scavenge heap phase -- scan  & copy/forward objects reachable from scanned roots */
-		, indexableObject = 4	/* this is set for array object scanners */
-		, noMoreSlots = 8		/* this is set when object has more no slots to scan past current bitmap */
+	enum InstanceFlags {
+		scanRoots = 1 /* scavenge roots phase -- scan & copy/forward root objects */
+		,
+		scanHeap = 2 /* scavenge heap phase -- scan  & copy/forward objects reachable from scanned roots */
+		,
+		indexableObject = 4 /* this is set for array object scanners */
+		,
+		noMoreSlots = 8 /* this is set when object has more no slots to scan past current bitmap */
 	};
 
 	/* Member Functions */
 private:
-
 protected:
 	/**
 	 * Constructor.
@@ -83,18 +83,14 @@ protected:
 	 * @param[in] flags A bit mask comprised of InstanceFlags
 	 * @param[in] hotFieldsDescriptor Hot fields descriptor for languages that support hot field tracking (0 if no hot fields support)
 	 */
-	GC_ObjectScanner(MM_EnvironmentStandard *env, omrobjectptr_t parentObjectPtr, fomrobject_t *scanPtr, uintptr_t scanMap, uintptr_t flags, uintptr_t hotFieldsDescriptor = 0)
-		: MM_BaseVirtual()
-		, _parentObjectPtr(parentObjectPtr)
-		, _scanMap(scanMap)
-		, _scanPtr(scanPtr)
-		, _slotObject(env->getOmrVM(), NULL)
-		, _flags(flags)
-		, _hotFieldsDescriptor(hotFieldsDescriptor)
+	GC_ObjectScanner(MM_EnvironmentStandard *env, omrobjectptr_t parentObjectPtr, fomrobject_t *scanPtr,
+					 uintptr_t scanMap, uintptr_t flags, uintptr_t hotFieldsDescriptor = 0)
+		: MM_BaseVirtual(), _parentObjectPtr(parentObjectPtr), _scanMap(scanMap), _scanPtr(scanPtr),
+		  _slotObject(env->getOmrVM(), NULL), _flags(flags), _hotFieldsDescriptor(hotFieldsDescriptor)
 	{
 		_typeId = __FUNCTION__;
 	}
-	
+
 	/**
 	 * Set up the scanner.
 	 * @param[in] env Current environment
@@ -122,10 +118,17 @@ public:
 	 *
 	 * @return true if the object to be scanned is a leaf object
 	 */
-	MMINLINE bool isLeafObject() { return (0 == _scanMap) && !hasMoreSlots(); }
+	MMINLINE bool
+	isLeafObject()
+	{
+		return (0 == _scanMap) && !hasMoreSlots();
+	}
 
-
-	MMINLINE uintptr_t getHotFieldsDescriptor() { return _hotFieldsDescriptor; }
+	MMINLINE uintptr_t
+	getHotFieldsDescriptor()
+	{
+		return _hotFieldsDescriptor;
+	}
 
 	/**
 	 * Get the next object slot if one is available.
@@ -166,9 +169,14 @@ public:
 	/**
 	 * Informational, relating to scanning context (_flags)
 	 */
-	MMINLINE bool hasMoreSlots() { return 0 == (GC_ObjectScanner::noMoreSlots & _flags); }
+	MMINLINE bool
+	hasMoreSlots()
+	{
+		return 0 == (GC_ObjectScanner::noMoreSlots & _flags);
+	}
 
-	MMINLINE static uintptr_t setNoMoreSlots(uintptr_t flags, bool hasNoMoreSlots)
+	MMINLINE static uintptr_t
+	setNoMoreSlots(uintptr_t flags, bool hasNoMoreSlots)
 	{
 		if (hasNoMoreSlots) {
 			return flags | (uintptr_t)GC_ObjectScanner::noMoreSlots;
@@ -177,19 +185,47 @@ public:
 		}
 	}
 
-	MMINLINE omrobjectptr_t const getParentObject() { return _parentObjectPtr; }
+	MMINLINE omrobjectptr_t const
+	getParentObject()
+	{
+		return _parentObjectPtr;
+	}
 
-	MMINLINE static bool isRootScan(uintptr_t flags) { return (0 != (scanRoots & flags)); }
+	MMINLINE static bool
+	isRootScan(uintptr_t flags)
+	{
+		return (0 != (scanRoots & flags));
+	}
 
-	MMINLINE bool isRootScan() { return (0 != (scanRoots & _flags)); }
+	MMINLINE bool
+	isRootScan()
+	{
+		return (0 != (scanRoots & _flags));
+	}
 
-	MMINLINE static bool isHeapScan(uintptr_t flags) { return (0 != (scanHeap & flags)); }
+	MMINLINE static bool
+	isHeapScan(uintptr_t flags)
+	{
+		return (0 != (scanHeap & flags));
+	}
 
-	MMINLINE bool isHeapScan() { return (0 != (scanHeap & _flags)); }
+	MMINLINE bool
+	isHeapScan()
+	{
+		return (0 != (scanHeap & _flags));
+	}
 
-	MMINLINE static bool isIndexableObject(uintptr_t flags) { return (0 != (indexableObject & flags)); }
+	MMINLINE static bool
+	isIndexableObject(uintptr_t flags)
+	{
+		return (0 != (indexableObject & flags));
+	}
 
-	MMINLINE bool isIndexableObject() { return (0 != (indexableObject & _flags)); }
+	MMINLINE bool
+	isIndexableObject()
+	{
+		return (0 != (indexableObject & _flags));
+	}
 };
 
 #endif /* OBJECTSCANNER_HPP_ */

@@ -34,7 +34,7 @@ MM_ConcurrentCompleteTracingTask::run(MM_EnvironmentBase *envBase)
 void
 MM_ConcurrentCompleteTracingTask::setup(MM_EnvironmentBase *env)
 {
-	if(env->isMasterThread()) {
+	if (env->isMasterThread()) {
 		Assert_MM_true(_cycleState == env->_cycleState);
 	} else {
 		Assert_MM_true(NULL == env->_cycleState);
@@ -53,4 +53,3 @@ MM_ConcurrentCompleteTracingTask::cleanup(MM_EnvironmentBase *env)
 }
 
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
- 

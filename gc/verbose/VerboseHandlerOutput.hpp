@@ -37,11 +37,10 @@ private:
 protected:
 	MM_GCExtensionsBase *_extensions;
 	OMR_VM *_omrVM;
-	J9HookInterface** _mmPrivateHooks;  /**< Pointers to the internal Hook interface */
-	J9HookInterface** _mmOmrHooks;  /**< Pointers to the internal Hook interface */
-	MM_VerboseManager *_manager; /* VerboseManager used to format and print output */
+	J9HookInterface **_mmPrivateHooks; /**< Pointers to the internal Hook interface */
+	J9HookInterface **_mmOmrHooks;	 /**< Pointers to the internal Hook interface */
+	MM_VerboseManager *_manager;	   /* VerboseManager used to format and print output */
 public:
-
 private:
 protected:
 	MM_VerboseHandlerOutput(MM_GCExtensionsBase *extensions);
@@ -50,11 +49,12 @@ protected:
 	virtual void tearDown(MM_EnvironmentBase *env);
 
 	virtual bool getThreadName(char *buf, uintptr_t bufLen, OMR_VMThread *vmThread);
-	virtual void writeVmArgs(MM_EnvironmentBase* env);
+	virtual void writeVmArgs(MM_EnvironmentBase *env);
 
-	bool getTimeDeltaInMicroSeconds(uint64_t *timeInMicroSeconds, uint64_t startTime, uint64_t endTime)
+	bool
+	getTimeDeltaInMicroSeconds(uint64_t *timeInMicroSeconds, uint64_t startTime, uint64_t endTime)
 	{
-		if(endTime < startTime) {
+		if (endTime < startTime) {
 			*timeInMicroSeconds = 0;
 			return false;
 		}
@@ -74,7 +74,7 @@ protected:
 	bool
 	getTimeDelta(uint64_t *timeInMicroSeconds, uint64_t startTimeInMicroseconds, uint64_t endTimeInMicroseconds)
 	{
-		if(endTimeInMicroseconds < startTimeInMicroseconds) {
+		if (endTimeInMicroseconds < startTimeInMicroseconds) {
 			*timeInMicroSeconds = 0;
 			return false;
 		}
@@ -93,9 +93,8 @@ protected:
 	 * Answer a string representation of a given cycle type.
 	 * @param[IN] cycle type
 	 * @return string representing the human readable "type" of the cycle.
-	 */	
+	 */
 	virtual const char *getCycleType(uintptr_t type);
-
 
 	/**
 	 * Handle any output or data tracking for the initialized phase of verbose GC.
@@ -104,7 +103,7 @@ protected:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	virtual void handleInitializedInnerStanzas(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	virtual void handleInitializedInnerStanzas(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Handle any output or data tracking for the initialized phase of verbose GC.
@@ -113,7 +112,7 @@ protected:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleInitializedRegion(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleInitializedRegion(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Determine if the receive has inner stanza details for cycle start events.
@@ -129,7 +128,8 @@ protected:
 	 * @param eventData hook specific event data.
 	 * @param indentDepth base indent count for all inner stanza lines.
 	 */
-	virtual void handleCycleStartInnerStanzas(J9HookInterface** hook, uintptr_t eventNum, void* eventData, uintptr_t indentDepth);
+	virtual void handleCycleStartInnerStanzas(J9HookInterface **hook, uintptr_t eventNum, void *eventData,
+											  uintptr_t indentDepth);
 
 	/**
 	 * Determine if the receive has inner stanza details for cycle end events.
@@ -145,7 +145,8 @@ protected:
 	 * @param eventData hook specific event data.
 	 * @param indentDepth base indent count for all inner stanza lines.
 	 */
-	virtual void handleCycleEndInnerStanzas(J9HookInterface** hook, uintptr_t eventNum, void* eventData, uintptr_t indentDepth);
+	virtual void handleCycleEndInnerStanzas(J9HookInterface **hook, uintptr_t eventNum, void *eventData,
+											uintptr_t indentDepth);
 
 	/**
 	 * Determine if the receive has inner stanza details for cycle end events.
@@ -161,12 +162,13 @@ protected:
 	 * @param eventData hook specific event data.
 	 * @param indentDepth base indent count for all inner stanza lines.
 	 */
-	virtual void handleAllocationFailureStartInnerStanzas(J9HookInterface** hook, uintptr_t eventNum, void* eventData, uintptr_t indentDepth);
+	virtual void handleAllocationFailureStartInnerStanzas(J9HookInterface **hook, uintptr_t eventNum, void *eventData,
+														  uintptr_t indentDepth);
 
 	/* Print out allocations statistics
 	 * @param current Env
 	 */
-	virtual void printAllocationStats(MM_EnvironmentBase* env);
+	virtual void printAllocationStats(MM_EnvironmentBase *env);
 
 	/**
 	 * Called before outputting verbose data which is intended to be logically atomic.  Most implementations do nothing with this
@@ -203,7 +205,9 @@ protected:
 	 * @param reason the reason for the resize
 	 * @param timeInMicroSeconds the total time that all of the resizes took
 	 */
-	void outputHeapResizeInfo(MM_EnvironmentBase *env, uintptr_t indent, HeapResizeType resizeType, uintptr_t resizeAmount, uintptr_t resizeCount, uintptr_t subSpaceType, uintptr_t reason, uint64_t timeInMicroSeconds);
+	void outputHeapResizeInfo(MM_EnvironmentBase *env, uintptr_t indent, HeapResizeType resizeType,
+							  uintptr_t resizeAmount, uintptr_t resizeCount, uintptr_t subSpaceType, uintptr_t reason,
+							  uint64_t timeInMicroSeconds);
 
 	/**
 	 * Output an embedded stanza for collector heap resize events.
@@ -216,7 +220,9 @@ protected:
 	 * @param reason the reason for the resize
 	 * @param timeInMicroSeconds the total time that all of the resizes took
 	 */
-	void outputCollectorHeapResizeInfo(MM_EnvironmentBase *env, uintptr_t indent, HeapResizeType resizeType, uintptr_t resizeAmount, uintptr_t resizeCount, uintptr_t subSpaceType, uintptr_t reason, uint64_t timeInMicroSeconds);
+	void outputCollectorHeapResizeInfo(MM_EnvironmentBase *env, uintptr_t indent, HeapResizeType resizeType,
+									   uintptr_t resizeAmount, uintptr_t resizeCount, uintptr_t subSpaceType,
+									   uintptr_t reason, uint64_t timeInMicroSeconds);
 
 	/**
 	 * Get the string representation of the subspace type
@@ -254,7 +260,11 @@ public:
 	 *  
 	 *  @return _manger the VerboseManager used to format and print output
 	 */
-	MM_VerboseManager *getManager() {return _manager;}
+	MM_VerboseManager *
+	getManager()
+	{
+		return _manager;
+	}
 
 	/**
 	 * Build the standard top level tag template.
@@ -291,7 +301,8 @@ public:
 	 *
 	 * @note should be moved to protected once all standard usage is converted.
 	 */
-	uintptr_t getTagTemplate(char *buf, uintptr_t bufsize, uintptr_t id, const char *type, uintptr_t contextId, uint64_t wallTimeMs);
+	uintptr_t getTagTemplate(char *buf, uintptr_t bufsize, uintptr_t id, const char *type, uintptr_t contextId,
+							 uint64_t wallTimeMs);
 
 	/**
 	 * Build the standard top level tag template.
@@ -306,7 +317,8 @@ public:
 	 *
 	 * @note should be moved to protected once all standard usage is converted.
 	 */
-	uintptr_t getTagTemplateWithOldType(char *buf, uintptr_t bufsize, uintptr_t id, const char *oldType, const char *newType, uintptr_t contextId, uint64_t wallTimeMs);
+	uintptr_t getTagTemplateWithOldType(char *buf, uintptr_t bufsize, uintptr_t id, const char *oldType,
+										const char *newType, uintptr_t contextId, uint64_t wallTimeMs);
 
 	/**
 	 * Build the standard top level tag template.
@@ -321,7 +333,8 @@ public:
 	 *
 	 * @note should be moved to protected once all standard usage is converted.
 	 */
-	uintptr_t getTagTemplate(char *buf, uintptr_t bufsize, uintptr_t id, const char *type, uintptr_t contextId, uint64_t timeus, uint64_t wallTimeMs);
+	uintptr_t getTagTemplate(char *buf, uintptr_t bufsize, uintptr_t id, const char *type, uintptr_t contextId,
+							 uint64_t timeus, uint64_t wallTimeMs);
 
 	/**
 	 * Build the standard top level tag template.
@@ -338,7 +351,9 @@ public:
 	 *
 	 * @note should be moved to protected once all standard usage is converted.
 	 */
-	uintptr_t getTagTemplateWithDuration(char *buf, uintptr_t bufsize, uintptr_t id, const char *type, uintptr_t contextId, uint64_t durationus, uint64_t usertimeus, uint64_t cputimeus, uint64_t wallTimeMs);
+	uintptr_t getTagTemplateWithDuration(char *buf, uintptr_t bufsize, uintptr_t id, const char *type,
+										 uintptr_t contextId, uint64_t durationus, uint64_t usertimeus,
+										 uint64_t cputimeus, uint64_t wallTimeMs);
 
 	/**
 	 * Handle any output or data tracking for the initialized phase of verbose GC.
@@ -346,7 +361,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	virtual void handleInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	virtual void handleInitialized(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write verbose stanza for a cycle start event.
@@ -354,9 +369,9 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleCycleStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleCycleStart(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
-	void handleCycleContinue(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleCycleContinue(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write verbose stanza for a cycle end event.
@@ -364,7 +379,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleCycleEnd(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleCycleEnd(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the exclusive access start event.
@@ -372,7 +387,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleExclusiveStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleExclusiveStart(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the exclusive access end event.
@@ -380,7 +395,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleExclusiveEnd(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleExclusiveEnd(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the system gc start event.
@@ -388,7 +403,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleSystemGCStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleSystemGCStart(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the system gc end event.
@@ -396,7 +411,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleSystemGCEnd(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleSystemGCEnd(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the allocation failure start event.
@@ -404,7 +419,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleAllocationFailureStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleAllocationFailureStart(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the allocation causing AF completed event.
@@ -412,7 +427,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleFailedAllocationCompleted(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleFailedAllocationCompleted(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the allocation failure end event.
@@ -420,7 +435,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleAllocationFailureEnd(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleAllocationFailureEnd(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for exclusive access acquisition that satisfies an allocation.
@@ -428,7 +443,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleAcquiredExclusiveToSatisfyAllocation(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleAcquiredExclusiveToSatisfyAllocation(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write verbose stanza for a global GC start event.
@@ -436,7 +451,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleGCStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleGCStart(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write verbose stanza for a global GC end event.
@@ -444,9 +459,9 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleGCEnd(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleGCEnd(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
-	void handleHeapResize(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
+	void handleHeapResize(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 
 	/**
 	 * Write the verbose stanza for the excessive gc raised event.
@@ -454,8 +469,7 @@ public:
 	 * @param eventNum The hook event number.
 	 * @param eventData hook specific event data.
 	 */
-	void handleExcessiveGCRaised(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
-
+	void handleExcessiveGCRaised(J9HookInterface **hook, uintptr_t eventNum, void *eventData);
 };
 
 #endif /* VERBOSEHANDLEROUTPUT_HPP_ */

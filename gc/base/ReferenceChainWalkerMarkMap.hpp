@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(REFERENCECHAINWALKERMARKMAP_HPP_)
 #define REFERENCECHAINWALKERMARKMAP_HPP_
 
@@ -39,30 +38,30 @@ private:
 	bool clearMapForRegions(MM_EnvironmentBase *env, bool commit);
 
 protected:
-/**
+	/**
  * Initialize Mark Map for Reference Chain Walker:
  * create mark map correspondent with each region: commit memory and zero it
  * @param env current thread environment
  * @return true if initialization is successful
  */
-bool initialize(MM_EnvironmentBase *env);
+	bool initialize(MM_EnvironmentBase *env);
 
 public:
 	/**
 	 * Create a new instance of Reference Chain Walker Mark Map object
 	 */
- 	static MM_ReferenceChainWalkerMarkMap *newInstance(MM_EnvironmentBase *env, uintptr_t maxHeapSize);
+	static MM_ReferenceChainWalkerMarkMap *newInstance(MM_EnvironmentBase *env, uintptr_t maxHeapSize);
 
- 	/**
+	/**
  	 * Clear Mark Map
  	 */
- 	void clearMap(MM_EnvironmentBase *env);
+	void clearMap(MM_EnvironmentBase *env);
 
 	/**
 	 * Create a MarkMap for Reference Chain Walker object.
 	 */
- 	MM_ReferenceChainWalkerMarkMap(MM_EnvironmentBase *env, uintptr_t maxHeapSize) :
-		MM_HeapMap(env, maxHeapSize, env->getExtensions()->isMetronomeGC())
+	MM_ReferenceChainWalkerMarkMap(MM_EnvironmentBase *env, uintptr_t maxHeapSize)
+		: MM_HeapMap(env, maxHeapSize, env->getExtensions()->isMetronomeGC())
 	{
 		_typeId = __FUNCTION__;
 	};

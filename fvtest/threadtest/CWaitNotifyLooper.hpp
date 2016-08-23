@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef J9THREADTEST_CWAITNOTIFYLOOPER_HPP_INCLUDED
 #define J9THREADTEST_CWAITNOTIFYLOOPER_HPP_INCLUDED
 
@@ -26,14 +25,11 @@
 
 #include "threadTestLib.hpp"
 
-class CWaitNotifyLooper: public CThread
+class CWaitNotifyLooper : public CThread
 {
 public:
-	CWaitNotifyLooper(CMonitor& monitor, unsigned int* notifyCount, unsigned int* doneRunningCount) :
-			m_monitor(monitor),
-			m_keepRunning(true),
-			m_notifyCount(notifyCount),
-			m_doneRunningCount(doneRunningCount)
+	CWaitNotifyLooper(CMonitor &monitor, unsigned int *notifyCount, unsigned int *doneRunningCount)
+		: m_monitor(monitor), m_keepRunning(true), m_notifyCount(notifyCount), m_doneRunningCount(doneRunningCount)
 	{
 		assert(m_notifyCount);
 		assert(m_doneRunningCount);
@@ -85,7 +81,7 @@ protected:
 		return 0;
 	}
 
-	CMonitor& m_monitor;
+	CMonitor &m_monitor;
 	volatile bool m_keepRunning;
 	unsigned int *m_notifyCount;
 	unsigned int *m_doneRunningCount;

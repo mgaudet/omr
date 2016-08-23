@@ -40,17 +40,18 @@ class MM_GCExtensionsBase;
  */
 class GC_ObjectModel
 {
-/*
+	/*
  * Member data and types
  */
 private:
-	uintptr_t _objectAlignmentInBytes; /**< Cached copy of object alignment for getting object alignment for adjusting for alignment */
-	uintptr_t _objectAlignmentShift; /**< Cached copy of object alignment shift, must be log2(_objectAlignmentInBytes)  */
+	uintptr_t
+		_objectAlignmentInBytes; /**< Cached copy of object alignment for getting object alignment for adjusting for alignment */
+	uintptr_t
+		_objectAlignmentShift; /**< Cached copy of object alignment shift, must be log2(_objectAlignmentInBytes)  */
 
 protected:
 public:
-
-/*
+	/*
  * Member functions
  */
 private:
@@ -67,12 +68,15 @@ public:
 		return true;
 	}
 
-	void tearDown(MM_GCExtensionsBase *extensions) {}
+	void
+	tearDown(MM_GCExtensionsBase *extensions)
+	{
+	}
 
 	MMINLINE uintptr_t
 	adjustSizeInBytes(uintptr_t sizeInBytes)
 	{
-		sizeInBytes =  (sizeInBytes + (_objectAlignmentInBytes - 1)) & (uintptr_t)~(_objectAlignmentInBytes - 1);
+		sizeInBytes = (sizeInBytes + (_objectAlignmentInBytes - 1)) & (uintptr_t) ~(_objectAlignmentInBytes - 1);
 
 #if defined(OMR_GC_MINIMUM_OBJECT_SIZE)
 		if (sizeInBytes < J9_GC_MINIMUM_OBJECT_SIZE) {
@@ -121,7 +125,8 @@ public:
 	 * @param objectPtr Pointer to an object
 	 * @return The size, in bytes, of a multi-slot dead object
 	 */
-	MMINLINE uintptr_t getSizeInBytesMultiSlotDeadObject(omrobjectptr_t objectPtr)
+	MMINLINE uintptr_t
+	getSizeInBytesMultiSlotDeadObject(omrobjectptr_t objectPtr)
 	{
 		return MM_HeapLinkedFreeHeader::getHeapLinkedFreeHeader(objectPtr)->getSize();
 	}
@@ -134,7 +139,7 @@ public:
 	MMINLINE uintptr_t
 	getSizeInBytesDeadObject(omrobjectptr_t objectPtr)
 	{
-		if(isSingleSlotDeadObject(objectPtr)) {
+		if (isSingleSlotDeadObject(objectPtr)) {
 			return getSizeInBytesSingleSlotDeadObject(objectPtr);
 		}
 		return getSizeInBytesMultiSlotDeadObject(objectPtr);
@@ -171,9 +176,8 @@ public:
 	 * @param objectPtr Pointer to an object
 	 */
 	MMINLINE void
-	preMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
+	preMove(OMR_VMThread *vmThread, omrobjectptr_t objectPtr)
 	{
-
 	}
 
 	/**
@@ -182,7 +186,7 @@ public:
 	 * @param objectPtr Pointer to an object
 	 */
 	MMINLINE void
-	postMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
+	postMove(OMR_VMThread *vmThread, omrobjectptr_t objectPtr)
 	{
 		/* do nothing */
 	}
@@ -201,7 +205,7 @@ public:
 	}
 #endif /* OMR_GC_MODRON_SCAVENGER */
 
- 	/**
+	/**
 	 * Set run-time Object Alignment in the heap value
 	 * Function exists because we can only determine it is way after ObjectModel is init
 	 */
@@ -211,7 +215,7 @@ public:
 		_objectAlignmentInBytes = objectAlignmentInBytes;
 	}
 
- 	/**
+	/**
 	 * Set run-time Object Alignment Shift value
 	 * Function exists because we can only determine it is way after ObjectModel is init
 	 */
@@ -221,7 +225,7 @@ public:
 		_objectAlignmentShift = objectAlignmentShift;
 	}
 
- 	/**
+	/**
 	 * Get run-time Object Alignment in the heap value
 	 */
 	MMINLINE uintptr_t
@@ -230,7 +234,7 @@ public:
 		return _objectAlignmentInBytes;
 	}
 
- 	/**
+	/**
 	 * Get run-time Object Alignment Shift value
 	 */
 	MMINLINE uintptr_t
@@ -238,7 +242,6 @@ public:
 	{
 		return _objectAlignmentShift;
 	}
-
 };
 
 #endif /* OBJECTMODEL_HPP_ */

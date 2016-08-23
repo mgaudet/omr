@@ -33,7 +33,7 @@
  */
 class MM_LockingFreeHeapRegionList : public MM_FreeHeapRegionList
 {
-/* Data members & types */
+	/* Data members & types */
 public:
 protected:
 private:
@@ -41,19 +41,17 @@ private:
 	MM_HeapRegionDescriptorSegregated *_tail;
 	omrthread_monitor_t _lockMonitor;
 
-/* Methods */
+	/* Methods */
 public:
-	static MM_LockingFreeHeapRegionList *newInstance(MM_EnvironmentBase *env, MM_HeapRegionList::RegionListKind regionListKind, bool singleRegionsOnly);
+	static MM_LockingFreeHeapRegionList *
+	newInstance(MM_EnvironmentBase *env, MM_HeapRegionList::RegionListKind regionListKind, bool singleRegionsOnly);
 	virtual void kill(MM_EnvironmentBase *env);
-	
+
 	bool initialize(MM_EnvironmentBase *env);
 	virtual void tearDown(MM_EnvironmentBase *env);
 
-	MM_LockingFreeHeapRegionList(MM_HeapRegionList::RegionListKind regionListKind, bool singleRegionsOnly) :
-		MM_FreeHeapRegionList(regionListKind, singleRegionsOnly),
-		_head(NULL),
-		_tail(NULL),
-		_lockMonitor(NULL)
+	MM_LockingFreeHeapRegionList(MM_HeapRegionList::RegionListKind regionListKind, bool singleRegionsOnly)
+		: MM_FreeHeapRegionList(regionListKind, singleRegionsOnly), _head(NULL), _tail(NULL), _lockMonitor(NULL)
 	{
 		_typeId = __FUNCTION__;
 	}
@@ -65,17 +63,17 @@ public:
 		pushInternal(region);
 		unlock();
 	}
-	
+
 	virtual void
 	push(MM_HeapRegionQueue *srcAsPQ)
-	{ 
-		MM_LockingHeapRegionQueue* src = MM_LockingHeapRegionQueue::asLockingHeapRegionQueue(srcAsPQ);
+	{
+		MM_LockingHeapRegionQueue *src = MM_LockingHeapRegionQueue::asLockingHeapRegionQueue(srcAsPQ);
 		if (src->_head == NULL) { /* Nothing to move - single read needs no lock */
 			return;
 		}
 		lock();
 		src->lock();
-		
+
 		/* Remove from src */
 		MM_HeapRegionDescriptorSegregated *front = src->_head;
 		MM_HeapRegionDescriptorSegregated *back = src->_tail;
@@ -83,7 +81,7 @@ public:
 		src->_head = NULL;
 		src->_tail = NULL;
 		src->_length = 0;
-		
+
 		/* Add to front of self */
 		back->setNext(_head); /* OK even if _head is NULL */
 		if (_head == NULL) {
@@ -93,21 +91,21 @@ public:
 		}
 		_head = front;
 		_length += srcLength;
-		
+
 		src->unlock();
 		unlock();
 	}
-	
-	virtual void 
-	push(MM_FreeHeapRegionList *srcAsFPL) 
-	{ 
-		MM_LockingFreeHeapRegionList* src = MM_LockingFreeHeapRegionList::asLockingFreeHeapRegionList(srcAsFPL);
+
+	virtual void
+	push(MM_FreeHeapRegionList *srcAsFPL)
+	{
+		MM_LockingFreeHeapRegionList *src = MM_LockingFreeHeapRegionList::asLockingFreeHeapRegionList(srcAsFPL);
 		if (src->_head == NULL) { /* Nothing to move - single read needs no lock */
 			return;
 		}
 		lock();
 		src->lock();
-		
+
 		/* Remove from src */
 		MM_HeapRegionDescriptorSegregated *front = src->_head;
 		MM_HeapRegionDescriptorSegregated *back = src->_tail;
@@ -115,7 +113,7 @@ public:
 		src->_head = NULL;
 		src->_tail = NULL;
 		src->_length = 0;
-		
+
 		/* Add to front of self */
 		back->setNext(_head); /* OK even if _head is NULL */
 		if (_head == NULL) {
@@ -125,7 +123,7 @@ public:
 		}
 		_head = front;
 		_length += srcLength;
-		
+
 		src->unlock();
 		unlock();
 	}
@@ -138,7 +136,7 @@ public:
 		unlock();
 		return result;
 	}
-	
+
 	virtual void
 	detach(MM_HeapRegionDescriptorSegregated *cur)
 	{
@@ -147,7 +145,8 @@ public:
 		unlock();
 	}
 
-	virtual MM_HeapRegionDescriptorSegregated* allocate(MM_EnvironmentBase *env, uintptr_t szClass, uintptr_t numRegions, uintptr_t maxExcess);
+	virtual MM_HeapRegionDescriptorSegregated *allocate(MM_EnvironmentBase *env, uintptr_t szClass,
+														uintptr_t numRegions, uintptr_t maxExcess);
 
 	virtual uintptr_t getTotalRegions();
 	virtual uintptr_t getMaxRegions();
@@ -157,17 +156,25 @@ public:
 	/**
 	 * Cast a FreeHeapRegionList as a LockingFreeHeapRegionList
 	 */
-	MMINLINE static MM_LockingFreeHeapRegionList*
-	asLockingFreeHeapRegionList(MM_FreeHeapRegionList * pl)
+	MMINLINE static MM_LockingFreeHeapRegionList *
+	asLockingFreeHeapRegionList(MM_FreeHeapRegionList *pl)
 	{
 		return (MM_LockingFreeHeapRegionList *)pl;
 	}
 
 protected:
 private:
-	MMINLINE void lock() { omrthread_monitor_enter(_lockMonitor); }
-	
-	MMINLINE void unlock() { omrthread_monitor_exit(_lockMonitor); }
+	MMINLINE void
+	lock()
+	{
+		omrthread_monitor_enter(_lockMonitor);
+	}
+
+	MMINLINE void
+	unlock()
+	{
+		omrthread_monitor_exit(_lockMonitor);
+	}
 
 	void
 	pushInternal(MM_HeapRegionDescriptorSegregated *region)

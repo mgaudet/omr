@@ -24,8 +24,8 @@
 
 #include <string.h>
 
-MM_VerboseWriterStreamOutput::MM_VerboseWriterStreamOutput(MM_EnvironmentBase *env) :
-	MM_VerboseWriter(VERBOSE_WRITER_STANDARD_STREAM)
+MM_VerboseWriterStreamOutput::MM_VerboseWriterStreamOutput(MM_EnvironmentBase *env)
+	: MM_VerboseWriter(VERBOSE_WRITER_STANDARD_STREAM)
 {
 	/* No implementation */
 }
@@ -38,10 +38,11 @@ MM_VerboseWriterStreamOutput::newInstance(MM_EnvironmentBase *env, const char *f
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
 
-	MM_VerboseWriterStreamOutput *agent = (MM_VerboseWriterStreamOutput *)extensions->getForge()->allocate(sizeof(MM_VerboseWriterStreamOutput), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
-	if(agent) {
-		new(agent) MM_VerboseWriterStreamOutput(env);
-		if(!agent->initialize(env, filename)) {
+	MM_VerboseWriterStreamOutput *agent = (MM_VerboseWriterStreamOutput *)extensions->getForge()->allocate(
+		sizeof(MM_VerboseWriterStreamOutput), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
+	if (agent) {
+		new (agent) MM_VerboseWriterStreamOutput(env);
+		if (!agent->initialize(env, filename)) {
 			agent->kill(env);
 			agent = NULL;
 		}
@@ -56,19 +57,19 @@ bool
 MM_VerboseWriterStreamOutput::initialize(MM_EnvironmentBase *env, const char *filename)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	
+
 	MM_VerboseWriter::initialize(env);
 
 	setStream(getStreamID(env, filename));
-	
-	if(STDERR == _currentStream){
+
+	if (STDERR == _currentStream) {
 		omrfile_printf(OMRPORT_TTY_ERR, "\n");
 		omrfile_printf(OMRPORT_TTY_ERR, getHeader(env));
 	} else {
 		omrfile_printf(OMRPORT_TTY_OUT, "\n");
 		omrfile_printf(OMRPORT_TTY_OUT, getHeader(env));
 	}
-	
+
 	return true;
 }
 
@@ -79,7 +80,7 @@ void
 MM_VerboseWriterStreamOutput::closeStream(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
-	if(STDERR == _currentStream){
+	if (STDERR == _currentStream) {
 		omrfile_write_text(OMRPORT_TTY_ERR, getFooter(env), strlen(getFooter(env)));
 		omrfile_write_text(OMRPORT_TTY_ERR, "\n", strlen("\n"));
 	} else {
@@ -108,7 +109,8 @@ MM_VerboseWriterStreamOutput::endOfCycle(MM_EnvironmentBase *env)
 }
 
 bool
-MM_VerboseWriterStreamOutput::reconfigure(MM_EnvironmentBase *env, const char *filename, uintptr_t fileCount, uintptr_t iterations)
+MM_VerboseWriterStreamOutput::reconfigure(MM_EnvironmentBase *env, const char *filename, uintptr_t fileCount,
+										  uintptr_t iterations)
 {
 	setStream(getStreamID(env, filename));
 	return true;
@@ -117,23 +119,23 @@ MM_VerboseWriterStreamOutput::reconfigure(MM_EnvironmentBase *env, const char *f
 MM_VerboseWriterStreamOutput::StreamID
 MM_VerboseWriterStreamOutput::getStreamID(MM_EnvironmentBase *env, const char *string)
 {
-	if(NULL == string) {
+	if (NULL == string) {
 		return STDERR;
 	}
-	
-	if(!strcmp(string, "stdout")) {
+
+	if (!strcmp(string, "stdout")) {
 		return STDOUT;
 	}
-	
+
 	return STDERR;
 }
 
 void
-MM_VerboseWriterStreamOutput::outputString(MM_EnvironmentBase *env, const char* string)
+MM_VerboseWriterStreamOutput::outputString(MM_EnvironmentBase *env, const char *string)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 
-	if(STDERR == _currentStream){
+	if (STDERR == _currentStream) {
 		omrfile_write_text(OMRPORT_TTY_ERR, string, strlen(string));
 	} else {
 		omrfile_write_text(OMRPORT_TTY_OUT, string, strlen(string));

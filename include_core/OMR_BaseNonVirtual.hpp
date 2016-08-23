@@ -36,7 +36,6 @@ protected:
 	const char *_typeId;
 
 public:
-
 	/**
 	 * Create OMR_BaseNonVirtual object.
 	 */

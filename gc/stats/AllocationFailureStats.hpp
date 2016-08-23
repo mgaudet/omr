@@ -27,7 +27,7 @@
  * @todo Provide class documentation
  * @ingroup GC_Stats
  */
-class MM_AllocationFailureStats : public MM_Base 
+class MM_AllocationFailureStats : public MM_Base
 {
 public:
 	uintptr_t subSpaceType;
@@ -36,13 +36,8 @@ public:
 
 	/**
 	 * Create a AllocationFailureStats object.
-	 */   
-	MM_AllocationFailureStats() :
-		MM_Base(),
-		subSpaceType(0),
-		allocationFailureSize(0),
-		allocationFailureCount(0)
-	{};
+	 */
+	MM_AllocationFailureStats() : MM_Base(), subSpaceType(0), allocationFailureSize(0), allocationFailureCount(0){};
 };
 
 #endif /* ALLOCATIONFAILURESTATS_HPP_ */

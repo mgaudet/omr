@@ -26,7 +26,7 @@
 #include "ScavengerCopyScanRatio.hpp"
 
 void
-MM_ScavengerCopyScanRatio::reset(MM_EnvironmentBase* env, bool resetHistory)
+MM_ScavengerCopyScanRatio::reset(MM_EnvironmentBase *env, bool resetHistory)
 {
 	_accumulatingSamples = 0;
 	_accumulatedSamples = SCAVENGER_COUNTER_DEFAULT_ACCUMULATOR;
@@ -43,7 +43,7 @@ MM_ScavengerCopyScanRatio::reset(MM_EnvironmentBase* env, bool resetHistory)
 }
 
 uintptr_t
-MM_ScavengerCopyScanRatio::record(MM_EnvironmentBase* env, uintptr_t nonEmptyScanLists, uintptr_t cachesQueued)
+MM_ScavengerCopyScanRatio::record(MM_EnvironmentBase *env, uintptr_t nonEmptyScanLists, uintptr_t cachesQueued)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	if (SCAVENGER_UPDATE_HISTORY_SIZE <= _historyTableIndex) {
@@ -95,7 +95,7 @@ MM_ScavengerCopyScanRatio::record(MM_EnvironmentBase* env, uintptr_t nonEmptySca
 }
 
 uint64_t
-MM_ScavengerCopyScanRatio::getSpannedMicros(MM_EnvironmentBase* env, UpdateHistory *historyRecord)
+MM_ScavengerCopyScanRatio::getSpannedMicros(MM_EnvironmentBase *env, UpdateHistory *historyRecord)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	uint64_t start = (historyRecord == _historyTable) ? _resetTimestamp : (historyRecord - 1)->time;
@@ -103,8 +103,10 @@ MM_ScavengerCopyScanRatio::getSpannedMicros(MM_EnvironmentBase* env, UpdateHisto
 }
 
 void
-MM_ScavengerCopyScanRatio::failedUpdate(MM_EnvironmentBase* env, uint64_t copied, uint64_t scanned)
+MM_ScavengerCopyScanRatio::failedUpdate(MM_EnvironmentBase *env, uint64_t copied, uint64_t scanned)
 {
-	Assert_GC_true_with_message2(env, copied <= scanned, "MM_ScavengerCopyScanRatio::getScalingFactor(): copied (=%llu) exceeds scanned (=%llu) -- non-atomic 64-bit read\n", copied, scanned);
+	Assert_GC_true_with_message2(env, copied <= scanned,
+								 "MM_ScavengerCopyScanRatio::getScalingFactor(): copied (=%llu) exceeds scanned "
+								 "(=%llu) -- non-atomic 64-bit read\n",
+								 copied, scanned);
 }
-

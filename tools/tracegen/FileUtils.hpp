@@ -26,10 +26,10 @@
 
 typedef RCType (*VisitFileCallBack)(void *targetObject, J9TDFOptions *options, const char *fileName);
 
-#define eprintf(fmtString, ...)														\
-do {																		\
-	FileUtils::printError("%s:%d " fmtString "\n", __FILE__, __LINE__, ##__VA_ARGS__);	\
-} while (false)
+#define eprintf(fmtString, ...)                                                                                        \
+	do {                                                                                                               \
+		FileUtils::printError("%s:%d " fmtString "\n", __FILE__, __LINE__, ##__VA_ARGS__);                             \
+	} while (false)
 
 class FileUtils
 {
@@ -39,7 +39,6 @@ class FileUtils
 private:
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
@@ -58,11 +57,11 @@ public:
 	 */
 	static const char *getFileExt(const char *fileName);
 
-
 	/**
 	 * Get tdf file relative or CWD relative target file name
 	 */
-	static const char *getTargetFileName(J9TDFOptions *options, const char *tdfFileName, const char *filePrefix, const char *fileName, const char *extension);
+	static const char *getTargetFileName(J9TDFOptions *options, const char *tdfFileName, const char *filePrefix,
+										 const char *fileName, const char *extension);
 
 	/**
 	 *  Get file modification time
@@ -78,7 +77,8 @@ public:
 	 * @param callback
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	static RCType visitDirectory(J9TDFOptions *options, const char *dirName, const char *fileExtFilter, void *targetObject, VisitFileCallBack callback);
+	static RCType visitDirectory(J9TDFOptions *options, const char *dirName, const char *fileExtFilter,
+								 void *targetObject, VisitFileCallBack callback);
 
 	/**
 	 * Print message to stderr

@@ -29,7 +29,7 @@
 /* windows.h defined uintptr_t.  Ignore its definition */
 #define UDATA UDATA_win_
 #include "dia2.h"
-#undef UDATA	/* this is safe because our UDATA is a typedef, not a macro */
+#undef UDATA /* this is safe because our UDATA is a typedef, not a macro */
 #endif
 
 #include "ClassUDT.hpp"
@@ -46,16 +46,14 @@ using std::string;
 using std::unordered_map;
 using std::vector;
 
-typedef struct PostponedType
-{
+typedef struct PostponedType {
 	Type **type;
 	string name;
 	size_t size;
 	string typeIdentifier;
 } PostponedType;
 
-
-class PdbScanner: public Scanner
+class PdbScanner : public Scanner
 {
 public:
 	DDR_RC startScan(OMRPortLibrary *portLibrary, Symbol_IR *const ir, vector<string> *debugFiles);
@@ -86,7 +84,8 @@ private:
 	DDR_RC createClassUDT(IDiaSymbol *symbol, NamespaceUDT *outerUDT);
 	DDR_RC createEnumUDT(IDiaSymbol *symbol, NamespaceUDT *outerUDT);
 	DDR_RC createTypedef(IDiaSymbol *symbol, NamespaceUDT *outerUDT);
-	DDR_RC loadDataFromPdb(const wchar_t *filename, IDiaDataSource **diaDataSource, IDiaSession **diaSession, IDiaSymbol **diaSymbol);
+	DDR_RC loadDataFromPdb(const wchar_t *filename, IDiaDataSource **diaDataSource, IDiaSession **diaSession,
+						   IDiaSymbol **diaSymbol);
 	DDR_RC setSuperClassName(IDiaSymbol *symbol, ClassUDT *newUDT);
 	void getNamespaceFromName(string *name, NamespaceUDT **outerUDT);
 

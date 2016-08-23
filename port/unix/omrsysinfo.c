@@ -82,14 +82,14 @@
 /* Start copy from omrfiletext.c */
 /* __STDC_ISO_10646__ indicates that the platform wchar_t encoding is Unicode */
 /* but older versions of libc fail to set the flag, even though they are Unicode */
-#if defined(__STDC_ISO_10646__) || defined(LINUX) ||defined(OSX)
+#if defined(__STDC_ISO_10646__) || defined(LINUX) || defined(OSX)
 #define J9VM_USE_MBTOWC
 #else /* defined(__STDC_ISO_10646__) || defined(LINUX) || defined(OSX) */
 #include "omriconvhelpers.h"
 #endif /* defined(__STDC_ISO_10646__) || defined(LINUX) || defined(OSX) */
 
 /* a2e overrides nl_langinfo to return ASCII strings. We need the native EBCDIC string */
-#if defined(J9ZOS390) && defined (nl_langinfo)
+#if defined(J9ZOS390) && defined(nl_langinfo)
 #undef nl_langinfo
 #endif
 
@@ -117,7 +117,7 @@
 #include <sys/sysconfig.h>
 #include <assert.h>
 
-#if defined( OMR_ENV_DATA64 )
+#if defined(OMR_ENV_DATA64)
 #define LIBC_NAME "/usr/lib/libc.a(shr_64.o)"
 #else
 #define LIBC_NAME "/usr/lib/libc.a(shr.o)"
@@ -148,21 +148,22 @@
 #define PATH_MAX 1024
 #endif
 
-#pragma linkage (GETNCPUS,OS)
-#pragma map (Get_Number_Of_CPUs,"GETNCPUS")
+#pragma linkage(GETNCPUS, OS)
+#pragma map(Get_Number_Of_CPUs, "GETNCPUS")
 uintptr_t Get_Number_Of_CPUs();
 
 #endif
 
-#define JIFFIES			100
-#define USECS_PER_SEC	1000000
-#define TICKS_TO_USEC	((uint64_t)(USECS_PER_SEC/JIFFIES))
+#define JIFFIES 100
+#define USECS_PER_SEC 1000000
+#define TICKS_TO_USEC ((uint64_t)(USECS_PER_SEC / JIFFIES))
 
 /* For the omrsysinfo_env_iterator */
 extern char **environ;
 
 static uintptr_t copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args);
-static uintptr_t copyEnvToBufferSignalHandler(struct OMRPortLibrary *portLib, uint32_t gpType, void *gpInfo, void *unUsed);
+static uintptr_t copyEnvToBufferSignalHandler(struct OMRPortLibrary *portLib, uint32_t gpType, void *gpInfo,
+											  void *unUsed);
 
 static void setPortableError(OMRPortLibrary *portLibrary, const char *funcName, int32_t portlibErrno, int systemErrno);
 
@@ -180,7 +181,7 @@ typedef struct CopyEnvToBufferArgs {
 } CopyEnvToBufferArgs;
 
 /* For the omrsysinfo_limit_iterator */
-struct  {
+struct {
 	int resource;
 	char *resourceName;
 } limitMap[] = {
@@ -260,7 +261,7 @@ findError(int32_t errorCode)
 {
 	switch (errorCode) {
 	case EACCES:
-		/* FALLTHROUGH */
+	/* FALLTHROUGH */
 	case EPERM:
 		return OMRPORT_ERROR_FILE_NOPERMISSION;
 	case EFAULT:
@@ -276,7 +277,7 @@ findError(int32_t errorCode)
 	case ENOMEM:
 		return OMRPORT_ERROR_FILE_INSUFFICIENT_BUFFER;
 	case EMFILE:
-		/* FALLTHROUGH */
+	/* FALLTHROUGH */
 	case ENFILE:
 		return OMRPORT_ERROR_FILE_TOO_MANY_OPEN_FILES;
 	default:
@@ -328,7 +329,7 @@ omrsysinfo_get_CPU_architecture(struct OMRPortLibrary *portLibrary)
 #ifdef PPC64
 #ifdef OMR_ENV_LITTLE_ENDIAN
 	return OMRPORT_ARCH_PPC64LE;
-#else /* OMR_ENV_LITTLE_ENDIAN */
+#else  /* OMR_ENV_LITTLE_ENDIAN */
 	return OMRPORT_ARCH_PPC64;
 #endif /* OMR_ENV_LITTLE_ENDIAN */
 #else
@@ -351,7 +352,6 @@ omrsysinfo_get_CPU_architecture(struct OMRPortLibrary *portLibrary)
 #endif
 }
 
-
 intptr_t
 omrsysinfo_get_env(struct OMRPortLibrary *portLibrary, const char *envVar, char *infoString, uintptr_t bufSize)
 {
@@ -367,7 +367,6 @@ omrsysinfo_get_env(struct OMRPortLibrary *portLibrary, const char *envVar, char 
 		return 0;
 	}
 }
-
 
 const char *
 omrsysinfo_get_OS_type(struct OMRPortLibrary *portLibrary)
@@ -389,7 +388,8 @@ omrsysinfo_get_OS_type(struct OMRPortLibrary *portLibrary)
 #endif
 		if (rc >= 0) {
 			len = strlen(sysinfo.sysname) + 1;
-			buffer = portLibrary->mem_allocate_memory(portLibrary, len, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			buffer =
+				portLibrary->mem_allocate_memory(portLibrary, len, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 			if (NULL == buffer) {
 				return NULL;
 			}
@@ -402,7 +402,6 @@ omrsysinfo_get_OS_type(struct OMRPortLibrary *portLibrary)
 	return PPG_si_osType;
 #endif
 }
-
 
 const char *
 omrsysinfo_get_OS_version(struct OMRPortLibrary *portLibrary)
@@ -426,7 +425,8 @@ omrsysinfo_get_OS_version(struct OMRPortLibrary *portLibrary)
 #else
 			len = strlen(sysinfo.version) + strlen(sysinfo.release) + 2; /* "." and terminating null character */
 #endif /* J9OS_I5 */
-			buffer = portLibrary->mem_allocate_memory(portLibrary, len, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			buffer =
+				portLibrary->mem_allocate_memory(portLibrary, len, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 			if (NULL == buffer) {
 				return NULL;
 			}
@@ -437,7 +437,8 @@ omrsysinfo_get_OS_version(struct OMRPortLibrary *portLibrary)
 #endif /* J9OS_I5 */
 #else
 			len = strlen(sysinfo.release) + 1;
-			buffer = portLibrary->mem_allocate_memory(portLibrary, len, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			buffer =
+				portLibrary->mem_allocate_memory(portLibrary, len, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 			if (NULL == buffer) {
 				return NULL;
 			}
@@ -449,7 +450,6 @@ omrsysinfo_get_OS_version(struct OMRPortLibrary *portLibrary)
 	}
 	return PPG_si_osVersion;
 }
-
 
 uintptr_t
 omrsysinfo_get_pid(struct OMRPortLibrary *portLibrary)
@@ -574,8 +574,9 @@ find_executable_name(struct OMRPortLibrary *portLibrary, char **result)
 	pid_t mypid = getpid();
 
 	memset(&buf, 0x00, sizeof(buf));
-	buf.ps_pathptr   = portLibrary->mem_allocate_memory(portLibrary, buf.ps_pathlen = PS_PATHBLEN, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
-	if (buf.ps_pathptr   == NULL) {
+	buf.ps_pathptr = portLibrary->mem_allocate_memory(portLibrary, buf.ps_pathlen = PS_PATHBLEN, OMR_GET_CALLSITE(),
+													  OMRMEM_CATEGORY_PORT_LIBRARY);
+	if (buf.ps_pathptr == NULL) {
 		retval = -1;
 		goto cleanup;
 	}
@@ -593,7 +594,8 @@ find_executable_name(struct OMRPortLibrary *portLibrary, char **result)
 		retval = -1;
 		goto cleanup;
 	}
-	currentPath = (portLibrary->mem_allocate_memory)(portLibrary, strlen(e2aName) + 1, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	currentPath = (portLibrary->mem_allocate_memory)(portLibrary, strlen(e2aName) + 1, OMR_GET_CALLSITE(),
+													 OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (currentPath) {
 		strcpy(currentPath, e2aName);
 	}
@@ -620,19 +622,14 @@ find_executable_name(struct OMRPortLibrary *portLibrary, char **result)
 	if (-1 == fd) {
 		portableError = portLibrary->error_last_error_number(portLibrary);
 		Trc_PRT_find_executable_name_failedOpeningProcFS(portableError);
-		portLibrary->error_set_last_error_with_message(portLibrary,
-				portableError,
-				"Failed to open /proc fs");
+		portLibrary->error_set_last_error_with_message(portLibrary, portableError, "Failed to open /proc fs");
 		retval = -1;
 		goto cleanup;
 	}
 
 	/* Read the process info; loop in order to ensure the complete structure is read in. */
 	do {
-		readBytes = portLibrary->file_read(portLibrary,
-										   fd,
-										   ((char *) &psinfoData) + readOffset,
-										   remainingBytes);
+		readBytes = portLibrary->file_read(portLibrary, fd, ((char *)&psinfoData) + readOffset, remainingBytes);
 		/* Advance readOffset by bytes read and adjust this out from remainingBytes (to be read). */
 		remainingBytes -= readBytes;
 		readOffset += readBytes;
@@ -653,9 +650,8 @@ find_executable_name(struct OMRPortLibrary *portLibrary, char **result)
 			 * is expected to be set here, so use OMRPORT_ERROR_FILE_IO to indicate I/O error.
 			 */
 			Trc_PRT_find_executable_name_invalidRead(OMRPORT_ERROR_FILE_IO);
-			portLibrary->error_set_last_error_with_message(portLibrary,
-					OMRPORT_ERROR_FILE_IO,
-					"Input/output error: /proc file truncated");
+			portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_ERROR_FILE_IO,
+														   "Input/output error: /proc file truncated");
 			retval = -1;
 			portLibrary->file_close(portLibrary, fd);
 			goto cleanup;
@@ -669,7 +665,8 @@ find_executable_name(struct OMRPortLibrary *portLibrary, char **result)
 #endif
 
 	strLen = strlen(execName) + 1;
-	currentPath = (portLibrary->mem_allocate_memory)(portLibrary, strLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	currentPath =
+		(portLibrary->mem_allocate_memory)(portLibrary, strLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL != currentPath) {
 		strncpy(currentPath, execName, strLen - 1);
 		currentPath[strLen - 1] = '\0';
@@ -694,7 +691,8 @@ gotPathName:
 	p = strrchr(currentPath, '/');
 	if (p) {
 		*p++ = '\0';
-		currentName = (portLibrary->mem_allocate_memory)(portLibrary, strlen(p) + 1, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+		currentName = (portLibrary->mem_allocate_memory)(portLibrary, strlen(p) + 1, OMR_GET_CALLSITE(),
+														 OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (!currentName) {
 			retval = -1;
 			goto cleanup;
@@ -743,7 +741,8 @@ gotPathName:
 
 	/* Put name and path back together */
 
-	*result = (portLibrary->mem_allocate_memory)(portLibrary, strlen(currentPath) + strlen(currentName) + 2, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	*result = (portLibrary->mem_allocate_memory)(portLibrary, strlen(currentPath) + strlen(currentName) + 2,
+												 OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (!*result) {
 		retval = -1;
 		goto cleanup;
@@ -794,7 +793,7 @@ cleanup:
 intptr_t
 omrsysinfo_get_executable_name(struct OMRPortLibrary *portLibrary, const char *argv0, char **result)
 {
-	(void) argv0; /* @args used */
+	(void)argv0; /* @args used */
 
 	/* Clear any pending error conditions. */
 	portLibrary->error_set_last_error(portLibrary, 0, 0);
@@ -824,10 +823,10 @@ cwdname(struct OMRPortLibrary *portLibrary, char **result)
 
 doAlloc:
 	cwd = (portLibrary->mem_allocate_memory)(portLibrary, allocSize, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
-	if (!cwd)  {
+	if (!cwd) {
 		return -1;
 	}
-	if (!getcwd(cwd, allocSize - 1))  {
+	if (!getcwd(cwd, allocSize - 1)) {
 		int32_t error = errno; /* Save the error code before re-trying with bigger buffer. */
 		(portLibrary->mem_free_memory)(portLibrary, cwd);
 		if (ERANGE == error) {
@@ -896,7 +895,7 @@ readSymbolicLink(struct OMRPortLibrary *portLibrary, char *linkFilename, char **
 	strcpy(*result, fixedBuffer);
 	return 0;
 
-#else /* defined(LINUX) || defined(AIXPPC) */
+#else  /* defined(LINUX) || defined(AIXPPC) */
 	return -1;
 #endif /* defined(LINUX) || defined(AIXPPC) */
 }
@@ -931,10 +930,10 @@ searchSystemPath(struct OMRPortLibrary *portLibrary, char *filename, char **resu
 	while (pathNext) {
 		pathCurrent = pathNext;
 		pathNext = strchr(pathCurrent, ':');
-		if (pathNext)  {
+		if (pathNext) {
 			length = (pathNext - pathCurrent);
 			pathNext += 1;
-		} else  {
+		} else {
 			length = strlen(pathCurrent);
 		}
 		if (length > PATH_MAX) {
@@ -945,7 +944,7 @@ searchSystemPath(struct OMRPortLibrary *portLibrary, char *filename, char **resu
 #ifdef DEBUG
 		(portLibrary->tty_printf)(portLibrary, "Searching path: \"%s\"\n", temp);
 #endif
-		if (!length) {		/* empty path entry */
+		if (!length) { /* empty path entry */
 			continue;
 		}
 		if ((sdir = opendir(temp))) {
@@ -956,7 +955,8 @@ searchSystemPath(struct OMRPortLibrary *portLibrary, char *filename, char **resu
 				if (!strcmp(dirEntry->d_name, filename)) {
 					closedir(sdir);
 					/* found! */
-					*result = (portLibrary->mem_allocate_memory)(portLibrary, strlen(temp) + 1, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+					*result = (portLibrary->mem_allocate_memory)(portLibrary, strlen(temp) + 1, OMR_GET_CALLSITE(),
+																 OMRMEM_CATEGORY_PORT_LIBRARY);
 					if (!result) {
 						return -1;
 					}
@@ -1034,7 +1034,7 @@ omrsysinfo_get_number_CPUs_by_type(struct OMRPortLibrary *portLibrary, uintptr_t
 		toReturn = 0;
 		Trc_PRT_sysinfo_get_number_CPUs_by_type_invalidType();
 #elif defined(AIXPPC)
-		rsid_t who = { .at_tid = thread_self() };
+		rsid_t who = {.at_tid = thread_self()};
 		rsethandle_t rset = rs_alloc(RS_EMPTY);
 		ra_getrset(R_THREAD, who, 0, rset);
 		toReturn = rs_getinfo(rset, R_NUMPROCS, 0);
@@ -1112,34 +1112,34 @@ omrsysinfo_get_number_CPUs_by_type(struct OMRPortLibrary *portLibrary, uintptr_t
 	return toReturn;
 }
 
-#define MAX_LINE_LENGTH		128
+#define MAX_LINE_LENGTH 128
 
 /* Memory units are specified in Kilobytes. */
-#define ONE_K				1024
+#define ONE_K 1024
 
 /* Base for the decimal number system is 10. */
-#define COMPUTATION_BASE	10
+#define COMPUTATION_BASE 10
 
 #if defined(LINUX)
-#define MEMSTATPATH			"/proc/meminfo"
+#define MEMSTATPATH "/proc/meminfo"
 
-#define MEMTOTAL_PREFIX		"MemTotal:"
-#define MEMTOTAL_PREFIX_SZ	(sizeof(MEMTOTAL_PREFIX) - 1)
+#define MEMTOTAL_PREFIX "MemTotal:"
+#define MEMTOTAL_PREFIX_SZ (sizeof(MEMTOTAL_PREFIX) - 1)
 
-#define MEMFREE_PREFIX		"MemFree:"
-#define MEMFREE_PREFIX_SZ	(sizeof(MEMFREE_PREFIX) - 1)
+#define MEMFREE_PREFIX "MemFree:"
+#define MEMFREE_PREFIX_SZ (sizeof(MEMFREE_PREFIX) - 1)
 
-#define SWAPTOTAL_PREFIX	"SwapTotal:"
-#define SWAPTOTAL_PREFIX_SZ	(sizeof(SWAPTOTAL_PREFIX) - 1)
+#define SWAPTOTAL_PREFIX "SwapTotal:"
+#define SWAPTOTAL_PREFIX_SZ (sizeof(SWAPTOTAL_PREFIX) - 1)
 
-#define SWAPFREE_PREFIX		"SwapFree:"
-#define SWAPFREE_PREFIX_SZ	(sizeof(SWAPFREE_PREFIX) - 1)
+#define SWAPFREE_PREFIX "SwapFree:"
+#define SWAPFREE_PREFIX_SZ (sizeof(SWAPFREE_PREFIX) - 1)
 
-#define CACHED_PREFIX		"Cached:"
-#define CACHED_PREFIX_SZ	(sizeof(CACHED_PREFIX) - 1)
+#define CACHED_PREFIX "Cached:"
+#define CACHED_PREFIX_SZ (sizeof(CACHED_PREFIX) - 1)
 
-#define BUFFERS_PREFIX		"Buffers:"
-#define BUFFERS_PREFIX_SZ	(sizeof(BUFFERS_PREFIX) - 1)
+#define BUFFERS_PREFIX "Buffers:"
+#define BUFFERS_PREFIX_SZ (sizeof(BUFFERS_PREFIX) - 1)
 
 /**
  * Function collects memory usage statistics on Linux platforms and returns the same.
@@ -1184,8 +1184,8 @@ retrieveLinuxMemoryStats(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo
 			memInfo->totalPhysical = strtol(tmpPtr, &endPtr, COMPUTATION_BASE);
 			if ((LONG_MIN == memInfo->totalPhysical) || (LONG_MAX == memInfo->totalPhysical)) {
 				Trc_PRT_retrieveLinuxMemoryStats_invalidRangeFound("MemTotal");
-				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE :
-					 OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
+				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE
+									   : OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
 				goto _cleanup;
 			} /* end outer-if */
 
@@ -1197,8 +1197,8 @@ retrieveLinuxMemoryStats(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo
 			memInfo->availPhysical = strtol(tmpPtr, &endPtr, COMPUTATION_BASE);
 			if ((LONG_MIN == memInfo->availPhysical) || (LONG_MAX == memInfo->availPhysical)) {
 				Trc_PRT_retrieveLinuxMemoryStats_invalidRangeFound("MemFree");
-				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE :
-					 OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
+				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE
+									   : OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
 				goto _cleanup;
 			} /* end outer-if */
 
@@ -1210,8 +1210,8 @@ retrieveLinuxMemoryStats(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo
 			memInfo->totalSwap = strtol(tmpPtr, &endPtr, COMPUTATION_BASE);
 			if ((LONG_MIN == memInfo->totalSwap) || (LONG_MAX == memInfo->totalSwap)) {
 				Trc_PRT_retrieveLinuxMemoryStats_invalidRangeFound("SwapTotal");
-				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE :
-					 OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
+				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE
+									   : OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
 				goto _cleanup;
 			} /* end outer-if */
 
@@ -1223,8 +1223,8 @@ retrieveLinuxMemoryStats(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo
 			memInfo->availSwap = strtol(tmpPtr, &endPtr, COMPUTATION_BASE);
 			if ((LONG_MIN == memInfo->availSwap) || (LONG_MAX == memInfo->availSwap)) {
 				Trc_PRT_retrieveLinuxMemoryStats_invalidRangeFound("SwapFree");
-				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE :
-					 OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
+				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE
+									   : OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
 				goto _cleanup;
 			} /* end outer-if */
 
@@ -1236,8 +1236,8 @@ retrieveLinuxMemoryStats(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo
 			memInfo->cached = strtol(tmpPtr, &endPtr, COMPUTATION_BASE);
 			if ((LONG_MIN == memInfo->cached) || (LONG_MAX == memInfo->cached)) {
 				Trc_PRT_retrieveLinuxMemoryStats_invalidRangeFound("Cached");
-				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE :
-					 OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
+				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE
+									   : OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
 				goto _cleanup;
 			} /* end outer-if */
 
@@ -1249,15 +1249,15 @@ retrieveLinuxMemoryStats(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo
 			memInfo->buffered = strtol(tmpPtr, &endPtr, COMPUTATION_BASE);
 			if ((LONG_MIN == memInfo->buffered) || (LONG_MAX == memInfo->buffered)) {
 				Trc_PRT_retrieveLinuxMemoryStats_invalidRangeFound("Buffers");
-				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE :
-					 OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
+				rc = (ERANGE == errno) ? OMRPORT_ERROR_SYSINFO_PARAM_HAS_INVALID_RANGE
+									   : OMRPORT_ERROR_SYSINFO_ERROR_READING_MEMORY_INFO;
 				goto _cleanup;
 			} /* end outer-if */
 
 			/* The values are in Kb. */
 			memInfo->buffered *= ONE_K;
 		} /* end if else-if */
-	} /* end while() */
+	}	 /* end while() */
 
 	rc = portLibrary->sysinfo_get_limit(portLibrary, OMRPORT_RESOURCE_ADDRESS_SPACE | OMRPORT_LIMIT_HARD, &maxVirtual);
 	if ((OMRPORT_LIMIT_UNKNOWN != rc) && (RLIM_INFINITY != maxVirtual)) {
@@ -1316,8 +1316,7 @@ retrieveOSXMemoryStats(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo *
 	if (0 == ret) {
 		struct xsw_usage vmusage = {0};
 		size_t size = sizeof(vmusage);
-		if (0 == sysctlbyname("vm.swapusage", &vmusage, &size, NULL, 0))
-		{
+		if (0 == sysctlbyname("vm.swapusage", &vmusage, &size, NULL, 0)) {
 			memInfo->totalSwap = vmusage.xsu_total;
 			memInfo->availSwap = vmusage.xsu_avail;
 		} else {
@@ -1433,14 +1432,14 @@ omrsysinfo_get_memory_info(struct OMRPortLibrary *portLibrary, struct J9MemoryIn
 uint64_t
 omrsysinfo_get_physical_memory(struct OMRPortLibrary *portLibrary)
 {
-#if defined (RS6000)
+#if defined(RS6000)
 	/* physmem is not a field in the system_configuration struct */
 	/* on systems with 43K headers. However, this is not an issue as we only support AIX 5.2 and above only */
-	return (uint64_t) _system_configuration.physmem;
+	return (uint64_t)_system_configuration.physmem;
 #elif defined(J9ZOS390)
 	U_64 result = 0;
-	J9CVT * __ptr32 cvtp = ((J9PSA * __ptr32)0)->flccvt;
-	J9RCE * __ptr32 rcep = cvtp->cvtrcep;
+	J9CVT *__ptr32 cvtp = ((J9PSA * __ptr32)0)->flccvt;
+	J9RCE *__ptr32 rcep = cvtp->cvtrcep;
 	result = ((U_64)rcep->rcepool * J9BYTES_PER_PAGE);
 	return result;
 #elif defined(OSX)
@@ -1452,7 +1451,7 @@ omrsysinfo_get_physical_memory(struct OMRPortLibrary *portLibrary)
 	} else {
 		return 0;
 	}
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 
 	intptr_t pagesize, num_pages;
 
@@ -1462,7 +1461,7 @@ omrsysinfo_get_physical_memory(struct OMRPortLibrary *portLibrary)
 	if (pagesize == -1 || num_pages == -1) {
 		return 0;
 	} else {
-		return (uint64_t) pagesize * num_pages;
+		return (uint64_t)pagesize * num_pages;
 	}
 #endif /* defined(OSX) */
 }
@@ -1487,7 +1486,6 @@ omrsysinfo_shutdown(struct OMRPortLibrary *portLibrary)
 	}
 }
 
-
 int32_t
 omrsysinfo_startup(struct OMRPortLibrary *portLibrary)
 {
@@ -1495,7 +1493,7 @@ omrsysinfo_startup(struct OMRPortLibrary *portLibrary)
 	 * shouldn't cause failure to startup port library.  Failure will be noticed only
 	 * when the omrsysinfo_get_executable_name() actually gets invoked.
 	 */
-	(void) find_executable_name(portLibrary, &PPG_si_executableName);
+	(void)find_executable_name(portLibrary, &PPG_si_executableName);
 	return 0;
 }
 
@@ -1508,7 +1506,7 @@ omrsysinfo_get_username(struct OMRPortLibrary *portLibrary, char *buffer, uintpt
 	struct passwd *pwent = NULL;
 
 #if defined(J9ZOS390)
-	/* CMVC 182664 */
+/* CMVC 182664 */
 #define USERID_BUF_LEN 16
 	char loginID[USERID_BUF_LEN];
 	uintptr_t getuid_result = omrget_userid(loginID, USERID_BUF_LEN);
@@ -1580,7 +1578,6 @@ omrsysinfo_get_groupname(struct OMRPortLibrary *portLibrary, char *buffer, uintp
 		}
 		omrtty_printf(portLibrary, "End of member list\n");
 #endif
-
 	}
 
 	if (NULL == remoteCopy) {
@@ -1620,7 +1617,7 @@ omrsysinfo_get_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
 		rc = getLimitSharedMemory(portLibrary, limit);
 		break;
 	case OMRPORT_RESOURCE_ADDRESS_SPACE:
-		/* FALLTHROUGH */
+	/* FALLTHROUGH */
 	case OMRPORT_RESOURCE_CORE_FILE: {
 		if (0 == getrlimit(resource, &lim)) {
 			*limit = (uint64_t)(hardLimitRequested ? lim.rlim_max : lim.rlim_cur);
@@ -1635,8 +1632,7 @@ omrsysinfo_get_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
 			Trc_PRT_sysinfo_getrlimit_error(resource, findError(errno));
 			rc = OMRPORT_LIMIT_UNKNOWN;
 		}
-	}
-	break;
+	} break;
 	case OMRPORT_RESOURCE_CORE_FLAGS: {
 #if defined(AIXPPC)
 		struct vario myvar;
@@ -1660,8 +1656,7 @@ omrsysinfo_get_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
 		*limit = OMRPORT_LIMIT_UNKNOWN_VALUE;
 		rc = OMRPORT_LIMIT_UNKNOWN;
 #endif
-	}
-	break;
+	} break;
 	/* Get the limit on maximum number of files that may be opened in any
 	 * process, in the current configuration of the operating system.  This
 	 * must match "ulimit -n".
@@ -1670,7 +1665,7 @@ omrsysinfo_get_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
 #if defined(AIXPPC) || defined(LINUX) || defined(OSX) || defined(J9ZOS390)
 		/* getrlimit(2) is a POSIX routine. */
 		if (0 == getrlimit(RLIMIT_NOFILE, &lim)) {
-			*limit = (uint64_t) (hardLimitRequested ? lim.rlim_max : lim.rlim_cur);
+			*limit = (uint64_t)(hardLimitRequested ? lim.rlim_max : lim.rlim_cur);
 			if (RLIM_INFINITY == *limit) {
 				rc = OMRPORT_LIMIT_UNLIMITED;
 			} else {
@@ -1687,8 +1682,7 @@ omrsysinfo_get_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
 		*limit = OMRPORT_LIMIT_UNKNOWN_VALUE;
 		rc = OMRPORT_LIMIT_UNKNOWN;
 #endif /* defined(AIXPPC) || defined(LINUX) || defined(OSX) || defined(J9ZOS390) */
-	}
-	break;
+	} break;
 	default:
 		Trc_PRT_sysinfo_getLimit_unrecognised_resourceID(resourceID);
 		*limit = OMRPORT_LIMIT_UNKNOWN_VALUE;
@@ -1718,7 +1712,7 @@ omrsysinfo_set_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
 
 	switch (resourceRequested) {
 	case OMRPORT_RESOURCE_ADDRESS_SPACE:
-		/* FALLTHROUGH */
+	/* FALLTHROUGH */
 	case OMRPORT_RESOURCE_CORE_FILE: {
 		rc = getrlimit(resource, &lim);
 		if (-1 == rc) {
@@ -1767,7 +1761,6 @@ omrsysinfo_set_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
 	return rc;
 }
 
-
 static uint32_t
 getLimitSharedMemory(struct OMRPortLibrary *portLibrary, uint64_t *limit)
 {
@@ -1784,9 +1777,8 @@ getLimitSharedMemory(struct OMRPortLibrary *portLibrary, uint64_t *limit)
 	if (-1 == fd) {
 		portableError = portLibrary->error_last_error_number(portLibrary);
 		Trc_PRT_sysinfo_getLimitSharedMemory_invalidFileHandle(portableError);
-		portLibrary->error_set_last_error_with_message(portLibrary,
-				portableError,
-				"getLimitSharedMemory invalid return from file open");
+		portLibrary->error_set_last_error_with_message(portLibrary, portableError,
+													   "getLimitSharedMemory invalid return from file open");
 		goto errorReturn;
 	}
 
@@ -1811,13 +1803,12 @@ errorReturn:
 	Trc_PRT_sysinfo_getLimitSharedMemory_ErrorExit(OMRPORT_LIMIT_UNKNOWN, OMRPORT_LIMIT_UNKNOWN_VALUE);
 	*limit = OMRPORT_LIMIT_UNKNOWN_VALUE;
 	return OMRPORT_LIMIT_UNKNOWN;
-#else /* defined(LINUX) */
+#else  /* defined(LINUX) */
 	Trc_PRT_sysinfo_getLimitSharedMemory_notImplemented(OMRPORT_LIMIT_UNKNOWN);
 	*limit = OMRPORT_LIMIT_UNKNOWN_VALUE;
 	return OMRPORT_LIMIT_UNKNOWN;
 #endif /* defined(LINUX) */
 }
-
 
 intptr_t
 omrsysinfo_get_load_average(struct OMRPortLibrary *portLibrary, struct J9PortSysInfoLoadData *loadAverageData)
@@ -1858,7 +1849,7 @@ omrsysinfo_get_CPU_utilization(struct OMRPortLibrary *portLibrary, struct J9Sysi
 	 * returns times that can (and does) decrease. Use this to compute timestamps.
 	 */
 	uint64_t preTimestamp = portLibrary->time_nano_time(portLibrary); /* ticks */
-	uint64_t postTimestamp; /* ticks */
+	uint64_t postTimestamp;											  /* ticks */
 
 #if defined(LINUX)
 	intptr_t bytesRead = -1;
@@ -1910,8 +1901,8 @@ omrsysinfo_get_CPU_utilization(struct OMRPortLibrary *portLibrary, struct J9Sysi
 	cpuTime->numberOfCpus = portLibrary->sysinfo_get_number_CPUs_by_type(portLibrary, OMRPORT_CPU_ONLINE);
 	cpuTime->cpuTime = 0;
 
-	rc = host_processor_info(mach_host_self(), PROCESSOR_CPU_LOAD_INFO,
-		&processorCount, (processor_info_array_t *)&cpuLoadInfo, &msgTypeNumber);
+	rc = host_processor_info(mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &processorCount,
+							 (processor_info_array_t *)&cpuLoadInfo, &msgTypeNumber);
 	if (KERN_SUCCESS == rc) {
 		int64_t userTime = 0;
 		int64_t niceTime = 0;
@@ -1978,7 +1969,8 @@ omrsysinfo_limit_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoL
 }
 
 int32_t
-omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimitIteratorState *state, J9SysinfoUserLimitElement *limitElement)
+omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimitIteratorState *state,
+							   J9SysinfoUserLimitElement *limitElement)
 {
 
 	struct rlimit limits;
@@ -1991,7 +1983,7 @@ omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimi
 
 	if (0 != getrlimitRC) {
 
-		/* getrlimit failed, but the user may want to try the next value so bump the counter*/
+/* getrlimit failed, but the user may want to try the next value so bump the counter*/
 
 #ifdef DEBUG
 		perror("getrlimit failure: ");
@@ -2004,15 +1996,15 @@ omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimi
 		limitElement->name = limitMap[state->count].resourceName;
 
 		if (RLIM_INFINITY == limits.rlim_cur) {
-			limitElement->softValue	= (uint64_t) OMRPORT_LIMIT_UNLIMITED;
+			limitElement->softValue = (uint64_t)OMRPORT_LIMIT_UNLIMITED;
 		} else {
-			limitElement->softValue = (uint64_t) limits.rlim_cur;
+			limitElement->softValue = (uint64_t)limits.rlim_cur;
 		}
 
 		if (RLIM_INFINITY == limits.rlim_max) {
-			limitElement->hardValue	= (uint64_t) OMRPORT_LIMIT_UNLIMITED;
+			limitElement->hardValue = (uint64_t)OMRPORT_LIMIT_UNLIMITED;
 		} else {
-			limitElement->hardValue = (uint64_t) limits.rlim_max;
+			limitElement->hardValue = (uint64_t)limits.rlim_max;
 		}
 
 		rc = 0;
@@ -2032,7 +2024,8 @@ copyEnvToBufferSignalHandler(struct OMRPortLibrary *portLib, uint32_t gpType, vo
 
 /* returns the number of bytes written to the output buffer, including the null terminator, or -1 if the buffer wasn't big enough */
 static intptr_t
-convertWithIConv(struct OMRPortLibrary *portLibrary, iconv_t *converter, char *inputBuffer, char *outputBuffer, uintptr_t bufLen)
+convertWithIConv(struct OMRPortLibrary *portLibrary, iconv_t *converter, char *inputBuffer, char *outputBuffer,
+				 uintptr_t bufLen)
 {
 	size_t inbytesleft, outbytesleft;
 	char *inbuf, *outbuf;
@@ -2040,7 +2033,7 @@ convertWithIConv(struct OMRPortLibrary *portLibrary, iconv_t *converter, char *i
 	inbuf = (char *)inputBuffer; /* for some reason this argument isn't const */
 	outbuf = outputBuffer;
 	inbytesleft = strlen(inputBuffer);
-	outbytesleft = bufLen - 1 /* space for null-terminator */ ;
+	outbytesleft = bufLen - 1 /* space for null-terminator */;
 
 #if defined(ENV_DEBUG)
 	printf("convertWithIConv 1: %s\n", e2a_func(inputBuffer, strlen(inputBuffer)));
@@ -2105,7 +2098,7 @@ convertWithMBTOWC(struct OMRPortLibrary *portLibrary, char *inputBuffer, char *o
 				/* out of space */
 				return -1;
 			}
-			*out++ = (char) ch;
+			*out++ = (char)ch;
 			bytesWritten = bytesWritten + 1;
 
 		} else if (ch < 0x800) {
@@ -2136,7 +2129,6 @@ convertWithMBTOWC(struct OMRPortLibrary *portLibrary, char *inputBuffer, char *o
 }
 #endif /* J9VM_USE_MBTOWC */
 
-
 /**
  * Initialises the supplied buffer such that it can be used by the @ref omrsysinfo_env_iteraror_next() and @ref omrsysinfo_env_iterator_hasNext() APIs.
  *
@@ -2159,7 +2151,7 @@ static uintptr_t
 copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args)
 {
 
-	CopyEnvToBufferArgs *copyEnvToBufferArgs = (CopyEnvToBufferArgs *) args;
+	CopyEnvToBufferArgs *copyEnvToBufferArgs = (CopyEnvToBufferArgs *)args;
 	uint8_t *buffer = copyEnvToBufferArgs->buffer;
 	uintptr_t bufferSize = copyEnvToBufferArgs->bufferSizeBytes;
 	intptr_t storageRequiredForEnvironment;
@@ -2176,18 +2168,18 @@ copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args)
 
 	memset(buffer, 0, bufferSize);
 
-	/* How much space do we need to store the environment?
+/* How much space do we need to store the environment?
 	 *  - we are converting to UTF-8, where 3 bytes is the maximum it can take to encode anything
 	 *  - therefore, to keep things simple, just multiple the results of strlen by 3
 	 */
 #define J9_MAX_UTF8_SIZE_BYTES 3
 	storageRequiredForEnvironment = 0;
-	for (i = 0 ; NULL != environ[i] ; i++)  {
+	for (i = 0; NULL != environ[i]; i++) {
 
-		storageRequiredForEnvironment = storageRequiredForEnvironment
-										+ sizeof(EnvListItem)
-										+ (intptr_t)(strlen(environ[i]) * J9_MAX_UTF8_SIZE_BYTES)	/* for the string itself (name=value ) */
-										+ 1;	/* for the null-terminator */
+		storageRequiredForEnvironment =
+			storageRequiredForEnvironment + sizeof(EnvListItem)
+			+ (intptr_t)(strlen(environ[i]) * J9_MAX_UTF8_SIZE_BYTES) /* for the string itself (name=value ) */
+			+ 1;													  /* for the null-terminator */
 	}
 
 	if (NULL == buffer) {
@@ -2195,7 +2187,7 @@ copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args)
 	}
 
 #if defined(J9VM_USE_ICONV)
-	/* iconv_get is not an a2e function, so we need to pass it honest-to-goodness EBCDIC strings */
+/* iconv_get is not an a2e function, so we need to pass it honest-to-goodness EBCDIC strings */
 #ifdef J9ZOS390
 #pragma convlit(suspend)
 #endif
@@ -2214,7 +2206,7 @@ copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args)
 	spaceLeft = bufferSize;
 	copyEnvToBufferArgs->numElements = 0;
 
-	for (i = 0 ; NULL != environ[i] ; i++)  {
+	for (i = 0; NULL != environ[i]; i++) {
 		intptr_t bytesWrittenThisEntry = -1;
 
 		if (spaceLeft > sizeof(EnvListItem)) {
@@ -2229,7 +2221,8 @@ copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args)
 
 #if defined(J9VM_USE_MBTOWC)
 
-		bytesWrittenThisEntry = convertWithMBTOWC(portLibrary, environ[i], currentItem->nameAndValue, spaceLeft - sizeof(EnvListItem));
+		bytesWrittenThisEntry =
+			convertWithMBTOWC(portLibrary, environ[i], currentItem->nameAndValue, spaceLeft - sizeof(EnvListItem));
 
 #elif defined(J9VM_USE_ICONV)
 
@@ -2238,7 +2231,8 @@ copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args)
 			strncpy(currentItem->nameAndValue, environ[i], spaceLeft - sizeof(EnvListItem));
 			bytesWrittenThisEntry = strlen(environ[i]) + 1;
 		} else {
-			bytesWrittenThisEntry = convertWithIConv(portLibrary, &converter, environ[i], currentItem->nameAndValue, spaceLeft - sizeof(EnvListItem));
+			bytesWrittenThisEntry = convertWithIConv(portLibrary, &converter, environ[i], currentItem->nameAndValue,
+													 spaceLeft - sizeof(EnvListItem));
 		}
 
 #else
@@ -2284,9 +2278,10 @@ copyEnvToBuffer(struct OMRPortLibrary *portLibrary, void *args)
 }
 
 int32_t
-omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, void *buffer, uintptr_t bufferSizeBytes)
+omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, void *buffer,
+							 uintptr_t bufferSizeBytes)
 {
-	int32_t rc =  OMRPORT_ERROR_SYSINFO_OPFAILED;
+	int32_t rc = OMRPORT_ERROR_SYSINFO_OPFAILED;
 
 	CopyEnvToBufferArgs copyEnvToBufferArgs;
 	uintptr_t sigProtectRc = -1;
@@ -2299,13 +2294,15 @@ omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIte
 	copyEnvToBufferArgs.bufferSizeBytes = bufferSizeBytes;
 	copyEnvToBufferArgs.numElements = 0; /* this value is returned by copyEnvToBuffer */
 
-	sigProtectRc = portLibrary->sig_protect(portLibrary, copyEnvToBuffer, &copyEnvToBufferArgs, copyEnvToBufferSignalHandler, NULL, OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_RETURN, &copyEnvToBufferRC);
+	sigProtectRc =
+		portLibrary->sig_protect(portLibrary, copyEnvToBuffer, &copyEnvToBufferArgs, copyEnvToBufferSignalHandler, NULL,
+								 OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_RETURN, &copyEnvToBufferRC);
 
 	if (0 == sigProtectRc) {
 		/* copyEnvToToBuffer completed without a signal occurring so we can trust the return value contained in it's args */
 		state->buffer = buffer;
 		state->bufferSizeBytes = bufferSizeBytes;
-		rc = (intptr_t) copyEnvToBufferRC;
+		rc = (intptr_t)copyEnvToBufferRC;
 	} else if (OMRPORT_SIG_EXCEPTION_OCCURRED == sigProtectRc) {
 		/*  copyEnvToToBuffer triggered a signal, and copyEnvToBufferSignalHandler returned OMRPORT_SIG_EXCEPTION_RETURN */
 		rc = OMRPORT_ERROR_SYSINFO_ENV_INIT_CRASHED_COPYING_BUFFER;
@@ -2335,11 +2332,11 @@ omrsysinfo_env_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoEnv
 	}
 
 	return TRUE;
-
 }
 
 int32_t
-omrsysinfo_env_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, J9SysinfoEnvElement *envElement)
+omrsysinfo_env_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state,
+							 J9SysinfoEnvElement *envElement)
 {
 
 	EnvListItem *item;
@@ -2353,13 +2350,12 @@ omrsysinfo_env_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIte
 	state->current = item->next;
 
 	return 0;
-
 }
 
 #if defined(LINUX)
 
-#define PROCSTATPATH	"/proc/stat"
-#define PROCSTATPREFIX	"cpu"
+#define PROCSTATPATH "/proc/stat"
+#define PROCSTATPREFIX "cpu"
 
 /**
  * Function collects processor usage statistics on Linux platforms and returns the same.
@@ -2411,8 +2407,8 @@ retrieveLinuxProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Process
 	}
 
 	/* Loop until all records have been read-off "/proc/stat". */
-	while ((-1 != getline(&linePtr, &lineSz, procStatFs)) &&
-		   (0 == strncmp(linePtr, PROCSTATPREFIX, sizeof(PROCSTATPREFIX) - 1))) {
+	while ((-1 != getline(&linePtr, &lineSz, procStatFs))
+		   && (0 == strncmp(linePtr, PROCSTATPREFIX, sizeof(PROCSTATPREFIX) - 1))) {
 		int32_t cpuid = -1;
 
 		/* Insufficient memory allocated since cpu count increased. Cleanup and return error. */
@@ -2426,30 +2422,17 @@ retrieveLinuxProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Process
 
 		/* Either processor count has decreased or remained the same. In either case, parse the data. */
 		if (0 == cpuCntr) {
-			rc = sscanf(linePtr,
-						"cpu  %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64,
-						&procInfo->procInfoArray[cpuCntr].userTime,
-						&nice,
-						&procInfo->procInfoArray[cpuCntr].systemTime,
-						&procInfo->procInfoArray[cpuCntr].idleTime,
-						&procInfo->procInfoArray[cpuCntr].waitTime,
-						&irq,
-						&softirq,
-						&steal,
-						&guest);
+			rc = sscanf(linePtr, "cpu  %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64
+								 " %" SCNu64 " %" SCNu64,
+						&procInfo->procInfoArray[cpuCntr].userTime, &nice, &procInfo->procInfoArray[cpuCntr].systemTime,
+						&procInfo->procInfoArray[cpuCntr].idleTime, &procInfo->procInfoArray[cpuCntr].waitTime, &irq,
+						&softirq, &steal, &guest);
 		} else {
-			rc = sscanf(linePtr,
-						"cpu%" SCNd32 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64,
-						&cpuid,
-						&procInfo->procInfoArray[cpuCntr].userTime,
-						&nice,
-						&procInfo->procInfoArray[cpuCntr].systemTime,
-						&procInfo->procInfoArray[cpuCntr].idleTime,
-						&procInfo->procInfoArray[cpuCntr].waitTime,
-						&irq,
-						&softirq,
-						&steal,
-						&guest);
+			rc = sscanf(linePtr, "cpu%" SCNd32 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64
+								 " %" SCNu64 " %" SCNu64 " %" SCNu64,
+						&cpuid, &procInfo->procInfoArray[cpuCntr].userTime, &nice,
+						&procInfo->procInfoArray[cpuCntr].systemTime, &procInfo->procInfoArray[cpuCntr].idleTime,
+						&procInfo->procInfoArray[cpuCntr].waitTime, &irq, &softirq, &steal, &guest);
 
 			/* If there are disabled SMT's, there may be processors that are online, identified by integers not
 			 * in range 1 ... (N-1), [where N is the number of CPUs], i.e., exceed sysconf(_SC_NPROCESSORS_CONF).
@@ -2473,14 +2456,9 @@ retrieveLinuxProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Process
 		 * irq, softirq, steal, and guest times to arrive at the busy times, in addition
 		 * to the user, system, and wait times.
 		 */
-		procInfo->procInfoArray[cpuCntr].busyTime = procInfo->procInfoArray[cpuCntr].userTime +
-				procInfo->procInfoArray[cpuCntr].systemTime +
-				nice +
-				procInfo->procInfoArray[cpuCntr].waitTime +
-				irq +
-				softirq +
-				steal +
-				guest;
+		procInfo->procInfoArray[cpuCntr].busyTime =
+			procInfo->procInfoArray[cpuCntr].userTime + procInfo->procInfoArray[cpuCntr].systemTime + nice
+			+ procInfo->procInfoArray[cpuCntr].waitTime + irq + softirq + steal + guest;
 
 		/* Convert ticks values found in JIFFIES to microseconds. */
 		procInfo->procInfoArray[cpuCntr].userTime *= TICKS_TO_USEC;
@@ -2525,22 +2503,22 @@ retrieveOSXProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Processor
 	kern_return_t rc;
 	host_t host = mach_host_self();
 
-	rc = host_processor_info(host, PROCESSOR_CPU_LOAD_INFO,
-		&processorCount, (processor_info_array_t *)&cpuLoadInfo, &msgTypeNumber);
+	rc = host_processor_info(host, PROCESSOR_CPU_LOAD_INFO, &processorCount, (processor_info_array_t *)&cpuLoadInfo,
+							 &msgTypeNumber);
 	if (KERN_SUCCESS == rc) {
-		rc = host_processor_info(host, PROCESSOR_BASIC_INFO,
-			&processorCount, (processor_info_array_t *)&basicInfo, &msgTypeNumber);
+		rc = host_processor_info(host, PROCESSOR_BASIC_INFO, &processorCount, (processor_info_array_t *)&basicInfo,
+								 &msgTypeNumber);
 	}
 	if (KERN_SUCCESS == rc) {
 		for (i = 0; i < processorCount; i += 1) {
-			procInfo->procInfoArray[i + 1].online = basicInfo[i].running ? OMRPORT_PROCINFO_PROC_ONLINE : OMRPORT_PROCINFO_PROC_OFFLINE;
+			procInfo->procInfoArray[i + 1].online =
+				basicInfo[i].running ? OMRPORT_PROCINFO_PROC_ONLINE : OMRPORT_PROCINFO_PROC_OFFLINE;
 			procInfo->procInfoArray[i + 1].userTime = cpuLoadInfo[i].cpu_ticks[CPU_STATE_USER];
 			procInfo->procInfoArray[i + 1].systemTime = cpuLoadInfo[i].cpu_ticks[CPU_STATE_SYSTEM];
 			procInfo->procInfoArray[i + 1].idleTime = cpuLoadInfo[i].cpu_ticks[CPU_STATE_IDLE];
-			procInfo->procInfoArray[i + 1].busyTime =
-				cpuLoadInfo[i].cpu_ticks[CPU_STATE_USER] +
-				cpuLoadInfo[i].cpu_ticks[CPU_STATE_SYSTEM] +
-				cpuLoadInfo[i].cpu_ticks[CPU_STATE_NICE];
+			procInfo->procInfoArray[i + 1].busyTime = cpuLoadInfo[i].cpu_ticks[CPU_STATE_USER]
+													  + cpuLoadInfo[i].cpu_ticks[CPU_STATE_SYSTEM]
+													  + cpuLoadInfo[i].cpu_ticks[CPU_STATE_NICE];
 
 			procInfo->procInfoArray[0].userTime += procInfo->procInfoArray[i + 1].userTime;
 			procInfo->procInfoArray[0].systemTime += procInfo->procInfoArray[i + 1].systemTime;
@@ -2576,7 +2554,7 @@ retrieveAIXProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Processor
 	Trc_PRT_retrieveAIXProcessorStats_Entered();
 
 	/* First, get total (system wide) processor usage statistics using perfstat_cpu_total(). */
-	rc =  perfstat_cpu_total(NULL, &total_cpu_usage, sizeof(perfstat_cpu_total_t), 1);
+	rc = perfstat_cpu_total(NULL, &total_cpu_usage, sizeof(perfstat_cpu_total_t), 1);
 	if (1 != rc) {
 		Trc_PRT_retrieveAIXProcessorStats_perfstatFailed(errno);
 		Trc_PRT_retrieveAIXProcessorStats_Exit(OMRPORT_ERROR_SYSINFO_ERROR_READING_PROCESSOR_INFO);
@@ -2587,9 +2565,8 @@ retrieveAIXProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Processor
 	procInfo->procInfoArray[0].systemTime = total_cpu_usage.sys * TICKS_TO_USEC;
 	procInfo->procInfoArray[0].idleTime = total_cpu_usage.idle * TICKS_TO_USEC;
 	procInfo->procInfoArray[0].waitTime = total_cpu_usage.wait * TICKS_TO_USEC;
-	procInfo->procInfoArray[0].busyTime = procInfo->procInfoArray[0].userTime +
-										  procInfo->procInfoArray[0].systemTime +
-										  procInfo->procInfoArray[0].waitTime;
+	procInfo->procInfoArray[0].busyTime = procInfo->procInfoArray[0].userTime + procInfo->procInfoArray[0].systemTime
+										  + procInfo->procInfoArray[0].waitTime;
 
 	/* perfstat_cpu() returns (highest_CPUID+1) that was online since last boot, but counts-in
 	 * stale CPU records too. At present, we can't tell exactly which CPUs are online at this
@@ -2605,17 +2582,14 @@ retrieveAIXProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Processor
 		return OMRPORT_ERROR_SYSINFO_ERROR_READING_PROCESSOR_INFO;
 	} else if (onlineProcessorCount > procInfo->totalProcessorCount) {
 		/* perfstat_cpu() succeeded, but by now number of processors configured has increased! */
-		Trc_PRT_retrieveAIXProcessorStats_unexpectedCpuCount(procInfo->totalProcessorCount,
-															 onlineProcessorCount);
+		Trc_PRT_retrieveAIXProcessorStats_unexpectedCpuCount(procInfo->totalProcessorCount, onlineProcessorCount);
 		Trc_PRT_retrieveAIXProcessorStats_Exit(OMRPORT_ERROR_SYSINFO_UNEXPECTED_PROCESSOR_COUNT);
 		return OMRPORT_ERROR_SYSINFO_UNEXPECTED_PROCESSOR_COUNT;
 	}
 
 	/* Allocate as many entries perfstat_cpu_t as there are processors on the machine. */
-	statp = (perfstat_cpu_t*) portLibrary->mem_allocate_memory(portLibrary,
-															   onlineProcessorCount * sizeof(perfstat_cpu_t),
-												   			   OMR_GET_CALLSITE(),
-															   OMRMEM_CATEGORY_PORT_LIBRARY);
+	statp = (perfstat_cpu_t *)portLibrary->mem_allocate_memory(
+		portLibrary, onlineProcessorCount * sizeof(perfstat_cpu_t), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == statp) {
 		Trc_PRT_retrieveAIXProcessorStats_memAllocFailed();
 		Trc_PRT_retrieveAIXProcessorStats_Exit(OMRPORT_ERROR_SYSINFO_MEMORY_ALLOC_FAILED);
@@ -2652,9 +2626,9 @@ retrieveAIXProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Processor
 			procInfo->procInfoArray[cpuid + 1].systemTime = statp[cpuCntr - 1].sys * TICKS_TO_USEC;
 			procInfo->procInfoArray[cpuid + 1].idleTime = statp[cpuCntr - 1].idle * TICKS_TO_USEC;
 			procInfo->procInfoArray[cpuid + 1].waitTime = statp[cpuCntr - 1].wait * TICKS_TO_USEC;
-			procInfo->procInfoArray[cpuid + 1].busyTime = procInfo->procInfoArray[cpuid + 1].userTime +
-					procInfo->procInfoArray[cpuid + 1].systemTime +
-					procInfo->procInfoArray[cpuid + 1].waitTime;
+			procInfo->procInfoArray[cpuid + 1].busyTime = procInfo->procInfoArray[cpuid + 1].userTime
+														  + procInfo->procInfoArray[cpuid + 1].systemTime
+														  + procInfo->procInfoArray[cpuid + 1].waitTime;
 		} /* end if else */
 
 		/* Check for the validity of the processor id. */
@@ -2667,7 +2641,7 @@ retrieveAIXProcessorStats(struct OMRPortLibrary *portLibrary, struct J9Processor
 	Trc_PRT_retrieveAIXProcessorStats_Exit(0);
 	return 0;
 
-#else /* defined(J9OS_I5) */
+#else  /* defined(J9OS_I5) */
 	return -1; /* not supported */
 #endif /* defined(J9OS_I5) */
 }
@@ -2715,11 +2689,9 @@ omrsysinfo_get_processor_info(struct OMRPortLibrary *portLibrary, struct J9Proce
 			portLibrary->mem_free_memory(portLibrary, procInfo->procInfoArray);
 		}
 		procInfoArraySize = (procInfo->totalProcessorCount + 1) * sizeof(J9ProcessorInfo);
-		procInfo->procInfoArray = portLibrary->mem_allocate_memory(portLibrary,
-								  procInfoArraySize,
-								  OMR_GET_CALLSITE(),
-								  OMRMEM_CATEGORY_PORT_LIBRARY);
-		if (NULL ==  procInfo->procInfoArray) {
+		procInfo->procInfoArray = portLibrary->mem_allocate_memory(portLibrary, procInfoArraySize, OMR_GET_CALLSITE(),
+																   OMRMEM_CATEGORY_PORT_LIBRARY);
+		if (NULL == procInfo->procInfoArray) {
 			Trc_PRT_sysinfo_get_processor_info_memAllocFailed();
 			Trc_PRT_sysinfo_get_processor_info_Exit(OMRPORT_ERROR_SYSINFO_MEMORY_ALLOC_FAILED);
 			return OMRPORT_ERROR_SYSINFO_MEMORY_ALLOC_FAILED;
@@ -2752,8 +2724,7 @@ omrsysinfo_get_processor_info(struct OMRPortLibrary *portLibrary, struct J9Proce
 #endif
 		retries++;
 		Trc_PRT_sysinfo_get_processor_info_retryCount(retries);
-	} while ((OMRPORT_ERROR_SYSINFO_UNEXPECTED_PROCESSOR_COUNT == rc)
-		  && (retries < SYSINFO_MAX_RETRY_COUNT));
+	} while ((OMRPORT_ERROR_SYSINFO_UNEXPECTED_PROCESSOR_COUNT == rc) && (retries < SYSINFO_MAX_RETRY_COUNT));
 
 	if (0 != rc) {
 		/* The helper failed fetching stats, free up memory allocated for the CPU array. */
@@ -2870,7 +2841,8 @@ setPortableError(OMRPortLibrary *portLibrary, const char *funcName, int32_t port
 	}
 
 	/*Alloc the buffer*/
-	errmsgbuff = portLibrary->mem_allocate_memory(portLibrary, errmsglen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	errmsgbuff =
+		portLibrary->mem_allocate_memory(portLibrary, errmsglen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == errmsgbuff) {
 		/*Set the error with no message*/
 		portLibrary->error_set_last_error(portLibrary, systemErrno, portableErrno);
@@ -2878,7 +2850,7 @@ setPortableError(OMRPortLibrary *portLibrary, const char *funcName, int32_t port
 	}
 
 	/*Fill the buffer using str_printf*/
-	portLibrary->str_printf(portLibrary, errmsgbuff, errmsglen, "%s%s", funcName,	strerror(systemErrno));
+	portLibrary->str_printf(portLibrary, errmsgbuff, errmsglen, "%s%s", funcName, strerror(systemErrno));
 
 	/*Set the error message*/
 	portLibrary->error_set_last_error_with_message(portLibrary, portableErrno, errmsgbuff);
@@ -2926,8 +2898,7 @@ omrsysinfo_get_open_file_count(struct OMRPortLibrary *portLibrary, uint64_t *cou
 	while (NULL != dp) {
 		/* Skip "." and ".." */
 		if (!(('.' == dp->d_name[0] && '\0' == dp->d_name[1])
-		||    ('.' == dp->d_name[0] && '.' == dp->d_name[1] && '\0' == dp->d_name[2]))
-		) {
+			  || ('.' == dp->d_name[0] && '.' == dp->d_name[1] && '\0' == dp->d_name[2]))) {
 			fdCount++;
 		}
 		dp = readdir(dir);
@@ -2947,7 +2918,7 @@ omrsysinfo_get_open_file_count(struct OMRPortLibrary *portLibrary, uint64_t *cou
 	}
 	closedir(dir); /* Done reading the /proc file-system. */
 leave_routine:
-	/* Clean-ups, setting-error (if any), etc, done. */
+/* Clean-ups, setting-error (if any), etc, done. */
 #elif defined(OSX) || defined(J9ZOS390)
 	/* TODO: stub where z/OS || OSX code goes in. */
 	ret = OMRPORT_ERROR_SYSINFO_GET_OPEN_FILES_NOT_SUPPORTED;
@@ -2955,4 +2926,3 @@ leave_routine:
 	Trc_PRT_sysinfo_get_open_file_count_Exit(ret);
 	return ret;
 }
-

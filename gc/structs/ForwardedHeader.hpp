@@ -40,7 +40,7 @@
  */
 class MM_ForwardedHeader
 {
-/*
+	/*
  * Data members
  */
 public:
@@ -59,24 +59,26 @@ private:
 		/* first slot must be always aligned as for an object slot */
 		fomrobject_t slot;
 
-#if defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER)
+#if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 		/* this field must be here to reserve space if slots are 4 bytes long (extend to 8 bytes starting from &MutableHeaderFields.clazz) */
 		uint32_t overlap;
 #endif /* defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
 	};
 
-	omrobjectptr_t _objectPtr;					/**< the object on which to act */
-	MutableHeaderFields _preserved; 			/**< a backup copy of the header fields which may be modified by this class */
-	const uintptr_t _forwardingSlotOffset;		/**< uintptr_t offset from _objectPtr to uintptr_t slot that will hold the forwarding pointer */
-	static const uintptr_t _forwardedTag = 2;	/**< bit mask used to mark forwarding slot value as forwarding pointer */
+	omrobjectptr_t _objectPtr;		/**< the object on which to act */
+	MutableHeaderFields _preserved; /**< a backup copy of the header fields which may be modified by this class */
+	const uintptr_t
+		_forwardingSlotOffset; /**< uintptr_t offset from _objectPtr to uintptr_t slot that will hold the forwarding pointer */
+	static const uintptr_t _forwardedTag = 2; /**< bit mask used to mark forwarding slot value as forwarding pointer */
 
-/*
+	/*
  * Function members
  */
 public:
 #if defined(FORWARDEDHEADER_DEBUG)
 #define ForwardedHeaderAssertCondition(condition) #condition
-#define ForwardedHeaderAssert(condition) MM_ForwardedHeader::Assert((condition), ForwardedHeaderAssertCondition(((condition))), __FILE__, __LINE__)
+#define ForwardedHeaderAssert(condition)                                                                               \
+	MM_ForwardedHeader::Assert((condition), ForwardedHeaderAssertCondition(((condition))), __FILE__, __LINE__)
 	static void Assert(bool condition, const char *assertion, const char *file, uint32_t line);
 	void ForwardedHeaderDump(omrobjectptr_t destinationObjectPtr);
 #else
@@ -134,7 +136,7 @@ public:
 		return _preserved.slot;
 	}
 
-#if defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER)
+#if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 	/**
 	 * This method will assert if the object has been forwarded. Use isForwardedPointer() to test before calling.
 	 *
@@ -167,7 +169,8 @@ public:
 	MMINLINE void
 	restoreDestroyedOverlap()
 	{
-		restoreDestroyedOverlap(((MutableHeaderFields *)((fomrobject_t *)getForwardedObject() + _forwardingSlotOffset))->overlap);
+		restoreDestroyedOverlap(
+			((MutableHeaderFields *)((fomrobject_t *)getForwardedObject() + _forwardingSlotOffset))->overlap);
 	}
 #endif /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
 
@@ -183,9 +186,10 @@ public:
 	MMINLINE void
 	fixupForwardedObject(omrobjectptr_t destinationObjectPtr)
 	{
-		MutableHeaderFields* newHeader = (MutableHeaderFields *)((fomrobject_t *)destinationObjectPtr + _forwardingSlotOffset);
+		MutableHeaderFields *newHeader =
+			(MutableHeaderFields *)((fomrobject_t *)destinationObjectPtr + _forwardingSlotOffset);
 		newHeader->slot = _preserved.slot;
-#if defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER)
+#if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 		newHeader->overlap = _preserved.overlap;
 #endif /* defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
 	}
@@ -225,10 +229,10 @@ public:
 	 * @param[in] forwardingSlotOffset fomrobject_t offset to uintptr_t size slot that will hold the forwarding pointer
 	 */
 	MM_ForwardedHeader(omrobjectptr_t objectPtr, uintptr_t forwardingSlotOffset)
-	: _objectPtr(objectPtr)
-	, _forwardingSlotOffset(forwardingSlotOffset)
+		: _objectPtr(objectPtr), _forwardingSlotOffset(forwardingSlotOffset)
 	{
-		volatile MutableHeaderFields* originalHeader = (volatile MutableHeaderFields *)((fomrobject_t*)_objectPtr + _forwardingSlotOffset);
+		volatile MutableHeaderFields *originalHeader =
+			(volatile MutableHeaderFields *)((fomrobject_t *)_objectPtr + _forwardingSlotOffset);
 		*(uintptr_t *)&_preserved.slot = *((uintptr_t *)&originalHeader->slot);
 	}
 

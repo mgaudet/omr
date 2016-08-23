@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(OBJECTMAP_HPP_)
 #define OBJECTMAP_HPP_
 
@@ -57,9 +56,9 @@ private:
 	void *_heapTop;
 	void *_committedHeapBase;
 	void *_committedHeapTop;
+
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
@@ -69,7 +68,8 @@ private:
 	{
 		Assert_GC_true_with_message(env, objectPtr != J9_INVALID_OBJECT, "Invalid object pointer %p\n", objectPtr);
 		Assert_MM_objectAligned(env, objectPtr);
-		Assert_GC_true_with_message3(env, isHeapObject(objectPtr), "Object %p not in heap range [%p,%p)\n", objectPtr, _heapBase, _heapTop);
+		Assert_GC_true_with_message3(env, isHeapObject(objectPtr), "Object %p not in heap range [%p,%p)\n", objectPtr,
+									 _heapBase, _heapTop);
 	}
 
 protected:
@@ -82,13 +82,27 @@ public:
 
 	uintptr_t numMarkBitsInRange(MM_EnvironmentBase *env, void *heapBase, void *heapTop);
 	uintptr_t setMarkBitsInRange(MM_EnvironmentBase *env, void *heapBase, void *heapTop, bool clear);
-	uintptr_t numHeapBytesPerMarkMapByte() { return (_objectMap->getObjectGrain() * BITS_PER_BYTE); };
+	uintptr_t
+	numHeapBytesPerMarkMapByte()
+	{
+		return (_objectMap->getObjectGrain() * BITS_PER_BYTE);
+	};
 
-	MMINLINE MM_MarkMap *getMarkMap() { return _objectMap; };
-	MMINLINE void setMarkMap(MM_MarkMap *markMap) { _objectMap = markMap; };
-	
-	bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
+	MMINLINE MM_MarkMap *
+	getMarkMap()
+	{
+		return _objectMap;
+	};
+	MMINLINE void
+	setMarkMap(MM_MarkMap *markMap)
+	{
+		_objectMap = markMap;
+	};
+
+	bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+					  void *highAddress);
+	bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+						 void *highAddress, void *lowValidAddress, void *highValidAddress);
 
 	MMINLINE bool
 	isHeapObject(omrobjectptr_t objectPtr)
@@ -96,7 +110,11 @@ public:
 		return ((_heapBase <= (uint8_t *)objectPtr) && (_heapTop > (uint8_t *)objectPtr));
 	}
 
-	MMINLINE MM_MarkMap * getObjectMap() { return _objectMap; }
+	MMINLINE MM_MarkMap *
+	getObjectMap()
+	{
+		return _objectMap;
+	}
 
 	MMINLINE bool
 	isCommittedHeapObject(omrobjectptr_t objectPtr)
@@ -159,7 +177,8 @@ public:
 	MMINLINE bool
 	isValidObject(omrobjectptr_t objectPtr)
 	{
-		bool shouldCheck = isCommittedHeapObject(objectPtr) && J9_ARE_NO_BITS_SET((uintptr_t)objectPtr, _extensions->getObjectAlignmentInBytes() - 1);
+		bool shouldCheck = isCommittedHeapObject(objectPtr)
+						   && J9_ARE_NO_BITS_SET((uintptr_t)objectPtr, _extensions->getObjectAlignmentInBytes() - 1);
 		if (shouldCheck) {
 			return _objectMap->isBitSet(objectPtr);
 		}
@@ -173,13 +192,8 @@ public:
 	void markValidObjectForRange(MM_EnvironmentBase *env, void *heapBase, void *heapTop);
 
 	MM_ObjectMap(MM_EnvironmentBase *env)
-		: MM_BaseVirtual()
-		, _extensions(env->getExtensions())
-		, _objectMap(NULL)
-		, _heapBase(NULL)
-		, _heapTop(NULL)
-		, _committedHeapBase(NULL)
-		, _committedHeapTop(NULL)
+		: MM_BaseVirtual(), _extensions(env->getExtensions()), _objectMap(NULL), _heapBase(NULL), _heapTop(NULL),
+		  _committedHeapBase(NULL), _committedHeapTop(NULL)
 	{
 		_typeId = __FUNCTION__;
 	}

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /*
  * $RCSfile: omrttyTest.c,v $
  * $Revision: 1.31 $
@@ -43,7 +42,8 @@
 #include "testHelpers.hpp"
 #include "omrport.h"
 
-#define J9TTY_STARTUP_PRIVATE_RETURN_VALUE ((int32_t) 0xDEADBEEF) /** <@internal A known return for @ref fake_omrtty_startup */
+#define J9TTY_STARTUP_PRIVATE_RETURN_VALUE                                                                             \
+	((int32_t)0xDEADBEEF) /** <@internal A known return for @ref fake_omrtty_startup */
 
 /**
  * @internal
@@ -57,7 +57,8 @@ typedef void (*J9FILE_VPRINTF_FUNC)(struct OMRPortLibrary *portLibrary, intptr_t
  * @typdef
  * Function prototype for verifying helpers call @ref omrfileText.c::omrfile_write_text "omrfile_write_text()"
  */
-typedef intptr_t (*J9FILE_WRITE_TEXT_FUNC)(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf, intptr_t nbytes);
+typedef intptr_t (*J9FILE_WRITE_TEXT_FUNC)(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf,
+										   intptr_t nbytes);
 
 /**
  * @internal
@@ -256,7 +257,7 @@ TEST(PortTTyTest, tty_test1)
 
 	J9TTY_STARTUP_FUNC real_tty_startup;
 	J9TTY_VPRINTF_FUNC real_tty_vprintf;
-	int32_t  rc;
+	int32_t rc;
 
 	reportTestEntry(OMRPORTLIB, testName);
 
@@ -275,7 +276,7 @@ TEST(PortTTyTest, tty_test1)
 
 	/* Restore the function pointers */
 	OMRPORTLIB->tty_vprintf = real_tty_vprintf;
-	OMRPORTLIB->tty_startup = real_tty_startup ;
+	OMRPORTLIB->tty_startup = real_tty_startup;
 
 	if (J9TTY_STARTUP_PRIVATE_RETURN_VALUE != rc) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrtty_printf() does not call omrtty_vprintf()\n");
@@ -332,7 +333,7 @@ TEST(PortTTyTest, tty_test2)
 
 	/* Restore the function pointers */
 	OMRPORTLIB->file_vprintf = real_file_vprintf;
-	OMRPORTLIB->tty_startup = real_tty_startup ;
+	OMRPORTLIB->tty_startup = real_tty_startup;
 
 	if (J9TTY_STARTUP_PRIVATE_RETURN_VALUE != rc) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrtty_vprintf() does not call omrfile_vprintf()\n");
@@ -356,7 +357,6 @@ TEST(PortTTyTest, tty_test3)
 
 	reportTestExit(OMRPORTLIB, testName);
 }
-
 
 /**
  * Verify port library TTY operations.
@@ -391,7 +391,7 @@ TEST(PortTTyTest, tty_test4)
 
 	/* Restore the function pointers */
 	OMRPORTLIB->tty_vprintf = real_tty_vprintf;
-	OMRPORTLIB->tty_startup = real_tty_startup ;
+	OMRPORTLIB->tty_startup = real_tty_startup;
 
 	if (J9TTY_STARTUP_PRIVATE_RETURN_VALUE != rc) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrtty_err_printf() does not call omrtty_err_vprintf()\n");
@@ -432,7 +432,7 @@ TEST(PortTTyTest, tty_test5)
 
 	/* Restore the function pointers */
 	OMRPORTLIB->file_vprintf = real_file_vprintf;
-	OMRPORTLIB->tty_startup = real_tty_startup ;
+	OMRPORTLIB->tty_startup = real_tty_startup;
 
 	if (J9TTY_STARTUP_PRIVATE_RETURN_VALUE != rc) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrtty_err_printf() does not call omrfile_vprintf()\n");
@@ -440,7 +440,6 @@ TEST(PortTTyTest, tty_test5)
 
 	reportTestExit(OMRPORTLIB, testName);
 }
-
 
 /**
  * Verify port library TTY operations.

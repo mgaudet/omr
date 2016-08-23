@@ -58,4 +58,3 @@ MM_ConcurrentScanRememberedSetTask::cleanup(MM_EnvironmentBase *env)
 }
 #endif /* OMR_GC_MODRON_SCAVENGER */
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
- 

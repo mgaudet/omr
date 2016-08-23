@@ -28,11 +28,12 @@ MM_Dispatcher *
 MM_Dispatcher::newInstance(MM_EnvironmentBase *env)
 {
 	MM_Dispatcher *dispatcher;
-	
-	dispatcher = (MM_Dispatcher *)env->getForge()->allocate(sizeof(MM_Dispatcher), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+
+	dispatcher = (MM_Dispatcher *)env->getForge()->allocate(sizeof(MM_Dispatcher), MM_AllocationCategory::FIXED,
+															OMR_GET_CALLSITE());
 	if (dispatcher) {
-		new(dispatcher) MM_Dispatcher(env);
-		if(!dispatcher->initialize(env)) {
+		new (dispatcher) MM_Dispatcher(env);
+		if (!dispatcher->initialize(env)) {
 			dispatcher->kill(env);
 			return NULL;
 		}
@@ -94,13 +95,13 @@ MM_Dispatcher::run(MM_EnvironmentBase *env, MM_Task *task)
 	task->masterCleanup(env);
 }
 
-bool 
-MM_Dispatcher::startUpThreads() 
-{ 
-	return true; 
+bool
+MM_Dispatcher::startUpThreads()
+{
+	return true;
 }
 
-void 
-MM_Dispatcher::shutDownThreads() 
+void
+MM_Dispatcher::shutDownThreads()
 {
 }

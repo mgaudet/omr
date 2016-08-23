@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 
 #include "PhysicalSubArenaVirtualMemoryFlat.hpp"
@@ -50,10 +49,11 @@ MM_PhysicalSubArenaVirtualMemoryFlat::newInstance(MM_EnvironmentBase *env, MM_He
 {
 	MM_PhysicalSubArenaVirtualMemoryFlat *subArena;
 
-	subArena = (MM_PhysicalSubArenaVirtualMemoryFlat *)env->getForge()->allocate(sizeof(MM_PhysicalSubArenaVirtualMemoryFlat), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
-	if(subArena) {
-		new(subArena) MM_PhysicalSubArenaVirtualMemoryFlat(heap);
-		if(!subArena->initialize(env)) {
+	subArena = (MM_PhysicalSubArenaVirtualMemoryFlat *)env->getForge()->allocate(
+		sizeof(MM_PhysicalSubArenaVirtualMemoryFlat), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	if (subArena) {
+		new (subArena) MM_PhysicalSubArenaVirtualMemoryFlat(heap);
+		if (!subArena->initialize(env)) {
 			subArena->kill(env);
 			return NULL;
 		}
@@ -74,7 +74,7 @@ MM_PhysicalSubArenaVirtualMemoryFlat::kill(MM_EnvironmentBase *env)
 bool
 MM_PhysicalSubArenaVirtualMemoryFlat::initialize(MM_EnvironmentBase *env)
 {
-	if(!MM_PhysicalSubArenaVirtualMemory::initialize(env)) {
+	if (!MM_PhysicalSubArenaVirtualMemory::initialize(env)) {
 		return false;
 	}
 
@@ -97,7 +97,8 @@ MM_PhysicalSubArenaVirtualMemoryFlat::tearDown(MM_EnvironmentBase *env)
 		_region = NULL;
 	}
 	if (NULL != _subSpace) {
-		_subSpace->heapRemoveRange(env, _subSpace, ((uintptr_t)_highAddress) - ((uintptr_t)_lowAddress), _lowAddress, _highAddress, lowValidAddress, highValidAddress);
+		_subSpace->heapRemoveRange(env, _subSpace, ((uintptr_t)_highAddress) - ((uintptr_t)_lowAddress), _lowAddress,
+								   _highAddress, lowValidAddress, highValidAddress);
 		_subSpace->heapReconfigured(env);
 	}
 	MM_PhysicalSubArenaVirtualMemory::tearDown(env);
@@ -111,14 +112,16 @@ bool
 MM_PhysicalSubArenaVirtualMemoryFlat::inflate(MM_EnvironmentBase *env)
 {
 	bool result = false;
-	if(_parent->attachSubArena(env, this, _subSpace->getInitialSize(), modron_pavm_attach_policy_none)) {
+	if (_parent->attachSubArena(env, this, _subSpace->getInitialSize(), modron_pavm_attach_policy_none)) {
 		MM_HeapRegionManager *regionManager = getHeapRegionManager();
-		_region = regionManager->createAuxiliaryRegionDescriptor(env, _subSpace->getChildren(), _lowAddress, _highAddress);
-		if(NULL != _region) {
+		_region =
+			regionManager->createAuxiliaryRegionDescriptor(env, _subSpace->getChildren(), _lowAddress, _highAddress);
+		if (NULL != _region) {
 			Assert_MM_true((_lowAddress == _region->getLowAddress()) && (_highAddress == _region->getHighAddress()));
 			/* Inflation successful - inform the owning memorySubSpace */
 			//TODO: Like the semi space arena, this should dispatch directory to the child subspace
-			result = _subSpace->expanded(env, this, _region->getSize(), _region->getLowAddress(), _region->getHighAddress(), false);
+			result = _subSpace->expanded(env, this, _region->getSize(), _region->getLowAddress(),
+										 _region->getHighAddress(), false);
 			_subSpace->heapReconfigured(env);
 		}
 	}
@@ -140,13 +143,15 @@ MM_PhysicalSubArenaVirtualMemoryFlat::expand(MM_EnvironmentBase *env, uintptr_t 
 	expandSize = MM_Math::roundToCeiling(getHeapRegionManager()->getRegionSize(), expandSize);
 
 	/* Find the physical number of bytes that we could possibly expand by */
-	expandSize = OMR_MIN(expandSize, ((MM_PhysicalArenaVirtualMemory *)_parent)->getPhysicalMaximumExpandSizeHigh(env, _highAddress));
+	expandSize = OMR_MIN(
+		expandSize, ((MM_PhysicalArenaVirtualMemory *)_parent)->getPhysicalMaximumExpandSizeHigh(env, _highAddress));
 
 	/* If we have a neighbouring arena, check if our expand request can be met - if not, try and contract the neighbour.
 	 * No matter what the result, adjust the expand size to be as much as our neighbour will allow.
 	 */
-	if(_highArena && ((((uintptr_t)_highArena->getLowAddress()) - ((uintptr_t)_highAddress)) < expandSize)) {
-		uintptr_t neighbourContractSize = expandSize - (((uintptr_t)_highArena->getLowAddress()) - ((uintptr_t)_highAddress));
+	if (_highArena && ((((uintptr_t)_highArena->getLowAddress()) - ((uintptr_t)_highAddress)) < expandSize)) {
+		uintptr_t neighbourContractSize =
+			expandSize - (((uintptr_t)_highArena->getLowAddress()) - ((uintptr_t)_highAddress));
 		assume0(neighbourContractSize % env->getExtensions()->heapAlignment == 0);
 
 		/* Contract the neighbour by the amount needed to achieve the request expand size.
@@ -156,7 +161,7 @@ MM_PhysicalSubArenaVirtualMemoryFlat::expand(MM_EnvironmentBase *env, uintptr_t 
 		_highArena->getSubSpace()->contract(env, neighbourContractSize);
 
 		/* Adjust the expand amount if the contract didn't net what was required */
-		if((((uintptr_t)_highArena->getLowAddress()) - ((uintptr_t)_highAddress)) < expandSize) {
+		if ((((uintptr_t)_highArena->getLowAddress()) - ((uintptr_t)_highAddress)) < expandSize) {
 			expandSize = ((uintptr_t)_highArena->getLowAddress()) - ((uintptr_t)_highAddress);
 		}
 	}
@@ -165,12 +170,12 @@ MM_PhysicalSubArenaVirtualMemoryFlat::expand(MM_EnvironmentBase *env, uintptr_t 
 	expandSize = OMR_MIN(_subSpace->maxExpansionInSpace(env), expandSize);
 
 	/* Check if the requested expand size fits into the current arena (sanity check) */
-	if(!_subSpace->canExpand(env, expandSize)) {
+	if (!_subSpace->canExpand(env, expandSize)) {
 		return 0;
 	}
 
 	/* Ask the governing physical arena (associated to the memory space) if the expand request is ok (sanity check) */
-	if(!((MM_PhysicalArenaVirtualMemory *)_parent)->canExpand(env, this, _highAddress, expandSize)) {
+	if (!((MM_PhysicalArenaVirtualMemory *)_parent)->canExpand(env, this, _highAddress, expandSize)) {
 		/* Parent is responsible for setting the expand error code */
 		return 0;
 	}
@@ -200,7 +205,7 @@ MM_PhysicalSubArenaVirtualMemoryFlat::expandNoCheck(MM_EnvironmentBase *env, uin
 	void *highExpandAddress = (void *)(((uintptr_t)_highAddress) + expandSize);
 
 	/* Get the heap memory */
-	if(!_heap->commitMemory(lowExpandAddress, expandSize)) {
+	if (!_heap->commitMemory(lowExpandAddress, expandSize)) {
 		return 0;
 	}
 
@@ -248,12 +253,13 @@ MM_PhysicalSubArenaVirtualMemoryFlat::contract(MM_EnvironmentBase *env, uintptr_
 	void *oldLowAddress = _region->getLowAddress();
 	void *oldHighAddress = _region->getHighAddress();
 
-	Assert_MM_true(contractSize  % extensions->heapAlignment == 0);
+	Assert_MM_true(contractSize % extensions->heapAlignment == 0);
 	Assert_MM_true(_lowAddress == oldLowAddress);
 	Assert_MM_true(_highAddress == oldHighAddress);
 
 	/* Find the physical number of bytes that we could possibly contract by */
-	contractSize = OMR_MIN(contractSize, ((MM_PhysicalArenaVirtualMemory *)_parent)->getPhysicalMaximumContractSizeLow(env, _highAddress));
+	contractSize = OMR_MIN(
+		contractSize, ((MM_PhysicalArenaVirtualMemory *)_parent)->getPhysicalMaximumContractSizeLow(env, _highAddress));
 
 	/* Find the contract range available */
 	uint8_t *contractBase = (uint8_t *)genericSubSpace->findFreeEntryEndingAtAddr(env, oldHighAddress);
@@ -282,7 +288,7 @@ MM_PhysicalSubArenaVirtualMemoryFlat::contract(MM_EnvironmentBase *env, uintptr_
 	clearVirtualAddresses();
 
 	/* If the contract size was reduced to 0, we cannot contract */
-	if(0 == contractSize) {
+	if (0 == contractSize) {
 		return 0;
 	}
 
@@ -305,7 +311,8 @@ MM_PhysicalSubArenaVirtualMemoryFlat::contract(MM_EnvironmentBase *env, uintptr_
 	Assert_MM_true(NULL != _region);
 
 	/* Broadcast that heap has been removed */
-	genericSubSpace->heapRemoveRange(env, _subSpace, contractSize, (void *)contractBase, (void *)contractTop, lowValidAddress, highValidAddress);
+	genericSubSpace->heapRemoveRange(env, _subSpace, contractSize, (void *)contractBase, (void *)contractTop,
+									 lowValidAddress, highValidAddress);
 	genericSubSpace->heapReconfigured(env);
 
 	/* Execute any pending counter balances to the contract that have been enqueued */
@@ -326,7 +333,9 @@ MM_PhysicalSubArenaVirtualMemoryFlat::contract(MM_EnvironmentBase *env, uintptr_
  * @return the actual physical size that the receiver can expand by, or 0 if there is no room or alignment restrictions cannot be met.
  */
 uintptr_t
-MM_PhysicalSubArenaVirtualMemoryFlat::checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_t expandSizeDeltaAlignment, uintptr_t expandSize)
+MM_PhysicalSubArenaVirtualMemoryFlat::checkCounterBalanceExpand(MM_EnvironmentBase *env,
+																uintptr_t expandSizeDeltaAlignment,
+																uintptr_t expandSize)
 {
 	uintptr_t adjustedExpandSize;
 	uintptr_t physicalMaximumExpandSize;
@@ -336,7 +345,7 @@ MM_PhysicalSubArenaVirtualMemoryFlat::checkCounterBalanceExpand(MM_EnvironmentBa
 
 	/* Find the upper physical limit to an expand */
 	uintptr_t physicalLimitHighAddress;
-	if(NULL != _highArena) {
+	if (NULL != _highArena) {
 		physicalLimitHighAddress = (uintptr_t)_highArena->getVirtualLowAddress();
 	} else {
 		physicalLimitHighAddress = (uintptr_t)((MM_PhysicalArenaVirtualMemory *)_parent)->getHighAddress();
@@ -346,11 +355,11 @@ MM_PhysicalSubArenaVirtualMemoryFlat::checkCounterBalanceExpand(MM_EnvironmentBa
 	/* Given the physical limit, adjust the expand size if necessary, but only by amounts that are rounded
 	 * to the expansion alignment.
 	 */
-	if(physicalMaximumExpandSize < adjustedExpandSize) {
+	if (physicalMaximumExpandSize < adjustedExpandSize) {
 		uintptr_t expandSizeDelta;
 		expandSizeDelta = adjustedExpandSize - physicalMaximumExpandSize;
 		expandSizeDelta = MM_Math::roundToCeiling(expandSizeDeltaAlignment, expandSizeDelta);
-		if(expandSizeDelta >= adjustedExpandSize) {
+		if (expandSizeDelta >= adjustedExpandSize) {
 			return 0;
 		}
 
@@ -366,10 +375,10 @@ MM_PhysicalSubArenaVirtualMemoryFlat::checkCounterBalanceExpand(MM_EnvironmentBa
  * @copydoc MM_PhysicalSubArena::::getAvailableContractionSize(MM_EnvironmentBase *, MM_MemorySubSpace *, MM_AllocateDescription *)
  */
 uintptr_t
-MM_PhysicalSubArenaVirtualMemoryFlat::getAvailableContractionSize(
-	MM_EnvironmentBase *env,
-	MM_MemorySubSpace *memorySubSpace,
-	MM_AllocateDescription *allocDescription)
+MM_PhysicalSubArenaVirtualMemoryFlat::getAvailableContractionSize(MM_EnvironmentBase *env,
+																  MM_MemorySubSpace *memorySubSpace,
+																  MM_AllocateDescription *allocDescription)
 {
-	return memorySubSpace->getAvailableContractionSizeForRangeEndingAt(env, allocDescription, getLowAddress(), getHighAddress());
+	return memorySubSpace->getAvailableContractionSizeForRangeEndingAt(env, allocDescription, getLowAddress(),
+																	   getHighAddress());
 }

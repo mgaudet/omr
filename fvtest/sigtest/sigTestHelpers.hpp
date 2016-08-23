@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(OMRSIGTESTHELPERS_H_INCLUDED)
 #define OMRSIGTESTHELPERS_H_INCLUDED
 

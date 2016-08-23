@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "threadTestLib.hpp"
 #include "sanityTestHelper.hpp"
 
@@ -25,12 +24,12 @@
 
 extern ThreadTestEnvironment *omrTestEnv;
 
-class SanityTest: public ::testing::Test
+class SanityTest : public ::testing::Test
 {
 public:
 	static unsigned int runTime;
-protected:
 
+protected:
 	static void
 	SetUpTestCase(void)
 	{
@@ -44,35 +43,17 @@ protected:
 };
 unsigned int SanityTest::runTime = 10; /* default test run time of 10 seconds */
 
-TEST_F(SanityTest, simpleSanity)
-{
-	SimpleSanity();
-}
+TEST_F(SanityTest, simpleSanity) { SimpleSanity(); }
 
-TEST_F(SanityTest, SanityTestSingleThread)
-{
-	SanityTestNThreads(1, runTime);
-}
+TEST_F(SanityTest, SanityTestSingleThread) { SanityTestNThreads(1, runTime); }
 
-TEST_F(SanityTest, SanityTestTwoThreads)
-{
-	SanityTestNThreads(2, runTime);
-}
+TEST_F(SanityTest, SanityTestTwoThreads) { SanityTestNThreads(2, runTime); }
 
-TEST_F(SanityTest, SanityTestFourThreads)
-{
-	SanityTestNThreads(4, runTime);
-}
+TEST_F(SanityTest, SanityTestFourThreads) { SanityTestNThreads(4, runTime); }
 
-TEST_F(SanityTest, QuickNDirtyPerformanceTest)
-{
-	QuickNDirtyPerformanceTest(runTime);
-}
+TEST_F(SanityTest, QuickNDirtyPerformanceTest) { QuickNDirtyPerformanceTest(runTime); }
 
-TEST_F(SanityTest, TestWaitNotify)
-{
-	TestWaitNotify(runTime);
-}
+TEST_F(SanityTest, TestWaitNotify) { TestWaitNotify(runTime); }
 
 TEST_F(SanityTest, TestBlockingQueue)
 {

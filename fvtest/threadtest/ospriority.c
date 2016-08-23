@@ -102,8 +102,7 @@ printMap(void)
 	int k;
 	for (k = 0; k <= VM_PRIO_MAX; k++) {
 		int pol = VMToOSPrioMap[k] >> 24;
-		PRINTF("j9 thread prio mapping: %d -> %d %s\n", k,
-			   VMToOSPrioMap[k] & 0x00ffffff, mapOSPolicy(pol));
+		PRINTF("j9 thread prio mapping: %d -> %d %s\n", k, VMToOSPrioMap[k] & 0x00ffffff, mapOSPolicy(pol));
 	}
 }
 
@@ -138,7 +137,7 @@ initRealtimePrioMap(void)
 	int policy_regular_thread;
 	int policy_realtime_thread;
 	int spreading;
-//todo	int reg_min, reg_max;
+	//todo	int reg_min, reg_max;
 	int dups;
 	int assignedPrio;
 
@@ -239,9 +238,7 @@ initRealtimePrioMap(void)
 void
 initPrioMap(void)
 {
-	const osprio_t tmpMap[VM_PRIO_MAX + 1] = {
-		54, 55, 55, 56, 56, 57, 57, 58, 58, 59, 59, 60
-	};
+	const osprio_t tmpMap[VM_PRIO_MAX + 1] = {54, 55, 55, 56, 56, 57, 57, 58, 58, 59, 59, 60};
 
 	memcpy(VMToOSPrioMap, tmpMap, sizeof(osprio_t) * (VM_PRIO_MAX + 1));
 }
@@ -251,7 +248,7 @@ initPrioMap(void)
 void
 initPrioMap(void)
 {
-	const osprio_t tmpMap[VM_PRIO_MAX + 1] = { 40, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 60 };
+	const osprio_t tmpMap[VM_PRIO_MAX + 1] = {40, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 60};
 
 	memcpy(VMToOSPrioMap, tmpMap, sizeof(osprio_t) * (VM_PRIO_MAX + 1));
 }
@@ -263,17 +260,17 @@ void
 initPrioMap(void)
 {
 	const osprio_t tmpMap[VM_PRIO_MAX + 1] = {
-		THREAD_PRIORITY_IDLE, /* 0 */
-		THREAD_PRIORITY_LOWEST, /* 1 */
+		THREAD_PRIORITY_IDLE,		  /* 0 */
+		THREAD_PRIORITY_LOWEST,		  /* 1 */
 		THREAD_PRIORITY_BELOW_NORMAL, /* 2 */
 		THREAD_PRIORITY_BELOW_NORMAL, /* 3 */
 		THREAD_PRIORITY_BELOW_NORMAL, /* 4 */
-		THREAD_PRIORITY_NORMAL, /* 5 */
+		THREAD_PRIORITY_NORMAL,		  /* 5 */
 		THREAD_PRIORITY_ABOVE_NORMAL, /* 6 */
 		THREAD_PRIORITY_ABOVE_NORMAL, /* 7 */
 		THREAD_PRIORITY_ABOVE_NORMAL, /* 8 */
 		THREAD_PRIORITY_ABOVE_NORMAL, /* 9 */
-		THREAD_PRIORITY_HIGHEST, /* 10 */
+		THREAD_PRIORITY_HIGHEST,	  /* 10 */
 		THREAD_PRIORITY_TIME_CRITICAL /* 11 */
 	};
 	memcpy(VMToOSPrioMap, tmpMap, sizeof(osprio_t) * (VM_PRIO_MAX + 1));

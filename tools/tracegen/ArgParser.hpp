@@ -30,7 +30,6 @@ class ArgParser
 private:
 protected:
 public:
-
 	/*
 	 * Function members
 	 */

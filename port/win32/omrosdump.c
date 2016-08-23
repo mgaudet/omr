@@ -23,7 +23,7 @@
  */
 
 /* Turn off FPO optimisation on Windows 32-bit to improve native stack traces (CMVC 199392) */
-#pragma optimize("y",off)
+#pragma optimize("y", off)
 
 #include <windows.h>
 #include <winnt.h>
@@ -38,14 +38,11 @@
 #include "omrportpriv.h"
 #include "omrportpg.h"
 
-typedef BOOL (WINAPI *PMINIDUMPWRITEDUMP)(
-	IN HANDLE hProcess,
-	IN DWORD ProcessId,
-	IN HANDLE hFile,
-	IN MINIDUMP_TYPE DumpType,
-	IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, OPTIONAL
-	IN CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, OPTIONAL
-	IN CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam OPTIONAL);
+typedef BOOL(WINAPI *PMINIDUMPWRITEDUMP)(IN HANDLE hProcess, IN DWORD ProcessId, IN HANDLE hFile,
+										 IN MINIDUMP_TYPE DumpType,
+										 IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+										 OPTIONAL IN CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+										 OPTIONAL IN CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam OPTIONAL);
 
 PMINIDUMPWRITEDUMP dump_fn;
 
@@ -63,8 +60,9 @@ typedef struct _WriteDumpFileArgs {
 #define DUMP_FNAME_KEY "SOFTWARE\\Microsoft\\DrWatson"
 #define DUMP_FNAME_VALUE "CrashDumpFile"
 
-static HANDLE openFileInCWD(struct OMRPortLibrary *portLibrary,	char *fileNameBuff, uint32_t fileNameBuffSize);
-static HANDLE openFileFromEnvVar(struct OMRPortLibrary *portLibrary, char *envVarName, char *fileNameBuff, uint32_t fileNameBuffSize);
+static HANDLE openFileInCWD(struct OMRPortLibrary *portLibrary, char *fileNameBuff, uint32_t fileNameBuffSize);
+static HANDLE openFileFromEnvVar(struct OMRPortLibrary *portLibrary, char *envVarName, char *fileNameBuff,
+								 uint32_t fileNameBuffSize);
 static HANDLE openFileFromReg(const char *keyName, const char *valName, char *fileNameBuff, uint32_t fileNameBuffSize);
 static void writeDumpFile(PWriteDumpFileArgs args);
 static HINSTANCE loadDumpLib(void);
@@ -123,25 +121,30 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 
 	} else {
 		/* use name provided */
-		hFile = (HANDLE) portLibrary->file_open(portLibrary, filename, EsOpenWrite | EsOpenCreate | EsOpenRead, 0666);   /* 0666 is a guess...0?, 0666??...want to grant write permissions */
+		hFile =
+			(HANDLE)portLibrary->file_open(portLibrary, filename, EsOpenWrite | EsOpenCreate | EsOpenRead,
+										   0666); /* 0666 is a guess...0?, 0666??...want to grant write permissions */
 	}
 
 	if (hFile == (HANDLE)-1) {
-		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed - could not create dump file:\n"); /*make sure useful*/
+		portLibrary->str_printf(portLibrary, filename, EsMaxPath,
+								"Dump failed - could not create dump file:\n"); /*make sure useful*/
 		return 1;
 	}
 
 	dllHandle = loadDumpLib();
 
 	if (dllHandle == NULL) {
-		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed - could not load library %s\n", DBGHELP_DLL);
+		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed - could not load library %s\n",
+								DBGHELP_DLL);
 		return 1;
 	}
 
 	dump_fn = linkDumpFn(dllHandle, MINIDUMPWRITEDUMP);
 
 	if (dump_fn == NULL) {
-		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed - could not link %s in %s\n", MINIDUMPWRITEDUMP, DBGHELP_DLL);
+		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed - could not link %s in %s\n",
+								MINIDUMPWRITEDUMP, DBGHELP_DLL);
 		return 1;
 	}
 
@@ -171,27 +174,27 @@ omrdump_create(struct OMRPortLibrary *portLibrary, char *filename, char *dumpTyp
 	}
 
 	if ((portLibrary->file_close(portLibrary, (int32_t)(intptr_t)hFile)) == -1) {
-		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed - could not close dump file.\n"); /*make sure useful*/
+		portLibrary->str_printf(portLibrary, filename, EsMaxPath,
+								"Dump failed - could not close dump file.\n"); /*make sure useful*/
 		return 1;
 	}
 
 	/* Check for errors passed back from the dump thread via the WriteDumpFileArgs args structure */
 	if (0 != args.errorCode) {
 		portLibrary->error_set_last_error(portLibrary, args.errorCode, convertError(args.errorCode));
-		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed, error code %s", portLibrary->error_last_error_message(portLibrary));
+		portLibrary->str_printf(portLibrary, filename, EsMaxPath, "Dump failed, error code %s",
+								portLibrary->error_last_error_message(portLibrary));
 		return 1;
 	}
 
 	return 0;
 }
 
-
 static PMINIDUMPWRITEDUMP
 linkDumpFn(HINSTANCE dllHandle, const char *fnName)
 {
 	return (PMINIDUMPWRITEDUMP)GetProcAddress(dllHandle, fnName);
 }
-
 
 /* will remove private from name once duplicate functionality removed from GPHandler */
 static HINSTANCE
@@ -216,7 +219,7 @@ loadDumpLib(void)
 static void
 writeDumpFile(PWriteDumpFileArgs args)
 {
-#define MAX_MINIDUMP_ATTEMPTS  10
+#define MAX_MINIDUMP_ATTEMPTS 10
 
 	HANDLE hFile = args->hDumpFile;
 	int i;
@@ -230,19 +233,13 @@ writeDumpFile(PWriteDumpFileArgs args)
 		 * (The command is not documented in the help but will display the dump flags and streams
 		 * included in the dump.)
 		 */
-		retVal = args->dmp_function(
-					 GetCurrentProcess(),
-					 GetCurrentProcessId(),
-					 hFile,
-					 MiniDumpWithFullMemory | MiniDumpWithHandleData |
-					 MiniDumpWithUnloadedModules | MiniDumpWithFullMemoryInfo |
-					 MiniDumpWithThreadInfo,
-					 args->mdei,
-					 NULL,
-					 NULL);
+		retVal = args->dmp_function(GetCurrentProcess(), GetCurrentProcessId(), hFile,
+									MiniDumpWithFullMemory | MiniDumpWithHandleData | MiniDumpWithUnloadedModules
+										| MiniDumpWithFullMemoryInfo | MiniDumpWithThreadInfo,
+									args->mdei, NULL, NULL);
 
 		if (TRUE == retVal) {
-			break;	/* dump taken! */
+			break; /* dump taken! */
 		} else {
 			args->errorCode = GetLastError(); /* retrieve Windows error code (HRESULT) */
 			if (args->errorCode == HRESULT_FROM_WIN32(ERROR_DISK_FULL)) {
@@ -253,9 +250,7 @@ writeDumpFile(PWriteDumpFileArgs args)
 	}
 
 	_endthread();
-
 }
-
 
 static HANDLE
 openFileFromEnvVar(struct OMRPortLibrary *portLibrary, char *envVarName, char *fileNameBuff, uint32_t fileNameBuffSize)
@@ -263,7 +258,7 @@ openFileFromEnvVar(struct OMRPortLibrary *portLibrary, char *envVarName, char *f
 	HANDLE hFile;
 	intptr_t retCode;
 	uint32_t i;
-	char pidStore[25];	/* This is roughly the 3 * sizeof(int)+1 which is more than enough space*/
+	char pidStore[25]; /* This is roughly the 3 * sizeof(int)+1 which is more than enough space*/
 
 	if (portLibrary == NULL) {
 		return INVALID_HANDLE_VALUE;
@@ -293,18 +288,11 @@ openFileFromEnvVar(struct OMRPortLibrary *portLibrary, char *envVarName, char *f
 	strcat(fileNameBuff, pidStore);
 	strcat(fileNameBuff, ".dmp");
 
-	hFile = CreateFileA(
-				fileNameBuff,
-				GENERIC_READ | GENERIC_WRITE,
-				0,
-				NULL,
-				CREATE_ALWAYS,
-				FILE_ATTRIBUTE_NORMAL,
-				NULL);
+	hFile =
+		CreateFileA(fileNameBuff, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	return hFile;
 }
-
 
 static HANDLE
 openFileFromReg(const char *keyName, const char *valName, char *fileNameBuff, uint32_t fileNameBuffSize)
@@ -314,41 +302,23 @@ openFileFromReg(const char *keyName, const char *valName, char *fileNameBuff, ui
 	LONG lRet;
 	uint32_t buffUsed = fileNameBuffSize;
 
-	lRet = RegOpenKeyEx(
-			   HKEY_LOCAL_MACHINE,
-			   keyName,
-			   0,
-			   KEY_QUERY_VALUE,
-			   &hKey);
+	lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, KEY_QUERY_VALUE, &hKey);
 	if (lRet != ERROR_SUCCESS) {
 		return INVALID_HANDLE_VALUE;
 	}
 
-	lRet = RegQueryValueEx(
-			   hKey,
-			   valName,
-			   NULL,
-			   NULL,
-			   (LPBYTE)fileNameBuff,
-			   &buffUsed);
+	lRet = RegQueryValueEx(hKey, valName, NULL, NULL, (LPBYTE)fileNameBuff, &buffUsed);
 	if (lRet != ERROR_SUCCESS) {
 		return INVALID_HANDLE_VALUE;
 	}
 
 	RegCloseKey(hKey);
 
-	hFile = CreateFileA(
-				fileNameBuff,
-				GENERIC_READ | GENERIC_WRITE,
-				0,
-				NULL,
-				CREATE_ALWAYS,
-				FILE_ATTRIBUTE_NORMAL,
-				NULL);
+	hFile =
+		CreateFileA(fileNameBuff, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	return hFile;
 }
-
 
 static HANDLE
 openFileInCWD(struct OMRPortLibrary *portLibrary, char *fileNameBuff, uint32_t fileNameBuffSize)
@@ -368,14 +338,8 @@ openFileInCWD(struct OMRPortLibrary *portLibrary, char *fileNameBuff, uint32_t f
 	fileNameBuff[length - 2] = 'm';
 	fileNameBuff[length - 3] = 'd';
 
-	hFile = CreateFileA(
-				fileNameBuff,
-				GENERIC_READ | GENERIC_WRITE,
-				0,
-				NULL,
-				CREATE_ALWAYS,
-				FILE_ATTRIBUTE_NORMAL,
-				NULL);
+	hFile =
+		CreateFileA(fileNameBuff, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	return hFile;
 }
@@ -384,7 +348,8 @@ int32_t
 omrdump_startup(struct OMRPortLibrary *portLibrary)
 {
 	/* Allocate debug library function table */
-	PPG_dbgHlpLibraryFunctions = (Dbg_Entrypoints *)portLibrary->mem_allocate_memory(portLibrary, sizeof(Dbg_Entrypoints), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	PPG_dbgHlpLibraryFunctions = (Dbg_Entrypoints *)portLibrary->mem_allocate_memory(
+		portLibrary, sizeof(Dbg_Entrypoints), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == PPG_dbgHlpLibraryFunctions) {
 		return OMRPORT_ERROR_STARTUP_DUMP;
 	}
@@ -435,4 +400,3 @@ convertError(DWORD errorCode)
 		return OMRPORT_ERROR_FILE_OPFAILED;
 	}
 }
-

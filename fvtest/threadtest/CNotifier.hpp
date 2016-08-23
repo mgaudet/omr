@@ -16,20 +16,17 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef J9THREADTEST_CNOTIFIER_HPP_INCLUDED
 #define J9THREADTEST_CNOTIFIER_HPP_INCLUDED
 
 #include "threadTestLib.hpp"
 
-class CNotifier: public CThread
+class CNotifier : public CThread
 {
 public:
-	CNotifier(CMonitor& monitor, bool notifyAll, int delayBeforeEnter,
-			  int delayBeforeNotify, int delayBeforeExit) :
-			m_monitor(monitor),
-			m_delayBeforeEnter(delayBeforeEnter), m_delayBeforeNotify(delayBeforeNotify),
-			m_delayBeforeExit(delayBeforeExit)
+	CNotifier(CMonitor &monitor, bool notifyAll, int delayBeforeEnter, int delayBeforeNotify, int delayBeforeExit)
+		: m_monitor(monitor), m_delayBeforeEnter(delayBeforeEnter), m_delayBeforeNotify(delayBeforeNotify),
+		  m_delayBeforeExit(delayBeforeExit)
 	{
 	}
 
@@ -63,7 +60,7 @@ protected:
 		return 0;
 	}
 
-	CMonitor& m_monitor;
+	CMonitor &m_monitor;
 	bool m_notifyAll;
 	int m_delayBeforeEnter;
 	int m_delayBeforeNotify;

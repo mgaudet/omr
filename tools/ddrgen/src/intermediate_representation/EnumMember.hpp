@@ -21,7 +21,7 @@
 
 #include "Members.hpp"
 
-class EnumMember: public Members
+class EnumMember : public Members
 {
 public:
 	int _value;
@@ -29,7 +29,6 @@ public:
 	EnumMember();
 
 	virtual ~EnumMember();
-
 };
 
 #endif /* ENUMMEMBER_HPP */

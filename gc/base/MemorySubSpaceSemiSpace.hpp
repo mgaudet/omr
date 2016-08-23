@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(MEMORYSUBSPACESEMISPACE_HPP_)
 #define MEMORYSUBSPACESEMISPACE_HPP_
 
@@ -65,11 +64,11 @@ private:
 
 	double _desiredSurvivorSpaceRatio;
 
-	MM_LargeObjectAllocateStats *_largeObjectAllocateStats; /**< Approximate allocation profile for large objects. Struct to keep merged stats from two allocate pools */
+	MM_LargeObjectAllocateStats *
+		_largeObjectAllocateStats; /**< Approximate allocation profile for large objects. Struct to keep merged stats from two allocate pools */
 
 protected:
 public:
-	
 	/*
 	 * Function members
 	 */
@@ -84,20 +83,41 @@ private:
 	void checkSubSpaceMemoryPostCollectResize(MM_EnvironmentBase *env);
 
 protected:
-	virtual void *allocationRequestFailed(MM_EnvironmentBase *env, MM_AllocateDescription *allocateDescription, AllocationType allocationType, MM_ObjectAllocationInterface *objectAllocationInterface, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace);
+	virtual void *allocationRequestFailed(MM_EnvironmentBase *env, MM_AllocateDescription *allocateDescription,
+										  AllocationType allocationType,
+										  MM_ObjectAllocationInterface *objectAllocationInterface,
+										  MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace);
 
 public:
-	static MM_MemorySubSpaceSemiSpace *newInstance(MM_EnvironmentBase *env, MM_Collector *collector, MM_PhysicalSubArena *physicalSubArena, MM_MemorySubSpace *memorySubSpaceAllocate, MM_MemorySubSpace *memorySubSpaceSurvivor, bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize);
+	static MM_MemorySubSpaceSemiSpace *newInstance(MM_EnvironmentBase *env, MM_Collector *collector,
+												   MM_PhysicalSubArena *physicalSubArena,
+												   MM_MemorySubSpace *memorySubSpaceAllocate,
+												   MM_MemorySubSpace *memorySubSpaceSurvivor, bool usesGlobalCollector,
+												   uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize);
 
-	virtual const char *getName() { return MEMORY_SUBSPACE_NAME_SEMISPACE; }
-	virtual const char *getDescription() { return MEMORY_SUBSPACE_DESCRIPTION_SEMISPACE; }
+	virtual const char *
+	getName()
+	{
+		return MEMORY_SUBSPACE_NAME_SEMISPACE;
+	}
+	virtual const char *
+	getDescription()
+	{
+		return MEMORY_SUBSPACE_DESCRIPTION_SEMISPACE;
+	}
 
-	virtual void *allocateObject(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
+	virtual void *allocateObject(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+								 MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+								 bool shouldCollectOnFailure);
 #if defined(OMR_GC_ARRAYLETS)
-	virtual void *allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
+	virtual void *allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+									   MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+									   bool shouldCollectOnFailure);
 #endif /* OMR_GC_ARRAYLETS */
-	
-	virtual void *allocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, MM_ObjectAllocationInterface *objectAllocationInterface, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
+
+	virtual void *allocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+							  MM_ObjectAllocationInterface *objectAllocationInterface, MM_MemorySubSpace *baseSubSpace,
+							  MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
 
 	virtual MM_MemorySubSpace *getDefaultMemorySubSpace();
 
@@ -110,16 +130,29 @@ public:
 	void masterSetupForGC(MM_EnvironmentBase *envBase);
 	void poisonEvacuateSpace();
 
-	void rebuildFreeListForEvacuate(MM_EnvironmentBase* env);
+	void rebuildFreeListForEvacuate(MM_EnvironmentBase *env);
 	void rebuildFreeListForBackout(MM_EnvironmentBase *env);
 
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-	virtual void payAllocationTax(MM_EnvironmentBase *env, MM_MemorySubSpace *baseSubSpace, MM_AllocateDescription *allocDescription);
+	virtual void payAllocationTax(MM_EnvironmentBase *env, MM_MemorySubSpace *baseSubSpace,
+								  MM_AllocateDescription *allocDescription);
 #endif
 
-	MM_MemorySubSpace *getTenureMemorySubSpace() { 	return _parent->getTenureMemorySubSpace(); }
-	MM_MemorySubSpace *getMemorySubSpaceAllocate() { return _memorySubSpaceAllocate; };
-	MM_MemorySubSpace *getMemorySubSpaceSurvivor() { return _memorySubSpaceSurvivor; };
+	MM_MemorySubSpace *
+	getTenureMemorySubSpace()
+	{
+		return _parent->getTenureMemorySubSpace();
+	}
+	MM_MemorySubSpace *
+	getMemorySubSpaceAllocate()
+	{
+		return _memorySubSpaceAllocate;
+	};
+	MM_MemorySubSpace *
+	getMemorySubSpaceSurvivor()
+	{
+		return _memorySubSpaceSurvivor;
+	};
 
 	virtual bool isChildActive(MM_MemorySubSpace *memorySubSpace);
 
@@ -132,20 +165,29 @@ public:
 	virtual uintptr_t getActiveSurvivorMemorySize(uintptr_t includeMemoryType);
 	virtual uintptr_t getApproximateActiveFreeSurvivorMemorySize(uintptr_t includeMemoryType);
 	virtual uintptr_t getActualActiveFreeSurvivorMemorySize(uintptr_t includeMemoryType);
-	
+
 	virtual void abandonHeapChunk(void *addrBase, void *addrTop);
-	
-	virtual	void mergeHeapStats(MM_HeapStats *heapStats);
-	virtual	void mergeHeapStats(MM_HeapStats *heapStats, uintptr_t includeMemoryType);
+
+	virtual void mergeHeapStats(MM_HeapStats *heapStats);
+	virtual void mergeHeapStats(MM_HeapStats *heapStats, uintptr_t includeMemoryType);
 	virtual void systemGarbageCollect(MM_EnvironmentBase *env, uint32_t gcCode);
 
 	/* Type specific methods */
 	void flip(MM_EnvironmentBase *env, uintptr_t step);
-	
-	MMINLINE uintptr_t getSurvivorSpaceSizeRatio() const { return _survivorSpaceSizeRatio; }
-	MMINLINE void setSurvivorSpaceSizeRatio(uintptr_t size) { _survivorSpaceSizeRatio = size; }
-	
-	virtual void checkResize(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription = NULL, bool systemGC = false);
+
+	MMINLINE uintptr_t
+	getSurvivorSpaceSizeRatio() const
+	{
+		return _survivorSpaceSizeRatio;
+	}
+	MMINLINE void
+	setSurvivorSpaceSizeRatio(uintptr_t size)
+	{
+		_survivorSpaceSizeRatio = size;
+	}
+
+	virtual void checkResize(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription = NULL,
+							 bool systemGC = false);
 	virtual intptr_t performResize(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription = NULL);
 
 	virtual MM_LargeObjectAllocateStats *getLargeObjectAllocateStats();
@@ -158,22 +200,17 @@ public:
 	/**
 	 * Create a MemorySubSpaceSemiSpace object.
 	 */
-	MM_MemorySubSpaceSemiSpace(MM_EnvironmentBase *env, MM_Collector *collector, MM_PhysicalSubArena *physicalSubArena, MM_MemorySubSpace *memorySubSpaceAllocate, MM_MemorySubSpace *memorySubSpaceSurvivor, bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize) :
-		MM_MemorySubSpace(env, collector, physicalSubArena, usesGlobalCollector, minimumSize, initialSize, maximumSize, MEMORY_TYPE_NEW, 0)
-		,_memorySubSpaceAllocate(memorySubSpaceAllocate)
-		,_memorySubSpaceSurvivor(memorySubSpaceSurvivor)
-		,_memorySubSpaceEvacuate(NULL)
-		,_allocateSpaceBase(NULL)
-		,_allocateSpaceTop(NULL)
-		,_survivorSpaceBase(NULL)
-		,_survivorSpaceTop(NULL)
-		,_survivorSpaceSizeRatio(MODRON_SURVIVOR_SPACE_RATIO_DEFAULT)
-		,_previousBytesFlipped(0)
-		,_tiltedAverageBytesFlipped(0)
-		,_tiltedAverageBytesFlippedDelta(0)
-		,_averageScavengeTimeRatio(0.0)
-		,_lastScavengeEndTime(0)
-		,_desiredSurvivorSpaceRatio(0.0)
+	MM_MemorySubSpaceSemiSpace(MM_EnvironmentBase *env, MM_Collector *collector, MM_PhysicalSubArena *physicalSubArena,
+							   MM_MemorySubSpace *memorySubSpaceAllocate, MM_MemorySubSpace *memorySubSpaceSurvivor,
+							   bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize,
+							   uintptr_t maximumSize)
+		: MM_MemorySubSpace(env, collector, physicalSubArena, usesGlobalCollector, minimumSize, initialSize,
+							maximumSize, MEMORY_TYPE_NEW, 0),
+		  _memorySubSpaceAllocate(memorySubSpaceAllocate), _memorySubSpaceSurvivor(memorySubSpaceSurvivor),
+		  _memorySubSpaceEvacuate(NULL), _allocateSpaceBase(NULL), _allocateSpaceTop(NULL), _survivorSpaceBase(NULL),
+		  _survivorSpaceTop(NULL), _survivorSpaceSizeRatio(MODRON_SURVIVOR_SPACE_RATIO_DEFAULT),
+		  _previousBytesFlipped(0), _tiltedAverageBytesFlipped(0), _tiltedAverageBytesFlippedDelta(0),
+		  _averageScavengeTimeRatio(0.0), _lastScavengeEndTime(0), _desiredSurvivorSpaceRatio(0.0)
 	{
 		_typeId = __FUNCTION__;
 	}

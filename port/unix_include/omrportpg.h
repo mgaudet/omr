@@ -37,7 +37,7 @@
  */
 #define OMRPORT_VMEM_PAGESIZE_COUNT 5
 
-#if defined(OMR_PORT_NUMA_SUPPORT) && defined (LINUX)
+#if defined(OMR_PORT_NUMA_SUPPORT) && defined(LINUX)
 #include <numa.h>
 #include <sched.h>
 
@@ -48,7 +48,7 @@ typedef struct J9PortNodeMask {
 
 typedef struct OMRPortPlatformGlobals {
 	uintptr_t numa_platform_supports_numa;
-#if defined(OMR_PORT_NUMA_SUPPORT) && defined (LINUX)
+#if defined(OMR_PORT_NUMA_SUPPORT) && defined(LINUX)
 	J9PortNodeMask numa_available_node_mask;
 	unsigned long numa_max_node_bits;
 	cpu_set_t process_affinity;
@@ -61,16 +61,17 @@ typedef struct OMRPortPlatformGlobals {
 	char *si_osType;
 	char *si_osVersion;
 	uintptr_t vmem_pageSize[OMRPORT_VMEM_PAGESIZE_COUNT]; /** <0 terminated array of supported page sizes */
-	uintptr_t vmem_pageFlags[OMRPORT_VMEM_PAGESIZE_COUNT]; /** <0 terminated array of flags describing type of the supported page sizes */
+	uintptr_t vmem_pageFlags
+		[OMRPORT_VMEM_PAGESIZE_COUNT]; /** <0 terminated array of flags describing type of the supported page sizes */
 #if defined(LINUX) && defined(S390)
-	int64_t last_clock_delta_update;  /** hw clock microsecond timestamp of last clock delta adjustment */
+	int64_t last_clock_delta_update;   /** hw clock microsecond timestamp of last clock delta adjustment */
 	int64_t software_msec_clock_delta; /** signed difference between hw and sw clocks in milliseconds */
 #endif
 	BOOLEAN loggingEnabled;
 	uintptr_t systemLoggingFlags;
 	BOOLEAN globalConverterEnabled;
 	char *si_executableName;
-#if defined(RS6000) || defined (LINUXPPC) || defined (PPC)
+#if defined(RS6000) || defined(LINUXPPC) || defined(PPC)
 	int32_t mem_ppcCacheLineSize;
 #endif
 #if defined(OMR_CONFIGURABLE_SUSPEND_SIGNAL)
@@ -78,12 +79,11 @@ typedef struct OMRPortPlatformGlobals {
 #endif /* defined(OMR_CONFIGURABLE_SUSPEND_SIGNAL) */
 } OMRPortPlatformGlobals;
 
-
-#if defined(RS6000) || defined (LINUXPPC) || defined (PPC)
+#if defined(RS6000) || defined(LINUXPPC) || defined(PPC)
 #define PPG_mem_ppcCacheLineSize (portLibrary->portGlobals->platformGlobals.mem_ppcCacheLineSize)
 #endif
 #define PPG_numa_platform_supports_numa (portLibrary->portGlobals->platformGlobals.numa_platform_supports_numa)
-#if defined(OMR_PORT_NUMA_SUPPORT) && defined (LINUX)
+#if defined(OMR_PORT_NUMA_SUPPORT) && defined(LINUX)
 #define PPG_numa_available_node_mask (portLibrary->portGlobals->platformGlobals.numa_available_node_mask)
 #define PPG_numa_max_node_bits (portLibrary->portGlobals->platformGlobals.numa_max_node_bits)
 #define PPG_process_affinity (portLibrary->portGlobals->platformGlobals.process_affinity)
@@ -95,7 +95,7 @@ typedef struct OMRPortPlatformGlobals {
 #define PPG_vmem_pageSize (portLibrary->portGlobals->platformGlobals.vmem_pageSize)
 #define PPG_vmem_pageFlags (portLibrary->portGlobals->platformGlobals.vmem_pageFlags)
 #if defined(LINUX) && defined(S390)
-#define PPG_last_clock_delta_update  (portLibrary->portGlobals->platformGlobals.last_clock_delta_update)
+#define PPG_last_clock_delta_update (portLibrary->portGlobals->platformGlobals.last_clock_delta_update)
 #define PPG_software_msec_clock_delta (portLibrary->portGlobals->platformGlobals.software_msec_clock_delta)
 #endif
 #if defined(OMR_ENV_DATA64)
@@ -114,4 +114,3 @@ typedef struct OMRPortPlatformGlobals {
 #endif
 
 #endif /* omrportpg_h */
-

@@ -133,11 +133,10 @@ omr_trc_startThreadTrace(OMR_VMThread *currentThread, const char *threadName)
 		if (OMR_TRACE_ENGINE_MT_ENABLED != OMR_TRACEGLOBAL(initState)) {
 			rc = OMR_ERROR_NOT_AVAILABLE;
 		} else {
-			rc = threadStart(&OMR_TRACE_THREAD_FROM_VMTHREAD_NONNULL(currentThread),
-							 ((NULL == currentThread->_language_vmthread)? currentThread : currentThread->_language_vmthread),
-							 threadName,
-							 currentThread->_os_thread,
-							 currentThread);
+			rc = threadStart(
+				&OMR_TRACE_THREAD_FROM_VMTHREAD_NONNULL(currentThread),
+				((NULL == currentThread->_language_vmthread) ? currentThread : currentThread->_language_vmthread),
+				threadName, currentThread->_os_thread, currentThread);
 		}
 	}
 	return rc;

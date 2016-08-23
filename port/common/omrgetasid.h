@@ -34,4 +34,4 @@
  */
 uintptr_t omrget_asid(struct OMRPortLibrary *portLibrary, char *asid, uintptr_t length);
 
-#endif     /* omrgetasid_h */
+#endif /* omrgetasid_h */

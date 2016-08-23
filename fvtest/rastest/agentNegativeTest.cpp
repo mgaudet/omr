@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 
 #if defined(WIN32)
@@ -35,7 +34,7 @@
 #include "OMR_Agent.hpp"
 #include "rasTestHelpers.hpp"
 
-class RASAgentNegativeTest: public ::testing::TestWithParam<const char *>
+class RASAgentNegativeTest : public ::testing::TestWithParam<const char *>
 {
 protected:
 	virtual void
@@ -92,8 +91,8 @@ TEST_P(RASAgentNegativeTest, InvalidAgentCPP)
 }
 
 INSTANTIATE_TEST_CASE_P(InvalidAgentOpts, RASAgentNegativeTest,
-	::testing::Values("invalidAgentMissingOnLoad=test",
-		"invalidAgentMissingOnUnload", "/tmp/invalidAgentPath/agent=def"));
+						::testing::Values("invalidAgentMissingOnLoad=test", "invalidAgentMissingOnUnload",
+										  "/tmp/invalidAgentPath/agent=def"));
 
 /*
  * Test scenarios for AgentReturnErrorC and AgentReturnErrorCPP:
@@ -163,7 +162,7 @@ TEST_F(RASAgentNegativeTest, CorruptedAgent)
 	/* generate machine specific file name to prevent conflict between multiple tests running on shared drive */
 	omrstr_printf(agentName, sizeof(agentName), "corruptedAgent_%s", hostname);
 
-	/* create fileName with platform-dependent shared library prefix & suffix.
+/* create fileName with platform-dependent shared library prefix & suffix.
 	 *  for Windows, fileName = corruptedAgent_<hostname>.dll
 	 *  for Unix, fileName = libcorruptedAgent_<hostname>.so
 	 *  for OSX, fileName = libcorruptedAgent_<hostname>.dylib
@@ -172,7 +171,7 @@ TEST_F(RASAgentNegativeTest, CorruptedAgent)
 	omrstr_printf(fileName, sizeof(fileName), "%s.dll", agentName);
 #elif defined(OSX)
 	omrstr_printf(fileName, sizeof(fileName), "lib%s.dylib", agentName);
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 	omrstr_printf(fileName, sizeof(fileName), "lib%s.so", agentName);
 #endif /* defined(WIN32) || defined(WIN64) */
 

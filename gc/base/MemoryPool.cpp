@@ -37,7 +37,7 @@ void
 MM_MemoryPool::tearDown(MM_EnvironmentBase *env)
 {
 	/* Remove the receiver from its owner's list */
-	if(_parent) {
+	if (_parent) {
 		_parent->unregisterMemoryPool(this);
 	}
 }
@@ -77,8 +77,8 @@ MM_MemoryPool::getApproximateFreeMemorySize()
 MM_MemoryPool *
 MM_MemoryPool::getMemoryPool(void *addr)
 {
-	return this;	
-}	
+	return this;
+}
 
 /**
  * Return the memory pool associated with a given allocation size
@@ -88,8 +88,8 @@ MM_MemoryPool::getMemoryPool(void *addr)
 MM_MemoryPool *
 MM_MemoryPool::getMemoryPool(uintptr_t size)
 {
-	return this;	
-}	
+	return this;
+}
 
 /**
  * Return the memory pool associated with a specified range of storage locations. 
@@ -100,17 +100,17 @@ MM_MemoryPool::getMemoryPool(uintptr_t size)
  * @return MM_MemoryPool for storage location addrBase
  */
 MM_MemoryPool *
-MM_MemoryPool::getMemoryPool(MM_EnvironmentBase *env, void *addrBase, void *addrTop, void * &highAddr)
+MM_MemoryPool::getMemoryPool(MM_EnvironmentBase *env, void *addrBase, void *addrTop, void *&highAddr)
 {
 	highAddr = NULL;
 	return this;
-}								
+}
 
 void
 MM_MemoryPool::registerMemoryPool(MM_MemoryPool *memoryPool)
 {
 	memoryPool->setParent(this);
-	
+
 	if (_children) {
 		_children->setPrevious(memoryPool);
 	}
@@ -126,35 +126,36 @@ MM_MemoryPool::unregisterMemoryPool(MM_MemoryPool *memoryPool)
 	previous = memoryPool->getPrevious();
 	next = memoryPool->getNext();
 
-	if(previous) {
+	if (previous) {
 		previous->setNext(next);
 	} else {
 		_children = next;
 	}
 
-	if(next) {
+	if (next) {
 		next->setPrevious(previous);
 	}
 }
 #if defined(OMR_GC_ARRAYLETS)
-	/**
+/**
 	 * Allocate an arraylet leaf.
 	 */
-	void *
-	MM_MemoryPool::allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDesc)
-	{
-		Assert_MM_unreachable();
-		return NULL;
-	}
+void *
+MM_MemoryPool::allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDesc)
+{
+	Assert_MM_unreachable();
+	return NULL;
+}
 #endif /* OMR_GC_ARRAYLETS */
 
 #if defined(OMR_GC_THREAD_LOCAL_HEAP)
-	void *
-	MM_MemoryPool::allocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, uintptr_t maximumSizeInBytesRequired, void * &addrBase, void * &addrTop)
-	{
-		Assert_MM_unreachable();
-		return NULL;
-	}
+void *
+MM_MemoryPool::allocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+						   uintptr_t maximumSizeInBytesRequired, void *&addrBase, void *&addrTop)
+{
+	Assert_MM_unreachable();
+	return NULL;
+}
 #endif /* OMR_GC_THREAD_LOCAL_HEAP */
 
 /**
@@ -164,18 +165,18 @@ MM_MemoryPool::unregisterMemoryPool(MM_MemoryPool *memoryPool)
 void
 MM_MemoryPool::setSubSpace(MM_MemorySubSpace *memorySubSpace)
 {
-	if(NULL != _children) {
+	if (NULL != _children) {
 		_children->setSubSpace(memorySubSpace);
 	}
-	
-	if(NULL != _next) {
+
+	if (NULL != _next) {
 		_next->setSubSpace(memorySubSpace);
 	}
-	
+
 	_memorySubSpace = memorySubSpace;
 }
 
-void 
+void
 MM_MemoryPool::reset(Cause cause)
 {
 	_freeMemorySize = 0;
@@ -183,24 +184,24 @@ MM_MemoryPool::reset(Cause cause)
 	_approximateFreeMemorySize = 0;
 	_darkMatterBytes = 0;
 	_darkMatterSamples = 0;
-}	
+}
 
 MM_HeapLinkedFreeHeader *
-MM_MemoryPool::rebuildFreeListInRegion(MM_EnvironmentBase *env, MM_HeapRegionDescriptor *region, MM_HeapLinkedFreeHeader *previousFreeEntry)
+MM_MemoryPool::rebuildFreeListInRegion(MM_EnvironmentBase *env, MM_HeapRegionDescriptor *region,
+									   MM_HeapLinkedFreeHeader *previousFreeEntry)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	omrtty_printf("Class Type: %s\n",_typeId);
+	omrtty_printf("Class Type: %s\n", _typeId);
 	Assert_MM_unreachable(); // should never get here
 	return NULL;
 }
-
 
 #if defined(OMR_GC_THREAD_LOCAL_HEAP)
 void
 MM_MemoryPool::abandonTlhHeapChunk(void *addrBase, void *addrTop)
 {
 	Assert_MM_true(addrTop >= addrBase);
-	
+
 	if (addrTop > addrBase) {
 		abandonHeapChunk(addrBase, addrTop);
 	}
@@ -208,12 +209,12 @@ MM_MemoryPool::abandonTlhHeapChunk(void *addrBase, void *addrTop)
 #endif /* OMR_GC_THREAD_LOCAL_HEAP */
 
 void
-MM_MemoryPool::resetHeapStatistics(bool memoryPoolCollected) 
+MM_MemoryPool::resetHeapStatistics(bool memoryPoolCollected)
 {
 	/* This assumes all heap resizing has  been completed before this call. */
 	if (memoryPoolCollected) {
-		_lastFreeBytes= getApproximateFreeMemorySize();
-	}	
+		_lastFreeBytes = getApproximateFreeMemorySize();
+	}
 
 	_allocCount = 0;
 	_allocBytes = 0;
@@ -229,8 +230,8 @@ MM_MemoryPool::mergeHeapStats(MM_HeapStats *heapStats, bool active)
 {
 	heapStats->_allocCount += _allocCount;
 	heapStats->_allocBytes += _allocBytes;
-	heapStats->_lastFreeBytes += _lastFreeBytes;	
-	
+	heapStats->_lastFreeBytes += _lastFreeBytes;
+
 	heapStats->_allocDiscardedBytes += _allocDiscardedBytes;
 	heapStats->_allocSearchCount += _allocSearchCount;
 
@@ -265,8 +266,10 @@ MM_MemoryPool::findFreeEntryEndingAtAddr(MM_EnvironmentBase *env, void *addr)
  * @param highAddr Address to match against the high end of a free entry.
  * @return Size available to contract 
  */
-uintptr_t 
-MM_MemoryPool::getAvailableContractionSizeForRangeEndingAt(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, void *lowAddr, void *highAddr)
+uintptr_t
+MM_MemoryPool::getAvailableContractionSizeForRangeEndingAt(MM_EnvironmentBase *env,
+														   MM_AllocateDescription *allocDescription, void *lowAddr,
+														   void *highAddr)
 {
 	/* Unimplemented - no contraction available */
 	return 0;
@@ -343,9 +346,10 @@ MM_MemoryPool::unlock(MM_EnvironmentBase *env)
  * @todo Provide function documentation
  */
 void *
-MM_MemoryPool::collectorAllocate(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, bool lockingRequired)
+MM_MemoryPool::collectorAllocate(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+								 bool lockingRequired)
 {
-	Assert_MM_unreachable();  // should not be called?
+	Assert_MM_unreachable(); // should not be called?
 	return NULL;
 }
 
@@ -354,9 +358,11 @@ MM_MemoryPool::collectorAllocate(MM_EnvironmentBase *env, MM_AllocateDescription
  * @todo Provide function documentation
  */
 void *
-MM_MemoryPool::collectorAllocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, uintptr_t maximumSizeInBytesRequired, void * &addrBase, void * &addrTop, bool lockingRequired)
+MM_MemoryPool::collectorAllocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+									uintptr_t maximumSizeInBytesRequired, void *&addrBase, void *&addrTop,
+									bool lockingRequired)
 {
-	Assert_MM_unreachable();  // should not be called?
+	Assert_MM_unreachable(); // should not be called?
 	return NULL;
 }
 #endif /* OMR_GC_THREAD_LOCAL_HEAP */
@@ -365,7 +371,7 @@ MM_MemoryPool::collectorAllocateTLH(MM_EnvironmentBase *env, MM_AllocateDescript
  * Is a complete rebuild of the freelist required? 
  * @return TRUE if a complete sweep is required; FALSE otherwise
  */
-bool 
+bool
 MM_MemoryPool::completeFreelistRebuildRequired(MM_EnvironmentBase *env)
 {
 	return false;
@@ -387,15 +393,11 @@ MM_MemoryPool::completeFreelistRebuildRequired(MM_EnvironmentBase *env)
  * 
  * @return true if the heap chunk is large enough to be on the free list, false otherwise
  */
-bool 
-MM_MemoryPool::createFreeEntry(
-	MM_EnvironmentBase *env,
-	void *addrBase,
-	void *addrTop,
-	MM_HeapLinkedFreeHeader *previousFreeEntry,
-	MM_HeapLinkedFreeHeader *nextFreeEntry)
+bool
+MM_MemoryPool::createFreeEntry(MM_EnvironmentBase *env, void *addrBase, void *addrTop,
+							   MM_HeapLinkedFreeHeader *previousFreeEntry, MM_HeapLinkedFreeHeader *nextFreeEntry)
 {
-	Assert_MM_unreachable(); /* implementation required */	
+	Assert_MM_unreachable(); /* implementation required */
 	return false;
 }
 
@@ -406,8 +408,9 @@ MM_MemoryPool::createFreeEntry(
  * @param addrTop Tail of list of free entries to be added
  */
 void
-MM_MemoryPool::addFreeEntries(MM_EnvironmentBase *env, MM_HeapLinkedFreeHeader* &freeListHead, MM_HeapLinkedFreeHeader* &freeListTail,
-							uintptr_t freeMemoryCount, uintptr_t freeMemorySize)
+MM_MemoryPool::addFreeEntries(MM_EnvironmentBase *env, MM_HeapLinkedFreeHeader *&freeListHead,
+							  MM_HeapLinkedFreeHeader *&freeListTail, uintptr_t freeMemoryCount,
+							  uintptr_t freeMemorySize)
 {
 	Assert_MM_unreachable(); /* implementation required */
 }
@@ -428,11 +431,12 @@ MM_MemoryPool::addFreeEntries(MM_EnvironmentBase *env, MM_HeapLinkedFreeHeader* 
  * @return TRUE if at least one chunk in specified range found; FALSE otherwise
  */
 bool
-MM_MemoryPool::removeFreeEntriesWithinRange(MM_EnvironmentBase *env, void *lowAddress, void *highAddress, uintptr_t minimumSize,
-										 MM_HeapLinkedFreeHeader* &retListHead, MM_HeapLinkedFreeHeader* &retListTail,
-										 uintptr_t &retListMemoryCount, uintptr_t &retListMemorySize)
+MM_MemoryPool::removeFreeEntriesWithinRange(MM_EnvironmentBase *env, void *lowAddress, void *highAddress,
+											uintptr_t minimumSize, MM_HeapLinkedFreeHeader *&retListHead,
+											MM_HeapLinkedFreeHeader *&retListTail, uintptr_t &retListMemoryCount,
+											uintptr_t &retListMemorySize)
 {
-	Assert_MM_unreachable(); /* implementation required */	
+	Assert_MM_unreachable(); /* implementation required */
 	return false;
 }
 
@@ -449,7 +453,7 @@ MM_MemoryPool::removeFreeEntriesWithinRange(MM_EnvironmentBase *env, void *lowAd
 void *
 MM_MemoryPool::findAddressAfterFreeSize(MM_EnvironmentBase *env, uintptr_t sizeRequired, uintptr_t minimumSize)
 {
-	Assert_MM_unreachable(); /* implementation required */	
+	Assert_MM_unreachable(); /* implementation required */
 	return NULL;
 }
 #endif /* OMR_GC_LARGE_OBJECT_AREA */
@@ -465,10 +469,10 @@ MM_MemoryPool::findAddressAfterFreeSize(MM_EnvironmentBase *env, uintptr_t sizeR
  * 
  * @return true if the heap chunk is large enough to be on the free list, false otherwise
  */
-bool 
+bool
 MM_MemoryPool::createFreeEntry(MM_EnvironmentBase *env, void *addrBase, void *addrTop)
 {
-	Assert_MM_unreachable(); /* implementation required */	
+	Assert_MM_unreachable(); /* implementation required */
 	return false;
 }
 
@@ -481,7 +485,7 @@ MM_MemoryPool::createFreeEntry(MM_EnvironmentBase *env, void *addrBase, void *ad
 bool
 MM_MemoryPool::isValidListOrdering()
 {
-	Assert_MM_unreachable(); /* implementation required */	
+	Assert_MM_unreachable(); /* implementation required */
 	return true;
 }
 #endif /* DEBUG */

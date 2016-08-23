@@ -23,11 +23,11 @@
 #include "testHelper.hpp"
 #include "thread_api.h"
 
-#define MILLI_TIMEOUT	10000
-#define NANO_TIMEOUT	0
+#define MILLI_TIMEOUT 10000
+#define NANO_TIMEOUT 0
 
-#define STEP_MILLI_TIMEOUT		600000
-#define STEP_NANO_TIMEOUT		0
+#define STEP_MILLI_TIMEOUT 600000
+#define STEP_NANO_TIMEOUT 0
 
 extern ThreadTestEnvironment *omrTestEnv;
 
@@ -73,8 +73,7 @@ runRequest(SupportThreadInfo *info)
 			omrthread_monitor_exit(info->synchronization);
 			break;
 		}
-		omrthread_monitor_wait_interruptable(info->synchronization,
-											STEP_MILLI_TIMEOUT, STEP_NANO_TIMEOUT);
+		omrthread_monitor_wait_interruptable(info->synchronization, STEP_MILLI_TIMEOUT, STEP_NANO_TIMEOUT);
 		omrthread_monitor_exit(info->synchronization);
 	}
 
@@ -94,7 +93,8 @@ SupportThreadInfo *
 createSupportThreadInfo(omrthread_entrypoint_t *functionsToRun, uintptr_t numberFunctions)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(omrTestEnv->getPortLibrary());
-	SupportThreadInfo *info = (SupportThreadInfo *)omrmem_allocate_memory(sizeof(SupportThreadInfo), OMRMEM_CATEGORY_THREADS);
+	SupportThreadInfo *info =
+		(SupportThreadInfo *)omrmem_allocate_memory(sizeof(SupportThreadInfo), OMRMEM_CATEGORY_THREADS);
 	info->readCounter = 0;
 	info->writeCounter = 0;
 	info->functionsToRun = functionsToRun;
@@ -167,12 +167,9 @@ startConcurrentThread(SupportThreadInfo *info)
 	omrthread_t newThread = NULL;
 
 	omrthread_monitor_enter(info->synchronization);
-	omrthread_create_ex(
-		&newThread,
-		J9THREAD_ATTR_DEFAULT, /* default attr */
-		0, /* start immediately */
-		(omrthread_entrypoint_t) runRequest,
-		(void *)info);
+	omrthread_create_ex(&newThread, J9THREAD_ATTR_DEFAULT, /* default attr */
+						0,								   /* start immediately */
+						(omrthread_entrypoint_t)runRequest, (void *)info);
 
 	omrthread_monitor_wait_interruptable(info->synchronization, MILLI_TIMEOUT, NANO_TIMEOUT);
 	omrthread_monitor_exit(info->synchronization);
@@ -237,8 +234,8 @@ try_enter_rwmutex_write(SupportThreadInfo *info)
  * This step exits the rwmutex in the SupporThreadInfo for write
  * @param info the SupporThreadInfo which can be used by the step
  */
-static intptr_t
-J9THREAD_PROC exit_rwmutex_write(SupportThreadInfo *info)
+static intptr_t J9THREAD_PROC
+exit_rwmutex_write(SupportThreadInfo *info)
 {
 	omrthread_rwmutex_exit_write(info->handle);
 	info->writeCounter--;
@@ -249,8 +246,8 @@ J9THREAD_PROC exit_rwmutex_write(SupportThreadInfo *info)
  * This step does nothing
  * @param info the SupporThreadInfo which can be used by the step
  */
-static intptr_t
-J9THREAD_PROC nop(SupportThreadInfo *info)
+static intptr_t J9THREAD_PROC
+nop(SupportThreadInfo *info)
 {
 	return 0;
 }
@@ -371,8 +368,8 @@ TEST(RWMutex, MultipleReadersTest)
 {
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 	info = createSupportThreadInfo(functionsToRun, 2);
 	startConcurrentThread(info);
 
@@ -402,8 +399,8 @@ TEST(RWMutex, ReadersExcludedTest)
 {
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 	info = createSupportThreadInfo(functionsToRun, 2);
 
 	/* first enter the mutex for write */
@@ -439,8 +436,8 @@ TEST(RWMutex, ReadersExcludedTesttryenter)
 {
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 	info = createSupportThreadInfo(functionsToRun, 2);
 
 	/* first enter the mutex for write */
@@ -476,8 +473,8 @@ TEST(RWMutex, WritersExcludedTest)
 {
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_write;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_write;
 	info = createSupportThreadInfo(functionsToRun, 2);
 
 	/* first enter the mutex for read */
@@ -513,8 +510,8 @@ TEST(RWMutex, WriterExcludesWriterTest)
 {
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_write;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_write;
 	info = createSupportThreadInfo(functionsToRun, 2);
 
 	/* first enter the mutex for write */
@@ -549,8 +546,8 @@ TEST(RWMutex, WriterExcludesWriterTesttryenter)
 {
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_write;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_write;
 	info = createSupportThreadInfo(functionsToRun, 2);
 
 	/* first enter the mutex for write */
@@ -589,10 +586,10 @@ TEST(RWMutex, SecondReaderExcludesWrite)
 	omrthread_entrypoint_t functionsToRunReader[2];
 
 	/* set up the steps for the 2 concurrent threads */
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunReader[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunReader[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 
 	info = createSupportThreadInfo(functionsToRun, 2);
 	infoReader = createSupportThreadInfo(functionsToRunReader, 2);
@@ -659,10 +656,10 @@ TEST(RWMutex, AllReadersProceedTest)
 	omrthread_entrypoint_t functionsToRunReader2[2];
 
 	/* set up the steps for the 2 concurrent threads */
-	functionsToRunReader1[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader1[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
-	functionsToRunReader2[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader2[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRunReader1[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader1[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
+	functionsToRunReader2[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader2[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 
 	infoReader1 = createSupportThreadInfo(functionsToRunReader1, 2);
 	infoReader2 = createSupportThreadInfo(functionsToRunReader2, 2);
@@ -737,15 +734,15 @@ TEST(RWMutex, RecursiveReadTest)
 	omrthread_entrypoint_t functionsToRunWriter1[2];
 
 	/* set up the steps for the 2 concurrent threads */
-	functionsToRunReader1[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader1[1] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader1[2] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader1[3] = (omrthread_entrypoint_t) &exit_rwmutex_read;
-	functionsToRunReader1[4] = (omrthread_entrypoint_t) &exit_rwmutex_read;
-	functionsToRunReader1[5] = (omrthread_entrypoint_t) &exit_rwmutex_read;
-	functionsToRunReader1[6] = (omrthread_entrypoint_t) &nop;
-	functionsToRunWriter1[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRunWriter1[1] = (omrthread_entrypoint_t) &exit_rwmutex_write;
+	functionsToRunReader1[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader1[1] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader1[2] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader1[3] = (omrthread_entrypoint_t)&exit_rwmutex_read;
+	functionsToRunReader1[4] = (omrthread_entrypoint_t)&exit_rwmutex_read;
+	functionsToRunReader1[5] = (omrthread_entrypoint_t)&exit_rwmutex_read;
+	functionsToRunReader1[6] = (omrthread_entrypoint_t)&nop;
+	functionsToRunWriter1[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRunWriter1[1] = (omrthread_entrypoint_t)&exit_rwmutex_write;
 
 	infoReader1 = createSupportThreadInfo(functionsToRunReader1, 7);
 	infoWriter1 = createSupportThreadInfo(functionsToRunWriter1, 2);
@@ -832,15 +829,15 @@ TEST(RWMutex, RecursiveWriteTest)
 	omrthread_entrypoint_t functionsToRunReader[2];
 
 	/* set up the steps for the 2 concurrent threads */
-	functionsToRunWriter[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRunWriter[1] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRunWriter[2] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRunWriter[3] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunWriter[4] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunWriter[5] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunWriter[6] = (omrthread_entrypoint_t) &nop;
-	functionsToRunReader[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRunWriter[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRunWriter[1] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRunWriter[2] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRunWriter[3] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunWriter[4] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunWriter[5] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunWriter[6] = (omrthread_entrypoint_t)&nop;
+	functionsToRunReader[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 
 	infoWriter = createSupportThreadInfo(functionsToRunWriter, 7);
 	infoReader = createSupportThreadInfo(functionsToRunReader, 2);
@@ -920,15 +917,15 @@ TEST(RWMutex, RecursiveWriteTesttryenter)
 	omrthread_entrypoint_t functionsToRunReader[2];
 
 	/* set up the steps for the 2 concurrent threads */
-	functionsToRunWriter[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRunWriter[1] = (omrthread_entrypoint_t) &try_enter_rwmutex_write;
-	functionsToRunWriter[2] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRunWriter[3] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunWriter[4] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunWriter[5] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunWriter[6] = (omrthread_entrypoint_t) &nop;
-	functionsToRunReader[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRunWriter[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRunWriter[1] = (omrthread_entrypoint_t)&try_enter_rwmutex_write;
+	functionsToRunWriter[2] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRunWriter[3] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunWriter[4] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunWriter[5] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunWriter[6] = (omrthread_entrypoint_t)&nop;
+	functionsToRunReader[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 
 	infoWriter = createSupportThreadInfo(functionsToRunWriter, 7);
 	infoReader = createSupportThreadInfo(functionsToRunReader, 2);
@@ -1002,12 +999,12 @@ TEST(RWMutex, ReadAfterWriteTest)
 	omrthread_entrypoint_t functionsToRunReader[2];
 
 	/* set up the steps for the 2 concurrent threads */
-	functionsToRunWriter[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRunWriter[1] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunWriter[2] = (omrthread_entrypoint_t) &exit_rwmutex_read;
-	functionsToRunWriter[3] = (omrthread_entrypoint_t) &exit_rwmutex_write;
-	functionsToRunReader[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRunReader[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRunWriter[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRunWriter[1] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunWriter[2] = (omrthread_entrypoint_t)&exit_rwmutex_read;
+	functionsToRunWriter[3] = (omrthread_entrypoint_t)&exit_rwmutex_write;
+	functionsToRunReader[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRunReader[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 
 	infoWriter = createSupportThreadInfo(functionsToRunWriter, 4);
 	infoReader = createSupportThreadInfo(functionsToRunReader, 2);
@@ -1085,8 +1082,8 @@ TEST(RWMutex, WritersExcludedNonBlockTest)
 	intptr_t result = 0;
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_read;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_read;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_read;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_read;
 
 	info = createSupportThreadInfo(functionsToRun, 2);
 
@@ -1115,8 +1112,8 @@ TEST(RWMutex, WritersExcludedByWriterNonBlockTest)
 	intptr_t result = 0;
 	SupportThreadInfo *info;
 	omrthread_entrypoint_t functionsToRun[2];
-	functionsToRun[0] = (omrthread_entrypoint_t) &enter_rwmutex_write;
-	functionsToRun[1] = (omrthread_entrypoint_t) &exit_rwmutex_write;
+	functionsToRun[0] = (omrthread_entrypoint_t)&enter_rwmutex_write;
+	functionsToRun[1] = (omrthread_entrypoint_t)&exit_rwmutex_write;
 
 	info = createSupportThreadInfo(functionsToRun, 2);
 

@@ -271,7 +271,7 @@ omrthread_attr_set_detachstate(omrthread_attr_t *attr, omrthread_detachstate_t d
 {
 	intptr_t rc = J9THREAD_SUCCESS;
 	unixthread_attr_t ux = NULL;
-	int pthreadDetachstate = ((J9THREAD_CREATE_DETACHED == detachstate)? 1: 0);
+	int pthreadDetachstate = ((J9THREAD_CREATE_DETACHED == detachstate) ? 1 : 0);
 
 	if (!J9THREAD_ATTR_IS_VALID(attr)) {
 		return J9THREAD_ERR_INVALID_ATTR;

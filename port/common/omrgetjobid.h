@@ -33,4 +33,4 @@
  */
 uintptr_t omrget_jobid(struct OMRPortLibrary *portLibrary, char *jobid, uintptr_t length);
 
-#endif     /* omrgetjobid_h */
+#endif /* omrgetjobid_h */

@@ -21,7 +21,7 @@
 /* windows.h defined uintptr_t.  Ignore its definition */
 #define UDATA UDATA_win_
 #include <windows.h>
-#undef UDATA	/* this is safe because our UDATA is a typedef, not a macro */
+#undef UDATA /* this is safe because our UDATA is a typedef, not a macro */
 #include <psapi.h>
 #endif /* defined(WIN32) || defined(WIN64) */
 
@@ -47,7 +47,9 @@ GCTestEnvironment::initParams()
 					newLine += strlen(extension);
 					*newLine = '\0';
 				} else {
-					FAIL() << "The file provided in option -configListFile= must contain a list of configuration files with extension " << extension;
+					FAIL() << "The file provided in option -configListFile= must contain a list of configuration files "
+							  "with extension "
+						   << extension;
 				}
 				char *line = (char *)omrmem_allocate_memory(2048, OMRMEM_CATEGORY_MM);
 				if (NULL == line) {
@@ -139,9 +141,9 @@ printMemUsed(const char *where, OMRPortLibrary *portLib)
 	}
 
 	/* result in pages */
-	gcTestEnv->log(LEVEL_VERBOSE,"%s: phys: %ld; virt: %ld\n", where, resident, size);
+	gcTestEnv->log(LEVEL_VERBOSE, "%s: phys: %ld; virt: %ld\n", where, resident, size);
 	omrfile_close(fileDescriptor);
 #else
-	/* memory info not supported */
+/* memory info not supported */
 #endif
 }

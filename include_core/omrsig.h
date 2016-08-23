@@ -21,8 +21,8 @@
 /* windows.h defined UDATA.  Ignore its definition */
 #define UDATA UDATA_win32_
 #include <windows.h>
-#undef UDATA	/* this is safe because our UDATA is a typedef, not a macro */
-#endif /* defined(WIN32) */
+#undef UDATA /* this is safe because our UDATA is a typedef, not a macro */
+#endif		 /* defined(WIN32) */
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,7 +42,7 @@ typedef void (*sighandler_t)(int sig);
 #elif defined(WIN32)
 /* Use sig_handler_t instead of sighandler_t for Windows. Define it for compatibility. */
 #define sig_handler_t sighandler_t
-typedef void (__cdecl *sighandler_t)(int signum);
+typedef void(__cdecl *sighandler_t)(int signum);
 #define __THROW
 #endif /* defined(WIN32) */
 
@@ -78,7 +78,7 @@ sighandler_t omrsig_primary_signal(int signum, sighandler_t handler);
 
 #if defined(WIN32)
 
-_CRTIMP void (__cdecl * __cdecl signal(_In_ int _SigNum, _In_opt_ void (__cdecl * _Func)(int)))(int);
+_CRTIMP void(__cdecl *__cdecl signal(_In_ int _SigNum, _In_opt_ void(__cdecl *_Func)(int)))(int);
 
 #else /* defined(WIN32) */
 
@@ -106,7 +106,7 @@ sighandler_t sysv_signal(int signum, sighandler_t handler) __THROW;
 #if !defined(AIXPPC)
 #if defined(OSX)
 int sigvec(int sig, struct sigvec *, struct sigvec *);
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 int sigvec(int sig, const struct sigvec *vec, struct sigvec *ovec) __THROW;
 #endif /* defined(OSX) */
 #endif /* !defined(AIXPPC) */
@@ -116,16 +116,16 @@ __sighandler_t __sysv_signal(int sig, __sighandler_t handler) __THROW;
 sighandler_t ssignal(int sig, sighandler_t handler) __THROW;
 #endif /* defined(LINUX) */
 
-
 #endif /* !defined(WIN32) */
 
 #if defined(J9ZOS390)
-int __sigactionset(size_t newct, const __sigactionset_t newsets[], size_t *oldct, __sigactionset_t oldsets[], int options);
+int __sigactionset(size_t newct, const __sigactionset_t newsets[], size_t *oldct, __sigactionset_t oldsets[],
+				   int options);
 #endif /* defined(J9ZOS390) */
 
 #ifdef __cplusplus
 } /* extern "C" { */
-#endif  /* __cplusplus */
+#endif /* __cplusplus */
 
 #if defined(AIXPPC)
 int sigvec(int sig, const struct sigvec *vec, struct sigvec *ovec) __THROW;

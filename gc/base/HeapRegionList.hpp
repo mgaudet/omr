@@ -47,8 +47,8 @@
  */
 class MM_HeapRegionList : public MM_BaseVirtual
 {
-/* Data members & types */		
-public:	
+	/* Data members & types */
+public:
 	/**< An Enumeration of the different kinds of RegionList.
 	 *   Merely descriptive for Metronome, but in Staccato used to detect that
 	 *   a region has been moved from one list to another concurrently with
@@ -66,20 +66,19 @@ public:
 		HRL_KIND_SWEEP = 5,
 		HRL_KIND_COALESCE = 6
 	} RegionListKind;
-	
+
 protected:
-	uintptr_t _length;	
+	uintptr_t _length;
 	/**< What kind of region list is this? @see ListKind for description of RegionList kinds */
 	RegionListKind _regionListKind;
 	/**< Do regions on the list represent only themselves, or do they encode region ranges (Large & MultiFree) */
 	bool _singleRegionsOnly;
-	
-private:	
-	
-/* Methods */	
+
+private:
+	/* Methods */
 public:
 	virtual void kill(MM_EnvironmentBase *env) = 0;
-	
+
 	virtual bool initialize(MM_EnvironmentBase *env) = 0;
 	virtual void tearDown(MM_EnvironmentBase *env) = 0;
 
@@ -88,56 +87,82 @@ public:
 	 * @param regionListKind  The RegionListKind of this RegionList.
 	 * @param singleRegionsOnly True if this heapRgionlist is for small/arraylet, false if it is for large (multi-region)
 	 */
-	MM_HeapRegionList(RegionListKind regionListKind, bool singleRegionsOnly) :
-		_length(0),
-		_regionListKind(regionListKind),
-		_singleRegionsOnly(singleRegionsOnly)
+	MM_HeapRegionList(RegionListKind regionListKind, bool singleRegionsOnly)
+		: _length(0), _regionListKind(regionListKind), _singleRegionsOnly(singleRegionsOnly)
 	{
 		_typeId = __FUNCTION__;
 	}
 
-	uintptr_t length() { return _length; }
+	uintptr_t
+	length()
+	{
+		return _length;
+	}
 
 	virtual bool isEmpty() = 0;
 
 	virtual uintptr_t getTotalRegions() = 0;
 
 	virtual void showList(MM_EnvironmentBase *env) = 0;
-	
-	bool isAvailableList() { return _regionListKind == HRL_KIND_AVAILABLE; }
-	bool isFullList() { return _regionListKind == HRL_KIND_FULL; }
-	bool isSweepList() { return _regionListKind == HRL_KIND_SWEEP; }
-	bool isFreeList() { return _regionListKind == HRL_KIND_FREE || _regionListKind == HRL_KIND_MULTI_FREE; }
-	
-	static const char*
+
+	bool
+	isAvailableList()
+	{
+		return _regionListKind == HRL_KIND_AVAILABLE;
+	}
+	bool
+	isFullList()
+	{
+		return _regionListKind == HRL_KIND_FULL;
+	}
+	bool
+	isSweepList()
+	{
+		return _regionListKind == HRL_KIND_SWEEP;
+	}
+	bool
+	isFreeList()
+	{
+		return _regionListKind == HRL_KIND_FREE || _regionListKind == HRL_KIND_MULTI_FREE;
+	}
+
+	static const char *
 	describeListKind(RegionListKind regionListKind)
 	{
 		switch (regionListKind) {
-		case HRL_KIND_LOCAL_WORK: return "local work list";
-		case HRL_KIND_MULTI_FREE: return "multi free list";
-		case HRL_KIND_FREE: return "single free list";
-		case HRL_KIND_AVAILABLE: return "available list";
-		case HRL_KIND_FULL: return "full list";
-		case HRL_KIND_SWEEP: return "sweep list";
-		case HRL_KIND_COALESCE: return "coalesce list";
-		default: return "unknown kind of list";
+		case HRL_KIND_LOCAL_WORK:
+			return "local work list";
+		case HRL_KIND_MULTI_FREE:
+			return "multi free list";
+		case HRL_KIND_FREE:
+			return "single free list";
+		case HRL_KIND_AVAILABLE:
+			return "available list";
+		case HRL_KIND_FULL:
+			return "full list";
+		case HRL_KIND_SWEEP:
+			return "sweep list";
+		case HRL_KIND_COALESCE:
+			return "coalesce list";
+		default:
+			return "unknown kind of list";
 		}
 	}
-	
+
 	const char *
 	describeList()
-	{ 
+	{
 		return describeListKind(_regionListKind);
 	}
-	
+
 	static bool
 	isValidTransition(RegionListKind from, RegionListKind to)
 	{
 		if (HRL_KIND_LOCAL_WORK == from || HRL_KIND_LOCAL_WORK == to) {
 			return true; // SIGH. Local work blinds us because we need 3 states to really check it.
 		}
-		
-		switch(from) {
+
+		switch (from) {
 		case HRL_KIND_MULTI_FREE:
 			return HRL_KIND_FREE == to || HRL_KIND_FULL == to || HRL_KIND_COALESCE == to;
 		case HRL_KIND_FREE:

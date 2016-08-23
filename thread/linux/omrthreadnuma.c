@@ -41,7 +41,7 @@ static cpu_set_t defaultAffinityMask = {{0}};
 static struct {
 	cpu_set_t cpu_set;
 	uintptr_t cpu_count;
-} *numaNodeData;
+} * numaNodeData;
 
 /**
  * Tests whether a given bitfield is a subset or equal to another bitfield.
@@ -99,7 +99,6 @@ cpuset_logical_and(cpu_set_t *destination, const cpu_set_t *source)
 	}
 }
 
-
 #if defined(OMR_PORT_NUMA_SUPPORT)
 static uintptr_t
 countNumaNodes(void)
@@ -128,7 +127,8 @@ initializeNumaNodeData(omrthread_library_t threadLibrary, uintptr_t numNodes)
 {
 	uintptr_t result = 0;
 
-	numaNodeData = omrthread_allocate_memory(threadLibrary, sizeof(numaNodeData[0]) * (numNodes + 1), OMRMEM_CATEGORY_THREADS);
+	numaNodeData =
+		omrthread_allocate_memory(threadLibrary, sizeof(numaNodeData[0]) * (numNodes + 1), OMRMEM_CATEGORY_THREADS);
 	if (NULL == numaNodeData) {
 		result = -1;
 	} else {
@@ -179,7 +179,6 @@ initializeNumaNodeData(omrthread_library_t threadLibrary, uintptr_t numNodes)
 }
 #endif /* defined(OMR_PORT_NUMA_SUPPORT) */
 
-
 /**
  * Initializes NUMA data by parsing the /sys/devices/system/node/ directory.
  *
@@ -199,7 +198,7 @@ omrthread_numa_init(omrthread_library_t threadLibrary)
 	}
 	/* find our current affinity mask since we will need it when removing any affinity binding from threads, later (since we still want to honour restrictions we inherited from the environment) */
 	CPU_ZERO(&defaultAffinityMask);
-#if __GLIBC_PREREQ(2,4) || defined(LINUXPPC)
+#if __GLIBC_PREREQ(2, 4) || defined(LINUXPPC)
 	/*
 	 * LIR 902 : On Linux PPC, rolling up tool chain level to VAC 8 on RHEL 4.
 	 * The libc version on RHEL 4 requires 3 arg to sched_setaffinity.
@@ -258,7 +257,8 @@ omrthread_numa_get_max_node(void)
 }
 
 intptr_t
-omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t nodeCount, uint32_t flags)
+omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t nodeCount,
+										uint32_t flags)
 {
 	intptr_t result = 0;
 #if defined(OMR_PORT_NUMA_SUPPORT)
@@ -298,7 +298,7 @@ omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nod
 			memcpy(&affinityCPUs, &defaultAffinityMask, sizeof(cpu_set_t));
 		}
 		if ((threadIsStarted) && (0 == result)) {
-#if __GLIBC_PREREQ(2,4) || defined(LINUXPPC)
+#if __GLIBC_PREREQ(2, 4) || defined(LINUXPPC)
 			/*
 			 * LIR 902 : On Linux PPC, rolling up tool chain level to VAC 8 on RHEL 4.
 			 * The libc version on RHEL 4 requires 3 arg to sched_setaffinity.
@@ -328,7 +328,6 @@ omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nod
 #endif /* OMR_PORT_NUMA_SUPPORT */
 	return result;
 }
-
 
 intptr_t
 omrthread_numa_set_node_affinity(omrthread_t thread, const uintptr_t *numaNodes, uintptr_t nodeCount, uint32_t flags)
@@ -361,19 +360,19 @@ omrthread_numa_get_node_affinity(omrthread_t thread, uintptr_t *numaNodes, uintp
 			cpu_set_t affinityCPUs;
 			CPU_ZERO(&affinityCPUs);
 
-			/* Get the affinity for the current thread. Note that we can't simply lookup
+/* Get the affinity for the current thread. Note that we can't simply lookup
 			 * the thread->numaAffinity field, since it's possible for the affinity to be changed
 			 * by an external program (see: http://www.linuxjournal.com/article/6799)
 			 */
 
-#if __GLIBC_PREREQ(2,4) || defined(LINUXPPC)
+#if __GLIBC_PREREQ(2, 4) || defined(LINUXPPC)
 			/*
 			 * LIR 902 : On Linux PPC, rolling up tool chain level to VAC 8 on RHEL 4.
 			 * The libc version on RHEL 4 requires 3 arg to sched_getaffinity.
 			 * Note: this will not compile/run properly on RHEL 3.
 			 */
 			if (0 == sched_getaffinity(thread->tid, sizeof(cpu_set_t), &affinityCPUs))
-#else /* defined(LINUXPPC) */
+#else  /* defined(LINUXPPC) */
 			if (0 == sched_getaffinity(thread->tid, &affinityCPUs))
 #endif /* defined(LINUXPPC) */
 			{

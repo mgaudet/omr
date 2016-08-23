@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup PortTest
@@ -41,16 +40,16 @@
 #endif /* defined(AIXPPC) */
 
 #define TWO_GIG_BAR 0x7FFFFFFF
-#define ONE_MB (1*1024*1024)
-#define FOUR_KB (4*1024)
-#define TWO_GB	(0x80000000LL)
+#define ONE_MB (1 * 1024 * 1024)
+#define FOUR_KB (4 * 1024)
+#define TWO_GB (0x80000000LL)
 #define SIXTY_FOUR_GB (0x1000000000LL)
 
-#define SIXTY_FOUR_KB (64*1024)
-#define D2M (2*1024*1024)
-#define D16M (16*1024*1024)
-#define D512M (512*1024*1024)
-#define D256M (256*1024*1024)
+#define SIXTY_FOUR_KB (64 * 1024)
+#define D2M (2 * 1024 * 1024)
+#define D16M (16 * 1024 * 1024)
+#define D512M (512 * 1024 * 1024)
+#define D256M (256 * 1024 * 1024)
 #define DEFAULT_NUM_ITERATIONS 50
 
 #define MAX_ALLOC_SIZE 256 /**<@internal largest size to allocate */
@@ -62,8 +61,10 @@
 #endif /* defined(LINUX) || defined(AIXPPC) || defined(WIN32) || defined(J9ZOS390) || defined(OSX) */
 
 #if defined(ENABLE_RESERVE_MEMORY_EX_TESTS)
-static int omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *, const char *, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN);
-static int omrvmem_testReserveMemoryEx_StandardAndQuickMode(struct OMRPortLibrary *, const char *, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN);
+static int omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *, const char *, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN,
+											BOOLEAN);
+static int omrvmem_testReserveMemoryEx_StandardAndQuickMode(struct OMRPortLibrary *, const char *, BOOLEAN, BOOLEAN,
+															BOOLEAN, BOOLEAN);
 static BOOLEAN memoryIsAvailable(struct OMRPortLibrary *, BOOLEAN);
 #endif /* ENABLE_RESERVE_MEMORY_EX_TESTS */
 
@@ -91,7 +92,8 @@ void myFunction2();
  * @param[in] allocName Calling function name to display in errors
  */
 static void
-verifyMemory(struct OMRPortLibrary *portLibrary, const char *testName, char *memPtr, uintptr_t byteAmount, const char *allocName)
+verifyMemory(struct OMRPortLibrary *portLibrary, const char *testName, char *memPtr, uintptr_t byteAmount,
+			 const char *allocName)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	const char testCharA = 'A';
@@ -224,7 +226,7 @@ TEST(PortVmemTest, vmem_test_verify_there_are_page_sizes)
 	}
 
 	outputComment(OMRPORTLIB, "\t Supported page sizes:\n");
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		outputComment(OMRPORTLIB, "\t 0x%zx ", pageSizes[i]);
 		outputComment(OMRPORTLIB, "\t 0x%zx \n", pageFlags[i]);
 	}
@@ -243,9 +245,8 @@ exit:
 BOOLEAN
 isNewPageSize(uintptr_t pageSize, uintptr_t pageFlags)
 {
-	if ((FOUR_KB == pageSize) ||
-		((ONE_MB == pageSize) && (OMRPORT_VMEM_PAGE_FLAG_FIXED == (OMRPORT_VMEM_PAGE_FLAG_FIXED & pageFlags)))
-	) {
+	if ((FOUR_KB == pageSize)
+		|| ((ONE_MB == pageSize) && (OMRPORT_VMEM_PAGE_FLAG_FIXED == (OMRPORT_VMEM_PAGE_FLAG_FIXED & pageFlags)))) {
 		return FALSE;
 	} else {
 		return TRUE;
@@ -259,9 +260,8 @@ isNewPageSize(uintptr_t pageSize, uintptr_t pageFlags)
  */
 isPageSizeSupportedBelowBar(uintptr_t pageSize, uintptr_t pageFlags)
 {
-	if ((FOUR_KB == pageSize) ||
-		((ONE_MB == pageSize) && (OMRPORT_VMEM_PAGE_FLAG_PAGEABLE == (OMRPORT_VMEM_PAGE_FLAG_PAGEABLE & pageFlags)))
-	) {
+	if ((FOUR_KB == pageSize) || ((ONE_MB == pageSize) && (OMRPORT_VMEM_PAGE_FLAG_PAGEABLE
+														   == (OMRPORT_VMEM_PAGE_FLAG_PAGEABLE & pageFlags)))) {
 		return TRUE;
 	} else {
 		return FALSE;
@@ -300,32 +300,34 @@ TEST(PortVmemTest, vmem_test1)
 		omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		uintptr_t initialBlocks;
 		uintptr_t initialBytes;
 
 		/* Sample baseline category data */
 		getPortLibraryMemoryCategoryData(OMRPORTLIB, &initialBlocks, &initialBytes);
 
-		/* reserve and commit */
+/* reserve and commit */
 #if defined(J9ZOS390)
 		/* On z/OS skip this test for newly added large pages as obsolete omrvmem_reserve_memory() does not support them */
 		if (TRUE == isNewPageSize(pageSizes[i], pageFlags[i])) {
 			continue;
 		}
 #endif /* J9ZOS390 */
-		memPtr = (char *)omrvmem_reserve_memory(
-						0, pageSizes[i], &vmemID,
-						OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT,
-						pageSizes[i], OMRMEM_CATEGORY_PORT_LIBRARY);
+		memPtr = (char *)omrvmem_reserve_memory(0, pageSizes[i], &vmemID,
+												OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE
+													| OMRPORT_VMEM_MEMORY_MODE_COMMIT,
+												pageSizes[i], OMRMEM_CATEGORY_PORT_LIBRARY);
 
 		/* did we get any memory? */
 		if (memPtr == NULL) {
 
 			lastErrorMessage = (char *)omrerror_last_error_message();
 			lastErrorNumber = omrerror_last_error_number();
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
-					"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", pageSizes[i], pageSizes[i], lastErrorNumber, lastErrorMessage);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
+							   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+							   pageSizes[i], pageSizes[i], lastErrorNumber, lastErrorMessage);
 
 			if (OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES == lastErrorNumber) {
 				outputComment(OMRPORTLIB, "\tPortable error OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES...\n");
@@ -335,16 +337,23 @@ TEST(PortVmemTest, vmem_test1)
 		} else {
 			uintptr_t finalBlocks;
 			uintptr_t finalBytes;
-			outputComment(OMRPORTLIB, "\treserved and committed 0x%zx bytes with page size 0x%zx at address 0x%zx\n", pageSizes[i], vmemID.pageSize, memPtr);
+			outputComment(OMRPORTLIB, "\treserved and committed 0x%zx bytes with page size 0x%zx at address 0x%zx\n",
+						  pageSizes[i], vmemID.pageSize, memPtr);
 
 			getPortLibraryMemoryCategoryData(OMRPORTLIB, &finalBlocks, &finalBytes);
 
 			if (finalBlocks <= initialBlocks) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem reserve didn't increment category block as expected. Final blocks=%zu, initial blocks=%zu, page size=%zu.\n", finalBlocks, initialBlocks, pageSizes[i]);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "vmem reserve didn't increment category block as expected. Final blocks=%zu, "
+								   "initial blocks=%zu, page size=%zu.\n",
+								   finalBlocks, initialBlocks, pageSizes[i]);
 			}
 
 			if (finalBytes < (initialBytes + pageSizes[i])) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem reserve didn't increment category bytes as expected. Initial bytes=%zu, final bytes=%zu, page size=%zu.\n", finalBytes, initialBytes, pageSizes[i]);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "vmem reserve didn't increment category bytes as expected. Initial bytes=%zu, final "
+								   "bytes=%zu, page size=%zu.\n",
+								   finalBytes, initialBytes, pageSizes[i]);
 			}
 		}
 
@@ -355,10 +364,9 @@ TEST(PortVmemTest, vmem_test1)
 		/* free the memory (reuse the vmemID) */
 		rc = omrvmem_free_memory(memPtr, pageSizes[i], &vmemID);
 		if (rc != 0) {
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS,
-				"omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n",
-				rc, pageSizes[i], memPtr);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc,
+							   pageSizes[i], memPtr);
 			goto exit;
 		}
 
@@ -369,11 +377,17 @@ TEST(PortVmemTest, vmem_test1)
 			getPortLibraryMemoryCategoryData(OMRPORTLIB, &finalBlocks, &finalBytes);
 
 			if (finalBlocks != initialBlocks) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem free didn't decrement category block as expected. Final blocks=%zu, initial blocks=%zu, page size=%zu.\n", finalBlocks, initialBlocks, pageSizes[i]);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "vmem free didn't decrement category block as expected. Final blocks=%zu, initial "
+								   "blocks=%zu, page size=%zu.\n",
+								   finalBlocks, initialBlocks, pageSizes[i]);
 			}
 
 			if (finalBytes != initialBytes) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem free didn't decrement category bytes as expected. Initial bytes=%zu, final bytes=%zu, page size=%zu.\n", initialBytes, finalBytes, pageSizes[i]);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "vmem free didn't decrement category bytes as expected. Initial bytes=%zu, final "
+								   "bytes=%zu, page size=%zu.\n",
+								   initialBytes, finalBytes, pageSizes[i]);
 			}
 		}
 	}
@@ -412,7 +426,8 @@ setDisclaimVirtualMemory(struct OMRPortLibrary *portLibrary, BOOLEAN disclaim)
  * @return TEST_PASS on success, TEST_FAIL on error
  */
 int
-omrvmem_bench_write_and_decommit_memory(struct OMRPortLibrary *portLibrary, uintptr_t pageSize, uintptr_t byteAmount, BOOLEAN disclaim, uintptr_t numIterations)
+omrvmem_bench_write_and_decommit_memory(struct OMRPortLibrary *portLibrary, uintptr_t pageSize, uintptr_t byteAmount,
+										BOOLEAN disclaim, uintptr_t numIterations)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	const char *testName = "omrvmem_bench_write_and_decommit_memory";
@@ -442,9 +457,10 @@ omrvmem_bench_write_and_decommit_memory(struct OMRPortLibrary *portLibrary, uint
 	if (memPtr == NULL) {
 		lastErrorMessage = (char *)omrerror_last_error_message();
 		lastErrorNumber = omrerror_last_error_number();
-		outputErrorMessage(
-			PORTTEST_ERROR_ARGS, "unable to reserve 0x%zx bytes with page size 0x%zx.\n"
-			"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "unable to reserve 0x%zx bytes with page size 0x%zx.\n"
+						   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+						   byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
 		if (OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES == lastErrorNumber) {
 			omrtty_printf("\tPortable error OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES...\n");
 			omrtty_printf("\t\tREBOOT THE MACHINE to free up resources AND TRY THE TEST AGAIN\n");
@@ -460,7 +476,10 @@ omrvmem_bench_write_and_decommit_memory(struct OMRPortLibrary *portLibrary, uint
 
 		memPtr = (char *)omrvmem_commit_memory(memPtr, byteAmount, &vmemID);
 		if (NULL == memPtr) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_commit_memory returned NULL when trying to commit 0x%zx bytes backed by 0x%zx-byte pages\n", byteAmount, pageSize);
+			outputErrorMessage(
+				PORTTEST_ERROR_ARGS,
+				"omrvmem_commit_memory returned NULL when trying to commit 0x%zx bytes backed by 0x%zx-byte pages\n",
+				byteAmount, pageSize);
 			goto exit;
 		}
 
@@ -471,18 +490,24 @@ omrvmem_bench_write_and_decommit_memory(struct OMRPortLibrary *portLibrary, uint
 		rc = omrvmem_decommit_memory(memPtr, byteAmount, &vmemID);
 
 		if (rc != 0) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by 0x%zx-byte pages\n", rc, byteAmount, pageSize);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by "
+							   "0x%zx-byte pages\n",
+							   rc, byteAmount, pageSize);
 			goto exit;
 		}
 	}
 
 	deltaMillis = (omrtime_nano_time() - startTimeNanos) / (1000 * 1000);
-	omrtty_printf("%s pageSize 0x%zx, byteAmount 0x%zx, millis for %u iterations: [write_to_all/decommit] test: %lli\n", disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, numIterations, deltaMillis);
+	omrtty_printf("%s pageSize 0x%zx, byteAmount 0x%zx, millis for %u iterations: [write_to_all/decommit] test: %lli\n",
+				  disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, numIterations, deltaMillis);
 
 	rc = omrvmem_free_memory(memPtr, byteAmount, &vmemID);
 
 	if (rc != 0) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc, pageSize, memPtr);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc, pageSize,
+						   memPtr);
 		goto exit;
 	}
 
@@ -507,7 +532,8 @@ exit:
  * @return TEST_PASS on success, TEST_FAIL on error
  */
 int
-omrvmem_bench_force_overcommit_then_decommit(struct OMRPortLibrary *portLibrary, uintptr_t physicalMemorySize, uintptr_t pageSize, BOOLEAN disclaim)
+omrvmem_bench_force_overcommit_then_decommit(struct OMRPortLibrary *portLibrary, uintptr_t physicalMemorySize,
+											 uintptr_t pageSize, BOOLEAN disclaim)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	const char *testName = "omrvmem_bench_force_overcommit_then_decommit";
@@ -524,7 +550,8 @@ omrvmem_bench_force_overcommit_then_decommit(struct OMRPortLibrary *portLibrary,
 	reportTestEntry(OMRPORTLIB, testName);
 	setDisclaimVirtualMemory(OMRPORTLIB, disclaim);
 	if (byteAmount < D512M) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "byteAmount 0x%zx bytes must be greater than 0x%zx\n", byteAmount, D512M);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "byteAmount 0x%zx bytes must be greater than 0x%zx\n", byteAmount,
+						   D512M);
 		goto exit;
 	}
 
@@ -541,8 +568,10 @@ omrvmem_bench_force_overcommit_then_decommit(struct OMRPortLibrary *portLibrary,
 	if (memPtr == NULL) {
 		lastErrorMessage = (char *)omrerror_last_error_message();
 		lastErrorNumber = omrerror_last_error_number();
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
-						   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ", byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
+						   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+						   byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
 		if (OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES == lastErrorNumber) {
 			omrtty_printf("\tPortable error OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES...\n");
 			omrtty_printf("\t\tREBOOT THE MACHINE to free up resources AND TRY THE TEST AGAIN\n");
@@ -565,7 +594,10 @@ omrvmem_bench_force_overcommit_then_decommit(struct OMRPortLibrary *portLibrary,
 	 */
 	rc = omrvmem_decommit_memory(memPtr, D512M, &vmemID);
 	if (rc != 0) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by 0x%zx-byte pages\n", rc, byteAmount, pageSize);
+		outputErrorMessage(
+			PORTTEST_ERROR_ARGS,
+			"omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by 0x%zx-byte pages\n",
+			rc, byteAmount, pageSize);
 		goto exit;
 	}
 
@@ -573,20 +605,23 @@ omrvmem_bench_force_overcommit_then_decommit(struct OMRPortLibrary *portLibrary,
 	memset(memPtr, 5, D512M);
 
 	deltaMillis = (omrtime_nano_time() - startTimeNanos) / (1000 * 1000);
-	omrtty_printf("%s pageSize 0x%zx, byteAmount 0x%zx, millis: [force page, decommit pagedout region, write decommitted region] test: %lli\n", disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, deltaMillis);
+	omrtty_printf(
+		"%s pageSize 0x%zx, byteAmount 0x%zx, millis: [force page, decommit pagedout region, write decommitted region] "
+		"test: %lli\n",
+		disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, deltaMillis);
 
 	rc = omrvmem_free_memory(memPtr, byteAmount, &vmemID);
 
 	if (rc != 0) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc, pageSize, memPtr);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc, pageSize,
+						   memPtr);
 		goto exit;
 	}
 
 exit:
 	return reportTestExit(OMRPORTLIB, testName);
 }
-
-
 
 /**
  * 	1. Time running numIterations times:
@@ -604,7 +639,8 @@ exit:
  * @return TEST_PASS on success, TEST_FAIL on error
  */
 int
-omrvmem_bench_reserve_write_decommit_and_free_memory(struct OMRPortLibrary *portLibrary, uintptr_t pageSize, uintptr_t byteAmount, BOOLEAN disclaim, uintptr_t numIterations)
+omrvmem_bench_reserve_write_decommit_and_free_memory(struct OMRPortLibrary *portLibrary, uintptr_t pageSize,
+													 uintptr_t byteAmount, BOOLEAN disclaim, uintptr_t numIterations)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	const char *testName = "omrvmem_bench_reserve_write_decommit_and_free_memory";
@@ -641,9 +677,10 @@ omrvmem_bench_reserve_write_decommit_and_free_memory(struct OMRPortLibrary *port
 		if (memPtr == NULL) {
 			lastErrorMessage = (char *)omrerror_last_error_message();
 			lastErrorNumber = omrerror_last_error_number();
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS, "In iteration %d, unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
-				"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", i, byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "In iteration %d, unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
+							   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+							   i, byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
 			if (OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES == lastErrorNumber) {
 				omrtty_printf("\tPortable error OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES...\n");
 				omrtty_printf("\t\tREBOOT THE MACHINE to free up resources AND TRY THE TEST AGAIN\n");
@@ -656,26 +693,33 @@ omrvmem_bench_reserve_write_decommit_and_free_memory(struct OMRPortLibrary *port
 
 		rc = omrvmem_decommit_memory(memPtr, byteAmount, &vmemID);
 		if (rc != 0) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by 0x%zx-byte pages\n", rc, byteAmount, pageSize);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by "
+							   "0x%zx-byte pages\n",
+							   rc, byteAmount, pageSize);
 			goto exit;
 		}
 
 		rc = omrvmem_free_memory(memPtr, byteAmount, &vmemID);
 
 		if (rc != 0) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc, pageSize, memPtr);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc,
+							   pageSize, memPtr);
 			goto exit;
 		}
 	}
 
 	deltaMillis = (omrtime_nano_time() - startTimeNanos) / (1000 * 1000);
 
-	omrtty_printf("%s pageSize 0x%zx, byteAmount 0x%zx, millis for %u iterations: [reserve/write_to_all/decommit/free] test: %lli\n", disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, numIterations, deltaMillis);
+	omrtty_printf(
+		"%s pageSize 0x%zx, byteAmount 0x%zx, millis for %u iterations: [reserve/write_to_all/decommit/free] test: "
+		"%lli\n",
+		disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, numIterations, deltaMillis);
 
 exit:
 	return reportTestExit(OMRPORTLIB, testName);
 }
-
 
 /**
  * 	1. Time 1000 times:
@@ -691,7 +735,8 @@ exit:
  * @return TEST_PASS on success, TEST_FAIL on error
  */
 int
-omrvmem_exhaust_virtual_memory(struct OMRPortLibrary *portLibrary, uintptr_t pageSize, uintptr_t byteAmount, BOOLEAN disclaim)
+omrvmem_exhaust_virtual_memory(struct OMRPortLibrary *portLibrary, uintptr_t pageSize, uintptr_t byteAmount,
+							   BOOLEAN disclaim)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	const char *testName = "omrvmem_exhaust_virtual_memory";
@@ -719,7 +764,8 @@ omrvmem_exhaust_virtual_memory(struct OMRPortLibrary *portLibrary, uintptr_t pag
 
 		omrvmem_vmem_params_init(&params[i]);
 		params[i].byteAmount = byteAmount;
-		params[i].mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
+		params[i].mode |=
+			OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 		params[i].pageSize = pageSize;
 		params[i].category = OMRMEM_CATEGORY_PORT_LIBRARY;
 		params[i].options |= OMRPORT_VMEM_STRICT_PAGE_SIZE;
@@ -730,9 +776,10 @@ omrvmem_exhaust_virtual_memory(struct OMRPortLibrary *portLibrary, uintptr_t pag
 		if (memPtr == NULL) {
 			lastErrorMessage = (char *)omrerror_last_error_message();
 			lastErrorNumber = omrerror_last_error_number();
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
-				"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
+							   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+							   byteAmount, pageSize, lastErrorNumber, lastErrorMessage);
 			if (OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES == lastErrorNumber) {
 				omrtty_printf("\tPortable error OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES...\n");
 				omrtty_printf("\t\tREBOOT THE MACHINE to free up resources AND TRY THE TEST AGAIN\n");
@@ -751,10 +798,12 @@ omrvmem_exhaust_virtual_memory(struct OMRPortLibrary *portLibrary, uintptr_t pag
 		rc = omrvmem_decommit_memory(memPtr, byteAmount, &vmemID[i]);
 
 		if (rc != 0) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by 0x%zx-byte pages\n", rc, byteAmount, pageSize);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by "
+							   "0x%zx-byte pages\n",
+							   rc, byteAmount, pageSize);
 			goto exit;
 		}
-
 	}
 
 	deltaMillis = (omrtime_nano_time() - startTimeNanos) / (1000 * 1000);
@@ -763,18 +812,20 @@ omrvmem_exhaust_virtual_memory(struct OMRPortLibrary *portLibrary, uintptr_t pag
 		rc = omrvmem_free_memory(memPointers[i], byteAmount, &vmemID[i]);
 
 		if (rc != 0) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc, pageSize, memPointers[i]);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc,
+							   pageSize, memPointers[i]);
 			goto exit;
 		}
 	}
 
-	omrtty_printf("%s pageSize 0x%zx, byteAmount 0x%zx, millis for %u iterations: [reserve/write_to_all/decommit] test: %lli\n", disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, NUM_VMEM_IDS, deltaMillis);
+	omrtty_printf(
+		"%s pageSize 0x%zx, byteAmount 0x%zx, millis for %u iterations: [reserve/write_to_all/decommit] test: %lli\n",
+		disclaim ? "disclaim" : "nodisclaim", pageSize, byteAmount, NUM_VMEM_IDS, deltaMillis);
 
 exit:
 	return reportTestExit(OMRPORTLIB, testName);
 }
-
-
 
 /**
  * Verify that we don't get any errors decomitting memory
@@ -809,34 +860,36 @@ TEST(PortVmemTest, vmem_decommit_memory_test)
 		omrvmem_supported_page_flags();
 
 	/* reserve, commit, decommit, and memory for each page size */
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 
-		/* reserve and commit */
+/* reserve and commit */
 #if defined(J9ZOS390)
 		/* On z/OS skip this test for newly added large pages as obsolete omrvmem_reserve_memory() does not support them */
 		if (TRUE == isNewPageSize(pageSizes[i], pageFlags[i])) {
 			continue;
 		}
 #endif /* J9ZOS390 */
-		memPtr = (char *)omrvmem_reserve_memory(
-						0, pageSizes[i], &vmemID,
-						OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT,
-						pageSizes[i], OMRMEM_CATEGORY_PORT_LIBRARY);
+		memPtr = (char *)omrvmem_reserve_memory(0, pageSizes[i], &vmemID,
+												OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE
+													| OMRPORT_VMEM_MEMORY_MODE_COMMIT,
+												pageSizes[i], OMRMEM_CATEGORY_PORT_LIBRARY);
 
 		/* did we get any memory? */
 		if (memPtr == NULL) {
 			lastErrorMessage = (char *)omrerror_last_error_message();
 			lastErrorNumber = omrerror_last_error_number();
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
-				"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", pageSizes[i], pageSizes[i], lastErrorNumber, lastErrorMessage);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
+							   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+							   pageSizes[i], pageSizes[i], lastErrorNumber, lastErrorMessage);
 			if (OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES == lastErrorNumber) {
 				outputComment(OMRPORTLIB, "\tPortable error OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES...\n");
 				outputComment(OMRPORTLIB, "\t\tREBOOT THE MACHINE to free up resources AND TRY THE TEST AGAIN\n");
 			}
 			goto exit;
 		} else {
-			outputComment(OMRPORTLIB, "\treserved and committed 0x%zx bytes with page size 0x%zx\n", pageSizes[i], vmemID.pageSize);
+			outputComment(OMRPORTLIB, "\treserved and committed 0x%zx bytes with page size 0x%zx\n", pageSizes[i],
+						  vmemID.pageSize);
 		}
 
 		/* can we read and write to the memory? */
@@ -846,19 +899,19 @@ TEST(PortVmemTest, vmem_decommit_memory_test)
 		/* decommit the memory */
 		rc = omrvmem_decommit_memory(memPtr, pageSizes[i], &vmemID);
 		if (rc != 0) {
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS,
-				"omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by 0x%zx-byte pages\n",
-				rc, pageSizes[i], pageSizes[i]);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_decommit_memory returned 0x%zx when trying to decommit 0x%zx bytes backed by "
+							   "0x%zx-byte pages\n",
+							   rc, pageSizes[i], pageSizes[i]);
 			goto exit;
 		}
 
 		/* free the memory (reuse the vmemID) */
 		rc = omrvmem_free_memory(memPtr, pageSizes[i], &vmemID);
 		if (rc != 0) {
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n",
-				rc, pageSizes[i], memPtr);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc,
+							   pageSizes[i], memPtr);
 			goto exit;
 		}
 	}
@@ -877,9 +930,12 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, FALSE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryEx", FALSE, FALSE, FALSE, FALSE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryEx", FALSE, FALSE, FALSE,
+														 FALSE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryEx\n");
+		outputComment(
+			OMRPORTLIB,
+			"***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryEx\n");
 	}
 }
 
@@ -890,9 +946,12 @@ TEST(PortVmemTest, vmem_testReserveMemoryExTopDown)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, FALSE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExTopDown", TRUE, FALSE, FALSE, FALSE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExTopDown", TRUE, FALSE,
+														 FALSE, FALSE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExTopDown\n");
+		outputComment(
+			OMRPORTLIB,
+			"***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExTopDown\n");
 	}
 }
 
@@ -903,9 +962,12 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAdress)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, TRUE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExStrictAddress", FALSE, TRUE, FALSE, FALSE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExStrictAddress", FALSE,
+														 TRUE, FALSE, FALSE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExStrictAddress\n");
+		outputComment(OMRPORTLIB,
+					  "***Did not find enough memory available on system, not running test "
+					  "omrvmem_testReserveMemoryExStrictAddress\n");
 	}
 }
 
@@ -916,15 +978,14 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictPageSize)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, FALSE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExStrictPageSize", FALSE, FALSE, TRUE, FALSE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExStrictPageSize", FALSE,
+														 FALSE, TRUE, FALSE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExStrictPageSize\n");
+		outputComment(OMRPORTLIB,
+					  "***Did not find enough memory available on system, not running test "
+					  "omrvmem_testReserveMemoryExStrictPageSize\n");
 	}
 }
-
-
-
-
 
 /**********/
 
@@ -936,9 +997,12 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_use2To32)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, FALSE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryEx_use2To32", FALSE, FALSE, FALSE, TRUE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryEx_use2To32", FALSE,
+														 FALSE, FALSE, TRUE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryEx\n");
+		outputComment(
+			OMRPORTLIB,
+			"***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryEx\n");
 	}
 }
 
@@ -949,9 +1013,12 @@ TEST(PortVmemTest, vmem_testReserveMemoryExTopDown_use2To32)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, FALSE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExTopDown_use2To32", TRUE, FALSE, FALSE, TRUE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExTopDown_use2To32",
+														 TRUE, FALSE, FALSE, TRUE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExTopDown\n");
+		outputComment(
+			OMRPORTLIB,
+			"***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExTopDown\n");
 	}
 }
 
@@ -962,9 +1029,12 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_use2To32)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, TRUE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExStrictAddress_use2To32", FALSE, TRUE, FALSE, TRUE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(
+			OMRPORTLIB, "omrvmem_testReserveMemoryExStrictAddress_use2To32", FALSE, TRUE, FALSE, TRUE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExStrictAddress\n");
+		outputComment(OMRPORTLIB,
+					  "***Did not find enough memory available on system, not running test "
+					  "omrvmem_testReserveMemoryExStrictAddress\n");
 	}
 }
 
@@ -975,14 +1045,15 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictPageSize_use2To32)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 	if (memoryIsAvailable(OMRPORTLIB, FALSE)) {
-		omrvmem_testReserveMemoryEx_StandardAndQuickMode(OMRPORTLIB, "omrvmem_testReserveMemoryExStrictPageSize_use2To32", FALSE, FALSE, TRUE, TRUE);
+		omrvmem_testReserveMemoryEx_StandardAndQuickMode(
+			OMRPORTLIB, "omrvmem_testReserveMemoryExStrictPageSize_use2To32", FALSE, FALSE, TRUE, TRUE);
 	} else {
-		outputComment(OMRPORTLIB, "***Did not find enough memory available on system, not running test omrvmem_testReserveMemoryExStrictPageSize\n");
+		outputComment(OMRPORTLIB,
+					  "***Did not find enough memory available on system, not running test "
+					  "omrvmem_testReserveMemoryExStrictPageSize\n");
 	}
 }
 #endif /* defined(J9ZOS39064) */
-
-
 
 /**
  * Get all the page sizes and make sure we can allocate a memory chunk
@@ -998,18 +1069,21 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictPageSize_use2To32)
  * @return TEST_PASS on success, TEST_FAIL on error
  */
 static int
-omrvmem_testReserveMemoryEx_StandardAndQuickMode(struct OMRPortLibrary *portLibrary, const char *testName, BOOLEAN topDown, BOOLEAN strictAddress, BOOLEAN strictPageSize, BOOLEAN use2To32G)
+omrvmem_testReserveMemoryEx_StandardAndQuickMode(struct OMRPortLibrary *portLibrary, const char *testName,
+												 BOOLEAN topDown, BOOLEAN strictAddress, BOOLEAN strictPageSize,
+												 BOOLEAN use2To32G)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
-	int rc = omrvmem_testReserveMemoryEx_impl(OMRPORTLIB, testName, topDown, FALSE, strictAddress, strictPageSize, use2To32G);
+	int rc = omrvmem_testReserveMemoryEx_impl(OMRPORTLIB, testName, topDown, FALSE, strictAddress, strictPageSize,
+											  use2To32G);
 #if defined(LINUX) || defined(OSX)
 	if (TEST_PASS == rc) {
-		rc |= omrvmem_testReserveMemoryEx_impl(OMRPORTLIB, testName, topDown, TRUE, strictAddress, strictPageSize, use2To32G);
+		rc |= omrvmem_testReserveMemoryEx_impl(OMRPORTLIB, testName, topDown, TRUE, strictAddress, strictPageSize,
+											   use2To32G);
 	}
 #endif /* defined(LINUX) || defined(OSX) */
 	return rc;
 }
-
 
 /**
  * Get all the page sizes and make sure we can allocate a memory chunk
@@ -1025,7 +1099,8 @@ omrvmem_testReserveMemoryEx_StandardAndQuickMode(struct OMRPortLibrary *portLibr
  * @return TEST_PASS on success, TEST_FAIL on error
  */
 static int
-omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char *testName, BOOLEAN topDown, BOOLEAN quickSearch, BOOLEAN strictAddress, BOOLEAN strictPageSize, BOOLEAN use2To32G)
+omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char *testName, BOOLEAN topDown,
+								 BOOLEAN quickSearch, BOOLEAN strictAddress, BOOLEAN strictPageSize, BOOLEAN use2To32G)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 #define NUM_SEGMENTS 3
@@ -1041,7 +1116,6 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 	int32_t lastErrorNumber = 0;
 	J9PortVmemParams params[NUM_SEGMENTS];
 
-
 	reportTestEntry(OMRPORTLIB, testName);
 
 	/* Get all the supported page sizes */
@@ -1049,7 +1123,7 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 	pageFlags = omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		for (j = 0; j < NUM_SEGMENTS; j++) {
 			uintptr_t initialBlocks;
 			uintptr_t initialBytes;
@@ -1071,12 +1145,13 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 				params[j].endAddress = (void *)0x7FFFFFFFFFF;
 #elif defined(OMR_ENV_DATA64)
 				params[j].endAddress = (void *)0xffffffffffffffff;
-#else /* defined(OMR_ENV_DATA64) */
+#else  /* defined(OMR_ENV_DATA64) */
 				params[j].endAddress = (void *)TWO_GIG_BAR;
 #endif /* defined(OMR_ENV_DATA64) */
 			}
 			params[j].byteAmount = pageSizes[i];
-			params[j].mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
+			params[j].mode |=
+				OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 			params[j].pageSize = pageSizes[i];
 			params[j].pageFlags = pageFlags[i];
 			params[j].category = OMRMEM_CATEGORY_PORT_LIBRARY;
@@ -1101,9 +1176,10 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 				params[j].options |= OMRPORT_VMEM_ZOS_USE2TO32G_AREA;
 			}
 
-			outputComment(OMRPORTLIB, "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "\
-						  "topDown: %s quickSearch: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n", \
-						  params[j].pageSize, params[j].startAddress, params[j].endAddress, \
+			outputComment(OMRPORTLIB,
+						  "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "
+						  "topDown: %s quickSearch: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n",
+						  params[j].pageSize, params[j].startAddress, params[j].endAddress,
 						  (0 != (params[j].options & OMRPORT_VMEM_ALLOC_DIR_TOP_DOWN)) ? "true" : "false",
 						  (0 != (params[j].options & OMRPORT_VMEM_ALLOC_QUICK)) ? "true" : "false",
 						  (0 != (params[j].options & OMRPORT_VMEM_STRICT_ADDRESS)) ? "true" : "false",
@@ -1116,40 +1192,48 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 			/* did we get any memory and is it in range if strict is set? */
 			if (memPtr[j] == NULL) {
 				if (strictPageSize) {
-					outputComment(OMRPORTLIB, "\t! Unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n", pageSizes[i], pageSizes[i]);
+					outputComment(OMRPORTLIB, "\t! Unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n",
+								  pageSizes[i], pageSizes[i]);
 				} else {
 					lastErrorMessage = (char *)omrerror_last_error_message();
 					lastErrorNumber = omrerror_last_error_number();
-					outputErrorMessage(
-						PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
-						"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", pageSizes[i], pageSizes[i], lastErrorNumber, lastErrorMessage);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "unable to reserve and commit 0x%zx bytes with page size 0x%zx.\n"
+									   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+									   pageSizes[i], pageSizes[i], lastErrorNumber, lastErrorMessage);
 
 					if (OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES == lastErrorNumber) {
 						outputComment(OMRPORTLIB, "\tPortable error OMRPORT_ERROR_VMEM_INSUFFICENT_RESOURCES...\n");
-						outputComment(OMRPORTLIB, "\t\tREBOOT THE MACHINE to free up resources AND TRY THE TEST AGAIN\n");
+						outputComment(OMRPORTLIB,
+									  "\t\tREBOOT THE MACHINE to free up resources AND TRY THE TEST AGAIN\n");
 					}
 				}
-			} else if (strictAddress && (((void *)memPtr[j] < params[j].startAddress) || ((void *)memPtr[j] > params[j].endAddress))) {
+			} else if (strictAddress && (((void *)memPtr[j] < params[j].startAddress)
+										 || ((void *)memPtr[j] > params[j].endAddress))) {
 				/* if returned pointer is outside of range then fail */
-				outputErrorMessage(
-					PORTTEST_ERROR_ARGS, "Strict address flag set and returned pointer [0x%zx] is outside of range.\n"
-					"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", memPtr[j], lastErrorNumber, lastErrorMessage);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "Strict address flag set and returned pointer [0x%zx] is outside of range.\n"
+								   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+								   memPtr[j], lastErrorNumber, lastErrorMessage);
 
 			} else if (strictPageSize && (vmemID[j].pageSize != params[j].pageSize)) {
 				/* fail if strict page size flag and returned memory does not have the requested page size */
-				outputErrorMessage(
-					PORTTEST_ERROR_ARGS, "Strict page size flag set and returned memory has a page size of [0x%zx] "
-					"while a page size of [0x%zx] was requested.\n"
-					"\tlastErrorNumber=%d, lastErrorMessage=%s\n ", vmemID[j].pageSize, params[j].pageSize, lastErrorNumber, lastErrorMessage);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "Strict page size flag set and returned memory has a page size of [0x%zx] "
+								   "while a page size of [0x%zx] was requested.\n"
+								   "\tlastErrorNumber=%d, lastErrorMessage=%s\n ",
+								   vmemID[j].pageSize, params[j].pageSize, lastErrorNumber, lastErrorMessage);
 #if defined(OMR_ENV_DATA64)
-			} else if (use2To32G && strictAddress &&
-					   (((uint64_t) memPtr[j] < TWO_GB) || ((uint64_t) memPtr[j] >= SIXTY_FOUR_GB))
-			) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "\t use2To32G flag is set and returned pointer [0x%zx] is outside of range.\n", memPtr[j]);
+			} else if (use2To32G && strictAddress
+					   && (((uint64_t)memPtr[j] < TWO_GB) || ((uint64_t)memPtr[j] >= SIXTY_FOUR_GB))) {
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "\t use2To32G flag is set and returned pointer [0x%zx] is outside of range.\n",
+								   memPtr[j]);
 #endif /* OMR_ENV_DATA64 */
 			} else {
 				outputComment(
-					OMRPORTLIB, "\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%zx at address 0x%zx\n", \
+					OMRPORTLIB,
+					"\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%zx at address 0x%zx\n",
 					pageSizes[i], vmemID[j].pageSize, vmemID[j].pageFlags, memPtr[j]);
 			}
 
@@ -1160,16 +1244,16 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 
 				/* are the page sizes stored and reported correctly? */
 				if (vmemID[j].pageSize != omrvmem_get_page_size(&(vmemID[j]))) {
-					outputErrorMessage(
-						PORTTEST_ERROR_ARGS, "vmemID[j].pageSize (0x%zx)!= omrvmem_get_page_size (0x%zx) .\n",
-						vmemID[j].pageSize, omrvmem_get_page_size(vmemID));
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "vmemID[j].pageSize (0x%zx)!= omrvmem_get_page_size (0x%zx) .\n",
+									   vmemID[j].pageSize, omrvmem_get_page_size(vmemID));
 				}
 
 				/* are the page types stored and reported correctly? */
 				if (vmemID[j].pageFlags != omrvmem_get_page_flags(&(vmemID[j]))) {
-					outputErrorMessage(
-						PORTTEST_ERROR_ARGS, "vmemID[j].pageFlags (0x%zx)!= omrvmem_get_page_flags (0x%zx) .\n",
-						vmemID[j].pageFlags, omrvmem_get_page_flags(vmemID));
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "vmemID[j].pageFlags (0x%zx)!= omrvmem_get_page_flags (0x%zx) .\n",
+									   vmemID[j].pageFlags, omrvmem_get_page_flags(vmemID));
 				}
 
 				/* can we read and write to the memory? */
@@ -1180,11 +1264,17 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 				getPortLibraryMemoryCategoryData(OMRPORTLIB, &finalBlocks, &finalBytes);
 
 				if (finalBlocks <= initialBlocks) {
-					outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem reserve didn't increment category block as expected. Final blocks=%zu, initial blocks=%zu, page size=%zu.\n", finalBlocks, initialBlocks, pageSizes[i]);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "vmem reserve didn't increment category block as expected. Final blocks=%zu, "
+									   "initial blocks=%zu, page size=%zu.\n",
+									   finalBlocks, initialBlocks, pageSizes[i]);
 				}
 
 				if (finalBytes < (initialBytes + pageSizes[i])) {
-					outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem reserve didn't increment category bytes as expected. Final bytes=%zu, initial bytes=%zu, page size=%zu.\n", finalBytes, initialBytes, pageSizes[i]);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "vmem reserve didn't increment category bytes as expected. Final bytes=%zu, "
+									   "initial bytes=%zu, page size=%zu.\n",
+									   finalBytes, initialBytes, pageSizes[i]);
 				}
 			}
 		}
@@ -1198,24 +1288,28 @@ omrvmem_testReserveMemoryEx_impl(struct OMRPortLibrary *portLibrary, const char 
 
 				rc = omrvmem_free_memory(memPtr[j], pageSizes[i], &vmemID[j]);
 				if (rc != 0) {
-					outputErrorMessage(
-						PORTTEST_ERROR_ARGS,
-						"omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n",
-						rc, pageSizes[i], memPtr[j]);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc,
+									   pageSizes[i], memPtr[j]);
 				}
 
 				getPortLibraryMemoryCategoryData(OMRPORTLIB, &finalBlocks, &finalBytes);
 
 				if (finalBlocks >= initialBlocks) {
-					outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem free didn't decrement category blocks as expected. Final blocks=%zu, initial blocks=%zu, page size=%zu.\n", finalBlocks, initialBlocks, pageSizes[i]);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "vmem free didn't decrement category blocks as expected. Final blocks=%zu, "
+									   "initial blocks=%zu, page size=%zu.\n",
+									   finalBlocks, initialBlocks, pageSizes[i]);
 				}
 
 				if (finalBytes > (initialBytes - pageSizes[i])) {
-					outputErrorMessage(PORTTEST_ERROR_ARGS, "vmem free didn't decrement category bytes as expected. Final bytes=%zu, initial bytes=%zu, page size=%zu.\n", finalBytes, initialBytes, pageSizes[i]);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "vmem free didn't decrement category bytes as expected. Final bytes=%zu, "
+									   "initial bytes=%zu, page size=%zu.\n",
+									   finalBytes, initialBytes, pageSizes[i]);
 				}
 			}
 		}
-
 	}
 
 #undef NUM_SEGMENTS
@@ -1254,17 +1348,18 @@ memoryIsAvailable(struct OMRPortLibrary *portLibrary, BOOLEAN strictAddress)
 	pageFlags = omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		for (j = 0; j < NUM_SEGMENTS; j++) {
 			omrvmem_vmem_params_init(&params[j]);
 			params[j].startAddress = (void *)(pageSizes[i] * 2);
 #if defined(LINUX) || defined(OSX)
 			params[j].endAddress = (void *)(pageSizes[i] * 100);
 #elif defined(WIN64)
-			params[j].endAddress = (void *) 0x7FFFFFFFFFF;
+			params[j].endAddress = (void *)0x7FFFFFFFFFF;
 #endif /* defined(LINUX) || defined(OSX) */
 			params[j].byteAmount = pageSizes[i];
-			params[j].mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
+			params[j].mode |=
+				OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 			params[j].pageSize = pageSizes[i];
 			params[j].pageFlags = pageFlags[i];
 
@@ -1277,7 +1372,8 @@ memoryIsAvailable(struct OMRPortLibrary *portLibrary, BOOLEAN strictAddress)
 
 			/* did we get any memory */
 			if (memPtr[j] == NULL) {
-				outputComment(OMRPORTLIB, "\t**Could not find 0x%zx bytes available with page size 0x%zx\n", pageSizes[i], pageSizes[i]);
+				outputComment(OMRPORTLIB, "\t**Could not find 0x%zx bytes available with page size 0x%zx\n",
+							  pageSizes[i], pageSizes[i]);
 				isMemoryAvailable = FALSE;
 				break;
 			}
@@ -1289,13 +1385,12 @@ memoryIsAvailable(struct OMRPortLibrary *portLibrary, BOOLEAN strictAddress)
 				rc = omrvmem_free_memory(memPtr[j], pageSizes[i], &vmemID[j]);
 				if (rc != 0) {
 					isMemoryAvailable = FALSE;
-					outputComment(
-						OMRPORTLIB, "\t**omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n",
-						rc, pageSizes[i], memPtr);
+					outputComment(OMRPORTLIB,
+								  "\t**omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc,
+								  pageSizes[i], memPtr);
 				}
 			}
 		}
-
 	}
 
 #undef NUM_SEGMENTS
@@ -1322,7 +1417,7 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_zOSLargePageBelowBar)
 	pageFlags = omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		struct J9PortVmemIdentifier vmemID;
 		J9PortVmemParams params;
 		char allocName[allocNameSize];
@@ -1333,16 +1428,17 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_zOSLargePageBelowBar)
 
 		/* request memory (at or) below the 2G bar */
 		params.startAddress = 0;
-		params.endAddress = (void *) TWO_GIG_BAR;
+		params.endAddress = (void *)TWO_GIG_BAR;
 		params.byteAmount = pageSizes[i];
 		params.mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 		params.pageSize = pageSizes[i];
 		params.pageFlags = pageFlags[i];
 		params.options = 0;
 
-		outputComment(OMRPORTLIB, "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "\
-					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n", \
-					  params.pageSize, params.startAddress, params.endAddress, \
+		outputComment(OMRPORTLIB,
+					  "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "
+					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n",
+					  params.pageSize, params.startAddress, params.endAddress,
 					  (0 != (params.options & OMRPORT_VMEM_ALLOC_DIR_TOP_DOWN)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_ADDRESS)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_PAGE_SIZE)) ? "true" : "false",
@@ -1353,14 +1449,17 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_zOSLargePageBelowBar)
 
 		/* did we get any memory? */
 		if (NULL == memPtr) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx, page type 0x%zx.\n", \
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "unable to reserve and commit 0x%zx bytes with page size 0x%zx, page type 0x%zx.\n",
 							   params.byteAmount, pageSizes[i], pageFlags[i]);
 
 			goto exit;
 
 		} else {
-			outputComment(OMRPORTLIB, "\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%x at address 0x%zx\n", \
-						  params.byteAmount, vmemID.pageSize, vmemID.pageFlags, memPtr);
+			outputComment(
+				OMRPORTLIB,
+				"\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%x at address 0x%zx\n",
+				params.byteAmount, vmemID.pageSize, vmemID.pageFlags, memPtr);
 		}
 
 		/* can we read and write to the memory? */
@@ -1370,8 +1469,9 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_zOSLargePageBelowBar)
 		/* free the memory */
 		rc = omrvmem_free_memory(memPtr, params.byteAmount, &vmemID);
 		if (rc != 0) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes\n",
-							   rc, params.byteAmount);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes\n", rc,
+							   params.byteAmount);
 			goto exit;
 		}
 	}
@@ -1398,7 +1498,7 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_zOSLargePageBelowBar)
 	pageFlags = omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		struct J9PortVmemIdentifier vmemID;
 		J9PortVmemParams params;
 		char allocName[allocNameSize];
@@ -1416,16 +1516,17 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_zOSLargePageBelowBar)
 
 		/* request memory (at or) below the 2G bar */
 		params.startAddress = 0;
-		params.endAddress = (void *) TWO_GIG_BAR;
+		params.endAddress = (void *)TWO_GIG_BAR;
 		params.byteAmount = pageSizes[i];
 		params.mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 		params.pageSize = pageSizes[i];
 		params.pageFlags = pageFlags[i];
 		params.options = OMRPORT_VMEM_STRICT_ADDRESS;
 
-		outputComment(OMRPORTLIB, "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "\
-					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n", \
-					  params.pageSize, params.startAddress, params.endAddress, \
+		outputComment(OMRPORTLIB,
+					  "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "
+					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n",
+					  params.pageSize, params.startAddress, params.endAddress,
 					  (0 != (params.options & OMRPORT_VMEM_ALLOC_DIR_TOP_DOWN)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_ADDRESS)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_PAGE_SIZE)) ? "true" : "false",
@@ -1436,15 +1537,18 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_zOSLargePageBelowBar)
 
 		/* did we get any memory? */
 		if (NULL == memPtr) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx, page type 0x%zx.\n", \
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "unable to reserve and commit 0x%zx bytes with page size 0x%zx, page type 0x%zx.\n",
 							   params.byteAmount, pageSizes[i], pageFlags[i]);
 			goto exit;
 
 		} else {
-			outputComment(OMRPORTLIB, "\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%x at address 0x%zx\n", \
-						  params.byteAmount, vmemID.pageSize, vmemID.pageFlags, memPtr);
+			outputComment(
+				OMRPORTLIB,
+				"\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%x at address 0x%zx\n",
+				params.byteAmount, vmemID.pageSize, vmemID.pageFlags, memPtr);
 
-			if ((uint64_t) memPtr >= TWO_GIG_BAR) {
+			if ((uint64_t)memPtr >= TWO_GIG_BAR) {
 				outputErrorMessage(PORTTEST_ERROR_ARGS, "\t returned memory: %p not less than 2G\n", memPtr);
 				/* Don't exit here, need to free the allocate memory */
 			}
@@ -1454,7 +1558,9 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_zOSLargePageBelowBar)
 			 */
 			if (FALSE == isPageSizeSupportedBelowBar(pageSizes[i], pageFlags[i])) {
 				if (FOUR_KB != vmemID.pageSize) {
-					outputErrorMessage(PORTTEST_ERROR_ARGS, "\t didn't expect to allocate memory below 2GB using page size 0x%zx and page flags 0x%x with strict address\n", \
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "\t didn't expect to allocate memory below 2GB using page size 0x%zx and page "
+									   "flags 0x%x with strict address\n",
 									   vmemID.pageSize, vmemID.pageFlags);
 					goto exit;
 				}
@@ -1468,18 +1574,15 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_zOSLargePageBelowBar)
 		/* free the memory */
 		rc = omrvmem_free_memory(memPtr, params.byteAmount, &vmemID);
 		if (rc != 0) {
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS,
-				"omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes\n",
-				rc, params.byteAmount);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes\n", rc,
+							   params.byteAmount);
 			goto exit;
 		}
-
 	}
 
 exit:
 	reportTestExit(OMRPORTLIB, testName);
-
 }
 
 #if defined(OMR_ENV_DATA64)
@@ -1503,7 +1606,7 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_use2To32_zOSLargePageBelowBar)
 	pageFlags = omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		struct J9PortVmemIdentifier vmemID;
 		J9PortVmemParams params;
 		char allocName[allocNameSize];
@@ -1514,16 +1617,17 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_use2To32_zOSLargePageBelowBar)
 
 		/* request memory (at or) below the 2G bar */
 		params.startAddress = 0;
-		params.endAddress = (void *) TWO_GIG_BAR;
+		params.endAddress = (void *)TWO_GIG_BAR;
 		params.byteAmount = pageSizes[i];
 		params.mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 		params.pageSize = pageSizes[i];
 		params.pageFlags = pageFlags[i];
 		params.options = OMRPORT_VMEM_ZOS_USE2TO32G_AREA;
 
-		outputComment(OMRPORTLIB, "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "\
-					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n", \
-					  params.pageSize, params.startAddress, params.endAddress, \
+		outputComment(OMRPORTLIB,
+					  "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "
+					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n",
+					  params.pageSize, params.startAddress, params.endAddress,
 					  (0 != (params.options & OMRPORT_VMEM_ALLOC_DIR_TOP_DOWN)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_ADDRESS)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_PAGE_SIZE)) ? "true" : "false",
@@ -1534,18 +1638,19 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_use2To32_zOSLargePageBelowBar)
 
 		/* did we get any memory? */
 		if (NULL == memPtr) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "unable to reserve and commit 0x%zx bytes with page size 0x%zx, page type 0x%zx.\n", \
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "unable to reserve and commit 0x%zx bytes with page size 0x%zx, page type 0x%zx.\n",
 							   params.byteAmount, pageSizes[i], pageFlags[i]);
 
 			goto exit;
 
 		} else {
-			outputComment(OMRPORTLIB, "\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%x at address 0x%zx\n", \
-						  params.byteAmount, vmemID.pageSize, vmemID.pageFlags, memPtr);
+			outputComment(
+				OMRPORTLIB,
+				"\t reserved and committed 0x%zx bytes with page size 0x%zx and page flag 0x%x at address 0x%zx\n",
+				params.byteAmount, vmemID.pageSize, vmemID.pageFlags, memPtr);
 
-			if (((uint64_t) memPtr < TWO_GB) ||
-				((uint64_t) memPtr >= SIXTY_FOUR_GB)
-			) {
+			if (((uint64_t)memPtr < TWO_GB) || ((uint64_t)memPtr >= SIXTY_FOUR_GB)) {
 				outputErrorMessage(PORTTEST_ERROR_ARGS, "\t returned memory: %p is not in 2G-32G range\n", memPtr);
 				goto exit;
 			}
@@ -1558,15 +1663,15 @@ TEST(PortVmemTest, vmem_testReserveMemoryEx_use2To32_zOSLargePageBelowBar)
 		/* free the memory */
 		rc = omrvmem_free_memory(memPtr, params.byteAmount, &vmemID);
 		if (rc != 0) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes\n",
-							   rc, params.byteAmount);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes\n", rc,
+							   params.byteAmount);
 			goto exit;
 		}
 	}
 
 exit:
 	reportTestExit(OMRPORTLIB, testName);
-
 }
 
 /**
@@ -1587,7 +1692,7 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_use2To32_zOSLargePageBe
 	pageFlags = omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		struct J9PortVmemIdentifier vmemID;
 		J9PortVmemParams params;
 		void *memPtr = NULL;
@@ -1596,16 +1701,17 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_use2To32_zOSLargePageBe
 
 		/* request memory (at or) below the 2G bar */
 		params.startAddress = 0;
-		params.endAddress = (void *) TWO_GIG_BAR;
+		params.endAddress = (void *)TWO_GIG_BAR;
 		params.byteAmount = pageSizes[i];
 		params.mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 		params.pageSize = pageSizes[i];
 		params.pageFlags = pageFlags[i];
 		params.options = OMRPORT_VMEM_STRICT_ADDRESS | OMRPORT_VMEM_ZOS_USE2TO32G_AREA;
 
-		outputComment(OMRPORTLIB, "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "\
-					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n", \
-					  params.pageSize, params.startAddress, params.endAddress, \
+		outputComment(OMRPORTLIB,
+					  "\tPage Size: 0x%zx Range: [0x%zx,0x%zx] "
+					  "topDown: %s strictAddress: %s strictPageSize: %s use2To32G: %s\n",
+					  params.pageSize, params.startAddress, params.endAddress,
 					  (0 != (params.options & OMRPORT_VMEM_ALLOC_DIR_TOP_DOWN)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_ADDRESS)) ? "true" : "false",
 					  (0 != (params.options & OMRPORT_VMEM_STRICT_PAGE_SIZE)) ? "true" : "false",
@@ -1618,13 +1724,17 @@ TEST(PortVmemTest, vmem_testReserveMemoryExStrictAddress_use2To32_zOSLargePageBe
 		 * The two conditions are incompatible and should return NULL.
 		 */
 		if (memPtr != NULL) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "Did not expect to allocate memory using page size 0x%zx, page type 0x%zx in < 2GB range with OMRPORT_VMEM_ZOS_USE2TO32G_AREA and OMRPORT_VMEM_STRICT_ADDRESS .\n", \
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "Did not expect to allocate memory using page size 0x%zx, page type 0x%zx in < 2GB "
+							   "range with OMRPORT_VMEM_ZOS_USE2TO32G_AREA and OMRPORT_VMEM_STRICT_ADDRESS .\n",
 							   pageSizes[i], pageFlags[i]);
 
 			omrvmem_free_memory(memPtr, params.byteAmount, &vmemID);
 
 		} else {
-			outputComment(OMRPORTLIB, "\t Expected to fail to allocate large pages in < 2GB range with OMRPORT_VMEM_ZOS_USE2TO32G_AREA and OMRPORT_VMEM_STRICT_ADDRESS set\n");
+			outputComment(OMRPORTLIB,
+						  "\t Expected to fail to allocate large pages in < 2GB range with "
+						  "OMRPORT_VMEM_ZOS_USE2TO32G_AREA and OMRPORT_VMEM_STRICT_ADDRESS set\n");
 		}
 	}
 
@@ -1656,7 +1766,7 @@ TEST(PortVmemTest, vmem_test_commitOutsideOfReservedRange)
 	pageSizes = omrvmem_supported_page_sizes();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		omrvmem_vmem_params_init(&params);
 		params.byteAmount = pageSizes[i];
 		params.mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE;
@@ -1667,7 +1777,8 @@ TEST(PortVmemTest, vmem_test_commitOutsideOfReservedRange)
 		memPtr = (char *)omrvmem_reserve_memory_ex(&vmemID, &params);
 
 		if (NULL == memPtr) {
-			outputComment(OMRPORTLIB, "! Could not find 0x%zx bytes available with page size 0x%zx\n", params.byteAmount, pageSizes[i]);
+			outputComment(OMRPORTLIB, "! Could not find 0x%zx bytes available with page size 0x%zx\n",
+						  params.byteAmount, pageSizes[i]);
 		} else {
 			intptr_t rc;
 			void *commitResult;
@@ -1676,26 +1787,34 @@ TEST(PortVmemTest, vmem_test_commitOutsideOfReservedRange)
 			commitResult = omrvmem_commit_memory(memPtr, params.byteAmount + 1, &vmemID);
 
 			if (NULL != commitResult) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_commit_memory did not return an error when attempting to commit more memory"
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "omrvmem_commit_memory did not return an error when attempting to commit more memory"
 								   "than was reserved. \n");
 			} else {
 				commitResult = omrvmem_commit_memory(memPtr, params.byteAmount, &vmemID);
 
 				if (NULL == commitResult) {
-					outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_commit_memory returned an error while attempting to commit reserved memory: %s\n", omrerror_last_error_message());
+					outputErrorMessage(
+						PORTTEST_ERROR_ARGS,
+						"omrvmem_commit_memory returned an error while attempting to commit reserved memory: %s\n",
+						omrerror_last_error_message());
 				} else {
 					/* attempt to decommit 1 byte more than we reserved */
 					rc = omrvmem_decommit_memory(memPtr, params.byteAmount + 1, &vmemID);
 
 					if (0 == rc) {
-						outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_decommit_memory did not return an error when attempting to decommit "
-										   "more memory than was reserved. \n");
+						outputErrorMessage(
+							PORTTEST_ERROR_ARGS,
+							"omrvmem_decommit_memory did not return an error when attempting to decommit "
+							"more memory than was reserved. \n");
 					} else {
 						rc = omrvmem_decommit_memory(memPtr, params.byteAmount, &vmemID);
 
 						if (rc != 0) {
-							outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_decommit_memory returned an error when attempting to decommit "
-											   "reserved memory, rc=%zd\n", rc);
+							outputErrorMessage(PORTTEST_ERROR_ARGS,
+											   "omrvmem_decommit_memory returned an error when attempting to decommit "
+											   "reserved memory, rc=%zd\n",
+											   rc);
 						}
 					}
 				}
@@ -1703,8 +1822,10 @@ TEST(PortVmemTest, vmem_test_commitOutsideOfReservedRange)
 
 			rc = omrvmem_free_memory(memPtr, params.byteAmount, &vmemID);
 			if (rc != 0) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned %d when trying to free 0x%zx bytes backed by 0x%zx-byte pages\n"
-								   , rc, params.byteAmount, pageSizes[i]);
+				outputErrorMessage(
+					PORTTEST_ERROR_ARGS,
+					"omrvmem_free_memory returned %d when trying to free 0x%zx bytes backed by 0x%zx-byte pages\n", rc,
+					params.byteAmount, pageSizes[i]);
 			}
 		}
 	}
@@ -1738,11 +1859,11 @@ TEST(PortVmemTest, vmem_test_reserveExecutableMemory)
 	pageFlags = omrvmem_supported_page_flags();
 
 	/* reserve and commit memory for each page size */
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 		omrvmem_vmem_params_init(&params);
 		params.byteAmount = pageSizes[i];
-		params.mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE |
-					   OMRPORT_VMEM_MEMORY_MODE_EXECUTE | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
+		params.mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_EXECUTE
+					   | OMRPORT_VMEM_MEMORY_MODE_COMMIT;
 		params.options |= OMRPORT_VMEM_STRICT_PAGE_SIZE;
 		params.pageSize = pageSizes[i];
 		params.pageFlags = pageFlags[i];
@@ -1751,7 +1872,9 @@ TEST(PortVmemTest, vmem_test_reserveExecutableMemory)
 		memPtr = omrvmem_reserve_memory_ex(&vmemID, &params);
 
 		if (NULL == memPtr) {
-			outputComment(OMRPORTLIB, "! Could not find 0x%zx bytes available with page size 0x%zx and specified mode\n", params.byteAmount, pageSizes[i]);
+			outputComment(OMRPORTLIB,
+						  "! Could not find 0x%zx bytes available with page size 0x%zx and specified mode\n",
+						  params.byteAmount, pageSizes[i]);
 		} else {
 			intptr_t rc;
 			void (*function)();
@@ -1768,7 +1891,8 @@ TEST(PortVmemTest, vmem_test_reserveExecutableMemory)
 			myDesc.func_addr = (uintptr_t)memPtr;
 
 			function = (void (*)())(void *)&myDesc;
-			outputComment(OMRPORTLIB, "About to call dynamically created function, pageSize=0x%zx...\n", params.pageSize);
+			outputComment(OMRPORTLIB, "About to call dynamically created function, pageSize=0x%zx...\n",
+						  params.pageSize);
 			function();
 			outputComment(OMRPORTLIB, "Dynamically created function returned successfully\n");
 
@@ -1780,8 +1904,10 @@ TEST(PortVmemTest, vmem_test_reserveExecutableMemory)
 			 * can be used as executable pages. Other page sizes do not support executable pages.
 			 */
 			if (FALSE == isPageSizeSupportedBelowBar(pageSizes[i], pageFlags[i])) {
-				outputErrorMessage(PORTTEST_ERROR_ARGS, "Did not expect to allocate executable pages with large page size 0x%zx, page type 0x%zx\n", \
-								   pageSizes[i], pageFlags[i]);
+				outputErrorMessage(
+					PORTTEST_ERROR_ARGS,
+					"Did not expect to allocate executable pages with large page size 0x%zx, page type 0x%zx\n",
+					pageSizes[i], pageFlags[i]);
 			} else {
 #endif /* J9ZOS39064 */
 
@@ -1804,7 +1930,8 @@ TEST(PortVmemTest, vmem_test_reserveExecutableMemory)
 				outputComment(OMRPORTLIB, "*memPtr: 0x%zx\n", *((unsigned int *)memPtr));
 
 				function = (void (*)())memPtr;
-				outputComment(OMRPORTLIB, "About to call dynamically created function, pageSize=0x%zx...\n", params.pageSize);
+				outputComment(OMRPORTLIB, "About to call dynamically created function, pageSize=0x%zx...\n",
+							  params.pageSize);
 				function();
 				outputComment(OMRPORTLIB, "Dynamically created function returned successfully\n");
 #if defined(J9ZOS39064)
@@ -1815,10 +1942,9 @@ TEST(PortVmemTest, vmem_test_reserveExecutableMemory)
 
 			rc = omrvmem_free_memory(memPtr, params.byteAmount, &vmemID);
 			if (rc != 0) {
-				outputErrorMessage(
-					PORTTEST_ERROR_ARGS,
-					"omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n",
-					rc, params.byteAmount, memPtr);
+				outputErrorMessage(PORTTEST_ERROR_ARGS,
+								   "omrvmem_free_memory returned %i when trying to free 0x%zx bytes at 0x%zx\n", rc,
+								   params.byteAmount, memPtr);
 			}
 		}
 	}
@@ -1861,20 +1987,23 @@ TEST(PortVmemTest, vmem_test_numa)
 		uintptr_t originalNodeCount = totalNumaNodeCount;
 		J9MemoryState policyForMemoryNode = J9NUMA_PREFERRED;
 		uintptr_t nodeArraySize = sizeof(J9MemoryNodeDetail) * totalNumaNodeCount;
-		J9MemoryNodeDetail *nodeArray = (J9MemoryNodeDetail *)omrmem_allocate_memory(nodeArraySize, OMRMEM_CATEGORY_PORT_LIBRARY);
+		J9MemoryNodeDetail *nodeArray =
+			(J9MemoryNodeDetail *)omrmem_allocate_memory(nodeArraySize, OMRMEM_CATEGORY_PORT_LIBRARY);
 		intptr_t rc = 0;
 
 		if (nodeArray == NULL) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "omrvmem_free_memory returned NULL when trying to allocate J9MemoryNodeDetail array for NUMA test (FAIL)\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_free_memory returned NULL when trying to allocate J9MemoryNodeDetail array for "
+							   "NUMA test (FAIL)\n");
 			goto exit;
 		}
 		memset(nodeArray, 0x0, nodeArraySize);
 		rc = omrvmem_numa_get_node_details(nodeArray, &totalNumaNodeCount);
 		if ((detailReturnCode != rc) || (totalNumaNodeCount != originalNodeCount)) {
-			outputErrorMessage(
-				PORTTEST_ERROR_ARGS,
-				"omrvmem_numa_get_node_details returned different results on second call (return %zd versus %zd, count %zu versus %zu)\n",
-				rc, detailReturnCode, totalNumaNodeCount, originalNodeCount);
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "omrvmem_numa_get_node_details returned different results on second call (return %zd "
+							   "versus %zd, count %zu versus %zu)\n",
+							   rc, detailReturnCode, totalNumaNodeCount, originalNodeCount);
 			goto exit;
 		}
 		/* count the number of nodes with physical memory */
@@ -1899,31 +2028,30 @@ TEST(PortVmemTest, vmem_test_numa)
 			}
 		}
 		if (0 == nodesWithMemoryCount) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "Found zero nodes with memory even after NUMA was reported as supported (FAIL)\n");
+			outputErrorMessage(PORTTEST_ERROR_ARGS,
+							   "Found zero nodes with memory even after NUMA was reported as supported (FAIL)\n");
 			goto exit;
 		}
 		/* reserve and commit memory for each page size */
-		for (i = 0 ; pageSizes[i] != 0 ; i++) {
+		for (i = 0; pageSizes[i] != 0; i++) {
 			struct J9PortVmemIdentifier vmemID;
 			char *memPtr = NULL;
 			uintptr_t pageSize = pageSizes[i];
 			uintptr_t reserveSizeInBytes = pageSize * nodesWithMemoryCount;
 
-			/* reserve and commit */
+/* reserve and commit */
 #if defined(J9ZOS390)
 			/* On z/OS skip this test for newly added large pages as obsolete omrvmem_reserve_memory() does not support them */
 			if (TRUE == isNewPageSize(pageSizes[i], pageFlags[i])) {
 				continue;
 			}
 #endif /* J9ZOS390 */
-			memPtr = (char *)omrvmem_reserve_memory(
-						 NULL,
-						 reserveSizeInBytes,
-						 &vmemID,
-						 OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE,
-						 pageSize, OMRMEM_CATEGORY_PORT_LIBRARY);
+			memPtr = (char *)omrvmem_reserve_memory(NULL, reserveSizeInBytes, &vmemID,
+													OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE,
+													pageSize, OMRMEM_CATEGORY_PORT_LIBRARY);
 
-			outputComment(OMRPORTLIB, "\treserved 0x%zx bytes with page size 0x%zx at address 0x%zx\n", reserveSizeInBytes, vmemID.pageSize, memPtr);
+			outputComment(OMRPORTLIB, "\treserved 0x%zx bytes with page size 0x%zx at address 0x%zx\n",
+						  reserveSizeInBytes, vmemID.pageSize, memPtr);
 
 			/* did we get any memory? */
 			if (memPtr != NULL) {
@@ -1937,10 +2065,10 @@ TEST(PortVmemTest, vmem_test_numa)
 						uintptr_t nodeNumber = nodeArray[nodeIndex].j9NodeNumber;
 						rc = omrvmem_numa_set_affinity(nodeNumber, numaBlock, pageSize, &vmemID);
 						if (rc != 0) {
-							outputErrorMessage(
-								PORTTEST_ERROR_ARGS,
-								"omrvmem_numa_set_affinity returned 0x%zx when trying to set affinity for 0x%zx bytes at 0x%p to node %zu\n",
-								rc, pageSize, numaBlock, nodeNumber);
+							outputErrorMessage(PORTTEST_ERROR_ARGS,
+											   "omrvmem_numa_set_affinity returned 0x%zx when trying to set affinity "
+											   "for 0x%zx bytes at 0x%p to node %zu\n",
+											   rc, pageSize, numaBlock, nodeNumber);
 							goto exit;
 						}
 						numaBlock += pageSize;
@@ -1952,8 +2080,8 @@ TEST(PortVmemTest, vmem_test_numa)
 				if (commitResult != memPtr) {
 					outputErrorMessage(
 						PORTTEST_ERROR_ARGS,
-						"omrvmem_commit_memory returned 0x%p when trying to commit 0x%zx bytes at 0x%p\n",
-						commitResult, numaBlock - memPtr, memPtr);
+						"omrvmem_commit_memory returned 0x%p when trying to commit 0x%zx bytes at 0x%p\n", commitResult,
+						numaBlock - memPtr, memPtr);
 					goto exit;
 				}
 
@@ -1966,10 +2094,10 @@ TEST(PortVmemTest, vmem_test_numa)
 				/* free the memory (reuse the vmemID) */
 				rc = omrvmem_free_memory(memPtr, reserveSizeInBytes, &vmemID);
 				if (rc != 0) {
-					outputErrorMessage(
-						PORTTEST_ERROR_ARGS,
-						"omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes backed by 0x%zx-byte pages\n",
-						rc, reserveSizeInBytes, pageSize);
+					outputErrorMessage(PORTTEST_ERROR_ARGS,
+									   "omrvmem_free_memory returned 0x%zx when trying to free 0x%zx bytes backed by "
+									   "0x%zx-byte pages\n",
+									   rc, reserveSizeInBytes, pageSize);
 					goto exit;
 				}
 			}
@@ -1982,23 +2110,21 @@ exit:
 }
 #endif /* defined(OMR_GC_VLHGC) */
 
-#define PRINT_FIND_VALID_PAGE_SIZE_INPUT(mode, pageSize, pageFlags) \
-	outputComment(OMRPORTLIB, "Input > mode: %zu, requestedPageSize: 0x%zx, requestedPageFlags: 0x%zx\n", mode, pageSize, pageFlags); \
- 
+#define PRINT_FIND_VALID_PAGE_SIZE_INPUT(mode, pageSize, pageFlags)                                                    \
+	outputComment(OMRPORTLIB, "Input > mode: %zu, requestedPageSize: 0x%zx, requestedPageFlags: 0x%zx\n", mode,        \
+				  pageSize, pageFlags);
+
 void
-verifyFindValidPageSizeOutput(struct OMRPortLibrary *portLibrary,
-						      const char *testName,
-						      uintptr_t pageSizeExpected,
-						      uintptr_t pageFlagsExpected,
-						      uintptr_t isSizeSupportedExpected,
-						      uintptr_t pageSizeReturned,
-						      uintptr_t pageFlagsReturned,
-						      uintptr_t isSizeSupportedReturned)
+verifyFindValidPageSizeOutput(struct OMRPortLibrary *portLibrary, const char *testName, uintptr_t pageSizeExpected,
+							  uintptr_t pageFlagsExpected, uintptr_t isSizeSupportedExpected,
+							  uintptr_t pageSizeReturned, uintptr_t pageFlagsReturned,
+							  uintptr_t isSizeSupportedReturned)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 	uintptr_t result = FALSE;
 
-	outputComment(OMRPORTLIB, "Expected > expectedPageSize: 0x%zx, expectedPageFlags: 0x%zx, isSizeSupported: 0x%zx\n\n",
+	outputComment(OMRPORTLIB,
+				  "Expected > expectedPageSize: 0x%zx, expectedPageFlags: 0x%zx, isSizeSupported: 0x%zx\n\n",
 				  pageSizeExpected, pageFlagsExpected, isSizeSupportedExpected);
 
 	if ((pageSizeExpected == pageSizeReturned) && (pageFlagsExpected == pageFlagsReturned)) {
@@ -2009,7 +2135,8 @@ verifyFindValidPageSizeOutput(struct OMRPortLibrary *portLibrary,
 			result = TRUE;
 		}
 	} else {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Expected omrvmem_find_valid_page_size() to return "
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Expected omrvmem_find_valid_page_size() to return "
 						   "pageSize: 0x%zx, pageFlags: 0x%zx, but found pageSize: 0x%zx, pageFlags: 0x%zx\n",
 						   pageSizeExpected, pageFlagsExpected, pageSizeReturned, pageFlagsReturned);
 	}
@@ -2051,7 +2178,8 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	 */
 	omrvmem_default_large_page_size_ex(0, &defaultLargePageSize, &defaultLargePageFlags);
 	if (0 != defaultLargePageSize) {
-		outputComment(OMRPORTLIB, "defaultLargePageSize: 0x%zx, defaultLargePageFlags: 0x%zx\n", defaultLargePageSize, defaultLargePageFlags);
+		outputComment(OMRPORTLIB, "defaultLargePageSize: 0x%zx, defaultLargePageFlags: 0x%zx\n", defaultLargePageSize,
+					  defaultLargePageFlags);
 	}
 
 	/* Note that -Xlp<size>, -Xlp:objectheap and -Xlp:codecache are treated same, and
@@ -2079,8 +2207,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=4K\n", caseIndex++);
@@ -2095,8 +2222,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = TRUE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=<not in 4K, 4M>\n", caseIndex++);
@@ -2120,8 +2246,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	return reportTestExit(OMRPORTLIB, testName);
@@ -2132,9 +2257,9 @@ TEST(PortVmemTest, vmem_testFindValidPageSize)
 	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
 
 #if defined(LINUX) || defined(OSX)
-#define OMRPORT_VMEM_PAGESIZE_COUNT 5	/* This should be same as defined in port/unix_include/j9portpg.h */
+#define OMRPORT_VMEM_PAGESIZE_COUNT 5 /* This should be same as defined in port/unix_include/j9portpg.h */
 #elif defined(WIN32)
-#define OMRPORT_VMEM_PAGESIZE_COUNT 3	/* This should be same as defined in port/win32_include/j9portpg.h */
+#define OMRPORT_VMEM_PAGESIZE_COUNT 3 /* This should be same as defined in port/win32_include/j9portpg.h */
 #endif
 
 	uintptr_t *pageSizes = NULL;
@@ -2235,23 +2360,17 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		goto _exit;
 	}
 
-	for (i = 0 ; pageSizes[i] != 0 ; i++) {
+	for (i = 0; pageSizes[i] != 0; i++) {
 #if defined(OMR_ENV_DATA64)
-		if ((8 * TWO_GB == pageSizes[i]) &&
-			(0 != (OMRPORT_VMEM_PAGE_FLAG_NOT_USED & pageFlags[i]))
-		) {
+		if ((8 * TWO_GB == pageSizes[i]) && (0 != (OMRPORT_VMEM_PAGE_FLAG_NOT_USED & pageFlags[i]))) {
 			sixteenGBPageSize = TRUE;
 		}
 #endif /* defined(OMR_ENV_DATA64) */
-		if ((16 * ONE_MB == pageSizes[i]) &&
-			(0 != (OMRPORT_VMEM_PAGE_FLAG_NOT_USED & pageFlags[i]))
-		) {
+		if ((16 * ONE_MB == pageSizes[i]) && (0 != (OMRPORT_VMEM_PAGE_FLAG_NOT_USED & pageFlags[i]))) {
 			sixteenMBPageSize = TRUE;
 		}
 
-		if ((16 * FOUR_KB == pageSizes[i]) &&
-			(0 != (OMRPORT_VMEM_PAGE_FLAG_NOT_USED & pageFlags[i]))
-		) {
+		if ((16 * FOUR_KB == pageSizes[i]) && (0 != (OMRPORT_VMEM_PAGE_FLAG_NOT_USED & pageFlags[i]))) {
 			sixtyFourKBPageSize = TRUE;
 		}
 	}
@@ -2267,10 +2386,11 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	 */
 	omrvmem_default_large_page_size_ex(0, &defaultLargePageSize, &defaultLargePageFlags);
 	if (0 != defaultLargePageSize) {
-		outputComment(OMRPORTLIB, "defaultLargePageSize: 0x%zx, defaultLargePageFlags: 0x%zx\n", defaultLargePageSize, defaultLargePageFlags);
+		outputComment(OMRPORTLIB, "defaultLargePageSize: 0x%zx, defaultLargePageFlags: 0x%zx\n", defaultLargePageSize,
+					  defaultLargePageFlags);
 	}
 
-	/* Note that -Xlp<size> and -Xlp:objectheap are treated same, and
+/* Note that -Xlp<size> and -Xlp:objectheap are treated same, and
 	 * callers always pass OMRPORT_VMEM_PAGE_FLAG_NOT_USED as the requestedPageFlags
 	 * to omrvmem_find_valid_page_size().
 	 * Only difference is in case of -Xlp<size> omrvmem_find_valid_page_size() is not called
@@ -2300,8 +2420,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 #endif /* defined(OMR_ENV_DATA64) */
 
@@ -2327,8 +2446,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=64K\n", caseIndex++);
@@ -2349,8 +2467,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=4K\n", caseIndex++);
@@ -2365,8 +2482,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = TRUE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=<not in 4K, 64K, 16M, 16G>\n", caseIndex++);
@@ -2387,30 +2503,29 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
+/* Test -Xlp:codecache options */
 
-	/* Test -Xlp:codecache options */
-
-	/* First get the page size of the data segment. This is the page size used by the JIT code cache if 16M Code Pages are not being used */
+/* First get the page size of the data segment. This is the page size used by the JIT code cache if 16M Code Pages are not being used */
 #if defined(AIXPPC)
 #define SAMPLE_BLOCK_SIZE 4
 	/* Allocate a memory block using omrmem_allocate_memory, and use the address to get the page size of data segment */
 	address = omrmem_allocate_memory(SAMPLE_BLOCK_SIZE, OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == address) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to allocate block of memory to determine page size of data segment");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Failed to allocate block of memory to determine page size of data segment");
 		goto _exit;
 	}
 	struct vm_page_info pageInfo;
-	pageInfo.addr = (uint64_t) address;
+	pageInfo.addr = (uint64_t)address;
 	rc = vmgetinfo(&pageInfo, VM_PAGE_INFO, sizeof(struct vm_page_info));
 	if (-1 == rc) {
 		outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to get page size of data segment using vmgetinfo()");
 		goto _exit;
 	} else {
-		dataSegmentPageSize = (uintptr_t) pageInfo.pagesize;
+		dataSegmentPageSize = (uintptr_t)pageInfo.pagesize;
 	}
 	omrmem_free_memory(address);
 #else
@@ -2432,8 +2547,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = (8 * TWO_GB == dataSegmentPageSize) ? TRUE : FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 #endif /* defined(OMR_ENV_DATA64) */
@@ -2459,16 +2573,17 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = (16 * ONE_MB == dataSegmentPageSize) ? TRUE : FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 #if !defined(OMR_ENV_DATA64)
-	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=16M with TR_ppcCodeCacheConsolidationEnabled set\n", caseIndex++);
+	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=16M with TR_ppcCodeCacheConsolidationEnabled set\n",
+				  caseIndex++);
 	/* No port library API to set the environment variable. Use setenv() */
 	rc = setenv("TR_ppcCodeCacheConsolidationEnabled", "true", 1 /*overwrite any existing value */);
 	if (-1 == rc) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
 		goto _exit;
 	}
 	mode = OMRPORT_VMEM_MEMORY_MODE_EXECUTE;
@@ -2491,8 +2606,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = (16 * ONE_MB == dataSegmentPageSize) ? TRUE : FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 #endif /* !defined(OMR_ENV_DATA64) */
 
@@ -2508,16 +2622,17 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = (16 * FOUR_KB == dataSegmentPageSize) ? TRUE : FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 #if !defined(OMR_ENV_DATA64)
-	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=64K with TR_ppcCodeCacheConsolidationEnabled set\n", caseIndex++);
+	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=64K with TR_ppcCodeCacheConsolidationEnabled set\n",
+				  caseIndex++);
 	/* No port library API to set the environment variable. Use setenv() */
 	rc = setenv("TR_ppcCodeCacheConsolidationEnabled", "true", 1 /*overwrite any existing value */);
 	if (-1 == rc) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
 		goto _exit;
 	}
 	mode = OMRPORT_VMEM_MEMORY_MODE_EXECUTE;
@@ -2534,8 +2649,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = (16 * FOUR_KB == dataSegmentPageSize) ? TRUE : FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 #endif /* !defined(OMR_ENV_DATA64) */
 
@@ -2551,16 +2665,17 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = (FOUR_KB == dataSegmentPageSize) ? TRUE : FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 #if !defined(OMR_ENV_DATA64)
-	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=4K with TR_ppcCodeCacheConsolidationEnabled set\n", caseIndex++);
+	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=4K with TR_ppcCodeCacheConsolidationEnabled set\n",
+				  caseIndex++);
 	/* No port library API to set the environment variable. Use setenv() */
 	rc = setenv("TR_ppcCodeCacheConsolidationEnabled", "true", 1 /*overwrite any existing value */);
 	if (-1 == rc) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
 		goto _exit;
 	}
 	mode = OMRPORT_VMEM_MEMORY_MODE_EXECUTE;
@@ -2577,8 +2692,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = (FOUR_KB == dataSegmentPageSize) ? TRUE : FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 #endif /* !defined(OMR_ENV_DATA64) */
 
@@ -2594,16 +2708,19 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 #if !defined(OMR_ENV_DATA64)
-	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=<not in 16G, 16M, 64K, 4K> with TR_ppcCodeCacheConsolidationEnabled set\n", caseIndex++);
+	outputComment(
+		OMRPORTLIB,
+		"\nCase %d: -Xlp:codecache:pagesize=<not in 16G, 16M, 64K, 4K> with TR_ppcCodeCacheConsolidationEnabled set\n",
+		caseIndex++);
 	/* No port library API to set the environment variable. Use setenv() */
 	rc = setenv("TR_ppcCodeCacheConsolidationEnabled", "true", 1 /*overwrite any existing value */);
 	if (-1 == rc) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Failed to set environment variable TR_ppcCodeCacheConsolidationEnabled");
 		goto _exit;
 	}
 	mode = OMRPORT_VMEM_MEMORY_MODE_EXECUTE;
@@ -2620,10 +2737,9 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 	expectedIsSizeSupported = FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
-#endif /* !defined(OMR_ENV_DATA64) */
+#endif								  /* !defined(OMR_ENV_DATA64) */
 
 _exit:
 	return reportTestExit(OMRPORTLIB, testName);
@@ -2632,7 +2748,7 @@ _exit:
 int
 omrvmem_testFindValidPageSize(struct OMRPortLibrary *portLibrary)
 {
-#define OMRPORT_VMEM_PAGESIZE_COUNT 5	/* This should be same as defined in port/unix_include/j9portpg.h */
+#define OMRPORT_VMEM_PAGESIZE_COUNT 5 /* This should be same as defined in port/unix_include/j9portpg.h */
 
 	uintptr_t *pageSizes = NULL;
 	uintptr_t *pageFlags = NULL;
@@ -2740,7 +2856,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	uintptr_t *pageSizes = NULL;
 	uintptr_t *pageFlags = NULL;
 
-#if	defined(OMR_ENV_DATA64)
+#if defined(OMR_ENV_DATA64)
 	BOOLEAN twoGBFixed = FALSE;
 	BOOLEAN oneMBFixed = FALSE;
 #endif /* defined(OMR_ENV_DATA64) */
@@ -2764,22 +2880,16 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	}
 
 	for (i = 0; pageSizes[i] != 0; i++) {
-#if	defined(OMR_ENV_DATA64)
-		if ((TWO_GB == pageSizes[i]) &&
-			(0 != (OMRPORT_VMEM_PAGE_FLAG_FIXED & pageFlags[i]))
-		) {
+#if defined(OMR_ENV_DATA64)
+		if ((TWO_GB == pageSizes[i]) && (0 != (OMRPORT_VMEM_PAGE_FLAG_FIXED & pageFlags[i]))) {
 			twoGBFixed = TRUE;
 		}
 
-		if ((ONE_MB == pageSizes[i]) &&
-			(0 != (OMRPORT_VMEM_PAGE_FLAG_FIXED & pageFlags[i]))
-		) {
+		if ((ONE_MB == pageSizes[i]) && (0 != (OMRPORT_VMEM_PAGE_FLAG_FIXED & pageFlags[i]))) {
 			oneMBFixed = TRUE;
 		}
 #endif /* defined(OMR_ENV_DATA64) */
-		if ((ONE_MB == pageSizes[i]) &&
-			(0 != (OMRPORT_VMEM_PAGE_FLAG_PAGEABLE & pageFlags[i]))
-		) {
+		if ((ONE_MB == pageSizes[i]) && (0 != (OMRPORT_VMEM_PAGE_FLAG_PAGEABLE & pageFlags[i]))) {
 			oneMBPageable = TRUE;
 		}
 	}
@@ -2792,7 +2902,8 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 
 	omrvmem_default_large_page_size_ex(0, &defaultLargePageSize, &defaultLargePageFlags);
 	if (0 != defaultLargePageSize) {
-		outputComment(OMRPORTLIB, "defaultLargePageSize: 0x%zx, defaultLargePageFlags: 0x%zx\n", defaultLargePageSize, defaultLargePageFlags);
+		outputComment(OMRPORTLIB, "defaultLargePageSize: 0x%zx, defaultLargePageFlags: 0x%zx\n", defaultLargePageSize,
+					  defaultLargePageFlags);
 	}
 
 	/* Test -Xlp:codecache options */
@@ -2815,8 +2926,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=1M,nonpageable\n", caseIndex++);
@@ -2837,8 +2947,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=<not 4K, 1M>,pageable\n", caseIndex++);
@@ -2859,8 +2968,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=<not 4K, 1M>,nonpageable\n", caseIndex++);
@@ -2881,8 +2989,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=4K,pageable\n", caseIndex++);
@@ -2897,8 +3004,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_PAGEABLE;
 	expectedIsSizeSupported = TRUE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:codecache:pagesize=4K,nonpageable\n", caseIndex++);
@@ -2913,11 +3019,10 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_PAGEABLE;
 	expectedIsSizeSupported = FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
-	/* Test -Xlp:objectheap options */
+/* Test -Xlp:objectheap options */
 
 #if defined(OMR_ENV_DATA64)
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=2G,nonpageable\n", caseIndex++);
@@ -2946,8 +3051,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 #endif /* defined(OMR_ENV_DATA64) */
 
@@ -2965,7 +3069,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = TRUE;
 	} else
 #endif /* defined(OMR_ENV_DATA64) */
-	if (TRUE == oneMBPageable) {
+		if (TRUE == oneMBPageable) {
 		expectedPageSize = ONE_MB;
 		expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_PAGEABLE;
 		expectedIsSizeSupported = FALSE;
@@ -2975,8 +3079,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=<not 4K, 1M, 2G>,nonpageable\n", caseIndex++);
@@ -2993,7 +3096,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	} else
 #endif /* defined(OMR_ENV_DATA64) */
-	if (TRUE == oneMBPageable) {
+		if (TRUE == oneMBPageable) {
 		expectedPageSize = ONE_MB;
 		expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_PAGEABLE;
 		expectedIsSizeSupported = FALSE;
@@ -3003,8 +3106,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=1M,pageable\n", caseIndex++);
@@ -3025,8 +3127,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=<not 4K, 1M>,pageable\n", caseIndex++);
@@ -3047,8 +3148,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedIsSizeSupported = FALSE;
 	}
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=4K,pageable\n", caseIndex++);
@@ -3063,8 +3163,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_PAGEABLE;
 	expectedIsSizeSupported = TRUE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp:objectheap:pagesize=4K,nonpageable\n", caseIndex++);
@@ -3079,8 +3178,7 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 	expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_PAGEABLE;
 	expectedIsSizeSupported = FALSE;
 
-	verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-								  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
+	verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
 								  requestedPageSize, requestedPageFlags, isSizeSupported);
 
 #if defined(OMR_ENV_DATA64)
@@ -3108,9 +3206,8 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 			expectedIsSizeSupported = FALSE;
 		}
 
-		verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-									  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
-									  requestedPageSize, requestedPageFlags, isSizeSupported);
+		verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags,
+									  expectedIsSizeSupported, requestedPageSize, requestedPageFlags, isSizeSupported);
 	}
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp1M\n", caseIndex++);
@@ -3128,9 +3225,8 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedPageFlags = defaultLargePageFlags;
 		expectedIsSizeSupported = TRUE;
 
-		verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-									  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
-									  requestedPageSize, requestedPageFlags, isSizeSupported);
+		verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags,
+									  expectedIsSizeSupported, requestedPageSize, requestedPageFlags, isSizeSupported);
 	}
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp<not 4K, 1M, 2G>\n", caseIndex++);
@@ -3148,9 +3244,8 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedPageFlags = defaultLargePageFlags;
 		expectedIsSizeSupported = FALSE;
 
-		verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-									  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
-									  requestedPageSize, requestedPageFlags, isSizeSupported);
+		verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags,
+									  expectedIsSizeSupported, requestedPageSize, requestedPageFlags, isSizeSupported);
 	}
 
 	outputComment(OMRPORTLIB, "\nCase %d: -Xlp4K\n", caseIndex++);
@@ -3168,12 +3263,11 @@ omrvmem_testFindValidPageSize_impl(struct OMRPortLibrary *portLibrary, const cha
 		expectedPageFlags = OMRPORT_VMEM_PAGE_FLAG_PAGEABLE;
 		expectedIsSizeSupported = TRUE;
 
-		verifyFindValidPageSizeOutput(OMRPORTLIB, testName,
-									  expectedPageSize, expectedPageFlags, expectedIsSizeSupported,
-									  requestedPageSize, requestedPageFlags, isSizeSupported);
+		verifyFindValidPageSizeOutput(OMRPORTLIB, testName, expectedPageSize, expectedPageFlags,
+									  expectedIsSizeSupported, requestedPageSize, requestedPageFlags, isSizeSupported);
 	}
 
-#endif /* defined(OMR_ENV_DATA64) */
+#endif								  /* defined(OMR_ENV_DATA64) */
 
 _exit:
 	return reportTestExit(OMRPORTLIB, testName);
@@ -3182,7 +3276,7 @@ _exit:
 int
 omrvmem_testFindValidPageSize(struct OMRPortLibrary *portLibrary)
 {
-#define OMRPORT_VMEM_PAGESIZE_COUNT 5	/* This should be same as defined in port/zos390/j9portpg.h */
+#define OMRPORT_VMEM_PAGESIZE_COUNT 5 /* This should be same as defined in port/zos390/j9portpg.h */
 
 	uintptr_t *pageSizes = NULL;
 	uintptr_t *pageFlags = NULL;
@@ -3215,7 +3309,6 @@ omrvmem_testFindValidPageSize(struct OMRPortLibrary *portLibrary)
 
 	rc |= omrvmem_testFindValidPageSize_impl(OMRPORTLIB, testName);
 
-
 	testName = "omrvmem_testFindValidPageSize(pageable 1M pages)";
 
 	/* Create new PPG_vmem_pageSize and PPG_vmem_pageFlags with only Pageable 1MB large pages  */
@@ -3246,7 +3339,6 @@ omrvmem_testFindValidPageSize(struct OMRPortLibrary *portLibrary)
 
 	rc |= omrvmem_testFindValidPageSize_impl(OMRPORTLIB, testName);
 
-
 	testName = "omrvmem_testFindValidPageSize(both pageable and nonpageable 1M pages)";
 
 	/* Create new PPG_vmem_pageSize and PPG_vmem_pageFlags with both pageable and non-pageable 1M large pages */
@@ -3263,7 +3355,6 @@ omrvmem_testFindValidPageSize(struct OMRPortLibrary *portLibrary)
 	pageFlags[3] = 0;
 
 	rc |= omrvmem_testFindValidPageSize_impl(OMRPORTLIB, testName);
-
 
 	testName = "omrvmem_testFindValidPageSize(all possible page sizes)";
 
@@ -3299,7 +3390,6 @@ _exit:
 
 #endif /* defined(J9ZOS390) */
 
-
 uintptr_t
 getSizeFromString(struct OMRPortLibrary *portLibrary, char *sizeString)
 {
@@ -3318,7 +3408,7 @@ getSizeFromString(struct OMRPortLibrary *portLibrary, char *sizeString)
 		return D512M;
 	} else if (0 == strcmp(sizeString, "2G")) {
 		return TWO_GB;
-#if defined (OMR_ENV_DATA64)
+#if defined(OMR_ENV_DATA64)
 	} else if (0 == strcmp(sizeString, "4G")) {
 		return J9CONST_U64(2) * TWO_GB;
 	} else if (0 == strcmp(sizeString, "10G")) {
@@ -3393,16 +3483,20 @@ omrvmem_disclaimPerfTests(struct OMRPortLibrary *portLibrary, char *disclaimPerf
 	 */
 
 	if (TEST_PASS == rc) {
-		outputComment(OMRPORTLIB, "\npageSize: 0x%zx, byteAmount 0x%zx, memTotal 0x%zx, numIterations %i, disclaim %i\n", pageSize, byteAmount, memTotal, numIterations, shouldDisclaim);
+		outputComment(OMRPORTLIB,
+					  "\npageSize: 0x%zx, byteAmount 0x%zx, memTotal 0x%zx, numIterations %i, disclaim %i\n", pageSize,
+					  byteAmount, memTotal, numIterations, shouldDisclaim);
 		rc |= omrvmem_bench_write_and_decommit_memory(OMRPORTLIB, pageSize, byteAmount, shouldDisclaim, numIterations);
-		rc |= omrvmem_bench_reserve_write_decommit_and_free_memory(OMRPORTLIB, pageSize, byteAmount, shouldDisclaim, numIterations);
-#if defined (OMR_ENV_DATA64)
+		rc |= omrvmem_bench_reserve_write_decommit_and_free_memory(OMRPORTLIB, pageSize, byteAmount, shouldDisclaim,
+																   numIterations);
+#if defined(OMR_ENV_DATA64)
 		rc |= omrvmem_exhaust_virtual_memory(OMRPORTLIB, pageSize, byteAmount, shouldDisclaim);
 #endif
 		rc |= omrvmem_bench_force_overcommit_then_decommit(OMRPORTLIB, memTotal, pageSize, shouldDisclaim);
 
 		/* Output results */
-		outputComment(OMRPORTLIB, "\nDisclaim performance test done%s\n\n", rc == TEST_PASS ? "." : ", failures detected.");
+		outputComment(OMRPORTLIB, "\nDisclaim performance test done%s\n\n",
+					  rc == TEST_PASS ? "." : ", failures detected.");
 	}
 	return TEST_PASS == rc ? 0 : -1;
 }
@@ -3418,7 +3512,8 @@ getParams(struct OMRPortLibrary *portLibrary, J9PortVmemParams *vmemParams)
 	omrvmem_vmem_params_init(vmemParams);
 	vmemParams->byteAmount = pageSizes[0];
 	vmemParams->pageSize = pageSizes[0];
-	vmemParams->mode |= OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_VIRTUAL;
+	vmemParams->mode |=
+		OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_VIRTUAL;
 	vmemParams->options |= OMRPORT_VMEM_STRICT_PAGE_SIZE;
 	vmemParams->category = OMRMEM_CATEGORY_PORT_LIBRARY;
 
@@ -3458,8 +3553,10 @@ TEST(PortVmemTest, vmem_testOverlappingSegments)
 	int j = 0;
 	const char *testName = "omrvmem__testOverlappingSegments";
 
-	vmemParams = (J9PortVmemParams *)omrmem_allocate_memory(sizeof(J9PortVmemParams) * CYCLES, OMRMEM_CATEGORY_PORT_LIBRARY);
-	vmemID = (J9PortVmemIdentifier *)omrmem_allocate_memory(sizeof(J9PortVmemIdentifier) * CYCLES, OMRMEM_CATEGORY_PORT_LIBRARY);
+	vmemParams =
+		(J9PortVmemParams *)omrmem_allocate_memory(sizeof(J9PortVmemParams) * CYCLES, OMRMEM_CATEGORY_PORT_LIBRARY);
+	vmemID = (J9PortVmemIdentifier *)omrmem_allocate_memory(sizeof(J9PortVmemIdentifier) * CYCLES,
+															OMRMEM_CATEGORY_PORT_LIBRARY);
 	keepCycles = (int *)omrmem_allocate_memory(sizeof(int) * CYCLES, OMRMEM_CATEGORY_PORT_LIBRARY);
 
 	reportTestEntry(OMRPORTLIB, testName);
@@ -3481,15 +3578,18 @@ TEST(PortVmemTest, vmem_testOverlappingSegments)
 		}
 		/* Determine how long to keep the segment */
 		keepCycles[i] = (rand() % (((int)((double)CYCLES / FREE_PROB)) - i)) + i + 1;
-		outputComment(OMRPORTLIB, "%.16d  %.16X  %.16X  %.16X  %d\n", i, (uintptr_t)vmemID[i].address, (uintptr_t)vmemID[i].address + vmemID[i].size, vmemID[i].size, keepCycles[i]);
+		outputComment(OMRPORTLIB, "%.16d  %.16X  %.16X  %.16X  %d\n", i, (uintptr_t)vmemID[i].address,
+					  (uintptr_t)vmemID[i].address + vmemID[i].size, vmemID[i].size, keepCycles[i]);
 
 		/* Check for overlapping segments */
 		for (j = 0; j < i; j++) {
 			if (keepCycles[j] >= i) { /* If not already freed */
 				if (checkForOverlap(&vmemID[i], &vmemID[j])) {
 					outputErrorMessage(PORTTEST_ERROR_ARGS, "OVERLAP\n");
-					outputComment(OMRPORTLIB, "%.16d  %.16X  %.16X  %.16X  %d\n", j, (uintptr_t)vmemID[j].address, (uintptr_t)vmemID[j].address + vmemID[j].size, vmemID[j].size, keepCycles[j]);
-					keepCycles[i] = i - 1; /* Pretend this segment is already freed to avoid double freeing overlapping segments */
+					outputComment(OMRPORTLIB, "%.16d  %.16X  %.16X  %.16X  %d\n", j, (uintptr_t)vmemID[j].address,
+								  (uintptr_t)vmemID[j].address + vmemID[j].size, vmemID[j].size, keepCycles[j]);
+					keepCycles[i] =
+						i - 1; /* Pretend this segment is already freed to avoid double freeing overlapping segments */
 					result = -1;
 					goto exit;
 				}
@@ -3502,7 +3602,8 @@ TEST(PortVmemTest, vmem_testOverlappingSegments)
 				int32_t rc = omrvmem_free_memory(vmemID[j].address, vmemParams[j].byteAmount, &vmemID[j]);
 				if (0 != rc) {
 					outputErrorMessage(PORTTEST_ERROR_ARGS, "Problem freeing segment...");
-					outputComment(OMRPORTLIB, "%.16d  %.16X  %.16X  %.16X  %d\n", j, (uintptr_t)vmemID[j].address, (uintptr_t)vmemID[j].address + vmemID[j].size, vmemID[j].size, keepCycles[j]);
+					outputComment(OMRPORTLIB, "%.16d  %.16X  %.16X  %.16X  %d\n", j, (uintptr_t)vmemID[j].address,
+								  (uintptr_t)vmemID[j].address + vmemID[j].size, vmemID[j].size, keepCycles[j]);
 					result = -1;
 					goto exit;
 				} else {
@@ -3611,6 +3712,7 @@ void
 myFunction2()
 {
 	int i = 0;
-	while (++i < 10);
+	while (++i < 10)
+		;
 	return;
 }

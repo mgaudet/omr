@@ -22,7 +22,6 @@
 #include "Forge.hpp"
 #include "GCExtensionsBase.hpp"
 
-
 MM_EnvironmentLanguageInterfaceImpl::MM_EnvironmentLanguageInterfaceImpl(MM_EnvironmentBase *env)
 	: MM_EnvironmentLanguageInterface(env)
 {
@@ -34,9 +33,10 @@ MM_EnvironmentLanguageInterfaceImpl::newInstance(MM_EnvironmentBase *env)
 {
 	MM_EnvironmentLanguageInterfaceImpl *eli = NULL;
 
-	eli = (MM_EnvironmentLanguageInterfaceImpl *)env->getForge()->allocate(sizeof(MM_EnvironmentLanguageInterfaceImpl), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	eli = (MM_EnvironmentLanguageInterfaceImpl *)env->getForge()->allocate(
+		sizeof(MM_EnvironmentLanguageInterfaceImpl), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (NULL != eli) {
-		new(eli) MM_EnvironmentLanguageInterfaceImpl(env);
+		new (eli) MM_EnvironmentLanguageInterfaceImpl(env);
 		if (!eli->initialize(env)) {
 			eli->kill(env);
 			eli = NULL;
@@ -82,7 +82,7 @@ MM_EnvironmentLanguageInterfaceImpl::restoreObjects(omrobjectptr_t *objectPtrInd
 {
 }
 
-#if defined (OMR_GC_THREAD_LOCAL_HEAP)
+#if defined(OMR_GC_THREAD_LOCAL_HEAP)
 /**
  * Disable inline TLH allocates by hiding the real heap allocation address from
  * JIT/Interpreter in realHeapAlloc and setting heapALloc == HeapTop so TLH

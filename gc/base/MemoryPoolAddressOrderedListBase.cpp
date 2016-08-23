@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  ******************************************************************************/
 
-
 #include "omrcomp.h"
 #include "modronopt.h"
 #include "ModronAssertions.h"
@@ -49,13 +48,13 @@
  */
 
 void
-MM_MemoryPoolAddressOrderedListBase::acquireResetLock(MM_EnvironmentBase* env)
+MM_MemoryPoolAddressOrderedListBase::acquireResetLock(MM_EnvironmentBase *env)
 {
 	_resetLock.acquire();
 }
 
 void
-MM_MemoryPoolAddressOrderedListBase::releaseResetLock(MM_EnvironmentBase* env)
+MM_MemoryPoolAddressOrderedListBase::releaseResetLock(MM_EnvironmentBase *env)
 {
 	_resetLock.release();
 }
@@ -64,8 +63,9 @@ MM_MemoryPoolAddressOrderedListBase::releaseResetLock(MM_EnvironmentBase* env)
  * @see MM_MemoryPool::createFreeEntry()
  */
 bool
-MM_MemoryPoolAddressOrderedListBase::createFreeEntry(MM_EnvironmentBase* env, void* addrBase, void* addrTop,
-													  MM_HeapLinkedFreeHeader* previousFreeEntry, MM_HeapLinkedFreeHeader* nextFreeEntry)
+MM_MemoryPoolAddressOrderedListBase::createFreeEntry(MM_EnvironmentBase *env, void *addrBase, void *addrTop,
+													 MM_HeapLinkedFreeHeader *previousFreeEntry,
+													 MM_HeapLinkedFreeHeader *nextFreeEntry)
 {
 	/* Sanity checks -- should never create an out of order link */
 	assume0((NULL == nextFreeEntry) || (nextFreeEntry > addrTop));
@@ -74,7 +74,7 @@ MM_MemoryPoolAddressOrderedListBase::createFreeEntry(MM_EnvironmentBase* env, vo
 		/* The range is big enough for the free list, so link the previous to it */
 		if (previousFreeEntry) {
 			assume0(previousFreeEntry < addrBase);
-			previousFreeEntry->setNext((MM_HeapLinkedFreeHeader*)addrBase);
+			previousFreeEntry->setNext((MM_HeapLinkedFreeHeader *)addrBase);
 		}
 		return true;
 	}
@@ -91,7 +91,7 @@ MM_MemoryPoolAddressOrderedListBase::createFreeEntry(MM_EnvironmentBase* env, vo
  * @see MM_MemoryPool::createFreeEntry()
  */
 bool
-MM_MemoryPoolAddressOrderedListBase::createFreeEntry(MM_EnvironmentBase* env, void* addrBase, void* addrTop)
+MM_MemoryPoolAddressOrderedListBase::createFreeEntry(MM_EnvironmentBase *env, void *addrBase, void *addrTop)
 {
 	return createFreeEntry(env, addrBase, addrTop, NULL, NULL);
 }
@@ -105,18 +105,19 @@ MM_MemoryPoolAddressOrderedListBase::createFreeEntry(MM_EnvironmentBase* env, vo
  * @return true if free memory element accepted
  */
 bool
-MM_MemoryPoolAddressOrderedListBase::connectInnerMemoryToPool(MM_EnvironmentBase* env, void* address, uintptr_t size, void* previousFreeEntry)
+MM_MemoryPoolAddressOrderedListBase::connectInnerMemoryToPool(MM_EnvironmentBase *env, void *address, uintptr_t size,
+															  void *previousFreeEntry)
 {
 	bool result = false;
 
 	if (size >= getMinimumFreeEntrySize()) {
 		/* Build the free header */
-		createFreeEntry(env, (MM_HeapLinkedFreeHeader*)address, (uint8_t*)address + size, (MM_HeapLinkedFreeHeader*)previousFreeEntry, NULL);
+		createFreeEntry(env, (MM_HeapLinkedFreeHeader *)address, (uint8_t *)address + size,
+						(MM_HeapLinkedFreeHeader *)previousFreeEntry, NULL);
 		result = true;
 	}
 	return result;
 }
-
 
 /**
  * Connect leading/trailing chunk free memory piece ("Connect")
@@ -126,16 +127,18 @@ MM_MemoryPoolAddressOrderedListBase::connectInnerMemoryToPool(MM_EnvironmentBase
  * @param nextFreeEntry next element of list (if any) this memory must be connected with
  */
 void
-MM_MemoryPoolAddressOrderedListBase::connectOuterMemoryToPool(MM_EnvironmentBase* env, void* address, uintptr_t size, void* nextFreeEntry)
+MM_MemoryPoolAddressOrderedListBase::connectOuterMemoryToPool(MM_EnvironmentBase *env, void *address, uintptr_t size,
+															  void *nextFreeEntry)
 {
 	Assert_MM_true((NULL == nextFreeEntry) || (address < nextFreeEntry));
 	Assert_MM_true((NULL == address) || (size >= getMinimumFreeEntrySize()));
 
 	/* Build the free header */
-	createFreeEntry(env, (MM_HeapLinkedFreeHeader*)address, (uint8_t*)address + size, NULL, (MM_HeapLinkedFreeHeader*)nextFreeEntry);
+	createFreeEntry(env, (MM_HeapLinkedFreeHeader *)address, (uint8_t *)address + size, NULL,
+					(MM_HeapLinkedFreeHeader *)nextFreeEntry);
 
 	if (NULL == *_referenceHeapFreeList) {
-		*_referenceHeapFreeList = (MM_HeapLinkedFreeHeader*)nextFreeEntry;
+		*_referenceHeapFreeList = (MM_HeapLinkedFreeHeader *)nextFreeEntry;
 	}
 }
 
@@ -147,12 +150,12 @@ MM_MemoryPoolAddressOrderedListBase::connectOuterMemoryToPool(MM_EnvironmentBase
  * @param size free memory size in bytes
  */
 void
-MM_MemoryPoolAddressOrderedListBase::connectFinalMemoryToPool(MM_EnvironmentBase* env, void* address, uintptr_t size)
+MM_MemoryPoolAddressOrderedListBase::connectFinalMemoryToPool(MM_EnvironmentBase *env, void *address, uintptr_t size)
 {
 	Assert_MM_true((NULL == address) || (size >= getMinimumFreeEntrySize()));
 
 	/* Build the free header */
-	createFreeEntry(env, (MM_HeapLinkedFreeHeader*)address, (uint8_t*)address + size);
+	createFreeEntry(env, (MM_HeapLinkedFreeHeader *)address, (uint8_t *)address + size);
 }
 
 /**
@@ -163,8 +166,7 @@ MM_MemoryPoolAddressOrderedListBase::connectFinalMemoryToPool(MM_EnvironmentBase
  * @param size free memory size in bytes
  */
 void
-MM_MemoryPoolAddressOrderedListBase::abandonMemoryInPool(MM_EnvironmentBase* env, void* address, uintptr_t size)
+MM_MemoryPoolAddressOrderedListBase::abandonMemoryInPool(MM_EnvironmentBase *env, void *address, uintptr_t size)
 {
-	abandonHeapChunk((MM_HeapLinkedFreeHeader*)address, (uint8_t*)address + size);
+	abandonHeapChunk((MM_HeapLinkedFreeHeader *)address, (uint8_t *)address + size);
 }
-

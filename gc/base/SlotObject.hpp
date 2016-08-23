@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(SLOTOBJECT_HPP_)
 #define SLOTOBJECT_HPP_
 
@@ -31,20 +30,21 @@
 class GC_SlotObject
 {
 private:
-	volatile fomrobject_t* _slot;		/**< stored slot address (volatile, because in concurrent GC the mutator can change the value in _slot) */
-#if defined (OMR_GC_COMPRESSED_POINTERS)
-	uintptr_t _compressedPointersShift; /**< the number of bits to shift by when converting between the compressed pointers heap and real heap */
-#endif /* OMR_GC_COMPRESSED_POINTERS */
+	volatile fomrobject_t *
+		_slot; /**< stored slot address (volatile, because in concurrent GC the mutator can change the value in _slot) */
+#if defined(OMR_GC_COMPRESSED_POINTERS)
+	uintptr_t
+		_compressedPointersShift; /**< the number of bits to shift by when converting between the compressed pointers heap and real heap */
+#endif							  /* OMR_GC_COMPRESSED_POINTERS */
 
 protected:
 public:
-
 private:
 	/* Copied from ObjectAccessBarrier.hpp */
 	MMINLINE omrobjectptr_t
 	convertPointerFromToken(fomrobject_t token)
 	{
-#if defined (OMR_GC_COMPRESSED_POINTERS)
+#if defined(OMR_GC_COMPRESSED_POINTERS)
 		return (omrobjectptr_t)((uintptr_t)token << _compressedPointersShift);
 #else
 		return (omrobjectptr_t)token;
@@ -54,7 +54,7 @@ private:
 	MMINLINE fomrobject_t
 	convertTokenFromPointer(omrobjectptr_t pointer)
 	{
-#if defined (OMR_GC_COMPRESSED_POINTERS)
+#if defined(OMR_GC_COMPRESSED_POINTERS)
 		return (fomrobject_t)((uintptr_t)pointer >> _compressedPointersShift);
 #else
 		return (fomrobject_t)pointer;
@@ -66,7 +66,8 @@ public:
 	 * Read reference from slot
 	 * @return address of object slot reference to.
 	 */
-	MMINLINE omrobjectptr_t readReferenceFromSlot()
+	MMINLINE omrobjectptr_t
+	readReferenceFromSlot()
 	{
 		return convertPointerFromToken(*_slot);
 	}
@@ -76,33 +77,41 @@ public:
 	 * Created for compatibility with existing code
 	 * @return slot address
 	 */
-	MMINLINE fomrobject_t* readAddressFromSlot()
+	MMINLINE fomrobject_t *
+	readAddressFromSlot()
 	{
-		return (fomrobject_t*)_slot;
+		return (fomrobject_t *)_slot;
 	}
 
 	/**
 	 * Write reference to slot if it was changed only.
 	 * @param reference address of object should be written to slot
 	 */
-	MMINLINE void writeReferenceToSlot(omrobjectptr_t reference)
+	MMINLINE void
+	writeReferenceToSlot(omrobjectptr_t reference)
 	{
 		fomrobject_t compressed = convertTokenFromPointer(reference);
 		if (compressed != *_slot) {
 			*_slot = compressed;
 		}
 	}
-	
-	MMINLINE bool atomicWriteReferenceToSlot(omrobjectptr_t reference)
+
+	MMINLINE bool
+	atomicWriteReferenceToSlot(omrobjectptr_t reference)
 	{
 		fomrobject_t compressedOld = *_slot;
 		fomrobject_t compressedNew = convertTokenFromPointer(reference);
-	
+
 		bool swapResult = false;
 		if (sizeof(fomrobject_t) == sizeof(uintptr_t)) {
-			swapResult = ((uintptr_t)compressedOld == MM_AtomicOperations::lockCompareExchange((uintptr_t *)_slot, (uintptr_t)compressedOld, (uintptr_t)compressedNew));
+			swapResult = ((uintptr_t)compressedOld
+						  == MM_AtomicOperations::lockCompareExchange((uintptr_t *)_slot, (uintptr_t)compressedOld,
+																	  (uintptr_t)compressedNew));
 		} else if (sizeof(fomrobject_t) == sizeof(uint32_t)) {
-			swapResult = ((uint32_t)(uintptr_t)compressedOld == MM_AtomicOperations::lockCompareExchangeU32((uint32_t *)_slot, (uint32_t)(uintptr_t)compressedOld, (uint32_t)(uintptr_t)compressedNew));
+			swapResult =
+				((uint32_t)(uintptr_t)compressedOld
+				 == MM_AtomicOperations::lockCompareExchangeU32((uint32_t *)_slot, (uint32_t)(uintptr_t)compressedOld,
+																(uint32_t)(uintptr_t)compressedNew));
 		} else {
 			//Assert_MM_unreachable();
 		}
@@ -114,23 +123,28 @@ public:
 	 *	Must be used by friends only for fast address replacement
 	 *	@param slot slot address
 	 */
-	MMINLINE void writeAddressToSlot(fomrobject_t* slot)
+	MMINLINE void
+	writeAddressToSlot(fomrobject_t *slot)
 	{
 		_slot = slot;
 	}
 
-	GC_SlotObject(OMR_VM *omrVM, volatile fomrobject_t* slot)
-	: _slot(slot)
-#if defined (OMR_GC_COMPRESSED_POINTERS)
-	, _compressedPointersShift(omrVM->_compressedPointersShift)
+	GC_SlotObject(OMR_VM *omrVM, volatile fomrobject_t *slot)
+		: _slot(slot)
+#if defined(OMR_GC_COMPRESSED_POINTERS)
+		  ,
+		  _compressedPointersShift(omrVM->_compressedPointersShift)
 #endif /* OMR_GC_COMPRESSED_POINTERS */
-	{}
+	{
+	}
 
-	GC_SlotObject(void *omrVM, volatile fomrobject_t* slot)
-	: _slot(slot)
-#if defined (OMR_GC_COMPRESSED_POINTERS)
-	, _compressedPointersShift(((OMR_VM *)omrVM)->_compressedPointersShift)
+	GC_SlotObject(void *omrVM, volatile fomrobject_t *slot)
+		: _slot(slot)
+#if defined(OMR_GC_COMPRESSED_POINTERS)
+		  ,
+		  _compressedPointersShift(((OMR_VM *)omrVM)->_compressedPointersShift)
 #endif /* OMR_GC_COMPRESSED_POINTERS */
-	{}
+	{
+	}
 };
 #endif /* SLOTOBJECT_HPP_ */

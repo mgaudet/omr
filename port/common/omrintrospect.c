@@ -47,7 +47,8 @@
  * and error_detail fields of the state structure. A brief textual description is in error_string.
  */
 J9PlatformThread *
-omrintrospect_threads_startDo_with_signal(struct OMRPortLibrary *portLibrary, J9Heap *heap, J9ThreadWalkState *state, void *signal_info)
+omrintrospect_threads_startDo_with_signal(struct OMRPortLibrary *portLibrary, J9Heap *heap, J9ThreadWalkState *state,
+										  void *signal_info)
 {
 	return NULL;
 }
@@ -107,4 +108,3 @@ omrintrospect_shutdown(struct OMRPortLibrary *portLibrary)
 {
 	return;
 }
-

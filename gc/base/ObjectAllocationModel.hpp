@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(OBJECTALLOCATIONMODEL_HPP_)
 #define OBJECTALLOCATIONMODEL_HPP_
 
@@ -40,45 +39,52 @@ class MM_ObjectAllocationModel : public MM_BaseVirtual
 {
 public:
 protected:
-	MM_AllocateDescription *_allocDescription; /**< The allocation description associated with the current object allocation */
-	MM_GCExtensionsBase* _extensions; /**< The GC extensions associated with the JVM */
+	MM_AllocateDescription
+		*_allocDescription;			  /**< The allocation description associated with the current object allocation */
+	MM_GCExtensionsBase *_extensions; /**< The GC extensions associated with the JVM */
 
 private:
-	
 protected:
-	MM_ObjectAllocationModel(MM_EnvironmentBase *env) :
-		MM_BaseVirtual(),
-		_allocDescription(NULL),
-		_extensions(env->getExtensions())
+	MM_ObjectAllocationModel(MM_EnvironmentBase *env)
+		: MM_BaseVirtual(), _allocDescription(NULL), _extensions(env->getExtensions())
 	{
 		_typeId = __FUNCTION__;
 	};
 
-	virtual bool initialize(MM_EnvironmentBase *env) { return true; }
-	virtual void tearDown(MM_EnvironmentBase *env) { return; }
-	
-	MMINLINE uintptr_t adjustSizeInBytes(MM_EnvironmentBase *env, uintptr_t sizeInBytesRequired)
+	virtual bool
+	initialize(MM_EnvironmentBase *env)
+	{
+		return true;
+	}
+	virtual void
+	tearDown(MM_EnvironmentBase *env)
+	{
+		return;
+	}
+
+	MMINLINE uintptr_t
+	adjustSizeInBytes(MM_EnvironmentBase *env, uintptr_t sizeInBytesRequired)
 	{
 		return _extensions->objectModel.adjustSizeInBytes(sizeInBytesRequired);
 	}
-	
-	MMINLINE MM_MemorySpace *getMemorySpace(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription)
+
+	MMINLINE MM_MemorySpace *
+	getMemorySpace(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription)
 	{
 		MM_MemorySpace *memorySpace = NULL;
-		
+
 		if (allocDescription->getTenuredFlag()) {
 			/* For resman, string constants must be allocated out of the default memory space */
 			memorySpace = env->getExtensions()->heap->getDefaultMemorySpace();
 		} else {
 			memorySpace = env->getMemorySpace();
 		}
-		
+
 		allocDescription->setMemorySpace(memorySpace);
-		
+
 		return memorySpace;
 	}
-	
-	
+
 	/**
 	 * Only called internally from the initialize*Object methods to memset the non-header components of the object.  Note that this function
 	 * assumes that object is contiguous so it cannot be called to clear fields in arraylets or objlets.
@@ -88,7 +94,7 @@ protected:
 	{
 		uintptr_t sizeInBytesRequired = allocDescription->getBytesRequested();
 		/* Clear the object fields if necessary */
-		if(shouldFieldsBeCleared(env, allocDescription)) {
+		if (shouldFieldsBeCleared(env, allocDescription)) {
 			memset((void *)objectPtr, 0, sizeInBytesRequired);
 		}
 	}
@@ -110,18 +116,22 @@ protected:
 #endif /* OMR_GC_BATCH_CLEAR_TLH */
 		return shouldClear;
 	}
-	
+
 public:
-	
-	void kill(MM_EnvironmentBase *env)
+	void
+	kill(MM_EnvironmentBase *env)
 	{
 		tearDown(env);
 		env->getForge()->free(this);
 	}
-	
+
 	/**
 	 * Set the allocation description object for the current allocation.
 	 */
-	MMINLINE void setCurrentAllocDescription(MM_AllocateDescription *allocDescription) { _allocDescription = allocDescription; }
+	MMINLINE void
+	setCurrentAllocDescription(MM_AllocateDescription *allocDescription)
+	{
+		_allocDescription = allocDescription;
+	}
 };
 #endif /* OBJECTALLOCATIONMODEL_HPP_ */

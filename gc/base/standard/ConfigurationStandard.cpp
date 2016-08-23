@@ -20,7 +20,7 @@
  * @file
  * @ingroup GC_Modron_Standard
  */
- 
+
 #include "omrcfg.h"
 
 #include "ConfigurationStandard.hpp"
@@ -48,9 +48,9 @@
  * Tear down Standard Configuration
  */
 void
-MM_ConfigurationStandard::tearDown(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::tearDown(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	if (NULL != extensions->sweepPoolManagerAddressOrderedList) {
 		extensions->sweepPoolManagerAddressOrderedList->kill(env);
@@ -68,9 +68,9 @@ MM_ConfigurationStandard::tearDown(MM_EnvironmentBase* env)
 }
 
 bool
-MM_ConfigurationStandard::initialize(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::initialize(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	bool result = MM_Configuration::initialize(env);
 	if (result) {
 		extensions->payAllocationTax = false;
@@ -89,8 +89,8 @@ MM_ConfigurationStandard::initialize(MM_EnvironmentBase* env)
 /**
  * Create the global collector for a Standard configuration
  */
-MM_GlobalCollector*
-MM_ConfigurationStandard::createGlobalCollector(MM_EnvironmentBase* env)
+MM_GlobalCollector *
+MM_ConfigurationStandard::createGlobalCollector(MM_EnvironmentBase *env)
 {
 	return _configurationLanguageInterface->createGlobalCollector(env);
 }
@@ -98,10 +98,12 @@ MM_ConfigurationStandard::createGlobalCollector(MM_EnvironmentBase* env)
 /**
  * Create the heap for a Standard configuration
  */
-MM_Heap*
-MM_ConfigurationStandard::createHeapWithManager(MM_EnvironmentBase* env, uintptr_t heapBytesRequested, MM_HeapRegionManager* regionManager)
+MM_Heap *
+MM_ConfigurationStandard::createHeapWithManager(MM_EnvironmentBase *env, uintptr_t heapBytesRequested,
+												MM_HeapRegionManager *regionManager)
 {
-	return MM_HeapVirtualMemory::newInstance(env, env->getExtensions()->heapAlignment, heapBytesRequested, regionManager);
+	return MM_HeapVirtualMemory::newInstance(env, env->getExtensions()->heapAlignment, heapBytesRequested,
+											 regionManager);
 }
 
 /**
@@ -111,10 +113,10 @@ MM_ConfigurationStandard::createHeapWithManager(MM_EnvironmentBase* env, uintptr
  * 
  * @return the appropriate memoryPool
  */
-MM_MemoryPool*
-MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendCollectorLargeAllocateStats)
+MM_MemoryPool *
+MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase *env, bool appendCollectorLargeAllocateStats)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	uintptr_t minimumFreeEntrySize = extensions->tlhMinimumSize;
 
 	bool doSplit = 1 < extensions->splitFreeListSplitAmount;
@@ -129,8 +131,10 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 	}
 #endif /* OMR_GC_CONCURRENT_SWEEP */
 
-	if ((UDATA_MAX == extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold) && extensions->processLargeAllocateStats) {
-		extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold = OMR_MAX(10*1024*1024, extensions->memoryMax/100);
+	if ((UDATA_MAX == extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold)
+		&& extensions->processLargeAllocateStats) {
+		extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold =
+			OMR_MAX(10 * 1024 * 1024, extensions->memoryMax / 100);
 	}
 
 	/* Create Sweep Pool Manager for Tenure */
@@ -139,8 +143,7 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 			if (!createSweepPoolManagerHybrid(env)) {
 				return NULL;
 			}
-		}
-		else {
+		} else {
 			if (!createSweepPoolManagerSplitAddressOrderedList(env)) {
 				return NULL;
 			}
@@ -158,12 +161,13 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 	}
 
 	if (extensions->largeObjectArea) {
-		MM_MemoryPoolAddressOrderedListBase* memoryPoolLargeObjects = NULL;
-		MM_MemoryPoolAddressOrderedListBase* memoryPoolSmallObjects = NULL;
+		MM_MemoryPoolAddressOrderedListBase *memoryPoolLargeObjects = NULL;
+		MM_MemoryPoolAddressOrderedListBase *memoryPoolSmallObjects = NULL;
 
 		/* create memory pools for SOA and LOA */
 		if (doSplit) {
-			memoryPoolSmallObjects = MM_MemoryPoolSplitAddressOrderedList::newInstance(env, minimumFreeEntrySize, extensions->splitFreeListSplitAmount, "SOA");
+			memoryPoolSmallObjects = MM_MemoryPoolSplitAddressOrderedList::newInstance(
+				env, minimumFreeEntrySize, extensions->splitFreeListSplitAmount, "SOA");
 		} else {
 			memoryPoolSmallObjects = MM_MemoryPoolAddressOrderedList::newInstance(env, minimumFreeEntrySize, "SOA");
 		}
@@ -172,7 +176,8 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 			return NULL;
 		}
 
-		memoryPoolLargeObjects = MM_MemoryPoolAddressOrderedList::newInstance(env, extensions->largeObjectMinimumSize, "LOA");
+		memoryPoolLargeObjects =
+			MM_MemoryPoolAddressOrderedList::newInstance(env, extensions->largeObjectMinimumSize, "LOA");
 		if (NULL == memoryPoolLargeObjects) {
 			memoryPoolSmallObjects->kill(env);
 			return NULL;
@@ -183,7 +188,10 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 			memoryPoolSmallObjects->appendCollectorLargeAllocateStats();
 		}
 
-		if (!extensions->freeEntrySizeClassStatsSimulated.initialize(env, (uint16_t)extensions->largeObjectAllocationProfilingTopK, extensions->freeMemoryProfileMaxSizeClasses, extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold, 1, true)) {
+		if (!extensions->freeEntrySizeClassStatsSimulated.initialize(
+				env, (uint16_t)extensions->largeObjectAllocationProfilingTopK,
+				extensions->freeMemoryProfileMaxSizeClasses,
+				extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold, 1, true)) {
 			memoryPoolSmallObjects->kill(env);
 			memoryPoolLargeObjects->kill(env);
 			return NULL;
@@ -192,10 +200,11 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 		return MM_MemoryPoolLargeObjects::newInstance(env, memoryPoolLargeObjects, memoryPoolSmallObjects);
 
 	} else {
-		MM_MemoryPool* memoryPool = NULL;
+		MM_MemoryPool *memoryPool = NULL;
 
 		if (doSplit) {
-			memoryPool = MM_MemoryPoolSplitAddressOrderedList::newInstance(env, minimumFreeEntrySize, extensions->splitFreeListSplitAmount, "Tenure");
+			memoryPool = MM_MemoryPoolSplitAddressOrderedList::newInstance(
+				env, minimumFreeEntrySize, extensions->splitFreeListSplitAmount, "Tenure");
 		} else {
 			memoryPool = MM_MemoryPoolAddressOrderedList::newInstance(env, minimumFreeEntrySize, "Tenure");
 		}
@@ -208,7 +217,10 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 			memoryPool->appendCollectorLargeAllocateStats();
 		}
 
-		if (!extensions->freeEntrySizeClassStatsSimulated.initialize(env, (uint16_t)extensions->largeObjectAllocationProfilingTopK, extensions->freeMemoryProfileMaxSizeClasses, extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold, 1, true)) {
+		if (!extensions->freeEntrySizeClassStatsSimulated.initialize(
+				env, (uint16_t)extensions->largeObjectAllocationProfilingTopK,
+				extensions->freeMemoryProfileMaxSizeClasses,
+				extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold, 1, true)) {
 			memoryPool->kill(env);
 			return NULL;
 		}
@@ -217,30 +229,31 @@ MM_ConfigurationStandard::createMemoryPool(MM_EnvironmentBase* env, bool appendC
 	}
 }
 
-MM_EnvironmentBase*
-MM_ConfigurationStandard::allocateNewEnvironment(MM_GCExtensionsBase* extensions, OMR_VMThread* omrVMThread)
+MM_EnvironmentBase *
+MM_ConfigurationStandard::allocateNewEnvironment(MM_GCExtensionsBase *extensions, OMR_VMThread *omrVMThread)
 {
 	return MM_EnvironmentStandard::newInstance(extensions, omrVMThread);
 }
 
-J9Pool*
-MM_ConfigurationStandard::createEnvironmentPool(MM_EnvironmentBase* env)
+J9Pool *
+MM_ConfigurationStandard::createEnvironmentPool(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 
 	uintptr_t numberElements = _configurationLanguageInterface->getEnvPoolNumElements();
 	uintptr_t poolFlags = _configurationLanguageInterface->getEnvPoolFlags();
 
-	return pool_new(sizeof(MM_EnvironmentStandard), numberElements, sizeof(uint64_t), poolFlags, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_MM, POOL_FOR_PORT(OMRPORTLIB));
+	return pool_new(sizeof(MM_EnvironmentStandard), numberElements, sizeof(uint64_t), poolFlags, OMR_GET_CALLSITE(),
+					OMRMEM_CATEGORY_MM, POOL_FOR_PORT(OMRPORTLIB));
 }
 
 /**
  * Create Sweep Pool Manager for Memory Pool Address Ordered List
  */
 bool
-MM_ConfigurationStandard::createSweepPoolManagerAddressOrderedList(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::createSweepPoolManagerAddressOrderedList(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	/* Create Sweep Pool Manager for MPAOL if it is not created yet */
 	if (NULL == extensions->sweepPoolManagerAddressOrderedList) {
@@ -257,9 +270,9 @@ MM_ConfigurationStandard::createSweepPoolManagerAddressOrderedList(MM_Environmen
  * Create Sweep Pool Manager for Memory Pool Split Address Ordered List
  */
 bool
-MM_ConfigurationStandard::createSweepPoolManagerSplitAddressOrderedList(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::createSweepPoolManagerSplitAddressOrderedList(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	/* Create Sweep Pool Manager for MPSAOL if it is not created yet */
 	if (NULL == extensions->sweepPoolManagerSmallObjectArea) {
@@ -276,9 +289,9 @@ MM_ConfigurationStandard::createSweepPoolManagerSplitAddressOrderedList(MM_Envir
  * Create Sweep Pool Manager for Memory Pool Split Address Ordered List
  */
 bool
-MM_ConfigurationStandard::createSweepPoolManagerHybrid(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::createSweepPoolManagerHybrid(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	/* Create Sweep Pool Manager for MPSAOL if it is not created yet */
 	if (NULL == extensions->sweepPoolManagerSmallObjectArea) {
@@ -291,35 +304,37 @@ MM_ConfigurationStandard::createSweepPoolManagerHybrid(MM_EnvironmentBase* env)
 	return true;
 }
 
-MM_HeapRegionManager*
-MM_ConfigurationStandard::createHeapRegionManager(MM_EnvironmentBase* env)
+MM_HeapRegionManager *
+MM_ConfigurationStandard::createHeapRegionManager(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
-	MM_HeapRegionManager* heapRegionManager = MM_HeapRegionManagerStandard::newInstance(env, extensions->regionSize, sizeof(MM_HeapRegionDescriptorStandard), MM_HeapRegionDescriptorStandard::initializer, MM_HeapRegionDescriptorStandard::destructor);
+	MM_GCExtensionsBase *extensions = env->getExtensions();
+	MM_HeapRegionManager *heapRegionManager = MM_HeapRegionManagerStandard::newInstance(
+		env, extensions->regionSize, sizeof(MM_HeapRegionDescriptorStandard),
+		MM_HeapRegionDescriptorStandard::initializer, MM_HeapRegionDescriptorStandard::destructor);
 
 	return heapRegionManager;
 }
 
 uintptr_t
-MM_ConfigurationStandard::internalGetDefaultRegionSize(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::internalGetDefaultRegionSize(MM_EnvironmentBase *env)
 {
 	return STANDARD_REGION_SIZE_BYTES;
 }
 
 uintptr_t
-MM_ConfigurationStandard::internalGetDefaultArrayletLeafSize(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::internalGetDefaultArrayletLeafSize(MM_EnvironmentBase *env)
 {
 	return STANDARD_ARRAYLET_LEAF_SIZE_BYTES;
 }
 
 uintptr_t
-MM_ConfigurationStandard::internalGetWriteBarrierType(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::internalGetWriteBarrierType(MM_EnvironmentBase *env)
 {
 	return _configurationLanguageInterface->internalGetWriteBarrierType(env);
 }
 
 uintptr_t
-MM_ConfigurationStandard::internalGetAllocationType(MM_EnvironmentBase* env)
+MM_ConfigurationStandard::internalGetAllocationType(MM_EnvironmentBase *env)
 {
 	return _configurationLanguageInterface->internalGetAllocationType(env);
 }

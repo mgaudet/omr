@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 class MM_EnvironmentBase;
 
 #if !defined(OMRVMTHREADINTERFACE_HPP_)
@@ -36,4 +35,3 @@ public:
 };
 
 #endif /* OMRVMTHREADINTERFACE_HPP_ */
-

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(MM_STARTUPMANAGERTESTEXAMPLE_HPP_)
 #define MM_STARTUPMANAGERTESTEXAMPLE_HPP_
 
@@ -29,10 +28,9 @@ class MM_StartupManagerTestExample : public MM_StartupManagerImpl
 	 */
 private:
 	const char *_configFile;
+
 protected:
-
 public:
-
 	/*
 	 * Function members
 	 */
@@ -47,8 +45,7 @@ protected:
 
 public:
 	MM_StartupManagerTestExample(OMR_VM *omrVM, const char *configFile)
-		: MM_StartupManagerImpl(omrVM)
-		, _configFile(configFile)
+		: MM_StartupManagerImpl(omrVM), _configFile(configFile)
 	{
 	}
 };

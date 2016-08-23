@@ -38,7 +38,7 @@
  *
  * &NAME.VR_VALID	EQU X'2'	Vector registers saved in MCH
  */
-#define J9MCH_FLAGS_VR_VALID	0x2
+#define J9MCH_FLAGS_VR_VALID 0x2
 
 /*
  * Derived from the assembler version, CEEMCH.COPY, as there is no C-mapping of the 31-bit (machine context)
@@ -62,7 +62,7 @@ typedef struct j9_31bit_mch {
 	 * &NAME.REG        DS   0CL(16*LEPTRLEN)    General regs 0-15        @G3C
 	 * &NAME.GPR        DC  16&FLEN.'00'         Each reg, 0-15           @G3C
 	 */
-	uint32_t gprs[16];			/* gprs 0-15 (low word of 64-bit gprs, see hgprs below for high word) */
+	uint32_t gprs[16]; /* gprs 0-15 (low word of 64-bit gprs, see hgprs below for high word) */
 
 	/*
 	 * &NAME.PSW        DC    XL(2*LEPTRLEN)'00' PSW at time of interrupt @G3C
@@ -90,7 +90,7 @@ typedef struct j9_31bit_mch {
 	 *	&NAME.FLT_6      DC    D'0'       FP reg 6
 	 */
 
-	double fprs_0246[4];	/* fprs 0,2,4,6 */
+	double fprs_0246[4]; /* fprs 0,2,4,6 */
 
 	/*
 	 *            Language Environment area
@@ -110,16 +110,16 @@ typedef struct j9_31bit_mch {
 	uint8_t padding3a[11];
 	uint8_t mch_flags;
 	uint32_t padding4[2];
-	uint32_t bea;				/* Breaking Event Address */
+	uint32_t bea; /* Breaking Event Address */
 	uint32_t padding4a[4];
 
-	double fprs_1357[4];	/* fprs 1,3,5,7 */
-	double fprs_8_15[8];	/* fprs 8 - 15 */
+	double fprs_1357[4]; /* fprs 1,3,5,7 */
+	double fprs_8_15[8]; /* fprs 8 - 15 */
 	uint32_t fpc;
 
 	uint32_t padding5[3];
 
-	uint32_t hgprs[16];			/* high word of 64-bit gprs */
+	uint32_t hgprs[16]; /* high word of 64-bit gprs */
 
 	uint32_t padding6[32];
 

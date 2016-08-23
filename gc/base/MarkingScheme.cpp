@@ -44,9 +44,10 @@ MM_MarkingScheme::newInstance(MM_EnvironmentBase *env)
 {
 	MM_MarkingScheme *markingScheme;
 
-	markingScheme = (MM_MarkingScheme *)env->getForge()->allocate(sizeof(MM_MarkingScheme), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	markingScheme = (MM_MarkingScheme *)env->getForge()->allocate(sizeof(MM_MarkingScheme),
+																  MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (markingScheme) {
-		new(markingScheme) MM_MarkingScheme(env);
+		new (markingScheme) MM_MarkingScheme(env);
 		if (!markingScheme->initialize(env)) {
 			markingScheme->kill(env);
 			markingScheme = NULL;
@@ -75,12 +76,12 @@ MM_MarkingScheme::initialize(MM_EnvironmentBase *env)
 {
 	_markMap = MM_MarkMap::newInstance(env, _extensions->heap->getMaximumPhysicalRange());
 
-	if(!_markMap) {
+	if (!_markMap) {
 		goto error_no_memory;
 	}
 
 	_workPackets = createWorkPackets(env);
-	if(NULL == _workPackets) {
+	if (NULL == _workPackets) {
 		goto error_no_memory;
 	}
 
@@ -101,7 +102,7 @@ MM_MarkingScheme::tearDown(MM_EnvironmentBase *env)
 		_markMap = NULL;
 	}
 
-	if(_workPackets) {
+	if (_workPackets) {
 		_workPackets->kill(env);
 		_workPackets = NULL;
 	}
@@ -116,7 +117,8 @@ MM_MarkingScheme::tearDown(MM_EnvironmentBase *env)
  * @return true if operation completes with success
  */
 bool
-MM_MarkingScheme::heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress)
+MM_MarkingScheme::heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+							   void *highAddress)
 {
 	bool result = true;
 	/* Record the range in which valid objects appear */
@@ -140,7 +142,8 @@ MM_MarkingScheme::heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subsp
  * @return true if operation completes with success
  */
 bool
-MM_MarkingScheme::heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress)
+MM_MarkingScheme::heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size,
+								  void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress)
 {
 	bool result = true;
 	/* Record the range in which valid objects appear */
@@ -194,8 +197,6 @@ MM_MarkingScheme::workerSetupForGC(MM_EnvironmentBase *env)
 	env->_workStack.reset(env, _workPackets);
 }
 
-
-
 /****************************************
  * Marking Helpers
  ****************************************
@@ -238,7 +239,7 @@ MM_MarkingScheme::markObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, 
 uintptr_t
 MM_MarkingScheme::numMarkBitsInRange(MM_EnvironmentBase *env, void *heapBase, void *heapTop)
 {
-	return  _markMap->numberBitsInRange(env, heapBase, heapTop);
+	return _markMap->numberBitsInRange(env, heapBase, heapTop);
 }
 
 /**************************************************************************
@@ -263,7 +264,7 @@ MM_MarkingScheme::setMarkBitsInRange(MM_EnvironmentBase *env, void *heapBase, vo
  * Scanning
  ****************************************
  */
-	
+
 /**
  * Scan until there are no more work packets to be processed.
  * @note This is a joining scan: a thread will not exit this method until
@@ -276,7 +277,7 @@ MM_MarkingScheme::completeScan(MM_EnvironmentBase *env)
 	MM_WorkPackets *packets = getWorkPackets();
 
 	do {
-		while(NULL != (objectPtr = (omrobjectptr_t )env->_workStack.pop(env))) {
+		while (NULL != (objectPtr = (omrobjectptr_t)env->_workStack.pop(env))) {
 			scanObject(env, objectPtr, MM_CollectorLanguageInterface::SCAN_REASON_PACKET);
 		}
 	} while (packets->handleWorkPacketOverflow(env));
@@ -297,7 +298,7 @@ MM_MarkingScheme::markLiveObjectsInit(MM_EnvironmentBase *env, bool initMarkMap)
 {
 	workerSetupForGC(env);
 
-	if(initMarkMap) {
+	if (initMarkMap) {
 		_markMap->initializeMarkMap(env);
 		env->_currentTask->synchronizeGCThreads(env, UNIQUE_ID);
 	}
@@ -340,11 +341,12 @@ MM_MarkingScheme::markLiveObjectsComplete(MM_EnvironmentBase *env)
 }
 
 MM_WorkPackets *
-MM_MarkingScheme::createWorkPackets(MM_EnvironmentBase *env) {
+MM_MarkingScheme::createWorkPackets(MM_EnvironmentBase *env)
+{
 	MM_WorkPackets *workPackets = NULL;
 
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
-	if(_extensions->concurrentMark) {
+	if (_extensions->concurrentMark) {
 		workPackets = MM_WorkPacketsConcurrent::newInstance(env);
 	} else
 #endif /* defined(OMR_GC_MODRON_CONCURRENT_MARK) */
@@ -354,4 +356,3 @@ MM_MarkingScheme::createWorkPackets(MM_EnvironmentBase *env) {
 
 	return workPackets;
 }
-

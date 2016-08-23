@@ -82,7 +82,6 @@ resumeAllPreempted(PlatformWalkData *data)
 			thread_resume(data->threadList[data->threadIndex]);
 		}
 	}
-
 }
 
 /* Store the context and send an arbitrary byte to indicate completion.
@@ -214,7 +213,8 @@ setupNativeThread(J9ThreadWalkState *state, thread_context *sigContext)
 	}
 
 	/* Allocate the thread container. */
-	state->current_thread = (J9PlatformThread *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, sizeof(J9PlatformThread));
+	state->current_thread = (J9PlatformThread *)state->portLibrary->heap_allocate(state->portLibrary, state->heap,
+																				  sizeof(J9PlatformThread));
 	if (NULL == state->current_thread) {
 		rc = -1;
 	}
@@ -222,7 +222,8 @@ setupNativeThread(J9ThreadWalkState *state, thread_context *sigContext)
 		memset(state->current_thread, 0, sizeof(J9PlatformThread));
 
 		/* Allocate space for the copy of the context. */
-		state->current_thread->context = (thread_context *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, size);
+		state->current_thread->context =
+			(thread_context *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, size);
 		if (NULL == state->current_thread->context) {
 			rc = -1;
 		}
@@ -252,7 +253,8 @@ setupNativeThread(J9ThreadWalkState *state, thread_context *sigContext)
 			 * pass it here.
 			 */
 			SPECULATE_ERROR(state, FAULT_DURING_BACKTRACE, 2);
-			state->portLibrary->introspect_backtrace_thread(state->portLibrary, state->current_thread, state->heap, NULL);
+			state->portLibrary->introspect_backtrace_thread(state->portLibrary, state->current_thread, state->heap,
+															NULL);
 			CLEAR_ERROR(state);
 		}
 
@@ -327,7 +329,8 @@ getThreadContext(J9ThreadWalkState *state)
  * and error_detail fields of the state structure. A brief textual description is in error_string.
  */
 J9PlatformThread *
-omrintrospect_threads_startDo_with_signal(struct OMRPortLibrary *portLibrary, J9Heap *heap, J9ThreadWalkState *state, void *signal_info)
+omrintrospect_threads_startDo_with_signal(struct OMRPortLibrary *portLibrary, J9Heap *heap, J9ThreadWalkState *state,
+										  void *signal_info)
 {
 	int result = 0;
 	PlatformWalkData *data;

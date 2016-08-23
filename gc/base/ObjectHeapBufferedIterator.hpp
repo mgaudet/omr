@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if !defined(OBJECTHEAPBUFFEREDITERATOR_HPP_)
 #define OBJECTHEAPBUFFEREDITERATOR_HPP_
 
@@ -45,7 +44,7 @@ typedef struct GC_ObjectHeapBufferedIteratorState {
 
 class GC_ObjectHeapBufferedIterator
 {
-/* Data Members */
+	/* Data Members */
 private:
 	MM_AddressOrderedListPopulator _addressOrderedListPopulator;
 	MM_BumpAllocatedListPopulator _bumpAllocatedListPopulator;
@@ -55,9 +54,7 @@ private:
 	MM_SegregatedListPopulator _segregatedListPopulator;
 #endif /* OMR_GC_SEGREGATED_HEAP */
 protected:
-	enum {
-		CACHE_SIZE = 256
-	};
+	enum { CACHE_SIZE = 256 };
 	MM_HeapRegionDescriptor *_region;
 	GC_ObjectHeapBufferedIteratorState _state;
 	omrobjectptr_t _cache[CACHE_SIZE];
@@ -65,16 +62,22 @@ protected:
 	uintptr_t _cacheCount;
 	uintptr_t _cacheSizeToUse;
 	const MM_ObjectHeapBufferedIteratorPopulator *_populator;
-public:
 
-/* Function Members */
+public:
+	/* Function Members */
 private:
-	void init(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, void *base, void *top, bool includeDeadObjects, uintptr_t maxElementsToCache);
+	void init(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, void *base, void *top,
+			  bool includeDeadObjects, uintptr_t maxElementsToCache);
+
 protected:
 	virtual const MM_ObjectHeapBufferedIteratorPopulator *getPopulator();
+
 public:
-	GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, bool includeDeadObjects = false, uintptr_t maxElementsToCache = CACHE_SIZE);
-	GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, void *base, void *top, bool includeDeadObjects = false, uintptr_t maxElementsToCache = CACHE_SIZE);
+	GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region,
+								  bool includeDeadObjects = false, uintptr_t maxElementsToCache = CACHE_SIZE);
+	GC_ObjectHeapBufferedIterator(MM_GCExtensionsBase *extensions, MM_HeapRegionDescriptor *region, void *base,
+								  void *top, bool includeDeadObjects = false,
+								  uintptr_t maxElementsToCache = CACHE_SIZE);
 	omrobjectptr_t nextObject();
 	void advance(uintptr_t sizeInBytes);
 	void reset(uintptr_t *base, uintptr_t *top);

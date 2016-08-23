@@ -36,13 +36,13 @@
 #include "omrintrospect.h"
 
 uintptr_t protectedBacktrace(struct OMRPortLibrary *port, void *arg);
-uintptr_t backtrace_sigprotect(struct OMRPortLibrary *portLibrary, J9PlatformThread *threadInfo, void **address_array, int capacity);
+uintptr_t backtrace_sigprotect(struct OMRPortLibrary *portLibrary, J9PlatformThread *threadInfo, void **address_array,
+							   int capacity);
 
 struct frameData {
 	void **address_array;
 	unsigned int capacity;
 };
-
 
 /*
  * NULL handler. We only care about preventing the signal from propagating up the call stack, no need to do
@@ -70,7 +70,8 @@ protectedBacktrace(struct OMRPortLibrary *port, void *arg)
  * was incomplete so that information is available after the fuction returns.
  */
 uintptr_t
-backtrace_sigprotect(struct OMRPortLibrary *portLibrary, J9PlatformThread *threadInfo, void **address_array, int capacity)
+backtrace_sigprotect(struct OMRPortLibrary *portLibrary, J9PlatformThread *threadInfo, void **address_array,
+					 int capacity)
 {
 	uintptr_t ret;
 	struct frameData args;
@@ -80,9 +81,12 @@ backtrace_sigprotect(struct OMRPortLibrary *portLibrary, J9PlatformThread *threa
 	memset(address_array, 0, sizeof(void *) * capacity);
 
 	if (omrthread_self()) {
-		if (portLibrary->sig_protect(portLibrary, protectedBacktrace, &args, handler, NULL, OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_RETURN, &ret) != 0) {
+		if (portLibrary->sig_protect(portLibrary, protectedBacktrace, &args, handler, NULL,
+									 OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_RETURN, &ret)
+			!= 0) {
 			/* check to see if there were any addresses populated */
-			for (ret = 0; ret < args.capacity && address_array[ret] != NULL; ret++);
+			for (ret = 0; ret < args.capacity && address_array[ret] != NULL; ret++)
+				;
 
 			threadInfo->error = FAULT_DURING_BACKTRACE;
 		}
@@ -92,8 +96,6 @@ backtrace_sigprotect(struct OMRPortLibrary *portLibrary, J9PlatformThread *threa
 		return backtrace(address_array, capacity);
 	}
 }
-
-
 
 /* This function constructs a backtrace from a CPU context. Generally there are only one or two
  * values in the context that are actually used to construct the stack but these vary by platform
@@ -109,7 +111,8 @@ backtrace_sigprotect(struct OMRPortLibrary *portLibrary, J9PlatformThread *threa
  * @return the number of frames in the backtrace.
  */
 uintptr_t
-omrintrospect_backtrace_thread_raw(struct OMRPortLibrary *portLibrary, J9PlatformThread *threadInfo, J9Heap *heap, void *signalInfo)
+omrintrospect_backtrace_thread_raw(struct OMRPortLibrary *portLibrary, J9PlatformThread *threadInfo, J9Heap *heap,
+								   void *signalInfo)
 {
 	void *addresses[50];
 	J9PlatformStackFrame **nextFrame;
@@ -141,7 +144,8 @@ omrintrospect_backtrace_thread_raw(struct OMRPortLibrary *portLibrary, J9Platfor
 		if (heap != NULL) {
 			*nextFrame = portLibrary->heap_allocate(portLibrary, heap, sizeof(J9PlatformStackFrame));
 		} else {
-			*nextFrame = portLibrary->mem_allocate_memory(portLibrary, sizeof(J9PlatformStackFrame), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			*nextFrame = portLibrary->mem_allocate_memory(portLibrary, sizeof(J9PlatformStackFrame), OMR_GET_CALLSITE(),
+														  OMRMEM_CATEGORY_PORT_LIBRARY);
 		}
 
 		if (*nextFrame == NULL) {
@@ -263,12 +267,16 @@ omrintrospect_backtrace_symbols_raw(struct OMRPortLibrary *portLibrary, J9Platfo
 
 		/* symbol_name+offset (id, instruction_pointer [module+offset]) */
 		if (symbol_length > 0) {
-			cursor += omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), "%.*s", symbol_length, symbol_name);
-			cursor += omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), "+0x%x ", symbol_offset);
+			cursor += omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), "%.*s",
+									symbol_length, symbol_name);
+			cursor +=
+				omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), "+0x%x ", symbol_offset);
 		}
-		cursor += omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), "(0x%p", frame->instruction_pointer);
+		cursor += omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), "(0x%p",
+								frame->instruction_pointer);
 		if (module_name[0] != '\0') {
-			cursor += omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), " [%s+0x%x]", module_name, module_offset);
+			cursor += omrstr_printf(portLibrary, cursor, sizeof(output_buf) - (cursor - output_buf), " [%s+0x%x]",
+									module_name, module_offset);
 		}
 		*(cursor++) = ')';
 		*cursor = 0;
@@ -277,7 +285,8 @@ omrintrospect_backtrace_symbols_raw(struct OMRPortLibrary *portLibrary, J9Platfo
 		if (heap != NULL) {
 			frame->symbol = portLibrary->heap_allocate(portLibrary, heap, length);
 		} else {
-			frame->symbol = portLibrary->mem_allocate_memory(portLibrary, length, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			frame->symbol =
+				portLibrary->mem_allocate_memory(portLibrary, length, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 		}
 
 		if (frame->symbol != NULL) {

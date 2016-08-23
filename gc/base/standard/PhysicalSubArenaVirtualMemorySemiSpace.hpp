@@ -36,10 +36,11 @@ class MM_MemorySubSpace;
 class MM_PhysicalSubArenaVirtualMemorySemiSpace : public MM_PhysicalSubArenaVirtualMemory
 {
 private:
-	bool _resizable; /**< determines if the semi space is resizable */
+	bool _resizable;		  /**< determines if the semi space is resizable */
 	bool _avoidMovingObjects; /**< VMDESIGN 1690: avoid moving objects during contract where possible */
 
-	uintptr_t calculateExpansionSplit(MM_EnvironmentBase *env, uintptr_t requestExpandSize, uintptr_t *allocateSpaceSize, uintptr_t *survivorSpaceSize);
+	uintptr_t calculateExpansionSplit(MM_EnvironmentBase *env, uintptr_t requestExpandSize,
+									  uintptr_t *allocateSpaceSize, uintptr_t *survivorSpaceSize);
 
 protected:
 	MM_HeapRegionDescriptor *_lowSemiSpaceRegion;
@@ -57,7 +58,8 @@ public:
 	virtual uintptr_t expand(MM_EnvironmentBase *env, uintptr_t expandSize);
 	virtual bool canExpand(MM_EnvironmentBase *env);
 	virtual uintptr_t expandNoCheck(MM_EnvironmentBase *env, uintptr_t expandSize);
-	virtual uintptr_t checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_t expandSizeDeltaAlignment, uintptr_t expandSize);
+	virtual uintptr_t checkCounterBalanceExpand(MM_EnvironmentBase *env, uintptr_t expandSizeDeltaAlignment,
+												uintptr_t expandSize);
 
 	virtual uintptr_t contract(MM_EnvironmentBase *env, uintptr_t expandSize);
 	virtual bool canContract(MM_EnvironmentBase *env);
@@ -65,10 +67,8 @@ public:
 	virtual void tilt(MM_EnvironmentBase *env, uintptr_t allocateSpaceSize, uintptr_t survivorSpaceSize);
 	virtual void tilt(MM_EnvironmentBase *env, uintptr_t survivorSpaceSizeRequest);
 
-	MM_PhysicalSubArenaVirtualMemorySemiSpace(MM_Heap *heap) :
-		MM_PhysicalSubArenaVirtualMemory(heap),
-		_lowSemiSpaceRegion(NULL),
-		_highSemiSpaceRegion(NULL)
+	MM_PhysicalSubArenaVirtualMemorySemiSpace(MM_Heap *heap)
+		: MM_PhysicalSubArenaVirtualMemory(heap), _lowSemiSpaceRegion(NULL), _highSemiSpaceRegion(NULL)
 	{
 		_typeId = __FUNCTION__;
 	};

@@ -42,23 +42,18 @@ private:
 
 protected:
 public:
-
 	/*
 	 * Member functions
 	 */
 private:
 protected:
 public:
-	MM_ScavengerRootScanner(MM_EnvironmentBase *env, MM_Scavenger *scavenger)
-		: MM_Base()
-		, _scavenger(scavenger)
-	{
-	};
+	MM_ScavengerRootScanner(MM_EnvironmentBase *env, MM_Scavenger *scavenger) : MM_Base(), _scavenger(scavenger){};
 
 	void
 	scavengeRememberedSet(MM_EnvironmentStandard *env)
 	{
-		MM_SublistFragment::flush((J9VMGC_SublistFragment*)&env->_scavengerRememberedSet);
+		MM_SublistFragment::flush((J9VMGC_SublistFragment *)&env->_scavengerRememberedSet);
 		_scavenger->scavengeRememberedSet(env);
 	}
 
@@ -80,7 +75,7 @@ public:
 				RootEntry *rootEntry = (RootEntry *)hashTableStartDo(omrVM->rootTable, &state);
 				while (NULL != rootEntry) {
 					if (NULL != rootEntry->rootPtr) {
-						_scavenger->copyObjectSlot(envStd, (volatile omrobjectptr_t *) &rootEntry->rootPtr);
+						_scavenger->copyObjectSlot(envStd, (volatile omrobjectptr_t *)&rootEntry->rootPtr);
 					}
 					rootEntry = (RootEntry *)hashTableNextDo(&state);
 				}
@@ -88,12 +83,16 @@ public:
 			env->_currentTask->releaseSynchronizedGCThreads(env);
 		}
 	}
-	
+
 #if !defined(OMR_GC_CONCURRENT_SCAVENGER)
-	void rescanThreadSlots(MM_EnvironmentStandard *env) { }
+	void
+	rescanThreadSlots(MM_EnvironmentStandard *env)
+	{
+	}
 #endif
 
-	void scanClearable(MM_EnvironmentBase *env)
+	void
+	scanClearable(MM_EnvironmentBase *env)
 	{
 		OMR_VM_Example *omrVM = (OMR_VM_Example *)env->getOmrVM()->_language_vm;
 		if (NULL != omrVM->objectTable) {
@@ -117,7 +116,10 @@ public:
 		}
 	}
 
-	void flush(MM_EnvironmentStandard *env) { }
+	void
+	flush(MM_EnvironmentStandard *env)
+	{
+	}
 };
 
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */

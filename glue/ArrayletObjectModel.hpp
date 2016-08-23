@@ -40,16 +40,20 @@ public:
 		return true;
 	}
 
-	void tearDown(MM_GCExtensionsBase *extensions) {}
+	void
+	tearDown(MM_GCExtensionsBase *extensions)
+	{
+	}
 
 	MMINLINE fomrobject_t *
 	getArrayoidPointer(omrarrayptr_t arrayPtr)
 	{
-		return (fomrobject_t *) NULL;
+		return (fomrobject_t *)NULL;
 	}
 
 	MMINLINE void
-	expandArrayletSubSpaceRange(MM_MemorySubSpace * subSpace, void * rangeBase, void * rangeTop, uintptr_t largestDesirableArraySpineSize)
+	expandArrayletSubSpaceRange(MM_MemorySubSpace *subSpace, void *rangeBase, void *rangeTop,
+								uintptr_t largestDesirableArraySpineSize)
 	{
 		/* No-op */
 	}

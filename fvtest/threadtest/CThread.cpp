@@ -16,17 +16,11 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "threadTestLib.hpp"
 
-CThread::CThread(omrthread_t self) :
-	m_self(self), m__terminated(false)
-{
-	m__exitlock = new CMonitor("exitlock");
-}
+CThread::CThread(omrthread_t self) : m_self(self), m__terminated(false) { m__exitlock = new CMonitor("exitlock"); }
 
-CThread::CThread(void) :
-	m_self(0), m__terminated(false)
+CThread::CThread(void) : m_self(0), m__terminated(false)
 {
 	m__exitlock = new CMonitor("exitlock");
 
@@ -34,10 +28,7 @@ CThread::CThread(void) :
 	omrthread_create_ex(&m_self, J9THREAD_ATTR_DEFAULT, 1, StartFunction, (void *)this);
 }
 
-CThread::~CThread(void)
-{
-	delete m__exitlock;
-}
+CThread::~CThread(void) { delete m__exitlock; }
 
 void
 CThread::Start(void)
@@ -136,7 +127,7 @@ CThread::Run(void)
 int
 CThread::StartFunction(void *data)
 {
-	CThread *pObj = (CThread *) data;
+	CThread *pObj = (CThread *)data;
 	intptr_t rv = pObj->Run();
 	pObj->m__terminated = true;
 	return (int)rv;

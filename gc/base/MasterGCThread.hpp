@@ -37,14 +37,13 @@ class MM_RememberedSetCardBucket;
  */
 class MM_MasterGCThread : public MM_BaseNonVirtual
 {
-/*
+	/*
  * Data members
  */
 public:
 protected:
 private:
-	typedef enum MasterGCThreadState
-	{
+	typedef enum MasterGCThreadState {
 		STATE_ERROR = 0,
 		STATE_DISABLED,
 		STATE_STARTING,
@@ -54,19 +53,21 @@ private:
 		STATE_TERMINATION_REQUESTED,
 		STATE_TERMINATED,
 	} MasterGCThreadState;
-	omrthread_monitor_t _collectorControlMutex;	/**< The interlock between the mutator thread requesting the GC and the internal master GC thread which will drive the GC to ensure that only one of them is running, at any given point */
-	volatile MasterGCThreadState _masterThreadState;	/**< The state (protected by _collectorControlMutex) of the background master GC thread */
-	omrthread_t _masterGCThread;	/**< The master GC thread which drives the collect */
-	MM_CycleState *_incomingCycleState;	/**< The cycle state which the caller wants the master thread to use for its requested collect */
-	MM_AllocateDescription *_allocDesc;	/** The allocation failure which triggered the collection */
-	MM_GCExtensionsBase *_extensions; /**< The GC extensions */
-	MM_Collector *_collector; /**< The garbage collector */
+	omrthread_monitor_t
+		_collectorControlMutex; /**< The interlock between the mutator thread requesting the GC and the internal master GC thread which will drive the GC to ensure that only one of them is running, at any given point */
+	volatile MasterGCThreadState
+		_masterThreadState; /**< The state (protected by _collectorControlMutex) of the background master GC thread */
+	omrthread_t _masterGCThread; /**< The master GC thread which drives the collect */
+	MM_CycleState *
+		_incomingCycleState; /**< The cycle state which the caller wants the master thread to use for its requested collect */
+	MM_AllocateDescription *_allocDesc; /** The allocation failure which triggered the collection */
+	MM_GCExtensionsBase *_extensions;   /**< The GC extensions */
+	MM_Collector *_collector;			/**< The garbage collector */
 
-/*
+	/*
  * Function members
  */
 public:
-
 	/**
 	 * Early initialize: montior creation
 	 * globalCollector[in] the global collector (typically the caller)
@@ -85,7 +86,7 @@ public:
 	 * @return true on success, false on failure
 	 */
 	bool startup();
-	
+
 	/**
 	 * Shut down the master GC thread, waiting until it reports success.
 	 * This is typically called by GlobalCollector::collectorShutdown()
@@ -100,15 +101,20 @@ public:
 	 * @return True if the GC was attempted or false if the collector hasn't started up yet and, therefore, couldn't run
 	 */
 	bool garbageCollect(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription);
-	
+
 	/**
 	 * Determine if the master GC thread is busy running a GC, or if it's idle.
 	 * 
 	 * @return true if a garbage collection is in progress
 	 */
-	bool isGarbageCollectInProgress() { return STATE_GC_REQUESTED != _masterThreadState; }
-	
+	bool
+	isGarbageCollectInProgress()
+	{
+		return STATE_GC_REQUESTED != _masterThreadState;
+	}
+
 	MM_MasterGCThread(MM_EnvironmentBase *env);
+
 protected:
 private:
 	/**
@@ -119,8 +125,8 @@ private:
 	/**
 	 * This is a helper function, used as a parameter to sig_protect
 	 */
-	static uintptr_t master_thread_proc2(OMRPortLibrary* portLib, void *info);
-	
+	static uintptr_t master_thread_proc2(OMRPortLibrary *portLib, void *info);
+
 	/**
 	 * This is a helper function, used as a parameter to omrthread_create
 	 */

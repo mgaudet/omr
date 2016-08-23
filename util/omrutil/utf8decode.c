@@ -66,7 +66,6 @@ decodeUTF8Char(const uint8_t *input, uint16_t *result)
 	return 3;
 }
 
-
 /**
  * Decode the UTF8 character.
  *

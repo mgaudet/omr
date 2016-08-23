@@ -32,20 +32,20 @@ class MM_MemorySpace;
 class GC_HeapRegionIterator
 {
 private:
-	MM_MemorySpace *_space; /**< The MemorySpace to which all regions returned by the iterator must belong (can be NULL if this check is not needed) */
-	MM_HeapRegionDescriptor *_auxRegion; /**< The auxiliary region we will process next */
+	MM_MemorySpace *
+		_space;							   /**< The MemorySpace to which all regions returned by the iterator must belong (can be NULL if this check is not needed) */
+	MM_HeapRegionDescriptor *_auxRegion;   /**< The auxiliary region we will process next */
 	MM_HeapRegionDescriptor *_tableRegion; /**< The table region we will process next */
-	MM_HeapRegionManager *_regionManager; /**< The HeapRegionManager from which this iterator requests its regions */
+	MM_HeapRegionManager *_regionManager;  /**< The HeapRegionManager from which this iterator requests its regions */
 
-	uint32_t _includedRegionsMask; /**< A bitmap of MM_HeapRegionDescriptor::RegionProperties of the regions to include during iteration */
+	uint32_t
+		_includedRegionsMask; /**< A bitmap of MM_HeapRegionDescriptor::RegionProperties of the regions to include during iteration */
 
 private:
-	bool shouldIncludeRegion(MM_HeapRegionDescriptor* region);
-	
+	bool shouldIncludeRegion(MM_HeapRegionDescriptor *region);
+
 protected:
-	
 public:
-	
 	/**
 	 * Construct a HeapRegionIterator for the specified heap.
 	 * 
@@ -68,8 +68,8 @@ public:
 	 * @param manager The versions of the regions returned will come from this manager
 	 * @param space the memory space whose regions should be walked
 	 */
-	GC_HeapRegionIterator(MM_HeapRegionManager *manager, MM_MemorySpace* space);
-	
+	GC_HeapRegionIterator(MM_HeapRegionManager *manager, MM_MemorySpace *space);
+
 	/**
 	 * @param manager The versions of the regions returned will come from this manager
 	 * @param includedRegionsMask A bitmap of the HeapRegionDescriptor properties of the regions that should be included in the iterator
@@ -83,4 +83,3 @@ public:
 };
 
 #endif /* HEAPREGIONITERATOR_HPP_ */
-

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 #include "modronopt.h"
 
@@ -39,7 +38,6 @@ MM_SweepPoolManager::kill(MM_EnvironmentBase *env)
 void
 MM_SweepPoolManager::tearDown(MM_EnvironmentBase *env)
 {
-	
 }
 
 bool
@@ -47,4 +45,3 @@ MM_SweepPoolManager::initialize(MM_EnvironmentBase *env)
 {
 	return true;
 }
-

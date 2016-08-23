@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omr.h"
 
 #include "Packet.hpp"
@@ -26,16 +25,16 @@
  * Get top of current packet.
  * 
  * @return element at top of current packet
- */ 
+ */
 void *
 MM_Packet::peek(MM_EnvironmentBase *env)
 {
-	
-	if(_currentPtr > _basePtr) {
+
+	if (_currentPtr > _basePtr) {
 		void *result = (void *)*(_currentPtr - 1);
 		return result;
 	}
-	
+
 	return NULL;
 }
 
@@ -43,9 +42,10 @@ MM_Packet::peek(MM_EnvironmentBase *env)
  * Initialize a packet. 
  * 
  * @return TRUE is packet initialized OK; FALSE otheriwse
- */ 
+ */
 bool
-MM_Packet::initialize(MM_EnvironmentBase *env, MM_Packet *next, MM_Packet *previous, uintptr_t *baseAddress,  uintptr_t size)
+MM_Packet::initialize(MM_EnvironmentBase *env, MM_Packet *next, MM_Packet *previous, uintptr_t *baseAddress,
+					  uintptr_t size)
 {
 
 	_next = next;
@@ -56,7 +56,7 @@ MM_Packet::initialize(MM_EnvironmentBase *env, MM_Packet *next, MM_Packet *previ
 	_basePtr = _baseAddress;
 	_topPtr = _baseAddress + size;
 	_currentPtr = _baseAddress;
-	
+
 	_owner = NULL;
 
 	return true;

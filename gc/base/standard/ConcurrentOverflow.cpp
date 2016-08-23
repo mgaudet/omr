@@ -41,13 +41,14 @@
  * Create a new MM_ConcurrentOverflow object
  */
 MM_ConcurrentOverflow *
-MM_ConcurrentOverflow::newInstance(MM_EnvironmentBase *env,MM_WorkPackets *workPackets)
+MM_ConcurrentOverflow::newInstance(MM_EnvironmentBase *env, MM_WorkPackets *workPackets)
 {
 	MM_ConcurrentOverflow *overflow;
 
-	overflow = (MM_ConcurrentOverflow *)env->getForge()->allocate(sizeof(MM_ConcurrentOverflow), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	overflow = (MM_ConcurrentOverflow *)env->getForge()->allocate(sizeof(MM_ConcurrentOverflow),
+																  MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (NULL != overflow) {
-		new(overflow) MM_ConcurrentOverflow(env,workPackets);
+		new (overflow) MM_ConcurrentOverflow(env, workPackets);
 		if (!overflow->initialize(env)) {
 			overflow->kill(env);
 			overflow = NULL;
@@ -68,7 +69,8 @@ MM_ConcurrentOverflow::initialize(MM_EnvironmentBase *env)
 
 	if (result) {
 		/* Initialize monitor for safe initial Cards cleaning in Work Packets Overflow handler */
-		if(omrthread_monitor_init_with_name(&_cardsClearingMonitor, 0, "MM_ConcurrentOverflow::cardsClearingMonitor")) {
+		if (omrthread_monitor_init_with_name(&_cardsClearingMonitor, 0,
+											 "MM_ConcurrentOverflow::cardsClearingMonitor")) {
 			result = false;
 		}
 	}
@@ -82,7 +84,7 @@ MM_ConcurrentOverflow::initialize(MM_EnvironmentBase *env)
 void
 MM_ConcurrentOverflow::tearDown(MM_EnvironmentBase *env)
 {
-	if(NULL != _cardsClearingMonitor) {
+	if (NULL != _cardsClearingMonitor) {
 		omrthread_monitor_destroy(_cardsClearingMonitor);
 		_cardsClearingMonitor = NULL;
 	}
@@ -119,12 +121,12 @@ MM_ConcurrentOverflow::emptyToOverflow(MM_EnvironmentBase *env, MM_Packet *packe
 #if defined(OMR_GC_MODRON_SCAVENGER)
 	clearCardsForNewSpace(MM_EnvironmentStandard::getEnvironment(env), collector);
 #endif /*  OMR_GC_MODRON_SCAVENGER */
-	
+
 	/* Empty the current packet by dirtying its cards now */
-	while(NULL != (objectPtr = packet->pop(env))) {
+	while (NULL != (objectPtr = packet->pop(env))) {
 		overflowItemInternal(env, objectPtr, collector->getCardTable());
 	}
-	
+
 	Assert_MM_true(packet->isEmpty());
 }
 
@@ -141,7 +143,7 @@ void
 MM_ConcurrentOverflow::overflowItem(MM_EnvironmentBase *env, void *item, MM_OverflowType type)
 {
 	MM_ConcurrentGC *collector = (MM_ConcurrentGC *)_extensions->getGlobalCollector();
-	
+
 	_overflow = true;
 
 	/* Broadcast the overflow to the concurrent collector
@@ -168,8 +170,8 @@ MM_ConcurrentOverflow::overflowItemInternal(MM_EnvironmentBase *env, void *item,
 	void *heapTop = _extensions->heap->getHeapTop();
 
 	/* Check reference is within the heap */
-	if ((PACKET_ARRAY_SPLIT_TAG != ((UDATA)item & PACKET_ARRAY_SPLIT_TAG)) && (item >= heapBase) && (item <  heapTop)) {
-	/* ..and dirty its card if it is */
+	if ((PACKET_ARRAY_SPLIT_TAG != ((UDATA)item & PACKET_ARRAY_SPLIT_TAG)) && (item >= heapBase) && (item < heapTop)) {
+		/* ..and dirty its card if it is */
 		omrobjectptr_t objectPtr = (omrobjectptr_t)item;
 		cardTable->dirtyCard(envStandard, objectPtr);
 		_extensions->collectorLanguageInterface->workPacketOverflow_overflowItem(env, objectPtr);
@@ -185,7 +187,6 @@ MM_ConcurrentOverflow::fillFromOverflow(MM_EnvironmentBase *env, MM_Packet *pack
 void
 MM_ConcurrentOverflow::reset(MM_EnvironmentBase *env)
 {
-
 }
 
 bool
@@ -201,19 +202,19 @@ MM_ConcurrentOverflow::clearCardsForNewSpace(MM_EnvironmentStandard *env, MM_Con
 	/* If scavenger is enabled, we are within a global collect, and we have not already done so,
 	 * then we need to clear cards for new space so we can resolve overflow by dirtying cards
 	*/
-    if(_extensions->scavengerEnabled && collector->isGlobalCollectionInProgress()) {
-    	/*
+	if (_extensions->scavengerEnabled && collector->isGlobalCollectionInProgress()) {
+		/*
     	 *	Should be the only one thread cleaning cards for NEW space
     	 *	If any other thread handling an WP Overflow came here while cleaning is in progress it should wait
     	 */
-    	omrthread_monitor_enter(_cardsClearingMonitor);
+		omrthread_monitor_enter(_cardsClearingMonitor);
 
-		if(!_cardsForNewSpaceCleared) {
+		if (!_cardsForNewSpaceCleared) {
 			MM_EnvironmentStandard *envStandard = MM_EnvironmentStandard::getEnvironment(env);
 			MM_ConcurrentCardTable *cardTable = collector->getCardTable();
-	    	cardTable->clearNonConcurrentCards(envStandard);
-	    	_cardsForNewSpaceCleared = true;
-	    }
+			cardTable->clearNonConcurrentCards(envStandard);
+			_cardsForNewSpaceCleared = true;
+		}
 
 		omrthread_monitor_exit(_cardsClearingMonitor);
 	}
@@ -237,8 +238,9 @@ MM_ConcurrentOverflow::handleOverflow(MM_EnvironmentBase *env)
 	MM_CardCleanerForMarking cardCleanerForMarking(collector->getMarkingScheme());
 	MM_ConcurrentCardTable *cardTable = collector->getCardTable();
 
-	while((region = regionIterator.nextRegion()) != NULL) {
-		cardTable->cleanCardTableForRange(envStandard, &cardCleanerForMarking, region->getLowAddress(), region->getHighAddress());
+	while ((region = regionIterator.nextRegion()) != NULL) {
+		cardTable->cleanCardTableForRange(envStandard, &cardCleanerForMarking, region->getLowAddress(),
+										  region->getHighAddress());
 	}
 
 	envStandard->_currentTask->synchronizeGCThreads(env, UNIQUE_ID);

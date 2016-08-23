@@ -53,7 +53,7 @@ omrget_userid(char *userid, uintptr_t length)
 
 	if (tmp_userid) {
 		memset(tmp_userid, '\0', J9_MAX_USERID);
-		_USERID(tmp_userid);  /* requires <31bit address */
+		_USERID(tmp_userid); /* requires <31bit address */
 		ascname = e2a_func(tmp_userid, strlen(tmp_userid));
 
 		if (ascname) {
@@ -75,5 +75,3 @@ omrget_userid(char *userid, uintptr_t length)
 
 	return result;
 }
-
-

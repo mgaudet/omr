@@ -72,27 +72,19 @@ static omr_error_t setupTestData(TestData *testData, OMRTestVM *testVM, int32_t 
 static omr_error_t waitForThreadsReady(TestData *testData);
 static omr_error_t waitForThreadsDone(TestData *testData);
 static omr_error_t notifyThreadReadyAndWait(TestSiblingThreadData *threadData);
-static void recordChildErrorStatus(OMRTraceSubscriberForkTestResult *result, omr_error_t rc, const char *filename, int lineno);
+static void recordChildErrorStatus(OMRTraceSubscriberForkTestResult *result, omr_error_t rc, const char *filename,
+								   int lineno);
 
-TEST(RASSubscriberForkTest, SubscriberAgentForkTest)
-{
-	runTest(NULL);
-}
+TEST(RASSubscriberForkTest, SubscriberAgentForkTest) { runTest(NULL); }
 
 /* This test is currently disabled as it performs unsafe/unsupported operations.
  * createThread's allocation of omrthread_attr_t's concurrently to fork is
  * unsupported and may result in undefined behavior. It is a suspect in hangs
  * experienced in dlclose() when unloading the agenet at the end of the test.
  */
-TEST(DISABLED_RASSubscriberForkTest, SubscriberAgentForkThreadTest)
-{
-	runTest(duringForkThreadTest);
-}
+TEST(DISABLED_RASSubscriberForkTest, SubscriberAgentForkThreadTest) { runTest(duringForkThreadTest); }
 
-TEST(RASSubscriberForkTest, SubscriberAgentForkBufferTest)
-{
-	runTest(duringForkBufferTest);
-}
+TEST(RASSubscriberForkTest, SubscriberAgentForkBufferTest) { runTest(duringForkBufferTest); }
 
 /* Create a group of test threads which will test one of several conditions
  * concurrently to a fork call.
@@ -120,7 +112,8 @@ runTest(omrthread_entrypoint_t entrypoint)
 		for (int32_t i = 0; i < NUM_THREADS; i += 1) {
 			threadData[i].testData = &newTestData;
 			threadData[i].threadRc = &newTestData.siblingRc[i];
-			ASSERT_NO_FATAL_FAILURE(createThread(&newTestData.threads[i], FALSE, J9THREAD_CREATE_JOINABLE, entrypoint, &threadData[i]));
+			ASSERT_NO_FATAL_FAILURE(
+				createThread(&newTestData.threads[i], FALSE, J9THREAD_CREATE_JOINABLE, entrypoint, &threadData[i]));
 		}
 
 		/* Wait for all test threads to be ready before forking. */
@@ -171,7 +164,7 @@ preforkSetup(OMR_VMThread **vmthread, struct OMR_Agent **agent, OMRTestVM *testV
 
 	/* Initialize pipe before fork. */
 	int pipeRC = pipe(pipedata);
-	EXPECT_TRUE(0 == pipeRC)  << "Failure occurred calling pipe";
+	EXPECT_TRUE(0 == pipeRC) << "Failure occurred calling pipe";
 }
 
 /* Test unloading an agent, loading an agent, and trace points in the
@@ -285,7 +278,8 @@ postForkParent(OMR_VMThread *vmthread, struct OMR_Agent *agent, OMRTestVM *testV
 	if (0 != rc) {
 		ssize_t readBytes = read(pipedata[0], (int *)&result, sizeof(result));
 		EXPECT_TRUE(readBytes == sizeof(result)) << "Didn't read back enough from pipe";
-		EXPECT_TRUE(0 == result.rc) << "Failure occurred in child process at " << result.failureFile << ":" << result.failureLine;
+		EXPECT_TRUE(0 == result.rc) << "Failure occurred in child process at " << result.failureFile << ":"
+									<< result.failureLine;
 	}
 	close(pipedata[0]);
 	close(pipedata[1]);
@@ -398,7 +392,8 @@ setupTestData(TestData *testData, OMRTestVM *testVM, int32_t threadCount)
 	testData->forkReady = FALSE;
 	testData->siblingRc = (omr_error_t *)omrmem_allocate_memory(sizeof(omr_error_t) * threadCount, OMRMEM_CATEGORY_VM);
 	testData->threads = (omrthread_t *)omrmem_allocate_memory(sizeof(omrthread_t) * threadCount, OMRMEM_CATEGORY_VM);
-	rc = OMRTEST_PRINT_UNEXPECTED_INT_RC(omrthread_monitor_init_with_name(&testData->readyCond, 0, "traceTestShutdown"), J9THREAD_SUCCESS);
+	rc = OMRTEST_PRINT_UNEXPECTED_INT_RC(omrthread_monitor_init_with_name(&testData->readyCond, 0, "traceTestShutdown"),
+										 J9THREAD_SUCCESS);
 	for (int32_t i = 0; i < threadCount; i += 1) {
 		testData->siblingRc[i] = OMR_ERROR_NONE;
 	}

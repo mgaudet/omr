@@ -18,7 +18,7 @@
 
 #if !defined(VERBOSEWRITERSTREAMOUTPUT_HPP_)
 #define VERBOSEWRITERSTREAMOUTPUT_HPP_
- 
+
 #include "omrcfg.h"
 
 #include "VerboseWriter.hpp"
@@ -30,10 +30,7 @@ class MM_VerboseWriterStreamOutput : public MM_VerboseWriter
 public:
 protected:
 private:
-	typedef enum {
-		STDERR = 1,
-		STDOUT
-	} StreamID;
+	typedef enum { STDERR = 1, STDOUT } StreamID;
 
 	StreamID _currentStream;
 
@@ -43,10 +40,10 @@ public:
 	virtual bool reconfigure(MM_EnvironmentBase *env, const char *filename, uintptr_t fileCount, uintptr_t iterations);
 
 	virtual void endOfCycle(MM_EnvironmentBase *env);
-	
+
 	void closeStream(MM_EnvironmentBase *env);
-	
-	virtual void outputString(MM_EnvironmentBase *env, const char* string);
+
+	virtual void outputString(MM_EnvironmentBase *env, const char *string);
 
 protected:
 	MM_VerboseWriterStreamOutput(MM_EnvironmentBase *env);
@@ -57,7 +54,11 @@ private:
 
 	MM_VerboseWriterStreamOutput::StreamID getStreamID(MM_EnvironmentBase *env, const char *string);
 
-	MMINLINE void setStream(MM_VerboseWriterStreamOutput::StreamID stream) { _currentStream = stream; }
+	MMINLINE void
+	setStream(MM_VerboseWriterStreamOutput::StreamID stream)
+	{
+		_currentStream = stream;
+	}
 };
 
 #endif /* VERBOSEWRITERSTREAMOUTPUT_HPP_ */

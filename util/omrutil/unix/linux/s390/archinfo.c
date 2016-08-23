@@ -47,9 +47,7 @@
  * processor 2: version = FF,  identification = 300003,  machine = 9672
  */
 
-const int S390UnsupportedMachineTypes[] = {
-	G5, MULTIPRISE7000
-};
+const int S390UnsupportedMachineTypes[] = {G5, MULTIPRISE7000};
 
 /* Fetch the current machine type from /proc/cpuinfo on zLinux platform
  * The return value is the machine type (int) as defined in omrutil.h
@@ -60,15 +58,13 @@ int32_t
 get390zLinuxMachineType(void)
 {
 	int machine = -1;
-#if (defined (LINUX) && defined(S390))
+#if (defined(LINUX) && defined(S390))
 	int i;
 	char line[80];
 	const int LINE_SIZE = sizeof(line) - 1;
 	const char procHeader[] = "processor ";
 	const int PROC_LINE_SIZE = 69;
 	const int PROC_HEADER_SIZE = sizeof(procHeader) - 1;
-
-
 
 	FILE *fp = fopen("/proc/cpuinfo", "r");
 	if (fp) {
@@ -78,9 +74,7 @@ get390zLinuxMachineType(void)
 			if (len > PROC_HEADER_SIZE && !memcmp(line, procHeader, PROC_HEADER_SIZE)) {
 				if (len == PROC_LINE_SIZE) {
 					/* eg. processor 0: version = FF,  identification = 100003,  machine = 9672 */
-					sscanf(line,
-						   "%*s %*d%*c %*s %*c %*s %*s %*c %*s %*s %*c %d",
-						   &machine);
+					sscanf(line, "%*s %*d%*c %*s %*c %*s %*s %*c %*s %*s %*c %d", &machine);
 				}
 			}
 		}

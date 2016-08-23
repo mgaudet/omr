@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef J9THREADTEST_CMONITOR_HPP_INCLUDED
 #define J9THREADTEST_CMONITOR_HPP_INCLUDED
 
@@ -32,11 +31,11 @@ public:
 	CMonitor(const char *pName);
 	char const *GetName(void) const;
 	intptr_t Enter(void);
-	intptr_t EnterUsingThreadId(CThread& self);
+	intptr_t EnterUsingThreadId(CThread &self);
 	intptr_t TryEnter(void);
-	intptr_t TryEnterUsingThreadId(CThread& self);
+	intptr_t TryEnterUsingThreadId(CThread &self);
 	intptr_t Exit(void);
-	intptr_t ExitUsingThreadId(CThread& self);
+	intptr_t ExitUsingThreadId(CThread &self);
 	intptr_t Wait(void);
 	intptr_t Wait(int64_t millis);
 	intptr_t Wait(int64_t millis, intptr_t nanos);
@@ -53,7 +52,7 @@ public:
 	 * They are extremely unsafe unless the test program is careful.
 	 */
 	unsigned int numBlocking(void);
-	bool isThreadBlocking(CThread& thread);
+	bool isThreadBlocking(CThread &thread);
 #endif /* defined(OMR_THR_THREE_TIER_LOCKING) */
 };
 

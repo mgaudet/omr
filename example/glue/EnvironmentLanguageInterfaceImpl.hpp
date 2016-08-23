@@ -30,7 +30,6 @@ class MM_EnvironmentLanguageInterfaceImpl : public MM_EnvironmentLanguageInterfa
 private:
 protected:
 public:
-
 private:
 protected:
 	virtual bool initialize(MM_EnvironmentBase *env);
@@ -42,12 +41,16 @@ public:
 	static MM_EnvironmentLanguageInterfaceImpl *newInstance(MM_EnvironmentBase *env);
 	virtual void kill(MM_EnvironmentBase *env);
 
-	static MM_EnvironmentLanguageInterfaceImpl *getInterface(MM_EnvironmentLanguageInterface *linterface) { return (MM_EnvironmentLanguageInterfaceImpl *)linterface; }
+	static MM_EnvironmentLanguageInterfaceImpl *
+	getInterface(MM_EnvironmentLanguageInterface *linterface)
+	{
+		return (MM_EnvironmentLanguageInterfaceImpl *)linterface;
+	}
 
 	virtual bool saveObjects(omrobjectptr_t objectPtr);
 	virtual void restoreObjects(omrobjectptr_t *objectPtrIndirect);
 
-#if defined (OMR_GC_THREAD_LOCAL_HEAP)
+#if defined(OMR_GC_THREAD_LOCAL_HEAP)
 	virtual void disableInlineTLHAllocate();
 	virtual void enableInlineTLHAllocate();
 	virtual bool isInlineTLHAllocateEnabled();

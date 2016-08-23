@@ -29,15 +29,7 @@
 using std::set;
 using std::string;
 
-enum SymbolType {
-	CLASS,
-	STRUCT,
-	ENUM,
-	UNION,
-	BASE,
-	TYPEDEF,
-	NAMESPACE
-};
+enum SymbolType { CLASS, STRUCT, ENUM, UNION, BASE, TYPEDEF, NAMESPACE };
 
 class Type
 {
@@ -53,8 +45,8 @@ public:
 
 	SymbolType getSymbolType();
 	virtual bool isAnonymousType();
-	friend bool operator==(Type const& lhs, Type const& rhs);
-	virtual bool equal(Type const& type, set<Type const*> *checked) const;
+	friend bool operator==(Type const &lhs, Type const &rhs);
+	virtual bool equal(Type const &type, set<Type const *> *checked) const;
 	virtual void replaceType(Type *typeToReplace, Type *replaceWith);
 
 	virtual string getFullName();

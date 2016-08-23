@@ -22,7 +22,6 @@
  * @brief Native language support helpers
  */
 
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,7 +38,6 @@
 
 void nls_determine_locale(struct OMRPortLibrary *portLibrary);
 
-
 static char
 nls_tolower(char toConvert)
 {
@@ -49,7 +47,7 @@ nls_tolower(char toConvert)
 	lower = j9_ascii_tolower(toConvert);
 #else
 	/* check to see if it is an uppercase character, and if so, return the corresponding lowercase char */
-	if ((0x41 <=  toConvert) && (toConvert <= 0x5a)) {
+	if ((0x41 <= toConvert) && (toConvert <= 0x5a)) {
 		lower = toConvert + 0x20;
 	} else {
 		lower = toConvert;
@@ -58,7 +56,6 @@ nls_tolower(char toConvert)
 
 	return lower;
 }
-
 
 /**
  * @internal
@@ -102,7 +99,7 @@ nls_determine_locale(struct OMRPortLibrary *portLibrary)
 #else /* defined(LINUX) || defined(OSX) */
 	/* Query locale data */
 	lang = setlocale(LC_CTYPE, NULL);
-#if defined (J9ZOS390)
+#if defined(J9ZOS390)
 	if (NULL != lang) {
 		/* CMVC 107274:  z/OS sometimes returns the HFS path to a "locale object" so carve it up to make it look like the corresponding locale name */
 		char *lastSlash = strrchr(lang, '/');
@@ -112,7 +109,7 @@ nls_determine_locale(struct OMRPortLibrary *portLibrary)
 		}
 	}
 #endif /* defined (J9ZOS390) */
-#endif  /* defined(LINUX) || defined(OSX) */
+#endif /* defined(LINUX) || defined(OSX) */
 	if (lang != NULL && strcmp(lang, "POSIX") && strcmp(lang, "C"))
 		if (lang != NULL && (langlen = strlen(lang)) >= 2) {
 			/* copy the language, stopping at '_'
@@ -137,4 +134,3 @@ nls_determine_locale(struct OMRPortLibrary *portLibrary)
 	}
 	strncpy(nls->region, countryProp, 2);
 }
-

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 #include "modronopt.h"
 #include "ModronAssertions.h"
@@ -42,7 +41,6 @@
 int j9zos390LinkTrickMemorySubSpaceFlat;
 #endif /* J9ZOS390 */
 
-
 /****************************************
  * Allocation
  ****************************************
@@ -54,10 +52,12 @@ int j9zos390LinkTrickMemorySubSpaceFlat;
  * @return Address of allocated object or NULL if no storage available
  */
 
-void*
-MM_MemorySubSpaceFlat::allocateObject(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure)
+void *
+MM_MemorySubSpaceFlat::allocateObject(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+									  MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+									  bool shouldCollectOnFailure)
 {
-	void* result = NULL;
+	void *result = NULL;
 
 	if (shouldCollectOnFailure) {
 		result = _memorySubSpace->allocateObject(env, allocDescription, baseSubSpace, this, shouldCollectOnFailure);
@@ -70,14 +70,18 @@ MM_MemorySubSpaceFlat::allocateObject(MM_EnvironmentBase* env, MM_AllocateDescri
 	return result;
 }
 
-void*
-MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_AllocateDescription* allocateDescription, AllocationType allocationType, MM_ObjectAllocationInterface* objectAllocationInterface, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace)
+void *
+MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase *env, MM_AllocateDescription *allocateDescription,
+											   AllocationType allocationType,
+											   MM_ObjectAllocationInterface *objectAllocationInterface,
+											   MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace)
 {
-	void* addr = NULL;
+	void *addr = NULL;
 
 	/* If the request came from the parent, forward the failure handling to the child first */
 	if (previousSubSpace == _parent) {
-		addr = _memorySubSpace->allocationRequestFailed(env, allocateDescription, allocationType, objectAllocationInterface, baseSubSpace, this);
+		addr = _memorySubSpace->allocationRequestFailed(env, allocateDescription, allocationType,
+														objectAllocationInterface, baseSubSpace, this);
 		if (NULL != addr) {
 			return addr;
 		}
@@ -92,7 +96,8 @@ MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_Alloc
 			/* Beaten to exclusive access for our collector by another thread - a GC must have occurred.  This thread
 			 * does NOT have exclusive access at this point.  Try and satisfy the allocate based on a GC having occurred.
 			 */
-			addr = allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, _memorySubSpace);
+			addr =
+				allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, _memorySubSpace);
 			if (NULL != addr) {
 				return addr;
 			}
@@ -103,7 +108,8 @@ MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_Alloc
 			if (!env->acquireExclusiveVMAccessForGC(_collector)) {
 				/* we have exclusive access but another thread beat us to the GC so see if they collected enough to satisfy our request */
 				allocateDescription->restoreObjects(env);
-				addr = allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, _memorySubSpace);
+				addr = allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface,
+									   _memorySubSpace);
 				if (NULL != addr) {
 					/* Satisfied the allocate after having grabbed exclusive access to perform a GC (without actually performing the GC).  Raise
 					 * an event for tracing / verbose to report the occurrence.
@@ -115,7 +121,8 @@ MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_Alloc
 				/* we still failed the allocate so try a resize to get more space */
 				reportAllocationFailureStart(env, allocateDescription);
 				performResize(env, allocateDescription);
-				addr = allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, baseSubSpace);
+				addr =
+					allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, baseSubSpace);
 
 				if (addr) {
 					/* Satisfied the allocate after having grabbed exclusive access to perform a GC (without actually performing the GC).  Raise
@@ -140,7 +147,8 @@ MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_Alloc
 
 		/* run the collector in the default mode (ie:  not explicitly aggressive) */
 		allocateDescription->setAllocationType(allocationType);
-		addr = _collector->garbageCollect(env, this, allocateDescription, J9MMCONSTANT_IMPLICIT_GC_DEFAULT, objectAllocationInterface, baseSubSpace, NULL);
+		addr = _collector->garbageCollect(env, this, allocateDescription, J9MMCONSTANT_IMPLICIT_GC_DEFAULT,
+										  objectAllocationInterface, baseSubSpace, NULL);
 		allocateDescription->restoreObjects(env);
 
 		if (addr) {
@@ -150,7 +158,8 @@ MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_Alloc
 
 		allocateDescription->saveObjects(env);
 		/* The collect wasn't good enough to satisfy the allocate so attempt an aggressive collection */
-		addr = _collector->garbageCollect(env, this, allocateDescription, J9MMCONSTANT_IMPLICIT_GC_AGGRESSIVE, objectAllocationInterface, baseSubSpace, NULL);
+		addr = _collector->garbageCollect(env, this, allocateDescription, J9MMCONSTANT_IMPLICIT_GC_AGGRESSIVE,
+										  objectAllocationInterface, baseSubSpace, NULL);
 		allocateDescription->restoreObjects(env);
 
 		reportAllocationFailureEnd(env);
@@ -164,7 +173,8 @@ MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_Alloc
 	/* If the caller was the child, forward the failure notification to the parent for handling */
 	if ((NULL != _parent) && (previousSubSpace != _parent)) {
 		/* see if the parent can find us some space */
-		return _parent->allocationRequestFailed(env, allocateDescription, allocationType, objectAllocationInterface, baseSubSpace, this);
+		return _parent->allocationRequestFailed(env, allocateDescription, allocationType, objectAllocationInterface,
+												baseSubSpace, this);
 	}
 
 	/* Nothing else to try - fail */
@@ -172,18 +182,22 @@ MM_MemorySubSpaceFlat::allocationRequestFailed(MM_EnvironmentBase* env, MM_Alloc
 }
 
 #if defined(OMR_GC_ARRAYLETS)
-void*
-MM_MemorySubSpaceFlat::allocateArrayletLeaf(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure)
+void *
+MM_MemorySubSpaceFlat::allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+											MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+											bool shouldCollectOnFailure)
 {
 
-	void* result = NULL;
+	void *result = NULL;
 
 	if (shouldCollectOnFailure) {
-		result = _memorySubSpace->allocateArrayletLeaf(env, allocDescription, baseSubSpace, this, shouldCollectOnFailure);
+		result =
+			_memorySubSpace->allocateArrayletLeaf(env, allocDescription, baseSubSpace, this, shouldCollectOnFailure);
 	} else {
 		/* If request came from parent, forward the failure handling to the child first */
 		if (previousSubSpace == _parent) {
-			result = _memorySubSpace->allocateArrayletLeaf(env, allocDescription, baseSubSpace, this, shouldCollectOnFailure);
+			result = _memorySubSpace->allocateArrayletLeaf(env, allocDescription, baseSubSpace, this,
+														   shouldCollectOnFailure);
 		}
 	}
 	return result;
@@ -196,7 +210,7 @@ MM_MemorySubSpaceFlat::allocateArrayletLeaf(MM_EnvironmentBase* env, MM_Allocate
  * parent for the stats.
  * @return Addres of allocation failure statistics
  */
-MM_AllocationFailureStats*
+MM_AllocationFailureStats *
 MM_MemorySubSpaceFlat::getAllocationFailureStats()
 {
 	if (_collector) {
@@ -214,15 +228,20 @@ MM_MemorySubSpaceFlat::getAllocationFailureStats()
  * 
  * @return TRUE if TLH allocated; FALSE otherwise
  */
-void*
-MM_MemorySubSpaceFlat::allocateTLH(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription, MM_ObjectAllocationInterface* objectAllocationInterface, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure)
+void *
+MM_MemorySubSpaceFlat::allocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+								   MM_ObjectAllocationInterface *objectAllocationInterface,
+								   MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+								   bool shouldCollectOnFailure)
 {
 	if (shouldCollectOnFailure) {
-		return _memorySubSpace->allocateTLH(env, allocDescription, objectAllocationInterface, baseSubSpace, this, shouldCollectOnFailure);
+		return _memorySubSpace->allocateTLH(env, allocDescription, objectAllocationInterface, baseSubSpace, this,
+											shouldCollectOnFailure);
 	} else {
 		if (previousSubSpace == _parent) {
 			/* Retry the allocate - should succeed unless heap fragmented */
-			return _memorySubSpace->allocateTLH(env, allocDescription, objectAllocationInterface, baseSubSpace, this, shouldCollectOnFailure);
+			return _memorySubSpace->allocateTLH(env, allocDescription, objectAllocationInterface, baseSubSpace, this,
+												shouldCollectOnFailure);
 		}
 		return NULL;
 	}
@@ -241,7 +260,7 @@ MM_MemorySubSpaceFlat::allocateTLH(MM_EnvironmentBase* env, MM_AllocateDescripti
  * 
  */
 void
-MM_MemorySubSpaceFlat::abandonHeapChunk(void* addrBase, void* addrTop)
+MM_MemorySubSpaceFlat::abandonHeapChunk(void *addrBase, void *addrTop)
 {
 }
 
@@ -255,7 +274,7 @@ MM_MemorySubSpaceFlat::abandonHeapChunk(void* addrBase, void* addrTop)
  * 
  * @return Address of default memory subspace
  */
-MM_MemorySubSpace*
+MM_MemorySubSpace *
 MM_MemorySubSpaceFlat::getDefaultMemorySubSpace()
 {
 	return getChildSubSpace();
@@ -266,7 +285,7 @@ MM_MemorySubSpaceFlat::getDefaultMemorySubSpace()
  * 
  * @return Address of tenure memory subspace
  */
-MM_MemorySubSpace*
+MM_MemorySubSpace *
 MM_MemorySubSpaceFlat::getTenureMemorySubSpace()
 {
 	return getChildSubSpace();
@@ -275,17 +294,19 @@ MM_MemorySubSpaceFlat::getTenureMemorySubSpace()
 /**
  * Initialization
  */
-MM_MemorySubSpaceFlat*
-MM_MemorySubSpaceFlat::newInstance(
-	MM_EnvironmentBase* env, MM_PhysicalSubArena* physicalSubArena, MM_MemorySubSpace* childMemorySubSpace,
-	bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize,
-	uintptr_t memoryType, uint32_t objectFlags)
+MM_MemorySubSpaceFlat *
+MM_MemorySubSpaceFlat::newInstance(MM_EnvironmentBase *env, MM_PhysicalSubArena *physicalSubArena,
+								   MM_MemorySubSpace *childMemorySubSpace, bool usesGlobalCollector,
+								   uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize,
+								   uintptr_t memoryType, uint32_t objectFlags)
 {
-	MM_MemorySubSpaceFlat* memorySubSpace;
+	MM_MemorySubSpaceFlat *memorySubSpace;
 
-	memorySubSpace = (MM_MemorySubSpaceFlat*)env->getForge()->allocate(sizeof(MM_MemorySubSpaceFlat), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	memorySubSpace = (MM_MemorySubSpaceFlat *)env->getForge()->allocate(
+		sizeof(MM_MemorySubSpaceFlat), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (memorySubSpace) {
-		new (memorySubSpace) MM_MemorySubSpaceFlat(env, physicalSubArena, childMemorySubSpace, usesGlobalCollector, minimumSize, initialSize, maximumSize, memoryType, objectFlags);
+		new (memorySubSpace) MM_MemorySubSpaceFlat(env, physicalSubArena, childMemorySubSpace, usesGlobalCollector,
+												   minimumSize, initialSize, maximumSize, memoryType, objectFlags);
 		if (!memorySubSpace->initialize(env)) {
 			memorySubSpace->kill(env);
 			memorySubSpace = NULL;
@@ -295,7 +316,7 @@ MM_MemorySubSpaceFlat::newInstance(
 }
 
 bool
-MM_MemorySubSpaceFlat::initialize(MM_EnvironmentBase* env)
+MM_MemorySubSpaceFlat::initialize(MM_EnvironmentBase *env)
 {
 	if (!MM_MemorySubSpace::initialize(env)) {
 		return false;
@@ -308,7 +329,7 @@ MM_MemorySubSpaceFlat::initialize(MM_EnvironmentBase* env)
 	if (env->getExtensions()->concurrentMark) {
 		setConcurrentCollectable();
 
-		MM_MemorySubSpace* child = getChildren();
+		MM_MemorySubSpace *child = getChildren();
 		while (child) {
 			child->setConcurrentCollectable();
 			child = child->getNext();
@@ -324,9 +345,9 @@ MM_MemorySubSpaceFlat::initialize(MM_EnvironmentBase* env)
  * @return the updated expand size
  */
 uintptr_t
-MM_MemorySubSpaceFlat::adjustExpansionWithinUserIncrement(MM_EnvironmentBase* env, uintptr_t expandSize)
+MM_MemorySubSpaceFlat::adjustExpansionWithinUserIncrement(MM_EnvironmentBase *env, uintptr_t expandSize)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	if (extensions->allocationIncrementSetByUser) {
 		uintptr_t expandIncrement = extensions->allocationIncrement;
@@ -351,9 +372,9 @@ MM_MemorySubSpaceFlat::adjustExpansionWithinUserIncrement(MM_EnvironmentBase* en
  * @return the amount by which the receiver can expand
  */
 uintptr_t
-MM_MemorySubSpaceFlat::maxExpansionInSpace(MM_EnvironmentBase* env)
+MM_MemorySubSpaceFlat::maxExpansionInSpace(MM_EnvironmentBase *env)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	uintptr_t expandIncrement = extensions->allocationIncrement;
 	uintptr_t maxExpandAmount;
 
@@ -373,7 +394,8 @@ MM_MemorySubSpaceFlat::maxExpansionInSpace(MM_EnvironmentBase* env)
  * Handle the initial heap expansion during startup.
  */
 bool
-MM_MemorySubSpaceFlat::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena, MM_HeapRegionDescriptor* region, bool canCoalesce)
+MM_MemorySubSpaceFlat::expanded(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, MM_HeapRegionDescriptor *region,
+								bool canCoalesce)
 {
 	/* Inform the child */
 	return _memorySubSpace->expanded(env, subArena, region, canCoalesce);
@@ -383,7 +405,8 @@ MM_MemorySubSpaceFlat::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena* su
  * Memory described by the range has been added to the heap and been made available to the subspace as free memory.
  */
 bool
-MM_MemorySubSpaceFlat::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena, uintptr_t size, void* lowAddress, void* highAddress, bool canCoalesce)
+MM_MemorySubSpaceFlat::expanded(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, uintptr_t size,
+								void *lowAddress, void *highAddress, bool canCoalesce)
 {
 	/* Inform the child */
 	return _memorySubSpace->expanded(env, subArena, size, lowAddress, highAddress, canCoalesce);
@@ -396,7 +419,7 @@ MM_MemorySubSpaceFlat::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena* su
  * @return The amount of heap available for contraction factoring in the size of the allocate (if applicable)
  */
 uintptr_t
-MM_MemorySubSpaceFlat::getAvailableContractionSize(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription)
+MM_MemorySubSpaceFlat::getAvailableContractionSize(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription)
 {
 	return _physicalSubArena->getAvailableContractionSize(env, _memorySubSpace, allocDescription);
 }
@@ -410,13 +433,15 @@ MM_MemorySubSpaceFlat::getAvailableContractionSize(MM_EnvironmentBase* env, MM_A
  * @note This call is not protected by any locking mechanism.
  */
 uintptr_t
-MM_MemorySubSpaceFlat::collectorExpand(MM_EnvironmentBase* env, MM_Collector* requestCollector, MM_AllocateDescription* allocDescription)
+MM_MemorySubSpaceFlat::collectorExpand(MM_EnvironmentBase *env, MM_Collector *requestCollector,
+									   MM_AllocateDescription *allocDescription)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	uintptr_t expansionAmount;
 	uintptr_t expandSize;
 
-	Trc_MM_MemorySubSpaceFlat_collectorExpand_Entry(env->getLanguageVMThread(), requestCollector, allocDescription->getBytesRequested());
+	Trc_MM_MemorySubSpaceFlat_collectorExpand_Entry(env->getLanguageVMThread(), requestCollector,
+													allocDescription->getBytesRequested());
 
 	/* Determine the amount to expand the heap */
 	/* TODO: When this turns to %s, getActiveMemorySize() should be used to help determine the expand size */

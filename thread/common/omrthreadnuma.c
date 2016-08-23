@@ -82,7 +82,8 @@ omrthread_numa_get_max_node(void)
  * @see omrthread_numa_set_node_affinity(omrthread_t thread, const uintptr_t *nodeList, uintptr_t nodeCount, uint32_t flags)
  */
 intptr_t
-omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t nodeCount, uint32_t flags)
+omrthread_numa_set_node_affinity_nolock(omrthread_t thread, const uintptr_t *nodeList, uintptr_t nodeCount,
+										uint32_t flags)
 {
 	return 0;
 }

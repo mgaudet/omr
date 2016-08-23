@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "PhysicalSubArenaRegionBased.hpp"
 
 #include "EnvironmentBase.hpp"
@@ -30,14 +29,13 @@
 #include "PhysicalArenaRegionBased.hpp"
 
 MM_PhysicalSubArenaRegionBased::MM_PhysicalSubArenaRegionBased(MM_Heap *heap)
-	: MM_PhysicalSubArena(heap)
-	, _nextSubArena(NULL)
-#if defined (OMR_GC_VLHGC)
-	, _affinityLeaders(NULL)
+	: MM_PhysicalSubArena(heap), _nextSubArena(NULL)
+#if defined(OMR_GC_VLHGC)
+	  ,
+	  _affinityLeaders(NULL)
 #endif /* defined (OMR_GC_VLHGC) */
-	, _affinityLeaderCount(0)
-	, _nextNUMAIndex(0)
-	,_extensions(NULL)
+	  ,
+	  _affinityLeaderCount(0), _nextNUMAIndex(0), _extensions(NULL)
 {
 	_typeId = __FUNCTION__;
 }
@@ -45,10 +43,11 @@ MM_PhysicalSubArenaRegionBased::MM_PhysicalSubArenaRegionBased(MM_Heap *heap)
 MM_PhysicalSubArenaRegionBased *
 MM_PhysicalSubArenaRegionBased::newInstance(MM_EnvironmentBase *env, MM_Heap *heap)
 {
-	MM_PhysicalSubArenaRegionBased *arena = (MM_PhysicalSubArenaRegionBased *)env->getForge()->allocate(sizeof(MM_PhysicalSubArenaRegionBased), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	MM_PhysicalSubArenaRegionBased *arena = (MM_PhysicalSubArenaRegionBased *)env->getForge()->allocate(
+		sizeof(MM_PhysicalSubArenaRegionBased), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (arena) {
-		new(arena) MM_PhysicalSubArenaRegionBased(heap);
-		if(!arena->initialize(env)) {
+		new (arena) MM_PhysicalSubArenaRegionBased(heap);
+		if (!arena->initialize(env)) {
 			arena->kill(env);
 			return NULL;
 		}
@@ -56,7 +55,7 @@ MM_PhysicalSubArenaRegionBased::newInstance(MM_EnvironmentBase *env, MM_Heap *he
 	return arena;
 }
 
-bool 
+bool
 MM_PhysicalSubArenaRegionBased::initialize(MM_EnvironmentBase *env)
 {
 	if (!MM_PhysicalSubArena::initialize(env)) {
@@ -65,9 +64,9 @@ MM_PhysicalSubArenaRegionBased::initialize(MM_EnvironmentBase *env)
 
 	_extensions = env->getExtensions();
 	if (_extensions->isVLHGC()) {
-#if defined (OMR_GC_VLHGC)	
+#if defined(OMR_GC_VLHGC)
 		_affinityLeaders = _extensions->_numaManager.getAffinityLeaders(&_affinityLeaderCount);
-#endif /* defined (OMR_GC_VLHGC) */		
+#endif /* defined (OMR_GC_VLHGC) */
 	}
 
 	return true;
@@ -85,13 +84,13 @@ MM_PhysicalSubArenaRegionBased::inflate(MM_EnvironmentBase *env)
 	return _parent->attachSubArena(env, this, _subSpace->getInitialSize(), modron_pavm_attach_policy_none);
 }
 
-uintptr_t 
+uintptr_t
 MM_PhysicalSubArenaRegionBased::getNextNumaNode()
 {
 	uintptr_t result = 0;
 
 	if (_extensions->isVLHGC()) {
-#if defined (OMR_GC_VLHGC)
+#if defined(OMR_GC_VLHGC)
 		if (_nextNUMAIndex < _affinityLeaderCount) {
 			result = _affinityLeaders[_nextNUMAIndex].j9NodeNumber;
 		}
@@ -105,13 +104,13 @@ MM_PhysicalSubArenaRegionBased::getNextNumaNode()
 	return result;
 }
 
-uintptr_t 
+uintptr_t
 MM_PhysicalSubArenaRegionBased::getPreviousNumaNode()
 {
 	uintptr_t result = 0;
 
 	if (_extensions->isVLHGC()) {
-#if defined (OMR_GC_VLHGC)
+#if defined(OMR_GC_VLHGC)
 		if (_affinityLeaderCount > 0) {
 			_nextNUMAIndex = (_nextNUMAIndex + _affinityLeaderCount - 1) % _affinityLeaderCount;
 
@@ -125,12 +124,12 @@ MM_PhysicalSubArenaRegionBased::getPreviousNumaNode()
 	return result;
 }
 
-
 /*
  * Perform the expansion and associate the expanded regions with the subspace
  */
 uintptr_t
-MM_PhysicalSubArenaRegionBased::doContractInSubSpace(MM_EnvironmentBase *env, uintptr_t contractSize, MM_MemorySubSpace *subspace)
+MM_PhysicalSubArenaRegionBased::doContractInSubSpace(MM_EnvironmentBase *env, uintptr_t contractSize,
+													 MM_MemorySubSpace *subspace)
 {
 	uintptr_t didContractBy = 0;
 	MM_HeapRegionManagerTarok *manager = MM_HeapRegionManagerTarok::getHeapRegionManager(_heap);
@@ -140,9 +139,9 @@ MM_PhysicalSubArenaRegionBased::doContractInSubSpace(MM_EnvironmentBase *env, ui
 	while (didContractBy < contractSize) {
 		/* always contract from the most recent NUMA index first and work backwards */
 		uintptr_t formerNodeIndex = _nextNUMAIndex;
-		uintptr_t numaIndex = getPreviousNumaNode(); 
+		uintptr_t numaIndex = getPreviousNumaNode();
 		MM_HeapRegionDescriptor *regionToRelease = subspace->selectRegionForContraction(env, numaIndex);
-		
+
 		if (NULL == regionToRelease) {
 			/* no more free regions to contract */
 			_nextNUMAIndex = formerNodeIndex;
@@ -154,21 +153,22 @@ MM_PhysicalSubArenaRegionBased::doContractInSubSpace(MM_EnvironmentBase *env, ui
 		void *contractBase = subspace->removeExistingMemory(env, this, regionSize, base, top);
 		Assert_MM_true(contractBase == regionToRelease->getLowAddress());
 		manager->releaseTableRegions(env, regionToRelease);
-		
+
 		/* We set the low valid and high valid address to make sure 
 		 * the rest of the collector structure doesn't incorrectly assume 
 		 * that this region is at the edge of the heap.
 		 */
-		void *lowValidAddress = manager->findHighestValidAddressBelow(regionToRelease); 
+		void *lowValidAddress = manager->findHighestValidAddressBelow(regionToRelease);
 		void *highValidAddress = manager->findLowestValidAddressAbove(regionToRelease);
-		
+
 		/* decommits the memory */
 		_heap->decommitMemory(contractBase, regionSize, lowValidAddress, highValidAddress);
-		
+
 		void *contractTop = (void *)(((uintptr_t)contractBase) + regionSize);
 		/* Broadcast that heap has been removed */
-		subspace->heapRemoveRange(env, _subSpace, regionSize, contractBase, contractTop, lowValidAddress, highValidAddress);
-		
+		subspace->heapRemoveRange(env, _subSpace, regionSize, contractBase, contractTop, lowValidAddress,
+								  highValidAddress);
+
 		didContractBy += regionSize;
 	}
 	validateNumaSymmetry(env);
@@ -181,7 +181,8 @@ MM_PhysicalSubArenaRegionBased::doContractInSubSpace(MM_EnvironmentBase *env, ui
  * Perform the expandsion and associate the expanded regions with the subspace
  */
 uintptr_t
-MM_PhysicalSubArenaRegionBased::doExpandInSubSpace(MM_EnvironmentBase *env, uintptr_t expandSize, MM_MemorySubSpace *subspace)
+MM_PhysicalSubArenaRegionBased::doExpandInSubSpace(MM_EnvironmentBase *env, uintptr_t expandSize,
+												   MM_MemorySubSpace *subspace)
 {
 	uintptr_t didExpandBy = 0;
 	MM_HeapRegionManagerTarok *manager = MM_HeapRegionManagerTarok::getHeapRegionManager(_heap);
@@ -198,10 +199,8 @@ MM_PhysicalSubArenaRegionBased::doExpandInSubSpace(MM_EnvironmentBase *env, uint
 			break;
 		}
 		Assert_MM_true(newRegion->getNumaNode() == numaNode);
-		if (!newRegion->allocateSupportingResources(env)
-			|| !_heap->commitMemory(newRegion->getLowAddress(), regionSize)
-			|| !subspace->expanded(env, this, newRegion, false)
-			) {
+		if (!newRegion->allocateSupportingResources(env) || !_heap->commitMemory(newRegion->getLowAddress(), regionSize)
+			|| !subspace->expanded(env, this, newRegion, false)) {
 			/* if we fail to commit, do not fail silently, bail instead */
 			manager->releaseTableRegions(env, newRegion);
 			_nextNUMAIndex = formerNodeIndex;
@@ -223,14 +222,14 @@ uintptr_t
 MM_PhysicalSubArenaRegionBased::performExpand(MM_EnvironmentBase *env, uintptr_t expandSize)
 {
 	uintptr_t result = 0;
-	
+
 	if (((MM_PhysicalArenaRegionBased *)_parent)->canResize(env, this, expandSize)) {
 		MM_MemorySubSpace *subSpace = getSubSpace();
 		subSpace = (NULL == subSpace->getChildren()) ? subSpace : subSpace->getChildren();
-		
+
 		result = doExpandInSubSpace(env, expandSize, subSpace);
 	}
-	
+
 	return result;
 }
 
@@ -240,7 +239,7 @@ MM_PhysicalSubArenaRegionBased::expand(MM_EnvironmentBase *env, uintptr_t expand
 	return performExpand(env, expandSize);
 }
 
-uintptr_t 
+uintptr_t
 MM_PhysicalSubArenaRegionBased::contract(MM_EnvironmentBase *env, uintptr_t expandSize)
 {
 	if (((MM_PhysicalArenaRegionBased *)_parent)->canResize(env, this, expandSize)) {
@@ -248,15 +247,16 @@ MM_PhysicalSubArenaRegionBased::contract(MM_EnvironmentBase *env, uintptr_t expa
 	}
 	return 0;
 }
-	
-bool 
+
+bool
 MM_PhysicalSubArenaRegionBased::canContract(MM_EnvironmentBase *env)
 {
 	return _resizable;
 }
 
-uintptr_t 
-MM_PhysicalSubArenaRegionBased::getAvailableContractionSize(MM_EnvironmentBase *env, MM_MemorySubSpace *memorySubSpace, MM_AllocateDescription *allocDescription)
+uintptr_t
+MM_PhysicalSubArenaRegionBased::getAvailableContractionSize(MM_EnvironmentBase *env, MM_MemorySubSpace *memorySubSpace,
+															MM_AllocateDescription *allocDescription)
 {
 	/* region based heap is discontiguous so we don't have the restriction that we must contract at the end of the subspace */
 	return UDATA_MAX;
@@ -277,7 +277,7 @@ MM_PhysicalSubArenaRegionBased::validateNumaSymmetry(MM_EnvironmentBase *env)
 {
 	Trc_MM_PhysicalSubArenaRegionBased_validateNumaSymmetry_Entry(env->getLanguageVMThread());
 	if (_extensions->isVLHGC()) {
-#if defined (OMR_GC_VLHGC)	
+#if defined(OMR_GC_VLHGC)
 		if (_extensions->tarokEnableExpensiveAssertions) {
 			if (_affinityLeaderCount > 0) {
 				uintptr_t currentNode = 0;
@@ -296,7 +296,8 @@ MM_PhysicalSubArenaRegionBased::validateNumaSymmetry(MM_EnvironmentBase *env)
 						if (0 != currentNode) {
 							highestCount = OMR_MAX(currentCount, highestCount);
 							lowestCount = OMR_MIN(currentCount, lowestCount);
-							Trc_MM_PhysicalSubArenaRegionBased_validateNumaSymmetry_NodeSummary(env->getLanguageVMThread(), currentCount, currentNode);
+							Trc_MM_PhysicalSubArenaRegionBased_validateNumaSymmetry_NodeSummary(
+								env->getLanguageVMThread(), currentCount, currentNode);
 						}
 						currentCount = 1;
 						Assert_MM_true(region->getNumaNode() > currentNode);
@@ -306,8 +307,10 @@ MM_PhysicalSubArenaRegionBased::validateNumaSymmetry(MM_EnvironmentBase *env)
 				}
 				highestCount = OMR_MAX(currentCount, highestCount);
 				lowestCount = OMR_MIN(currentCount, lowestCount);
-				Trc_MM_PhysicalSubArenaRegionBased_validateNumaSymmetry_NodeSummary(env->getLanguageVMThread(), currentCount, currentNode);
-				Trc_MM_PhysicalSubArenaRegionBased_validateNumaSymmetry_TotalSummary(env->getLanguageVMThread(), highestCount, lowestCount, nodeCount, _affinityLeaderCount);
+				Trc_MM_PhysicalSubArenaRegionBased_validateNumaSymmetry_NodeSummary(env->getLanguageVMThread(),
+																					currentCount, currentNode);
+				Trc_MM_PhysicalSubArenaRegionBased_validateNumaSymmetry_TotalSummary(
+					env->getLanguageVMThread(), highestCount, lowestCount, nodeCount, _affinityLeaderCount);
 				Assert_MM_true(highestCount <= (lowestCount + 1));
 				Assert_MM_true((nodeCount == _affinityLeaderCount) || (1 >= highestCount));
 			}

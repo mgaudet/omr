@@ -41,12 +41,14 @@
  * @note The actual heap size might be smaller than the requested size, in order to satisfy
  * alignment requirements. Use getMaximumSize() to get the actual allocation size.
  */
-MM_HeapVirtualMemory*
-MM_HeapVirtualMemory::newInstance(MM_EnvironmentBase* env, uintptr_t heapAlignment, uintptr_t size, MM_HeapRegionManager* regionManager)
+MM_HeapVirtualMemory *
+MM_HeapVirtualMemory::newInstance(MM_EnvironmentBase *env, uintptr_t heapAlignment, uintptr_t size,
+								  MM_HeapRegionManager *regionManager)
 {
-	MM_HeapVirtualMemory* heap;
+	MM_HeapVirtualMemory *heap;
 
-	heap = (MM_HeapVirtualMemory*)env->getForge()->allocate(sizeof(MM_HeapVirtualMemory), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	heap = (MM_HeapVirtualMemory *)env->getForge()->allocate(sizeof(MM_HeapVirtualMemory), MM_AllocationCategory::FIXED,
+															 OMR_GET_CALLSITE());
 	if (heap) {
 		new (heap) MM_HeapVirtualMemory(env, heapAlignment, size, regionManager);
 		if (!heap->initialize(env, size)) {
@@ -58,22 +60,22 @@ MM_HeapVirtualMemory::newInstance(MM_EnvironmentBase* env, uintptr_t heapAlignme
 }
 
 bool
-MM_HeapVirtualMemory::initialize(MM_EnvironmentBase* env, uintptr_t size)
+MM_HeapVirtualMemory::initialize(MM_EnvironmentBase *env, uintptr_t size)
 {
 	/* call the superclass to inialize before we do any work */
 	if (!MM_Heap::initialize(env)) {
 		return false;
 	}
 
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	uintptr_t padding = extensions->heapTailPadding;
 
 	uintptr_t effectiveHeapAlignment = _heapAlignment;
 	/* we need to ensure that we allocate the heap with region alignment since the region table requires that */
-	MM_HeapRegionManager* manager = getHeapRegionManager();
+	MM_HeapRegionManager *manager = getHeapRegionManager();
 	effectiveHeapAlignment = MM_Math::roundToCeiling(manager->getRegionSize(), effectiveHeapAlignment);
 
-	MM_MemoryManager* memoryManager = extensions->memoryManager;
+	MM_MemoryManager *memoryManager = extensions->memoryManager;
 	bool created = false;
 	bool forcedOverflowProtection = false;
 
@@ -94,7 +96,8 @@ MM_HeapVirtualMemory::initialize(MM_EnvironmentBase* env, uintptr_t size)
 		uintptr_t effectiveSize = MM_Math::roundToCeiling(manager->getRegionSize(), size);
 		void *preferredHeapBase = (void *)((uintptr_t)0 - effectiveSize);
 
-		created = memoryManager->createVirtualMemoryForHeap(env, &_vmemHandle, effectiveHeapAlignment, size, padding, preferredHeapBase, (void *)(extensions->heapCeiling));
+		created = memoryManager->createVirtualMemoryForHeap(env, &_vmemHandle, effectiveHeapAlignment, size, padding,
+															preferredHeapBase, (void *)(extensions->heapCeiling));
 		if (created) {
 			/* overflow protection must be there to play role of padding even top is not so close to the end of the memory */
 			forcedOverflowProtection = true;
@@ -102,7 +105,7 @@ MM_HeapVirtualMemory::initialize(MM_EnvironmentBase* env, uintptr_t size)
 #endif /* (defined(AIXPPC) && !defined(PPC64)) */
 		{
 #if defined(OMR_GC_COMPRESSED_POINTERS) && !(defined(J9ZOS390) || defined(S390))
-			/*
+/*
 			 * For all compressed references platforms (except 390)
 			 * ignore extra full page padding if page size is too large (hard coded here for 1G or larger)
 			 */
@@ -117,12 +120,17 @@ MM_HeapVirtualMemory::initialize(MM_EnvironmentBase* env, uintptr_t size)
 		}
 	}
 
-	if (!created && !memoryManager->createVirtualMemoryForHeap(env, &_vmemHandle, effectiveHeapAlignment, size, padding, (void*)(extensions->preferredHeapBase), (void*)(extensions->heapCeiling))) {
+	if (!created
+		&& !memoryManager->createVirtualMemoryForHeap(env, &_vmemHandle, effectiveHeapAlignment, size, padding,
+													  (void *)(extensions->preferredHeapBase),
+													  (void *)(extensions->heapCeiling))) {
 		return false;
 	}
 
 	/* Check we haven't overflowed the address range */
-	if (forcedOverflowProtection || (HIGH_ADDRESS - ((uintptr_t)memoryManager->getHeapTop(&_vmemHandle)) < (OVERFLOW_ROUNDING)) || extensions->fvtest_alwaysApplyOverflowRounding) {
+	if (forcedOverflowProtection
+		|| (HIGH_ADDRESS - ((uintptr_t)memoryManager->getHeapTop(&_vmemHandle)) < (OVERFLOW_ROUNDING))
+		|| extensions->fvtest_alwaysApplyOverflowRounding) {
 		/* Address range overflow */
 		memoryManager->roundDownTop(&_vmemHandle, OVERFLOW_ROUNDING);
 	}
@@ -135,10 +143,10 @@ MM_HeapVirtualMemory::initialize(MM_EnvironmentBase* env, uintptr_t size)
 }
 
 void
-MM_HeapVirtualMemory::tearDown(MM_EnvironmentBase* env)
+MM_HeapVirtualMemory::tearDown(MM_EnvironmentBase *env)
 {
-	MM_MemoryManager* memoryManager = env->getExtensions()->memoryManager;
-	MM_HeapRegionManager* manager = getHeapRegionManager();
+	MM_MemoryManager *memoryManager = env->getExtensions()->memoryManager;
+	MM_HeapRegionManager *manager = getHeapRegionManager();
 
 	if (NULL != manager) {
 		manager->destroyRegionTable(env);
@@ -150,7 +158,7 @@ MM_HeapVirtualMemory::tearDown(MM_EnvironmentBase* env)
 }
 
 void
-MM_HeapVirtualMemory::kill(MM_EnvironmentBase* env)
+MM_HeapVirtualMemory::kill(MM_EnvironmentBase *env)
 {
 	tearDown(env);
 	env->getForge()->free(this);
@@ -160,10 +168,10 @@ MM_HeapVirtualMemory::kill(MM_EnvironmentBase* env)
  * Answer the lowest possible address for the heap that will ever be possible.
  * @return Lowest address possible for the heap.
  */
-void*
+void *
 MM_HeapVirtualMemory::getHeapBase()
 {
-	MM_MemoryManager* memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
+	MM_MemoryManager *memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
 	return memoryManager->getHeapBase(&_vmemHandle);
 }
 
@@ -171,24 +179,24 @@ MM_HeapVirtualMemory::getHeapBase()
  * Answer the highest possible address for the heap that will ever be possible.
  * @return Highest address possible for the heap.
  */
-void*
+void *
 MM_HeapVirtualMemory::getHeapTop()
 {
-	MM_MemoryManager* memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
+	MM_MemoryManager *memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
 	return memoryManager->getHeapTop(&_vmemHandle);
 }
 
 uintptr_t
 MM_HeapVirtualMemory::getPageSize()
 {
-	MM_MemoryManager* memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
+	MM_MemoryManager *memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
 	return memoryManager->getPageSize(&_vmemHandle);
 }
 
 uintptr_t
 MM_HeapVirtualMemory::getPageFlags()
 {
-	MM_MemoryManager* memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
+	MM_MemoryManager *memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
 	return memoryManager->getPageFlags(&_vmemHandle);
 }
 
@@ -202,7 +210,7 @@ MM_HeapVirtualMemory::getPageFlags()
 uintptr_t
 MM_HeapVirtualMemory::getMaximumPhysicalRange()
 {
-	MM_MemoryManager* memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
+	MM_MemoryManager *memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
 	return ((uintptr_t)memoryManager->getMaximumSize(&_vmemHandle));
 }
 
@@ -210,11 +218,11 @@ MM_HeapVirtualMemory::getMaximumPhysicalRange()
  * Remove a physical arena from the receiver.
  */
 void
-MM_HeapVirtualMemory::detachArena(MM_EnvironmentBase* env, MM_PhysicalArena* arena)
+MM_HeapVirtualMemory::detachArena(MM_EnvironmentBase *env, MM_PhysicalArena *arena)
 {
-	MM_PhysicalArena* currentArena = arena;
-	MM_PhysicalArena* previous = currentArena->getPreviousArena();
-	MM_PhysicalArena* next = currentArena->getNextArena();
+	MM_PhysicalArena *currentArena = arena;
+	MM_PhysicalArena *previous = currentArena->getPreviousArena();
+	MM_PhysicalArena *next = currentArena->getNextArena();
 
 	if (previous) {
 		previous->setNextArena(next);
@@ -239,21 +247,21 @@ MM_HeapVirtualMemory::detachArena(MM_EnvironmentBase* env, MM_PhysicalArena* are
  * @note The memory reseved is not commited.
  */
 bool
-MM_HeapVirtualMemory::attachArena(MM_EnvironmentBase* env, MM_PhysicalArena* arena, uintptr_t size)
+MM_HeapVirtualMemory::attachArena(MM_EnvironmentBase *env, MM_PhysicalArena *arena, uintptr_t size)
 {
 	/* Sanity check of the size */
 	if (getMaximumMemorySize() < size) {
 		return false;
 	}
 
-	MM_GCExtensionsBase* extensions = env->getExtensions();
-	MM_MemoryManager* memoryManager = extensions->memoryManager;
+	MM_GCExtensionsBase *extensions = env->getExtensions();
+	MM_MemoryManager *memoryManager = extensions->memoryManager;
 
 	/* Find the insertion point for the currentArena */
-	void* candidateBase = memoryManager->getHeapBase(&_vmemHandle);
-	MM_PhysicalArena* insertionHead = NULL;
-	MM_PhysicalArena* insertionTail = _physicalArena;
-	MM_PhysicalArena* currentArena = arena;
+	void *candidateBase = memoryManager->getHeapBase(&_vmemHandle);
+	MM_PhysicalArena *insertionHead = NULL;
+	MM_PhysicalArena *insertionTail = _physicalArena;
+	MM_PhysicalArena *currentArena = arena;
 
 	while (insertionTail) {
 		if ((((uintptr_t)insertionTail->getLowAddress()) - ((uintptr_t)candidateBase)) >= size) {
@@ -289,7 +297,7 @@ MM_HeapVirtualMemory::attachArena(MM_EnvironmentBase* env, MM_PhysicalArena* are
 	}
 
 	currentArena->setLowAddress(candidateBase);
-	currentArena->setHighAddress((void*)(((uint8_t*)candidateBase) + size));
+	currentArena->setHighAddress((void *)(((uint8_t *)candidateBase) + size));
 
 	/* Set the arena state to being attached */
 	arena->setAttached(true);
@@ -303,10 +311,10 @@ MM_HeapVirtualMemory::attachArena(MM_EnvironmentBase* env, MM_PhysicalArena* are
  * @note This is a bit of a strange function to have as public API.  Should it be removed?
  */
 bool
-MM_HeapVirtualMemory::commitMemory(void* address, uintptr_t size)
+MM_HeapVirtualMemory::commitMemory(void *address, uintptr_t size)
 {
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
-	MM_MemoryManager* memoryManager = extensions->memoryManager;
+	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
+	MM_MemoryManager *memoryManager = extensions->memoryManager;
 	return memoryManager->commitMemory(&_vmemHandle, address, size);
 }
 
@@ -316,10 +324,10 @@ MM_HeapVirtualMemory::commitMemory(void* address, uintptr_t size)
  * @note This is a bit of a strange function to have as public API.  Should it be removed?
  */
 bool
-MM_HeapVirtualMemory::decommitMemory(void* address, uintptr_t size, void* lowValidAddress, void* highValidAddress)
+MM_HeapVirtualMemory::decommitMemory(void *address, uintptr_t size, void *lowValidAddress, void *highValidAddress)
 {
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
-	MM_MemoryManager* memoryManager = extensions->memoryManager;
+	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
+	MM_MemoryManager *memoryManager = extensions->memoryManager;
 	return memoryManager->decommitMemory(&_vmemHandle, address, size, lowValidAddress, highValidAddress);
 }
 
@@ -329,10 +337,10 @@ MM_HeapVirtualMemory::decommitMemory(void* address, uintptr_t size, void* lowVal
  * @return The offset from heap base.
  */
 uintptr_t
-MM_HeapVirtualMemory::calculateOffsetFromHeapBase(void* address)
+MM_HeapVirtualMemory::calculateOffsetFromHeapBase(void *address)
 {
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
-	MM_MemoryManager* memoryManager = extensions->memoryManager;
+	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
+	MM_MemoryManager *memoryManager = extensions->memoryManager;
 	return memoryManager->calculateOffsetFromHeapBase(&_vmemHandle, address);
 }
 
@@ -342,15 +350,16 @@ MM_HeapVirtualMemory::calculateOffsetFromHeapBase(void* address)
  */
 
 bool
-MM_HeapVirtualMemory::heapAddRange(MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, uintptr_t size, void* lowAddress, void* highAddress)
+MM_HeapVirtualMemory::heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size,
+								   void *lowAddress, void *highAddress)
 {
-	MM_Collector* globalCollector = env->getExtensions()->getGlobalCollector();
+	MM_Collector *globalCollector = env->getExtensions()->getGlobalCollector();
 
 	bool result = true;
 	if (NULL != globalCollector) {
 		result = globalCollector->heapAddRange(env, subspace, size, lowAddress, highAddress);
 	}
-	
+
 	env->getExtensions()->identityHashDataAddRange(env, subspace, size, lowAddress, highAddress);
 
 	return result;
@@ -364,13 +373,16 @@ MM_HeapVirtualMemory::heapAddRange(MM_EnvironmentBase* env, MM_MemorySubSpace* s
  * 
  */
 bool
-MM_HeapVirtualMemory::heapRemoveRange(MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, uintptr_t size, void* lowAddress, void* highAddress, void* lowValidAddress, void* highValidAddress)
+MM_HeapVirtualMemory::heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size,
+									  void *lowAddress, void *highAddress, void *lowValidAddress,
+									  void *highValidAddress)
 {
-	MM_Collector* globalCollector = env->getExtensions()->getGlobalCollector();
+	MM_Collector *globalCollector = env->getExtensions()->getGlobalCollector();
 
 	bool result = true;
 	if (NULL != globalCollector) {
-		result = globalCollector->heapRemoveRange(env, subspace, size, lowAddress, highAddress, lowValidAddress, highValidAddress);
+		result = globalCollector->heapRemoveRange(env, subspace, size, lowAddress, highAddress, lowValidAddress,
+												  highValidAddress);
 	}
 
 	env->getExtensions()->identityHashDataRemoveRange(env, subspace, size, lowAddress, highAddress);
@@ -379,16 +391,16 @@ MM_HeapVirtualMemory::heapRemoveRange(MM_EnvironmentBase* env, MM_MemorySubSpace
 }
 
 bool
-MM_HeapVirtualMemory::initializeHeapRegionManager(MM_EnvironmentBase* env, MM_HeapRegionManager* manager)
+MM_HeapVirtualMemory::initializeHeapRegionManager(MM_EnvironmentBase *env, MM_HeapRegionManager *manager)
 {
 	bool result = false;
 
 	/* since this kind of heap is backed by contiguous memory, tell the heap region manager (which was just
 	 * initialized by super) that we want to enable this range of regions for later use.
 	 */
-	MM_MemoryManager* memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
-	void* heapBase = memoryManager->getHeapBase(&_vmemHandle);
-	void* heapTop = memoryManager->getHeapTop(&_vmemHandle);
+	MM_MemoryManager *memoryManager = MM_GCExtensionsBase::getExtensions(_omrVM)->memoryManager;
+	void *heapBase = memoryManager->getHeapBase(&_vmemHandle);
+	void *heapTop = memoryManager->getHeapTop(&_vmemHandle);
 
 	if (manager->setContiguousHeapRange(env, heapBase, heapTop)) {
 		result = manager->enableRegionsInTable(env, &_vmemHandle);

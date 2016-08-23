@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 
 #include "SweepHeapSectioning.hpp"
@@ -32,31 +31,26 @@
  * 
  * @ingroup GC_Base
  */
-class MM_ParallelSweepChunkArray : public MM_BaseVirtual {
+class MM_ParallelSweepChunkArray : public MM_BaseVirtual
+{
 private:
-	MM_ParallelSweepChunk* _array; /**< backing store for chunks */
-	uintptr_t _used; /**< number of array elements used */
-	uintptr_t _size; /**< total array elements available */
-	MM_ParallelSweepChunkArray* _next; /**< next pointer in array list */
-	MM_MemoryHandle _memoryHandle; /**< memory handle for array backing store */
-	bool _useVmem; /**< if true the Virtual Memory instance is allocated */
+	MM_ParallelSweepChunk *_array;	 /**< backing store for chunks */
+	uintptr_t _used;				   /**< number of array elements used */
+	uintptr_t _size;				   /**< total array elements available */
+	MM_ParallelSweepChunkArray *_next; /**< next pointer in array list */
+	MM_MemoryHandle _memoryHandle;	 /**< memory handle for array backing store */
+	bool _useVmem;					   /**< if true the Virtual Memory instance is allocated */
 
 protected:
-	bool initialize(MM_EnvironmentBase* env, bool useVmem);
-	void tearDown(MM_EnvironmentBase* env);
+	bool initialize(MM_EnvironmentBase *env, bool useVmem);
+	void tearDown(MM_EnvironmentBase *env);
 
 public:
-	static MM_ParallelSweepChunkArray* newInstance(MM_EnvironmentBase* env, uintptr_t size, bool useVmem);
-	void kill(MM_EnvironmentBase* env);
+	static MM_ParallelSweepChunkArray *newInstance(MM_EnvironmentBase *env, uintptr_t size, bool useVmem);
+	void kill(MM_EnvironmentBase *env);
 
 	MM_ParallelSweepChunkArray(uintptr_t size)
-		: MM_BaseVirtual()
-		, _array(NULL)
-		, _used(0)
-		, _size(size)
-		, _next(NULL)
-		, _memoryHandle()
-		, _useVmem(false)
+		: MM_BaseVirtual(), _array(NULL), _used(0), _size(size), _next(NULL), _memoryHandle(), _useVmem(false)
 	{
 		_typeId = __FUNCTION__;
 	}
@@ -70,10 +64,10 @@ public:
  * @return true on success, false on failure.
  */
 bool
-MM_ParallelSweepChunkArray::initialize(MM_EnvironmentBase* env, bool useVmem)
+MM_ParallelSweepChunkArray::initialize(MM_EnvironmentBase *env, bool useVmem)
 {
 	bool result = false;
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	_useVmem = useVmem;
 
@@ -81,18 +75,21 @@ MM_ParallelSweepChunkArray::initialize(MM_EnvironmentBase* env, bool useVmem)
 		Trc_MM_SweepHeapSectioning_parallelSweepChunkArrayCommitFailureForced(env->getLanguageVMThread());
 	} else {
 		if (useVmem) {
-			MM_MemoryManager* memoryManager = extensions->memoryManager;
-			if (memoryManager->createVirtualMemoryForMetadata(env, &_memoryHandle, extensions->heapAlignment, _size * sizeof(MM_ParallelSweepChunk))) {
-				void* base = memoryManager->getHeapBase(&_memoryHandle);
+			MM_MemoryManager *memoryManager = extensions->memoryManager;
+			if (memoryManager->createVirtualMemoryForMetadata(env, &_memoryHandle, extensions->heapAlignment,
+															  _size * sizeof(MM_ParallelSweepChunk))) {
+				void *base = memoryManager->getHeapBase(&_memoryHandle);
 				result = memoryManager->commitMemory(&_memoryHandle, base, _size * sizeof(MM_ParallelSweepChunk));
 				if (!result) {
-					Trc_MM_SweepHeapSectioning_parallelSweepChunkArrayCommitFailed(env->getLanguageVMThread(), base, _size * sizeof(MM_ParallelSweepChunk));
+					Trc_MM_SweepHeapSectioning_parallelSweepChunkArrayCommitFailed(
+						env->getLanguageVMThread(), base, _size * sizeof(MM_ParallelSweepChunk));
 				}
-				_array = (MM_ParallelSweepChunk*)base;
+				_array = (MM_ParallelSweepChunk *)base;
 			}
 		} else {
 			if (0 != _size) {
-				_array = (MM_ParallelSweepChunk*)env->getForge()->allocate(_size * sizeof(MM_ParallelSweepChunk), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+				_array = (MM_ParallelSweepChunk *)env->getForge()->allocate(
+					_size * sizeof(MM_ParallelSweepChunk), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 				result = (NULL != _array);
 			} else {
 				result = true;
@@ -106,28 +103,29 @@ MM_ParallelSweepChunkArray::initialize(MM_EnvironmentBase* env, bool useVmem)
  * Free the receivers internal structures.
  */
 void
-MM_ParallelSweepChunkArray::tearDown(MM_EnvironmentBase* env)
+MM_ParallelSweepChunkArray::tearDown(MM_EnvironmentBase *env)
 {
 	if (_useVmem) {
-		MM_GCExtensionsBase* extensions = env->getExtensions();
-		MM_MemoryManager* memoryManager = extensions->memoryManager;
+		MM_GCExtensionsBase *extensions = env->getExtensions();
+		MM_MemoryManager *memoryManager = extensions->memoryManager;
 		memoryManager->destroyVirtualMemory(env, &_memoryHandle);
 	} else {
-		env->getForge()->free((void*)_array);
+		env->getForge()->free((void *)_array);
 	}
-	_array = (MM_ParallelSweepChunk*)NULL;
+	_array = (MM_ParallelSweepChunk *)NULL;
 }
 
 /**
  * Create a new instance of the receiver.
  * @return a new instance of the receiver, or NULL on failure.
  */
-MM_ParallelSweepChunkArray*
-MM_ParallelSweepChunkArray::newInstance(MM_EnvironmentBase* env, uintptr_t size, bool useVmem)
+MM_ParallelSweepChunkArray *
+MM_ParallelSweepChunkArray::newInstance(MM_EnvironmentBase *env, uintptr_t size, bool useVmem)
 {
-	MM_ParallelSweepChunkArray* array;
+	MM_ParallelSweepChunkArray *array;
 
-	array = (MM_ParallelSweepChunkArray*)env->getForge()->allocate(sizeof(MM_ParallelSweepChunkArray), MM_AllocationCategory::OTHER, OMR_GET_CALLSITE());
+	array = (MM_ParallelSweepChunkArray *)env->getForge()->allocate(sizeof(MM_ParallelSweepChunkArray),
+																	MM_AllocationCategory::OTHER, OMR_GET_CALLSITE());
 	if (NULL != array) {
 		new (array) MM_ParallelSweepChunkArray(size);
 		if (!array->initialize(env, useVmem)) {
@@ -142,7 +140,7 @@ MM_ParallelSweepChunkArray::newInstance(MM_EnvironmentBase* env, uintptr_t size,
  * Free all memory associated to the receiver.
  */
 void
-MM_ParallelSweepChunkArray::kill(MM_EnvironmentBase* env)
+MM_ParallelSweepChunkArray::kill(MM_EnvironmentBase *env)
 {
 	tearDown(env);
 	env->getForge()->free(this);
@@ -152,7 +150,7 @@ MM_ParallelSweepChunkArray::kill(MM_EnvironmentBase* env)
  * Get the next chunk from the sectioning iterator.
  * @return a chunk, or NULL if the end of the chunk list has been reached.
  */
-MM_ParallelSweepChunk*
+MM_ParallelSweepChunk *
 MM_SweepHeapSectioningIterator::nextChunk()
 {
 	while (NULL != _currentArray) {
@@ -172,7 +170,7 @@ MM_SweepHeapSectioningIterator::nextChunk()
  * Free all memory associated to the receiver.
  */
 void
-MM_SweepHeapSectioning::kill(MM_EnvironmentBase* env)
+MM_SweepHeapSectioning::kill(MM_EnvironmentBase *env)
 {
 	tearDown(env);
 	env->getForge()->free(this);
@@ -183,7 +181,7 @@ MM_SweepHeapSectioning::kill(MM_EnvironmentBase* env)
  * @return true on success, false on failure.
  */
 bool
-MM_SweepHeapSectioning::initialize(MM_EnvironmentBase* env)
+MM_SweepHeapSectioning::initialize(MM_EnvironmentBase *env)
 {
 	uintptr_t totalChunkCountEstimate;
 
@@ -208,9 +206,9 @@ MM_SweepHeapSectioning::initialize(MM_EnvironmentBase* env)
  * Free the receivers internal structures.
  */
 void
-MM_SweepHeapSectioning::tearDown(MM_EnvironmentBase* env)
+MM_SweepHeapSectioning::tearDown(MM_EnvironmentBase *env)
 {
-	MM_ParallelSweepChunkArray* array, *nextArray;
+	MM_ParallelSweepChunkArray *array, *nextArray;
 
 	array = _head;
 	while (array) {
@@ -235,7 +233,7 @@ MM_SweepHeapSectioning::initArrays(uintptr_t chunkCount)
 	 * are currently empty
 	 */
 	uintptr_t remainingChunkCount = chunkCount;
-	MM_ParallelSweepChunkArray* array;
+	MM_ParallelSweepChunkArray *array;
 
 	array = _head;
 	while (0 != remainingChunkCount) {
@@ -272,7 +270,7 @@ MM_SweepHeapSectioning::initArrays(uintptr_t chunkCount)
  * @return true if the receiver successfully reserved enough chunks to represent the heap, false otherwise.
  */
 bool
-MM_SweepHeapSectioning::update(MM_EnvironmentBase* env)
+MM_SweepHeapSectioning::update(MM_EnvironmentBase *env)
 {
 	uintptr_t totalChunkCount;
 
@@ -281,7 +279,7 @@ MM_SweepHeapSectioning::update(MM_EnvironmentBase* env)
 	/* Check if we've exceeded our current physical capacity to reserve chunks */
 	if (totalChunkCount > _totalSize) {
 		/* Insufficient room - reserve more memory for chunks */
-		MM_ParallelSweepChunkArray* newArray;
+		MM_ParallelSweepChunkArray *newArray;
 
 		/* TODO: Do we want to round the number of chunks allocated to something sane? */
 		newArray = MM_ParallelSweepChunkArray::newInstance(env, totalChunkCount - _totalSize, false);
@@ -290,8 +288,8 @@ MM_SweepHeapSectioning::update(MM_EnvironmentBase* env)
 		}
 
 		/* clear chunks */
-		MM_ParallelSweepChunk* chunk;
-		for(uintptr_t count=0; count<newArray->_size; count++) {
+		MM_ParallelSweepChunk *chunk;
+		for (uintptr_t count = 0; count < newArray->_size; count++) {
 			chunk = newArray->_array + count;
 			chunk->clear();
 		}
@@ -318,11 +316,11 @@ MM_SweepHeapSectioning::update(MM_EnvironmentBase* env)
  * This routine uses the backing store of the base array and uses this memory as the return value.
  * @return base address of the backing store.
  */
-void*
+void *
 MM_SweepHeapSectioning::getBackingStoreAddress()
 {
-	MM_MemoryManager* memoryManager = _extensions->memoryManager;
-	return (void*)memoryManager->getHeapBase(&_baseArray->_memoryHandle);
+	MM_MemoryManager *memoryManager = _extensions->memoryManager;
+	return (void *)memoryManager->getHeapBase(&_baseArray->_memoryHandle);
 }
 
 /**

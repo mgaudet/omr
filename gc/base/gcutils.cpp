@@ -35,13 +35,13 @@ qualifiedSize(uintptr_t *byteSize, const char **qualifier)
 
 	size = *byteSize;
 	*qualifier = "";
-	if(!(size % 1024)) {
+	if (!(size % 1024)) {
 		size /= 1024;
 		*qualifier = "K";
-		if(size && !(size % 1024)) {
+		if (size && !(size % 1024)) {
 			size /= 1024;
 			*qualifier = "M";
-			if(size && !(size % 1024)) {
+			if (size && !(size % 1024)) {
 				size /= 1024;
 				*qualifier = "G";
 			}
@@ -58,40 +58,40 @@ qualifiedSize(uintptr_t *byteSize, const char **qualifier)
 const char *
 getCompactionReasonAsString(CompactReason reason)
 {
-	switch(reason) {
-		case COMPACT_NONE:
-			return "no compaction";
-		case COMPACT_LARGE:
-			return "compact to meet allocation";
-		case COMPACT_AGGRESSIVE:
-			return "compact on aggressive collection";	
-		case COMPACT_FRAGMENTED:
-			return "heap fragmented";
-		case COMPACT_FORCED_GC:
-			return "forced gc with compaction"; 
-		case COMPACT_AVOID_DESPERATE:
-			return "low free space (less than 4%)";
-		case COMPACT_MEMORY_INSUFFICIENT:
-			return "very low free space (less than 128kB)";
-		case COMPACT_ALWAYS:
-			return "forced compaction";
-		case COMPACT_CONTRACT:
-			return "compact to aid heap contraction";
-		default:
-			return "unknown";
+	switch (reason) {
+	case COMPACT_NONE:
+		return "no compaction";
+	case COMPACT_LARGE:
+		return "compact to meet allocation";
+	case COMPACT_AGGRESSIVE:
+		return "compact on aggressive collection";
+	case COMPACT_FRAGMENTED:
+		return "heap fragmented";
+	case COMPACT_FORCED_GC:
+		return "forced gc with compaction";
+	case COMPACT_AVOID_DESPERATE:
+		return "low free space (less than 4%)";
+	case COMPACT_MEMORY_INSUFFICIENT:
+		return "very low free space (less than 128kB)";
+	case COMPACT_ALWAYS:
+		return "forced compaction";
+	case COMPACT_CONTRACT:
+		return "compact to aid heap contraction";
+	default:
+		return "unknown";
 	}
 }
 
 const char *
 getCompactionPreventedReasonAsString(CompactPreventedReason reason)
 {
-	switch(reason) {
-		case COMPACT_PREVENTED_NONE:
-			return "compaction not prevented";
-		case COMPACT_PREVENTED_CRITICAL_REGIONS:
-			return "active JNI critical regions";
-		default:
-			return "unknown";
+	switch (reason) {
+	case COMPACT_PREVENTED_NONE:
+		return "compaction not prevented";
+	case COMPACT_PREVENTED_CRITICAL_REGIONS:
+		return "active JNI critical regions";
+	default:
+		return "unknown";
 	}
 }
 #endif /* OMR_GC_MODRON_COMPACTION */
@@ -104,20 +104,20 @@ getCompactionPreventedReasonAsString(CompactPreventedReason reason)
 const char *
 getGCReasonAsString(GCReason reason)
 {
-	switch(reason) {
-		case TIME_TRIGGER:
-			return "time triggered";
-		case WORK_TRIGGER:
-			return "work triggered";
-		case OUT_OF_MEMORY_TRIGGER:
-			return "out of memory";
-		case SYSTEM_GC_TRIGGER:
-			return "system GC";
-		case VM_SHUTDOWN:
-			return "VM shut down";
-		case UNKOWN_REASON:
-		default:
-			return "unknown";
+	switch (reason) {
+	case TIME_TRIGGER:
+		return "time triggered";
+	case WORK_TRIGGER:
+		return "work triggered";
+	case OUT_OF_MEMORY_TRIGGER:
+		return "out of memory";
+	case SYSTEM_GC_TRIGGER:
+		return "system GC";
+	case VM_SHUTDOWN:
+		return "VM shut down";
+	case UNKOWN_REASON:
+	default:
+		return "unknown";
 	}
 }
 #endif /* OMR_GC_REALTIME */
@@ -130,7 +130,7 @@ getGCReasonAsString(GCReason reason)
 const char *
 getPercolateReasonAsString(PercolateReason mode)
 {
-	switch(mode) {
+	switch (mode) {
 	case INSUFFICIENT_TENURE_SPACE:
 		return "insufficient remaining tenure space";
 	case FAILED_TENURE:
@@ -159,7 +159,7 @@ getPercolateReasonAsString(PercolateReason mode)
 const char *
 getContractReasonAsString(ContractReason reason)
 {
-	switch(reason) {
+	switch (reason) {
 	case GC_RATIO_TOO_LOW:
 		return "insufficient time being spent in gc";
 	case FREE_SPACE_GREATER_MAXF:
@@ -184,7 +184,7 @@ getContractReasonAsString(ContractReason reason)
 const char *
 getExpandReasonAsString(ExpandReason reason)
 {
-	switch(reason) {
+	switch (reason) {
 	case GC_RATIO_TOO_HIGH:
 		return "excessive time being spent in gc";
 	case FREE_SPACE_LESS_MINF:
@@ -205,7 +205,7 @@ getExpandReasonAsString(ExpandReason reason)
 const char *
 getLoaResizeReasonAsString(LoaResizeReason reason)
 {
-	switch(reason) {
+	switch (reason) {
 	case LOA_EXPAND_FAILED_ALLOCATE:
 		return "expand on failed allocate";
 	case LOA_CONTRACT_AGGRESSIVE:
@@ -222,7 +222,7 @@ getLoaResizeReasonAsString(LoaResizeReason reason)
 const char *
 getSystemGCReasonAsString(uint32_t gcCode)
 {
-	switch(gcCode) {
+	switch (gcCode) {
 	case J9MMCONSTANT_EXPLICIT_GC_SYSTEM_GC:
 		return "explicit";
 	case J9MMCONSTANT_EXPLICIT_GC_NOT_AGGRESSIVE:

@@ -45,10 +45,7 @@ createDefaultThread(omrthread_t *t, functionPoint entrypoint, void *entryarg)
  * zos does not support death test
  */
 #ifndef J9ZOS390
-TEST(ThreadAbortDeathTest, Nullpointer)
-{
-	ASSERT_DEATH(abortNull(), ".*");
-}
+TEST(ThreadAbortDeathTest, Nullpointer) { ASSERT_DEATH(abortNull(), ".*"); }
 
 static void
 abortNull()
@@ -145,7 +142,7 @@ TEST(ThreadAbortTest, Sleeping)
 
 	createDefaultThread(&t, sleepingMain, &mythread);
 
-        mythread.started = false;
+	mythread.started = false;
 	omrthread_monitor_enter(mythread.startSync);
 	while (!mythread.started) {
 		omrthread_monitor_wait(mythread.startSync);
@@ -185,7 +182,6 @@ sleepingMain(void *arg)
 
 	return 0;
 }
-
 
 typedef struct wait_testdata_t {
 	omrthread_monitor_t exitSync;

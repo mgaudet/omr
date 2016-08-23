@@ -36,7 +36,7 @@ public:
 	virtual ~ClassType();
 
 	virtual bool isAnonymousType();
-	virtual bool equal(Type const& type, set<Type const*> *checked) const;
+	virtual bool equal(Type const &type, set<Type const *> *checked) const;
 	virtual void replaceType(Type *typeToReplace, Type *replaceWith);
 };
 

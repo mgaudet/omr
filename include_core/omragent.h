@@ -103,8 +103,9 @@ typedef struct OMR_TI {
 	 * @retval OMR_ERROR_ILLEGAL_ARGUMENT description, subscriberFunc, or subscriptionID is NULL.
 	 * @retval OMR_ERROR_NOT_AVAILABLE The trace engine is not enabled.
 	 */
-	omr_error_t	(*RegisterRecordSubscriber)(OMR_VMThread *vmThread, char const *description,
-		utsSubscriberCallback subscriberFunc, utsSubscriberAlarmCallback alarmFunc, void *userData,	UtSubscription **subscriptionID);
+	omr_error_t (*RegisterRecordSubscriber)(OMR_VMThread *vmThread, char const *description,
+											utsSubscriberCallback subscriberFunc, utsSubscriberAlarmCallback alarmFunc,
+											void *userData, UtSubscription **subscriptionID);
 
 	/**
 	 * Shuts down the registered trace record subscriber.
@@ -190,8 +191,9 @@ typedef struct OMR_TI {
 	  * OMR_THREAD_NOT_ATTACHED - The vmThread parameter was NULL
 	  *
 	  */
-	omr_error_t (*GetMemoryCategories)(OMR_VMThread *vmThread, int32_t max_categories, OMR_TI_MemoryCategory *categories_buffer,
-			int32_t *written_count_ptr, int32_t *total_categories_ptr);
+	omr_error_t (*GetMemoryCategories)(OMR_VMThread *vmThread, int32_t max_categories,
+									   OMR_TI_MemoryCategory *categories_buffer, int32_t *written_count_ptr,
+									   int32_t *total_categories_ptr);
 
 	/**
 	 * Adds all trace buffers containing data to the write queue, then prompts processing of the write
@@ -280,8 +282,8 @@ typedef struct OMR_TI {
 	 * entry of methodArray where the error occurred.
 	 */
 	omr_error_t (*GetMethodDescriptions)(OMR_VMThread *vmThread, void **methodArray, size_t methodArrayCount,
-		OMR_SampledMethodDescription *methodDescriptions, char *nameBuffer, size_t nameBytes,
-		size_t *firstRetryMethod, size_t *nameBytesRemaining);
+										 OMR_SampledMethodDescription *methodDescriptions, char *nameBuffer,
+										 size_t nameBytes, size_t *firstRetryMethod, size_t *nameBytesRemaining);
 
 	/**
 	 * Retrieve the language-specific method properties.
@@ -297,7 +299,8 @@ typedef struct OMR_TI {
 	 * @retval OMR_ERROR_NOT_AVAILABLE The method dictionary has not been enabled.
 	 * @retval OMR_ERROR_ILLEGAL_ARGUMENT A NULL pointer was passed in for an output parameter.
 	 */
-	omr_error_t (*GetMethodProperties)(OMR_VMThread *vmThread, size_t *numProperties, const char *const **propertyNames, size_t *sizeofSampledMethodDesc);
+	omr_error_t (*GetMethodProperties)(OMR_VMThread *vmThread, size_t *numProperties, const char *const **propertyNames,
+									   size_t *sizeofSampledMethodDesc);
 } OMR_TI;
 
 /*
@@ -360,7 +363,8 @@ typedef struct OMR_AgentCallbacks {
  * Required agent entry points:
  */
 #if defined(_MSC_VER)
-omr_error_t __cdecl OMRAgent_OnLoad(OMR_TI const *ti, OMR_VM *vm, char const *options, OMR_AgentCallbacks *agentCallbacks, ...);
+omr_error_t __cdecl OMRAgent_OnLoad(OMR_TI const *ti, OMR_VM *vm, char const *options,
+									OMR_AgentCallbacks *agentCallbacks, ...);
 omr_error_t __cdecl OMRAgent_OnUnload(OMR_TI const *ti, OMR_VM *vm);
 #else
 /**

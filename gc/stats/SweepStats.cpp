@@ -39,9 +39,9 @@ MM_SweepStats::clear()
 	idleTime = 0;
 	mergeTime = 0;
 	sweepChunksProcessed = 0;
-#endif /* J9MODRON_TGC_PARALLEL_STATISTICS */			
+#endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
 }
-	
+
 void
 MM_SweepStats::merge(MM_SweepStats *statsToMerge)
 {
@@ -65,7 +65,7 @@ MM_SweepStats::merge(MM_SweepStats *statsToMerge)
 void
 MM_SweepStats::addToIdleTime(uint64_t startTime, uint64_t endTime)
 {
-	idleTime += (endTime - startTime);	
+	idleTime += (endTime - startTime);
 }
 
 /* Time is stored in raw format, converted to resolution at time of output 
@@ -78,5 +78,5 @@ MM_SweepStats::addToMergeTime(uint64_t startTime, uint64_t endTime)
 	mergeTime += (endTime - startTime);
 }
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
- 
+
 #endif /* OMR_GC_MODRON_STANDARD || OMR_GC_REALTIME */

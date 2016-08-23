@@ -36,7 +36,8 @@ TEST(PortVMemTest, omrvmem_get_available_physical_memory)
 #if defined(LINUX) || defined(AIXPPC) || defined(WIN32) || defined(OSX)
 	ASSERT_EQ(0, status) << "Non-zero status from omrvmem_get_available_physical_memory";
 	omrtty_printf("freePhysicalMemorySize = %llu\n", freePhysicalMemorySize);
-#else /*  defined(LINUX) || defined(AIXPPC) || defined(WIN32) || defined(OSX) */
-	ASSERT_EQ(OMRPORT_ERROR_VMEM_NOT_SUPPORTED, status) << "omrvmem_get_available_physical_memory should not be supported";
+#else  /*  defined(LINUX) || defined(AIXPPC) || defined(WIN32) || defined(OSX) */
+	ASSERT_EQ(OMRPORT_ERROR_VMEM_NOT_SUPPORTED, status)
+		<< "omrvmem_get_available_physical_memory should not be supported";
 #endif /*  defined(LINUX) || defined(AIXPPC) || defined(WIN32) || defined(OSX) */
 }

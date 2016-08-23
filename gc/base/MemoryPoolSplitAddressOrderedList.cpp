@@ -44,8 +44,9 @@
 /**
  * Create and initialize a new instance of the receiver.
  */
-MM_MemoryPoolSplitAddressOrderedList*
-MM_MemoryPoolSplitAddressOrderedList::newInstance(MM_EnvironmentBase* env, uintptr_t minimumFreeEntrySize, uintptr_t maxSplit)
+MM_MemoryPoolSplitAddressOrderedList *
+MM_MemoryPoolSplitAddressOrderedList::newInstance(MM_EnvironmentBase *env, uintptr_t minimumFreeEntrySize,
+												  uintptr_t maxSplit)
 {
 	return newInstance(env, minimumFreeEntrySize, maxSplit, "Unknown");
 }
@@ -53,12 +54,14 @@ MM_MemoryPoolSplitAddressOrderedList::newInstance(MM_EnvironmentBase* env, uintp
 /**
  * Create and initialize a new instance of the receiver.
  */
-MM_MemoryPoolSplitAddressOrderedList*
-MM_MemoryPoolSplitAddressOrderedList::newInstance(MM_EnvironmentBase* env, uintptr_t minimumFreeEntrySize, uintptr_t maxSplit, const char* name)
+MM_MemoryPoolSplitAddressOrderedList *
+MM_MemoryPoolSplitAddressOrderedList::newInstance(MM_EnvironmentBase *env, uintptr_t minimumFreeEntrySize,
+												  uintptr_t maxSplit, const char *name)
 {
-	MM_MemoryPoolSplitAddressOrderedList* memoryPool;
+	MM_MemoryPoolSplitAddressOrderedList *memoryPool;
 
-	memoryPool = (MM_MemoryPoolSplitAddressOrderedList*)env->getForge()->allocate(sizeof(MM_MemoryPoolSplitAddressOrderedList), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	memoryPool = (MM_MemoryPoolSplitAddressOrderedList *)env->getForge()->allocate(
+		sizeof(MM_MemoryPoolSplitAddressOrderedList), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (memoryPool) {
 		memoryPool = new (memoryPool) MM_MemoryPoolSplitAddressOrderedList(env, minimumFreeEntrySize, maxSplit, name);
 		if (!memoryPool->initialize(env)) {
@@ -74,16 +77,19 @@ MM_MemoryPoolSplitAddressOrderedList::newInstance(MM_EnvironmentBase* env, uintp
  ****************************************
  */
 
-MMINLINE MM_HeapLinkedFreeHeader*
-MM_MemoryPoolSplitAddressOrderedList::internalAllocateFromList(MM_EnvironmentBase* env, uintptr_t sizeInBytesRequired, uintptr_t curFreeList, MM_HeapLinkedFreeHeader** previousFreeEntry, uintptr_t* largestFreeEntry)
+MMINLINE MM_HeapLinkedFreeHeader *
+MM_MemoryPoolSplitAddressOrderedList::internalAllocateFromList(MM_EnvironmentBase *env, uintptr_t sizeInBytesRequired,
+															   uintptr_t curFreeList,
+															   MM_HeapLinkedFreeHeader **previousFreeEntry,
+															   uintptr_t *largestFreeEntry)
 {
 	uintptr_t walkCountCurrentList = 0;
-	J9ModronAllocateHint* allocateHintUsed = NULL;
-	MM_HeapLinkedFreeHeader* candidateHintEntry = NULL;
+	J9ModronAllocateHint *allocateHintUsed = NULL;
+	MM_HeapLinkedFreeHeader *candidateHintEntry = NULL;
 	uintptr_t candidateHintSize = 0;
 	uintptr_t currentFreeEntrySize = 0;
 
-	MM_HeapLinkedFreeHeader* currentFreeEntry = _heapFreeLists[curFreeList]._freeList;
+	MM_HeapLinkedFreeHeader *currentFreeEntry = _heapFreeLists[curFreeList]._freeList;
 	*previousFreeEntry = NULL;
 
 	/* Large object - use a hint if it is available */
@@ -108,7 +114,8 @@ MM_MemoryPoolSplitAddressOrderedList::internalAllocateFromList(MM_EnvironmentBas
 			/* in first pass, we ignore reserved free entry */
 			if (!isPreviousReservedFreeEntry(*previousFreeEntry, curFreeList)) {
 
-				if (((walkCountCurrentList >= J9MODRON_ALLOCATION_MANAGER_HINT_MAX_WALK) || ((walkCountCurrentList > 1) && allocateHintUsed))) {
+				if (((walkCountCurrentList >= J9MODRON_ALLOCATION_MANAGER_HINT_MAX_WALK)
+					 || ((walkCountCurrentList > 1) && allocateHintUsed))) {
 					_heapFreeLists[curFreeList].addHint(candidateHintEntry, candidateHintSize);
 				}
 
@@ -130,24 +137,25 @@ MM_MemoryPoolSplitAddressOrderedList::internalAllocateFromList(MM_EnvironmentBas
 		currentFreeEntry = currentFreeEntry->getNext();
 		Assert_MM_true((NULL == currentFreeEntry) || (currentFreeEntry > *previousFreeEntry));
 	}
-	
+
 	_allocSearchCount += walkCountCurrentList;
-	
+
 	return currentFreeEntry;
 }
- 
- 
-void*
-MM_MemoryPoolSplitAddressOrderedList::internalAllocate(MM_EnvironmentBase* env, uintptr_t sizeInBytesRequired, bool lockingRequired, MM_LargeObjectAllocateStats* largeObjectAllocateStatsForFreeList)
+
+void *
+MM_MemoryPoolSplitAddressOrderedList::internalAllocate(MM_EnvironmentBase *env, uintptr_t sizeInBytesRequired,
+													   bool lockingRequired,
+													   MM_LargeObjectAllocateStats *largeObjectAllocateStatsForFreeList)
 {
-	MM_HeapLinkedFreeHeader* currentFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* previousFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *currentFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *previousFreeEntry = NULL;
 	uintptr_t largestFreeEntry = 0;
 	uintptr_t suggestedFreeList = 0;
 	uintptr_t curFreeList = 0;
-	MM_HeapLinkedFreeHeader* recycleEntry = NULL;
+	MM_HeapLinkedFreeHeader *recycleEntry = NULL;
 	uintptr_t recycleEntrySize = 0;
-	void* addrBase = NULL;
+	void *addrBase = NULL;
 
 	/* first pass iterating if skipReserved = true */
 	bool skipReserved = true;
@@ -175,7 +183,8 @@ retry:
 
 			if (skipReserved) {
 				/* first pass will skip reserved free entry */
-				currentFreeEntry = internalAllocateFromList(env, sizeInBytesRequired, curFreeList, &previousFreeEntry, &largestFreeEntry);
+				currentFreeEntry = internalAllocateFromList(env, sizeInBytesRequired, curFreeList, &previousFreeEntry,
+															&largestFreeEntry);
 				if (NULL != currentFreeEntry) {
 					/* found a freeEntry; will release lock only after we handle the remainder */
 					break;
@@ -240,10 +249,11 @@ skipSearch:
 	/* Determine what to do with the recycled portion of the free entry */
 	recycleEntrySize = currentFreeEntry->getSize() - sizeInBytesRequired;
 
-	addrBase = (void*)currentFreeEntry;
-	recycleEntry = (MM_HeapLinkedFreeHeader*)(((uint8_t*)currentFreeEntry) + sizeInBytesRequired);
+	addrBase = (void *)currentFreeEntry;
+	recycleEntry = (MM_HeapLinkedFreeHeader *)(((uint8_t *)currentFreeEntry) + sizeInBytesRequired);
 
-	if (recycleHeapChunk(env, recycleEntry, ((uint8_t*)recycleEntry) + recycleEntrySize, previousFreeEntry, currentFreeEntry->getNext(), curFreeList)) {
+	if (recycleHeapChunk(env, recycleEntry, ((uint8_t *)recycleEntry) + recycleEntrySize, previousFreeEntry,
+						 currentFreeEntry->getNext(), curFreeList)) {
 		if (!skipReserved && isPreviousReservedFreeEntry(previousFreeEntry, curFreeList)) {
 			_reservedFreeEntrySize = recycleEntrySize;
 		} else if (currentFreeEntry == _previousReservedFreeEntry) {
@@ -293,13 +303,15 @@ skipSearch:
 }
 
 bool
-MM_MemoryPoolSplitAddressOrderedList::internalAllocateTLH(MM_EnvironmentBase* env, uintptr_t maximumSizeInBytesRequired, void*& addrBase, void*& addrTop, bool lockingRequired, MM_LargeObjectAllocateStats* largeObjectAllocateStatsForFreeList)
+MM_MemoryPoolSplitAddressOrderedList::internalAllocateTLH(
+	MM_EnvironmentBase *env, uintptr_t maximumSizeInBytesRequired, void *&addrBase, void *&addrTop,
+	bool lockingRequired, MM_LargeObjectAllocateStats *largeObjectAllocateStatsForFreeList)
 {
 	uintptr_t freeEntrySize = 0;
-	void* topOfRecycledChunk = NULL;
-	MM_HeapLinkedFreeHeader* entryNext = NULL;
-	MM_HeapLinkedFreeHeader* freeEntry = NULL;
-	MM_HeapLinkedFreeHeader* previousFreeEntry = NULL;
+	void *topOfRecycledChunk = NULL;
+	MM_HeapLinkedFreeHeader *entryNext = NULL;
+	MM_HeapLinkedFreeHeader *freeEntry = NULL;
+	MM_HeapLinkedFreeHeader *previousFreeEntry = NULL;
 	uintptr_t consumedSize = 0;
 	uintptr_t recycleEntrySize = 0;
 	uintptr_t suggestedFreeList;
@@ -311,7 +323,6 @@ retry:
 
 	bool firstIteration = true;
 	bool jumpedToSuggested = false;
-
 
 	if (skipReserved) {
 		curFreeList = _currentThreadFreeList[env->getEnvironmentId() % _heapFreeListCount];
@@ -340,7 +351,7 @@ retry:
 			} else {
 				freeEntry = _heapFreeLists[curFreeList]._freeList;
 			}
-			
+
 			if (NULL != freeEntry) {
 				freeEntrySize = freeEntry->getSize();
 
@@ -420,10 +431,10 @@ skipSearch:
 		largeObjectAllocateStatsForFreeList[curFreeList].incrementTlhAllocSizeClassStats(consumedSize);
 	}
 
-	addrBase = (void*)freeEntry;
-	addrTop = (void*)(((uint8_t*)addrBase) + consumedSize);
+	addrBase = (void *)freeEntry;
+	addrTop = (void *)(((uint8_t *)addrBase) + consumedSize);
 
-	topOfRecycledChunk = ((uint8_t*)addrTop) + recycleEntrySize;
+	topOfRecycledChunk = ((uint8_t *)addrTop) + recycleEntrySize;
 	entryNext = freeEntry->getNext();
 
 	/* Recycle the remaining entry back onto the free list (if applicable) */
@@ -447,9 +458,9 @@ skipSearch:
 			_reservedFreeEntrySize = recycleEntrySize;
 		} else if (freeEntry == _previousReservedFreeEntry) {
 			Assert_MM_true(curFreeList == _reservedFreeListIndex);
-			_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader*) addrTop;
+			_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader *)addrTop;
 		}
-		_heapFreeLists[curFreeList].updateHint(freeEntry, (MM_HeapLinkedFreeHeader*)addrTop);
+		_heapFreeLists[curFreeList].updateHint(freeEntry, (MM_HeapLinkedFreeHeader *)addrTop);
 		_largeObjectAllocateStatsForFreeList[curFreeList].incrementFreeEntrySizeClassStats(recycleEntrySize);
 	}
 
@@ -474,7 +485,7 @@ MM_MemoryPoolSplitAddressOrderedList::reset(Cause cause)
 }
 
 void
-MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause cause)
+MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase *env, Cause cause)
 {
 	uintptr_t lastFreeListIndex = _heapFreeListCount - 1;
 	if (cause == forCompact && (lastFreeListIndex != 0)) {
@@ -507,7 +518,7 @@ MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause
 		 * Faster but less precise splits compared to free list entry granularity.
 		 */
 		if (0 < _sweepPoolState->_largestFreeEntry) {
-			MM_HeapLinkedFreeHeader* largestFreeEntry;
+			MM_HeapLinkedFreeHeader *largestFreeEntry;
 			if (NULL == _sweepPoolState->_previousLargestFreeEntry) {
 				largestFreeEntry = _heapFreeLists[0]._freeList;
 			} else {
@@ -515,8 +526,8 @@ MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause
 			}
 			Assert_MM_true(_sweepPoolState->_largestFreeEntry == largestFreeEntry->getSize());
 		}
-		MM_GCExtensionsBase* extensions = env->getExtensions();
-		MM_ParallelSweepChunk* chunk = NULL;
+		MM_GCExtensionsBase *extensions = env->getExtensions();
+		MM_ParallelSweepChunk *chunk = NULL;
 		MM_SweepHeapSectioningIterator sectioningIterator(extensions->sweepHeapSectioning);
 		uintptr_t freeSize = _heapFreeLists[0]._freeSize;
 		uintptr_t freeCount = _heapFreeLists[0]._freeCount;
@@ -557,7 +568,8 @@ MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause
 				 * if previousLargestFreeEntry == splitCandidatePreviousEntry, it means largestFreeEntry == splitCandidateEntry and the largestFreeEntry is in the next free list
 				 * if previousLargestFreeEntry < splitCandidatePreviousEntry, it means the largestFreeEntry is in current freeList
 				 */
-				if ((_heapFreeListCount == _reservedFreeListIndex) && (_sweepPoolState->_previousLargestFreeEntry <= chunk->_splitCandidatePreviousEntry)) {
+				if ((_heapFreeListCount == _reservedFreeListIndex)
+					&& (_sweepPoolState->_previousLargestFreeEntry <= chunk->_splitCandidatePreviousEntry)) {
 					if (_sweepPoolState->_previousLargestFreeEntry == chunk->_splitCandidatePreviousEntry) {
 						_reservedFreeListIndex = currentFreeListIndex + 1;
 						_previousReservedFreeEntry = NULL;
@@ -590,8 +602,8 @@ MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause
 		/* Free list splitting at free list entry granularity.
 		 * Slower but necessary when you don't have valid sweep chunks.
 		 */
-		MM_HeapLinkedFreeHeader* previousFreeList = NULL;
-		MM_HeapLinkedFreeHeader* currentFreeList = _heapFreeLists[0]._freeList;
+		MM_HeapLinkedFreeHeader *previousFreeList = NULL;
+		MM_HeapLinkedFreeHeader *currentFreeList = _heapFreeLists[0]._freeList;
 
 		_heapFreeLists[0]._freeCount = 0;
 		_heapFreeLists[0]._freeSize = 0;
@@ -610,7 +622,8 @@ MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause
 			previousFreeList = currentFreeList;
 			currentFreeList = currentFreeList->getNext();
 
-			if ((_heapFreeLists[currentFreeListIndex]._freeSize >= freeListSplitSize) && (currentFreeListIndex < lastFreeListIndex)) {
+			if ((_heapFreeLists[currentFreeListIndex]._freeSize >= freeListSplitSize)
+				&& (currentFreeListIndex < lastFreeListIndex)) {
 				previousFreeList->setNext(NULL);
 				previousFreeList = NULL;
 				currentFreeListIndex += 1;
@@ -630,13 +643,13 @@ MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause
 	Assert_MM_true(printFreeListValidity(env));
 #endif
 	Assert_MM_true(_reservedFreeEntryAvaliable);
-	MM_HeapLinkedFreeHeader* largestFreeEntry =NULL;
+	MM_HeapLinkedFreeHeader *largestFreeEntry = NULL;
 	if (0 < _reservedFreeEntrySize) {
 		if (NULL == _previousReservedFreeEntry) {
 			largestFreeEntry = _heapFreeLists[_reservedFreeListIndex]._freeList;
 		} else {
 			largestFreeEntry = _previousReservedFreeEntry->getNext();
-		} 
+		}
 		Assert_MM_true(_reservedFreeEntrySize == largestFreeEntry->getSize());
 	}
 }
@@ -652,10 +665,11 @@ MM_MemoryPoolSplitAddressOrderedList::postProcess(MM_EnvironmentBase* env, Cause
  *
  */
 void
-MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, uintptr_t expandSize, void* lowAddress, void* highAddress, bool canCoalesce)
+MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase *env, uintptr_t expandSize, void *lowAddress,
+													  void *highAddress, bool canCoalesce)
 {
-	MM_HeapLinkedFreeHeader* previousFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* nextFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *previousFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *nextFreeEntry = NULL;
 
 	if (0 == expandSize) {
 		return;
@@ -667,7 +681,7 @@ MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, u
 		return;
 	}
 
-	MM_HeapLinkedFreeHeader** head = NULL;
+	MM_HeapLinkedFreeHeader **head = NULL;
 	uintptr_t curFreeListIndex = 0;
 	for (curFreeListIndex = 0; curFreeListIndex < _heapFreeListCount; ++curFreeListIndex) {
 		head = &_heapFreeLists[curFreeListIndex]._freeList;
@@ -685,7 +699,8 @@ MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, u
 		/* Check if the range can be coalesced with either the surrounding free entries */
 		if (canCoalesce) {
 			/* Check if the range can be fused to the tail previous free entry */
-			if (previousFreeEntry && (lowAddress == (void*)(((uintptr_t)previousFreeEntry) + previousFreeEntry->getSize()))) {
+			if (previousFreeEntry
+				&& (lowAddress == (void *)(((uintptr_t)previousFreeEntry) + previousFreeEntry->getSize()))) {
 
 				uintptr_t expandedSize = expandSize + previousFreeEntry->getSize();
 				/* if 1) we are upsizing reservedFreeEntry (in which case the address of the entry does not change) or
@@ -711,10 +726,10 @@ MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, u
 				return;
 			}
 			/* Check if the range can be fused to the head of the next free entry */
-			if (nextFreeEntry && (highAddress == (void*)nextFreeEntry)) {
-				MM_HeapLinkedFreeHeader* newFreeEntry = (MM_HeapLinkedFreeHeader*)lowAddress;
+			if (nextFreeEntry && (highAddress == (void *)nextFreeEntry)) {
+				MM_HeapLinkedFreeHeader *newFreeEntry = (MM_HeapLinkedFreeHeader *)lowAddress;
 				assume0((NULL == nextFreeEntry->getNext()) || (newFreeEntry < nextFreeEntry->getNext()));
-				
+
 				uintptr_t expandedSize = expandSize + nextFreeEntry->getSize();
 				/* if 1) we are upsizing reservedFreeEntry or
 				 *    2) expanded size is larger than size of reservedFreeEntry, but only if the entry has not been identified yet
@@ -726,7 +741,7 @@ MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, u
 				}
 
 				_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(nextFreeEntry->getSize());
-	
+
 				newFreeEntry->setNext(nextFreeEntry->getNext());
 				newFreeEntry->setSize(expandedSize);
 
@@ -761,9 +776,9 @@ MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, u
 	}
 
 	/* No coalescing available - build a free entry from the range that will be inserted into the list */
-	MM_HeapLinkedFreeHeader* freeEntry;
+	MM_HeapLinkedFreeHeader *freeEntry;
 
-	freeEntry = (MM_HeapLinkedFreeHeader*)lowAddress;
+	freeEntry = (MM_HeapLinkedFreeHeader *)lowAddress;
 	assume0((NULL == nextFreeEntry) || (nextFreeEntry > freeEntry));
 	freeEntry->setNext(nextFreeEntry);
 	freeEntry->setSize(expandSize);
@@ -786,7 +801,9 @@ MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, u
 	}
 
 	assume0(isMemoryPoolValid(env, true));
-	Assert_GC_true_with_message2(env, reservedFreeEntryConsistencyCheck(), "expandWithRange _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n", _previousReservedFreeEntry, _reservedFreeEntrySize);
+	Assert_GC_true_with_message2(env, reservedFreeEntryConsistencyCheck(),
+								 "expandWithRange _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n",
+								 _previousReservedFreeEntry, _reservedFreeEntrySize);
 }
 
 /**
@@ -799,13 +816,14 @@ MM_MemoryPoolSplitAddressOrderedList::expandWithRange(MM_EnvironmentBase* env, u
  * @note The expectation is that the range consists ONLY of free elements (no live data appears).
  *
  */
-void*
-MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase* env, uintptr_t contractSize, void* lowAddress, void* highAddress)
+void *
+MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase *env, uintptr_t contractSize,
+														void *lowAddress, void *highAddress)
 {
-	MM_HeapLinkedFreeHeader* currentFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* currentFreeEntryTop = NULL;
-	MM_HeapLinkedFreeHeader* previousFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* nextFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *currentFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *currentFreeEntryTop = NULL;
+	MM_HeapLinkedFreeHeader *previousFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *nextFreeEntry = NULL;
 
 	if (0 == contractSize) {
 		return NULL;
@@ -818,7 +836,8 @@ MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase* env,
 		previousFreeEntry = NULL;
 		currentFreeEntry = _heapFreeLists[freeListIndex]._freeList;
 		while (currentFreeEntry) {
-			if ((lowAddress >= currentFreeEntry) && (highAddress <= (void*)(((uintptr_t)currentFreeEntry) + currentFreeEntry->getSize()))) {
+			if ((lowAddress >= currentFreeEntry)
+				&& (highAddress <= (void *)(((uintptr_t)currentFreeEntry) + currentFreeEntry->getSize()))) {
 				break;
 			}
 			previousFreeEntry = currentFreeEntry;
@@ -836,9 +855,9 @@ MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase* env,
 	uintptr_t contractCount = 1;
 	_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(currentFreeEntry->getSize());
 
-	MM_HeapLinkedFreeHeader* reservedFreeEntry = getReservedFreeEntry();
+	MM_HeapLinkedFreeHeader *reservedFreeEntry = getReservedFreeEntry();
 	if (NULL != reservedFreeEntry) {
-		if ((reservedFreeEntry >= lowAddress) && (((void*)reservedFreeEntry->afterEnd()) <= highAddress)) {
+		if ((reservedFreeEntry >= lowAddress) && (((void *)reservedFreeEntry->afterEnd()) <= highAddress)) {
 			reservedFreeEntry = NULL;
 			resetReservedFreeEntry();
 		}
@@ -852,12 +871,12 @@ MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase* env,
 	 * the place of the next entry */
 
 	/* Determine what to do with any trailing bytes to the free entry that are not being contracted. */
-	currentFreeEntryTop = (MM_HeapLinkedFreeHeader*)(((uintptr_t)currentFreeEntry) + currentFreeEntry->getSize());
-	if (currentFreeEntryTop != (MM_HeapLinkedFreeHeader*)highAddress) {
+	currentFreeEntryTop = (MM_HeapLinkedFreeHeader *)(((uintptr_t)currentFreeEntry) + currentFreeEntry->getSize());
+	if (currentFreeEntryTop != (MM_HeapLinkedFreeHeader *)highAddress) {
 		/* Space at the tail that is not being contracted - is it a valid free entry? */
 		if (createFreeEntry(env, highAddress, currentFreeEntryTop, NULL, nextFreeEntry)) {
 			/* The entry is a free list candidate */
-			nextFreeEntry = (MM_HeapLinkedFreeHeader*)highAddress;
+			nextFreeEntry = (MM_HeapLinkedFreeHeader *)highAddress;
 			contractCount--;
 			_largeObjectAllocateStats->incrementFreeEntrySizeClassStats(nextFreeEntry->getSize());
 			if (reservedFreeEntry == currentFreeEntry) {
@@ -875,7 +894,7 @@ MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase* env,
 	}
 
 	/* Determine what to do with any leading bytes to the free entry that are not being contracted. */
-	if (currentFreeEntry != (MM_HeapLinkedFreeHeader*)lowAddress) {
+	if (currentFreeEntry != (MM_HeapLinkedFreeHeader *)lowAddress) {
 		if (createFreeEntry(env, currentFreeEntry, lowAddress, NULL, nextFreeEntry)) {
 			nextFreeEntry = currentFreeEntry;
 			contractCount--;
@@ -910,7 +929,9 @@ MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase* env,
 
 	assume0(isMemoryPoolValid(env, true));
 
-	Assert_GC_true_with_message2(env, reservedFreeEntryConsistencyCheck(), "contractWithRange _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n", _previousReservedFreeEntry, _reservedFreeEntrySize);
+	Assert_GC_true_with_message2(env, reservedFreeEntryConsistencyCheck(),
+								 "contractWithRange _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n",
+								 _previousReservedFreeEntry, _reservedFreeEntrySize);
 	return lowAddress;
 }
 
@@ -924,25 +945,25 @@ MM_MemoryPoolSplitAddressOrderedList::contractWithRange(MM_EnvironmentBase* env,
  *
  */
 void
-MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase* env,
-													 MM_HeapLinkedFreeHeader*& freeListHead, MM_HeapLinkedFreeHeader*& freeListTail,
+MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase *env, MM_HeapLinkedFreeHeader *&freeListHead,
+													 MM_HeapLinkedFreeHeader *&freeListTail,
 													 uintptr_t freeListMemoryCount, uintptr_t freeListMemorySize)
 {
 
 	uintptr_t localFreeListMemoryCount = freeListMemoryCount;
 
-	MM_HeapLinkedFreeHeader* freeEntryToAdd = freeListHead;
+	MM_HeapLinkedFreeHeader *freeEntryToAdd = freeListHead;
 	while (freeEntryToAdd != NULL) {
 		_largeObjectAllocateStats->incrementFreeEntrySizeClassStats(freeEntryToAdd->getSize());
 		freeEntryToAdd = freeEntryToAdd->getNext();
 	}
 
 	/* Find the first free entry, if any, within specified range */
-	MM_HeapLinkedFreeHeader* previousFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* currentFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *previousFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *currentFreeEntry = NULL;
 	uintptr_t currentFreeListIndex = 0;
 	uintptr_t previousFreeListIndex = 0;
-	currentFreeEntry = (MM_HeapLinkedFreeHeader*)getFirstFreeStartingAddr(env, &currentFreeListIndex);
+	currentFreeEntry = (MM_HeapLinkedFreeHeader *)getFirstFreeStartingAddr(env, &currentFreeListIndex);
 	previousFreeListIndex = currentFreeListIndex;
 
 	while (NULL != currentFreeEntry) {
@@ -953,7 +974,8 @@ MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase* env,
 
 		previousFreeEntry = currentFreeEntry;
 		previousFreeListIndex = currentFreeListIndex;
-		currentFreeEntry = (MM_HeapLinkedFreeHeader*)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
+		currentFreeEntry =
+			(MM_HeapLinkedFreeHeader *)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
 		/* Check a free list boundary */
 		if ((NULL == previousFreeEntry->getNext()) && (currentFreeListIndex != _heapFreeListCount)) {
 			previousFreeEntry = NULL;
@@ -972,7 +994,7 @@ MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase* env,
 		Assert_MM_true(currentFreeEntry == _heapFreeLists[currentFreeListIndex]._freeList);
 
 		/* Do we need to coalesce ?*/
-		if ((uint8_t*)freeListTail->afterEnd() == (uint8_t*)currentFreeEntry) {
+		if ((uint8_t *)freeListTail->afterEnd() == (uint8_t *)currentFreeEntry) {
 			_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(currentFreeEntry->getSize());
 			_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(freeListTail->getSize());
 
@@ -983,7 +1005,7 @@ MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase* env,
 
 				if (freeListTail != freeListHead) {
 					/* need to update _previousReservedFreeEntry to previous of freeListTail */
-					MM_HeapLinkedFreeHeader* previous = freeListHead->getNext();
+					MM_HeapLinkedFreeHeader *previous = freeListHead->getNext();
 					while (previous->getNext() != freeListTail) {
 						previous = previous->getNext();
 					}
@@ -1008,7 +1030,7 @@ MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase* env,
 		freeListTail->setNext(previousFreeEntry->getNext());
 
 		/* Do we need to coalesce ?*/
-		if ((uint8_t*)previousFreeEntry->afterEnd() == (uint8_t*)freeListHead) {
+		if ((uint8_t *)previousFreeEntry->afterEnd() == (uint8_t *)freeListHead) {
 			_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(freeListHead->getSize());
 			_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(previousFreeEntry->getSize());
 
@@ -1031,7 +1053,9 @@ MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase* env,
 		_heapFreeLists[previousFreeListIndex]._freeCount += localFreeListMemoryCount;
 	}
 
-	Assert_GC_true_with_message2(env, reservedFreeEntryConsistencyCheck(), "addFreeEntries _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n", _previousReservedFreeEntry, _reservedFreeEntrySize);
+	Assert_GC_true_with_message2(env, reservedFreeEntryConsistencyCheck(),
+								 "addFreeEntries _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n",
+								 _previousReservedFreeEntry, _reservedFreeEntrySize);
 }
 
 /**
@@ -1049,18 +1073,20 @@ MM_MemoryPoolSplitAddressOrderedList::addFreeEntries(MM_EnvironmentBase* env,
  * @return TRUE if at least one chunk in specified range found; FALSE otherwise
  */
 bool
-MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_EnvironmentBase* env, void* lowAddress, void* highAddress,
-																   uintptr_t minimumSize,
-																   MM_HeapLinkedFreeHeader*& retListHead, MM_HeapLinkedFreeHeader*& retListTail,
-																   uintptr_t& retListMemoryCount, uintptr_t& retListMemorySize)
+MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_EnvironmentBase *env, void *lowAddress,
+																   void *highAddress, uintptr_t minimumSize,
+																   MM_HeapLinkedFreeHeader *&retListHead,
+																   MM_HeapLinkedFreeHeader *&retListTail,
+																   uintptr_t &retListMemoryCount,
+																   uintptr_t &retListMemorySize)
 {
-	void* currentFreeEntryTop = NULL;
-	void* baseAddr = NULL;
-	void* topAddr = NULL;
-	MM_HeapLinkedFreeHeader* currentFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* previousFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* nextFreeEntry = NULL;
-	MM_HeapLinkedFreeHeader* tailFreeEntry = NULL;
+	void *currentFreeEntryTop = NULL;
+	void *baseAddr = NULL;
+	void *topAddr = NULL;
+	MM_HeapLinkedFreeHeader *currentFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *previousFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *nextFreeEntry = NULL;
+	MM_HeapLinkedFreeHeader *tailFreeEntry = NULL;
 
 	retListHead = NULL;
 	retListTail = NULL;
@@ -1070,9 +1096,9 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 	/* Find the first free entry, if any, within specified range */
 	uintptr_t currentFreeListIndex;
 	previousFreeEntry = NULL;
-	currentFreeEntry = (MM_HeapLinkedFreeHeader*)getFirstFreeStartingAddr(env, &currentFreeListIndex);
+	currentFreeEntry = (MM_HeapLinkedFreeHeader *)getFirstFreeStartingAddr(env, &currentFreeListIndex);
 	while (currentFreeEntry) {
-		currentFreeEntryTop = (void*)currentFreeEntry->afterEnd();
+		currentFreeEntryTop = (void *)currentFreeEntry->afterEnd();
 
 		/* Does this chunk fall within range ? */
 		if (currentFreeEntry >= lowAddress || currentFreeEntryTop > lowAddress) {
@@ -1080,12 +1106,12 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 		}
 
 		previousFreeEntry = currentFreeEntry;
-		currentFreeEntry = (MM_HeapLinkedFreeHeader*)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
+		currentFreeEntry =
+			(MM_HeapLinkedFreeHeader *)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
 		if (NULL == previousFreeEntry->getNext()) {
 			previousFreeEntry = NULL;
 		}
 	}
-
 
 	/* If we got to the end of the free list or to an entry greater than the high address */
 	if (currentFreeEntry == NULL || currentFreeEntry >= highAddress) {
@@ -1093,16 +1119,16 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 		return false;
 	}
 
-	MM_HeapLinkedFreeHeader* reservedFreeEntry = getReservedFreeEntry();
+	MM_HeapLinkedFreeHeader *reservedFreeEntry = getReservedFreeEntry();
 	if (NULL != reservedFreeEntry) {
-		if ((reservedFreeEntry >= lowAddress) && (((void*)reservedFreeEntry->afterEnd()) <= highAddress)) {
+		if ((reservedFreeEntry >= lowAddress) && (((void *)reservedFreeEntry->afterEnd()) <= highAddress)) {
 			reservedFreeEntry = NULL;
 			resetReservedFreeEntry();
 		}
 	}
 	/* Remember the next free entry after the current one which we are going to consume at least part of */
 	uintptr_t nextFreeListIndex = currentFreeListIndex;
-	nextFreeEntry = (MM_HeapLinkedFreeHeader*)getNextFreeStartingAddr(env, currentFreeEntry, &nextFreeListIndex);
+	nextFreeEntry = (MM_HeapLinkedFreeHeader *)getNextFreeStartingAddr(env, currentFreeEntry, &nextFreeListIndex);
 
 	/* Assume for now we will remove this entire free entry from the pool */
 	Assert_MM_true(_heapFreeLists[currentFreeListIndex]._freeSize >= currentFreeEntry->getSize());
@@ -1111,11 +1137,11 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 	--_heapFreeLists[currentFreeListIndex]._freeCount;
 	_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(currentFreeEntry->getSize());
 
-	baseAddr = (void*)currentFreeEntry;
+	baseAddr = (void *)currentFreeEntry;
 	topAddr = currentFreeEntryTop;
 
 	/* Determine what to do with any leading bytes of the free entry that are not being returned */
-	if (currentFreeEntry < (MM_HeapLinkedFreeHeader*)lowAddress) {
+	if (currentFreeEntry < (MM_HeapLinkedFreeHeader *)lowAddress) {
 		/* Space at the head that is not being returned - is it a valid free entry? */
 		if (createFreeEntry(env, currentFreeEntry, lowAddress, previousFreeEntry, NULL)) {
 			uintptr_t leadingSize = ((uintptr_t)lowAddress) - ((uintptr_t)currentFreeEntry);
@@ -1150,24 +1176,24 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 	}
 
 	/* Determine what to do with any trailing bytes to the free entry that are not returned to caller */
-	if (currentFreeEntryTop > (MM_HeapLinkedFreeHeader*)highAddress) {
+	if (currentFreeEntryTop > (MM_HeapLinkedFreeHeader *)highAddress) {
 		/* Space at the tail that is not being returned - is it a valid free entry for this pool ? */
 		if (createFreeEntry(env, highAddress, currentFreeEntryTop, previousFreeEntry, NULL)) {
 			uintptr_t trailingSize = ((uintptr_t)currentFreeEntryTop) - ((uintptr_t)highAddress);
 			if (NULL == previousFreeEntry) {
-				_heapFreeLists[currentFreeListIndex]._freeList = (MM_HeapLinkedFreeHeader*)highAddress;
+				_heapFreeLists[currentFreeListIndex]._freeList = (MM_HeapLinkedFreeHeader *)highAddress;
 			} else {
 				Assert_MM_true(previousFreeEntry < highAddress);
-				previousFreeEntry->setNext((MM_HeapLinkedFreeHeader*)highAddress);
+				previousFreeEntry->setNext((MM_HeapLinkedFreeHeader *)highAddress);
 			}
 
 			if (reservedFreeEntry == currentFreeEntry) {
 				_reservedFreeEntrySize = trailingSize;
 				_previousReservedFreeEntry = NULL;
 			} else if (_previousReservedFreeEntry == currentFreeEntry) {
-				_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader*)highAddress;
+				_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader *)highAddress;
 			}
-			previousFreeEntry = (MM_HeapLinkedFreeHeader*)highAddress;
+			previousFreeEntry = (MM_HeapLinkedFreeHeader *)highAddress;
 			_heapFreeLists[currentFreeListIndex]._freeSize += trailingSize;
 			++_heapFreeLists[currentFreeListIndex]._freeCount;
 			_largeObjectAllocateStats->incrementFreeEntrySizeClassStats(trailingSize);
@@ -1186,7 +1212,7 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 	/* Append what's left if it's big enough to go on the list */
 	if (appendToList(env, baseAddr, topAddr, minimumSize, retListHead, retListTail)) {
 		++retListMemoryCount;
-		retListMemorySize += ((uint8_t*)topAddr - (uint8_t*)baseAddr);
+		retListMemorySize += ((uint8_t *)topAddr - (uint8_t *)baseAddr);
 	}
 
 	uintptr_t previousFreeListIndex = currentFreeListIndex;
@@ -1195,7 +1221,7 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 	tailFreeEntry = nextFreeEntry;
 
 	/* Now append any whole chunks to the list which fall within the specified range */
-	while (currentFreeEntry && (((uint8_t*)currentFreeEntry->afterEnd()) <= highAddress)) {
+	while (currentFreeEntry && (((uint8_t *)currentFreeEntry->afterEnd()) <= highAddress)) {
 		Assert_MM_true(_heapFreeLists[currentFreeListIndex]._freeSize >= currentFreeEntry->getSize());
 		Assert_MM_true(_heapFreeLists[currentFreeListIndex]._freeCount > 0);
 		_heapFreeLists[currentFreeListIndex]._freeSize -= currentFreeEntry->getSize();
@@ -1206,10 +1232,11 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 			_previousReservedFreeEntry = NULL;
 		}
 
-		tailFreeEntry = (MM_HeapLinkedFreeHeader*)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
+		tailFreeEntry =
+			(MM_HeapLinkedFreeHeader *)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
 
-		if (appendToList(env, (void*)currentFreeEntry, (void*)currentFreeEntry->afterEnd(),
-						 minimumSize, retListHead, retListTail)) {
+		if (appendToList(env, (void *)currentFreeEntry, (void *)currentFreeEntry->afterEnd(), minimumSize, retListHead,
+						 retListTail)) {
 			++retListMemoryCount;
 			retListMemorySize += currentFreeEntry->getSize();
 		}
@@ -1225,9 +1252,10 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 		_heapFreeLists[currentFreeListIndex]._freeCount -= 1;
 		_largeObjectAllocateStats->decrementFreeEntrySizeClassStats(currentFreeEntry->getSize());
 
-		tailFreeEntry = (MM_HeapLinkedFreeHeader*)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
+		tailFreeEntry =
+			(MM_HeapLinkedFreeHeader *)getNextFreeStartingAddr(env, currentFreeEntry, &currentFreeListIndex);
 
-		currentFreeEntryTop = (void*)currentFreeEntry->afterEnd();
+		currentFreeEntryTop = (void *)currentFreeEntry->afterEnd();
 		/* Space at the tail that is not being returned - is it a valid free entry for this pool ? */
 		if (createFreeEntry(env, highAddress, currentFreeEntryTop, previousFreeEntry, tailFreeEntry)) {
 			uintptr_t trailingSize = ((uintptr_t)currentFreeEntryTop) - ((uintptr_t)highAddress);
@@ -1236,10 +1264,10 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 				_reservedFreeEntrySize = trailingSize;
 				_previousReservedFreeEntry = NULL;
 			} else if (_previousReservedFreeEntry == currentFreeEntry) {
-				_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader*)highAddress;
+				_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader *)highAddress;
 			}
 			/* Make the tail the newly created free entry */
-			tailFreeEntry = (MM_HeapLinkedFreeHeader*)highAddress;
+			tailFreeEntry = (MM_HeapLinkedFreeHeader *)highAddress;
 			_heapFreeLists[previousFreeListIndex]._freeSize += trailingSize;
 			_heapFreeLists[previousFreeListIndex]._freeCount += 1;
 			_largeObjectAllocateStats->incrementFreeEntrySizeClassStats(trailingSize);
@@ -1255,7 +1283,7 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 
 		if (appendToList(env, currentFreeEntry, highAddress, minimumSize, retListHead, retListTail)) {
 			retListMemoryCount += 1;
-			retListMemorySize += (uint8_t*)highAddress - (uint8_t*)currentFreeEntry;
+			retListMemorySize += (uint8_t *)highAddress - (uint8_t *)currentFreeEntry;
 		}
 	}
 
@@ -1281,6 +1309,9 @@ MM_MemoryPoolSplitAddressOrderedList::removeFreeEntriesWithinRange(MM_Environmen
 		_heapFreeLists[i].clearHints();
 	}
 
-	Assert_GC_true_with_message2(env, reservedFreeEntryConsistencyCheck(), "removeFreeEntriesWithinRange _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n", _previousReservedFreeEntry, _reservedFreeEntrySize);
+	Assert_GC_true_with_message2(
+		env, reservedFreeEntryConsistencyCheck(),
+		"removeFreeEntriesWithinRange _previousReservedFreeEntry=%p, _reservedFreeEntrySize=%zu\n",
+		_previousReservedFreeEntry, _reservedFreeEntrySize);
 	return true;
 }

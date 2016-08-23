@@ -44,12 +44,13 @@ extern "C" {
 intptr_t
 initializeMutatorModel(OMR_VMThread *omrVMThread)
 {
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(omrVMThread->_vm);
+	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(omrVMThread->_vm);
 	omrVMThread->_gcOmrVMThreadExtensions = extensions->configuration->createEnvironment(extensions, omrVMThread);
 	if (NULL != omrVMThread->_gcOmrVMThreadExtensions) {
 		if (extensions->isStandardGC()) {
 			void *lowAddress = extensions->heapBaseForBarrierRange0;
-			void *highAddress = (void *)((uintptr_t)extensions->heapBaseForBarrierRange0 + extensions->heapSizeForBarrierRange0);
+			void *highAddress =
+				(void *)((uintptr_t)extensions->heapBaseForBarrierRange0 + extensions->heapSizeForBarrierRange0);
 			omrVMThread->lowTenureAddress = lowAddress;
 			omrVMThread->highTenureAddress = highAddress;
 
@@ -97,15 +98,14 @@ cleanupMutatorModel(OMR_VMThread *omrVMThread, uintptr_t flushCaches)
 	omrVMThread->_gcOmrVMThreadExtensions = NULL;
 }
 
-
 intptr_t
-gcOmrInitializeDefaults(OMR_VM* omrVM)
+gcOmrInitializeDefaults(OMR_VM *omrVM)
 {
 	MM_EnvironmentBase env(omrVM);
 
 	/* allocate extension structure */
 
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::newInstance(&env);
+	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::newInstance(&env);
 	if (NULL == extensions) {
 		goto error;
 	}
@@ -128,4 +128,3 @@ gcOmrInitializeTrace(OMR_VMThread *omrVMThread)
 #ifdef __cplusplus
 } /* extern "C" { */
 #endif
-

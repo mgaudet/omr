@@ -95,7 +95,7 @@ j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBAC
 	uint32_t portlibSignalNo = OMRPORT_SIG_FLAG_DOES_NOT_MAP_TO_POSIX;
 	uint32_t prevPortlibSignalNo = 0;
 
-	/* this needs to an EBCDIC string */
+/* this needs to an EBCDIC string */
 #pragma convlit(suspend)
 	const char *ceeEbcdic = "CEE";
 #pragma convlit(resume)
@@ -103,7 +103,8 @@ j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBAC
 #if defined(J9SIGNAL_DEBUG)
 	static int count = 0;
 
-	printf("j9vm_le_condition_handler count: %i, %s%i, sev: %i\n", count, e2a_func(fc->tok_facid, 3), fc->tok_msgno, fc->tok_sev);
+	printf("j9vm_le_condition_handler count: %i, %s%i, sev: %i\n", count, e2a_func(fc->tok_facid, 3), fc->tok_msgno,
+		   fc->tok_sev);
 	fflush(NULL);
 	count++;
 #endif
@@ -125,7 +126,6 @@ j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBAC
 		return;
 	}
 
-
 	if (0 == strncmp(ceeEbcdic, fc->tok_facid, 3)) {
 
 		if ((3207 <= fc->tok_msgno) && (fc->tok_msgno <= 3234)) {
@@ -143,11 +143,11 @@ j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBAC
 
 				char *asciiFacilityID = e2a_func(fc->tok_facid, 3);
 
-				portLibrary->nls_printf(portLibrary, J9NLS_ERROR, J9NLS_PORT_ZOS_CONDITION_FOR_SOFTWARE_RAISED_SIGNAL_RECEIVED, (NULL == asciiFacilityID) ? "NULL" : asciiFacilityID, fc->tok_msgno);
+				portLibrary->nls_printf(portLibrary, J9NLS_ERROR,
+										J9NLS_PORT_ZOS_CONDITION_FOR_SOFTWARE_RAISED_SIGNAL_RECEIVED,
+										(NULL == asciiFacilityID) ? "NULL" : asciiFacilityID, fc->tok_msgno);
 				free(asciiFacilityID);
-
 			}
-
 		}
 	}
 
@@ -160,10 +160,8 @@ j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBAC
 	 * If instead the portlibSignalNo has been set, then simply call handlers that had registered explicitly for that
 	 * 	signal type
 	 */
-	if ((0 != (thisRecord->flags & portlibSignalNo))
-	 || ((OMRPORT_SIG_FLAG_DOES_NOT_MAP_TO_POSIX == portlibSignalNo)
-	  && (0 != (thisRecord->flags & OMRPORT_SIG_FLAG_SIGALLSYNC)))
-	) {
+	if ((0 != (thisRecord->flags & portlibSignalNo)) || ((OMRPORT_SIG_FLAG_DOES_NOT_MAP_TO_POSIX == portlibSignalNo)
+														 && (0 != (thisRecord->flags & OMRPORT_SIG_FLAG_SIGALLSYNC)))) {
 
 		J9LEConditionInfo j9Info;
 		_CEECIB *cib_ptr = NULL;
@@ -187,7 +185,7 @@ j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBAC
 		j9Info.handlerAddress = (void *)thisRecord->handler;
 		j9Info.handlerAddress2 = (void *)j9vm_le_condition_handler;
 		j9Info.messageNumber = (uint16_t)fc->tok_msgno;
-		j9Info.facilityID = e2a_func(fc->tok_facid, 3);	/* e2a_func() uses malloc, free below */
+		j9Info.facilityID = e2a_func(fc->tok_facid, 3); /* e2a_func() uses malloc, free below */
 
 		/* Save the previous signal, set the current, restore the previous
 		 * If thisRecord->handler crashes without registering its own protection (using omrsig_protect),
@@ -240,7 +238,8 @@ j9vm_le_condition_handler(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBAC
 }
 
 int32_t
-omrsig_protect_ceehdlr(struct OMRPortLibrary *portLibrary,  omrsig_protected_fn fn, void *fn_arg, omrsig_handler_fn handler, void *handler_arg, uint32_t flags, uintptr_t *result)
+omrsig_protect_ceehdlr(struct OMRPortLibrary *portLibrary, omrsig_protected_fn fn, void *fn_arg,
+					   omrsig_handler_fn handler, void *handler_arg, uint32_t flags, uintptr_t *result)
 {
 
 	struct J9ZOSLEConditionHandlerRecord thisRecord;
@@ -267,7 +266,7 @@ omrsig_protect_ceehdlr(struct OMRPortLibrary *portLibrary,  omrsig_protected_fn 
 
 		/* Register j9vm_le_condition_handler as an LE condition handler */
 		token = (_INT4)&thisRecord;
-		leConditionHandler.address = (_POINTER)&j9vm_le_condition_handler ;
+		leConditionHandler.address = (_POINTER)&j9vm_le_condition_handler;
 		leConditionHandler.nesting = NULL;
 
 		CEEHDLR(&leConditionHandler, &token, &fc);
@@ -296,7 +295,8 @@ omrsig_protect_ceehdlr(struct OMRPortLibrary *portLibrary,  omrsig_protected_fn 
 }
 
 uint32_t
-omrsig_info_ceehdlr(struct OMRPortLibrary *portLibrary, void *info, uint32_t category, int32_t index, const char **name, void **value)
+omrsig_info_ceehdlr(struct OMRPortLibrary *portLibrary, void *info, uint32_t category, int32_t index, const char **name,
+					void **value)
 {
 
 	*name = "";

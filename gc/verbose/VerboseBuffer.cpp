@@ -33,10 +33,11 @@ MM_VerboseBuffer *
 MM_VerboseBuffer::newInstance(MM_EnvironmentBase *env, uintptr_t size)
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
-	
-	MM_VerboseBuffer *verboseBuffer = (MM_VerboseBuffer *) extensions->getForge()->allocate(sizeof(MM_VerboseBuffer), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
-	if(NULL != verboseBuffer) {
-		new(verboseBuffer) MM_VerboseBuffer(env);
+
+	MM_VerboseBuffer *verboseBuffer = (MM_VerboseBuffer *)extensions->getForge()->allocate(
+		sizeof(MM_VerboseBuffer), MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
+	if (NULL != verboseBuffer) {
+		new (verboseBuffer) MM_VerboseBuffer(env);
 		if (!verboseBuffer->initialize(env, size)) {
 			verboseBuffer->kill(env);
 			verboseBuffer = NULL;
@@ -53,15 +54,16 @@ bool
 MM_VerboseBuffer::initialize(MM_EnvironmentBase *env, uintptr_t size)
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
-	
-	if(0 == size) {
+
+	if (0 == size) {
 		return false;
 	}
-	
-	if(NULL == (_buffer = (char *) extensions->getForge()->allocate(size, MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE()))) {
+
+	if (NULL == (_buffer = (char *)extensions->getForge()->allocate(size, MM_AllocationCategory::DIAGNOSTIC,
+																	OMR_GET_CALLSITE()))) {
 		return false;
 	}
-	
+
 	_bufferTop = _buffer + size;
 	reset();
 
@@ -86,7 +88,7 @@ MM_VerboseBuffer::kill(MM_EnvironmentBase *env)
 void
 MM_VerboseBuffer::tearDown(MM_EnvironmentBase *env)
 {
-	if(NULL != _buffer) {
+	if (NULL != _buffer) {
 		MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
 		extensions->getForge()->free(_buffer);
 	}
@@ -108,15 +110,15 @@ MM_VerboseBuffer::add(MM_EnvironmentBase *env, const char *string)
 	uintptr_t stringLength = strlen(string);
 	/* we will need space for the string but also ensure that we aren't going to overrun the buffer with the NUL byte */
 	uintptr_t spaceNeeded = stringLength + 1;
-	
-	if(ensureCapacity(env, spaceNeeded)) {
+
+	if (ensureCapacity(env, spaceNeeded)) {
 		strcpy(_bufferAlloc, string);
 		_bufferAlloc += stringLength;
 		result = true;
 	} else {
 		result = false;
 	}
-	
+
 	return result;
 }
 
@@ -125,15 +127,16 @@ MM_VerboseBuffer::ensureCapacity(MM_EnvironmentBase *env, uintptr_t spaceNeeded)
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
 	bool result = true;
-	
-	if(freeSpace() < spaceNeeded) {
+
+	if (freeSpace() < spaceNeeded) {
 		/* Not enough space in the current buffer - try to alloc a larger one and use that */
 		char *oldBuffer = _buffer;
 		uintptr_t currentSize = this->currentSize();
 		uintptr_t newStringLength = currentSize + spaceNeeded;
 		uintptr_t newSize = newStringLength + (newStringLength / 2);
-		char* newBuffer = (char *) extensions->getForge()->allocate(newSize, MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
-		if(NULL == newBuffer) {
+		char *newBuffer =
+			(char *)extensions->getForge()->allocate(newSize, MM_AllocationCategory::DIAGNOSTIC, OMR_GET_CALLSITE());
+		if (NULL == newBuffer) {
 			result = false;
 		} else {
 			_buffer = newBuffer;
@@ -141,18 +144,17 @@ MM_VerboseBuffer::ensureCapacity(MM_EnvironmentBase *env, uintptr_t spaceNeeded)
 			/* Got a new buffer - initialize it */
 			_bufferTop = _buffer + newSize;
 			reset();
-		
+
 			/* Copy across the contents of the old buffer */
 			strcpy(_buffer, oldBuffer);
 			_bufferAlloc += currentSize;
-				
+
 			/* Delete the old buffer */
 			extensions->getForge()->free(oldBuffer);
 		}
 	}
 	return result;
 }
-
 
 bool
 MM_VerboseBuffer::vprintf(MM_EnvironmentBase *env, const char *format, va_list args)
@@ -175,7 +177,7 @@ MM_VerboseBuffer::vprintf(MM_EnvironmentBase *env, const char *format, va_list a
 	} else {
 		/* undo anything that might have been written by the failed call to omrstr_vprintf */
 		_bufferAlloc[0] = '\0';
-		
+
 		/* grow the buffer and try again */
 		COPY_VA_LIST(argsCopy, args);
 		uintptr_t spaceNeeded = omrstr_vprintf(NULL, 0, format, argsCopy);

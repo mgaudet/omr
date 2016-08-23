@@ -156,7 +156,8 @@ HookGen::writeComment(FILE *file, char *text)
  * Write an event to the public header
  */
 void
-HookGen::writeEventToPublicHeader(const char *name, const char *description, const char *condition, const char *structName, const char *reverse, pugi::xml_node event)
+HookGen::writeEventToPublicHeader(const char *name, const char *description, const char *condition,
+								  const char *structName, const char *reverse, pugi::xml_node event)
 {
 	int thisEventNum = _eventNum++;
 	const char *example =
@@ -217,7 +218,8 @@ HookGen::writeEventToPublicHeader(const char *name, const char *description, con
  * Write an event to the private header
  */
 void
-HookGen::writeEventToPrivateHeader(const char *name, const char *condition, const char *once, const char *structName, pugi::xml_node event)
+HookGen::writeEventToPrivateHeader(const char *name, const char *condition, const char *once, const char *structName,
+								   pugi::xml_node event)
 {
 	if (NULL != condition) {
 		fprintf(_privateFile, "#if %s\n", condition);
@@ -231,12 +233,17 @@ HookGen::writeEventToPrivateHeader(const char *name, const char *condition, cons
 	fprintf(_privateFile, ") \\\n\tdo { \\\n");
 	fprintf(_privateFile, "\t\tstruct %s eventData; \\\n", structName);
 	for (pugi::xml_node data = event.child("data"); data; data = data.next_sibling("data")) {
-		fprintf(_privateFile, "\t\teventData.%s = (arg_%s); \\\n", data.attribute("name").as_string(), data.attribute("name").as_string());
+		fprintf(_privateFile, "\t\teventData.%s = (arg_%s); \\\n", data.attribute("name").as_string(),
+				data.attribute("name").as_string());
 	}
-	fprintf(_privateFile, "\t\t(*J9_HOOK_INTERFACE(hookInterface))->J9HookDispatch(J9_HOOK_INTERFACE(hookInterface), %s%s, &eventData); \\\n", name, once == NULL ? "" : " | J9HOOK_TAG_ONCE");
+	fprintf(_privateFile,
+			"\t\t(*J9_HOOK_INTERFACE(hookInterface))->J9HookDispatch(J9_HOOK_INTERFACE(hookInterface), %s%s, "
+			"&eventData); \\\n",
+			name, once == NULL ? "" : " | J9HOOK_TAG_ONCE");
 	for (pugi::xml_node data = event.child("data"); data; data = data.next_sibling("data")) {
 		if (data.attribute("return").as_bool()) {
-			fprintf(_privateFile, "\t\t(arg_%s) = eventData.%s; /* return argument */ \\\n", data.attribute("name").as_string(), data.attribute("name").as_string());
+			fprintf(_privateFile, "\t\t(arg_%s) = eventData.%s; /* return argument */ \\\n",
+					data.attribute("name").as_string(), data.attribute("name").as_string());
 		}
 	}
 
@@ -250,7 +257,8 @@ HookGen::writeEventToPrivateHeader(const char *name, const char *condition, cons
 	if (NULL == once) {
 		fprintf(_privateFile, "\t\tif (J9_EVENT_IS_HOOKED(hookInterface, %s)) { \\\n", name);
 	} else {
-		fprintf(_privateFile, "\t\t/* always trigger this 'report once' event, so that it will be disabled after this point */ \\\n");
+		fprintf(_privateFile,
+				"\t\t/* always trigger this 'report once' event, so that it will be disabled after this point */ \\\n");
 	}
 	fprintf(_privateFile, "\t\t\tALWAYS_TRIGGER_%s(hookInterface", name);
 	for (pugi::xml_node data = event.child("data"); data; data = data.next_sibling("data")) {
@@ -456,7 +464,8 @@ HookGen::processFile()
 	}
 
 #if defined(DEBUG)
-	fprintf(stderr, "Processing %s into public header %s and private header %s\n", _fileName, publicFileName, privateFileName);
+	fprintf(stderr, "Processing %s into public header %s and private header %s\n", _fileName, publicFileName,
+			privateFileName);
 #endif /* DEBUG */
 
 	rc = createFiles(publicFileName, privateFileName);
@@ -487,7 +496,8 @@ HookGen::processFile()
 		return rc;
 	}
 #if defined(DEBUG)
-	fprintf(stderr, "Finished procssing %s into public header %s and private header %s\n", _fileName, publicFileName, privateFileName);
+	fprintf(stderr, "Finished procssing %s into public header %s and private header %s\n", _fileName, publicFileName,
+			privateFileName);
 #endif /* DEBUG */
 
 	return rc;
@@ -539,7 +549,8 @@ startHookGen(int argc, char *argv[])
 		goto finish;
 	}
 
-	fprintf(stderr, "Processed %s to create public header %s and private header %s\n", hookGen.getFileName(), hookGen.getPublicFileName(), hookGen.getPrivateFileName());
+	fprintf(stderr, "Processed %s to create public header %s and private header %s\n", hookGen.getFileName(),
+			hookGen.getPublicFileName(), hookGen.getPrivateFileName());
 
 finish:
 	hookGen.tearDown();

@@ -23,7 +23,6 @@ static void updateLowestNotFull(OMRRanking *ranking, void *key, uintptr_t count)
 
 #define HASHTABLE_RATIO 2
 
-
 struct hashTableEntry {
 	uint32_t rank; /* used to point into rankTable */
 	void *data;
@@ -60,7 +59,6 @@ hashFn(void *key, void *userData)
 	return (uintptr_t)((hashTableEntry *)key)->data;
 }
 
-
 void
 rankingClear(OMRRanking *ranking)
 {
@@ -93,7 +91,9 @@ rankingNew(OMRPortLibrary *portLibrary, uint32_t size)
 	if (NULL == newRanking->rankTable) {
 		return NULL;
 	}
-	newRanking->hashTable = hashTableNew(portLibrary, OMR_GET_CALLSITE(), size * HASHTABLE_RATIO, sizeof(hashTableEntry), 0, J9HASH_TABLE_ALLOW_SIZE_OPTIMIZATION, OMRMEM_CATEGORY_VM, hashFn, hashEqualFn, NULL, NULL);
+	newRanking->hashTable =
+		hashTableNew(portLibrary, OMR_GET_CALLSITE(), size * HASHTABLE_RATIO, sizeof(hashTableEntry), 0,
+					 J9HASH_TABLE_ALLOW_SIZE_OPTIMIZATION, OMRMEM_CATEGORY_VM, hashFn, hashEqualFn, NULL, NULL);
 	if (NULL == newRanking->hashTable) {
 		return NULL;
 	}
@@ -110,9 +110,7 @@ rankingFree(OMRRanking *ranking)
 	hashTableFree(ranking->hashTable);
 	omrmem_free_memory(ranking->rankTable);
 	omrmem_free_memory(ranking);
-
 }
-
 
 uintptr_t
 rankingGetLowestCount(OMRRanking *ranking)
@@ -211,7 +209,6 @@ updateLowestNotFull(OMRRanking *ranking, void *key, uintptr_t count)
 	ranking->rankTable[lowestRank].hashTableEntry = newHashTableEntryPtr;
 	ranking->curSize++;
 	bubbleUp(ranking, lowestRank);
-
 }
 
 void *
@@ -222,7 +219,6 @@ rankingGetKthHighest(OMRRanking *ranking, uintptr_t k)
 	} else {
 		return NULL;
 	}
-
 }
 
 uintptr_t
@@ -234,4 +230,3 @@ rankingGetKthHighestCount(OMRRanking *ranking, uintptr_t k)
 		return 0;
 	}
 }
-

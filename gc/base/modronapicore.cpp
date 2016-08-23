@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "modronapicore.hpp"
 
 #include "Dispatcher.hpp"
@@ -35,14 +34,14 @@ extern "C" {
  * @parm[in] the javaVM
  * @return a GC version string (e.g. "20080103_AB")
  */
-const char*
+const char *
 omrgc_get_version(OMR_VM *omrVM)
 {
 	return OMR_VERSION_STRING
-#if defined (OMR_GC_COMPRESSED_POINTERS) 
+#if defined(OMR_GC_COMPRESSED_POINTERS)
 		"_CMPRSS"
 #endif /* OMR_GC_COMPRESSED_POINTERS */
-	;
+		;
 }
 
 uintptr_t
@@ -65,16 +64,16 @@ omrgc_condYieldFromGC(OMR_VMThread *omrVMThread, uintptr_t componentType)
 void *
 omrgc_walkLWNRLockTracePool(void *omrVM, pool_state *state)
 {
-	MM_GCExtensionsBase* gcExtensions = MM_GCExtensionsBase::getExtensions((OMR_VM *)omrVM);
-	J9Pool* tracingPool = gcExtensions->_lightweightNonReentrantLockPool;
+	MM_GCExtensionsBase *gcExtensions = MM_GCExtensionsBase::getExtensions((OMR_VM *)omrVM);
+	J9Pool *tracingPool = gcExtensions->_lightweightNonReentrantLockPool;
 	J9ThreadMonitorTracing *lnrl_lock = NULL;
 
 	if (NULL != tracingPool) {
 		if (NULL == state->thePool) {
 			omrthread_monitor_enter(gcExtensions->_lightweightNonReentrantLockPoolMutex);
-			lnrl_lock = (J9ThreadMonitorTracing *) pool_startDo(tracingPool, state);
+			lnrl_lock = (J9ThreadMonitorTracing *)pool_startDo(tracingPool, state);
 		} else {
-			lnrl_lock = (J9ThreadMonitorTracing *) pool_nextDo(state);
+			lnrl_lock = (J9ThreadMonitorTracing *)pool_nextDo(state);
 		}
 		if (NULL == lnrl_lock) {
 			omrthread_monitor_exit(gcExtensions->_lightweightNonReentrantLockPoolMutex);

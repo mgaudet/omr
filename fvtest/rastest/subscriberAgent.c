@@ -78,7 +78,7 @@ OMRAgent_OnLoad(OMR_TI const *ti, OMR_VM *vm, char const *options, OMR_AgentCall
 	}
 
 	if (OMR_ERROR_NONE == rc) {
-		const char *setOpts[] = { "maximal", "omrport", NULL};
+		const char *setOpts[] = {"maximal", "omrport", NULL};
 		rc = OMRTEST_PRINT_ERROR(ti->SetTraceOptions(testData1.vmThread, setOpts));
 	}
 
@@ -94,11 +94,13 @@ OMRAgent_OnLoad(OMR_TI const *ti, OMR_VM *vm, char const *options, OMR_AgentCall
 	}
 
 	if (OMR_ERROR_NONE == rc) {
-		rc = OMRTEST_PRINT_ERROR(ti->RegisterRecordSubscriber(testData1.vmThread, "sample1", subscribeFunc1, alarmFunc1, (void *)&testData1, &testData1.subscriptionID));
+		rc = OMRTEST_PRINT_ERROR(ti->RegisterRecordSubscriber(testData1.vmThread, "sample1", subscribeFunc1, alarmFunc1,
+															  (void *)&testData1, &testData1.subscriptionID));
 	}
 
 	if (OMR_ERROR_NONE == rc) {
-		rc = OMRTEST_PRINT_ERROR(ti->RegisterRecordSubscriber(testData2.vmThread, "sample2", subscribeFunc2, alarmFunc2, (void *)&testData2, &testData2.subscriptionID));
+		rc = OMRTEST_PRINT_ERROR(ti->RegisterRecordSubscriber(testData2.vmThread, "sample2", subscribeFunc2, alarmFunc2,
+															  (void *)&testData2, &testData2.subscriptionID));
 	}
 
 	if (OMR_ERROR_NONE == rc) {
@@ -141,7 +143,8 @@ OMRAgent_OnUnload(OMR_TI const *ti, OMR_VM *vm)
 	if (OMR_ERROR_NONE == rc) {
 		omr_error_t testRc = ti->DeregisterRecordSubscriber(testData1.vmThread, testData1.subscriptionID);
 		if (OMR_ERROR_ILLEGAL_ARGUMENT != testRc && OMR_ERROR_NONE != testRc) {
-			omrtty_printf("%s:%d ERROR: DeregisterRecordSubscriber() returns expected rc: %d\n", __FILE__, __LINE__, rc);
+			omrtty_printf("%s:%d ERROR: DeregisterRecordSubscriber() returns expected rc: %d\n", __FILE__, __LINE__,
+						  rc);
 		}
 	}
 
@@ -151,7 +154,8 @@ OMRAgent_OnUnload(OMR_TI const *ti, OMR_VM *vm)
 
 	/* Call DeregisterRecordSubscriber one more time, OMR_ERROR_ILLEGAL_ARGUMENT is expected */
 	if (OMR_ERROR_NONE == rc) {
-		omr_error_t testRc = OMRTEST_PRINT_UNEXPECTED_RC(ti->DeregisterRecordSubscriber(testData2.vmThread, testData2.subscriptionID), OMR_ERROR_ILLEGAL_ARGUMENT);
+		omr_error_t testRc = OMRTEST_PRINT_UNEXPECTED_RC(
+			ti->DeregisterRecordSubscriber(testData2.vmThread, testData2.subscriptionID), OMR_ERROR_ILLEGAL_ARGUMENT);
 		if (OMR_ERROR_ILLEGAL_ARGUMENT != testRc) {
 			rc = OMR_ERROR_INTERNAL;
 		}
@@ -245,7 +249,7 @@ verifyTraceMetadata(char *traceMeta)
 		char c = traceMeta[i];
 		if (eyecatcherASCII[i] != c && eyecatcherEBCDIC[i] != c) {
 			rc = OMR_ERROR_INTERNAL;
-			fprintf(stderr,	"eyecatcher in trace metadata at index %d doesn't match expectation. Found: %c\n", i, c);
+			fprintf(stderr, "eyecatcher in trace metadata at index %d doesn't match expectation. Found: %c\n", i, c);
 			break;
 		}
 	}

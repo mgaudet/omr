@@ -31,15 +31,15 @@ MM_EnvironmentStandard::newInstance(MM_GCExtensionsBase *extensions, OMR_VMThrea
 {
 	void *envPtr;
 	MM_EnvironmentStandard *env = NULL;
-	
+
 	envPtr = (void *)pool_newElement(extensions->environments);
 	if (envPtr) {
-		env = new(envPtr) MM_EnvironmentStandard(omrVMThread);
+		env = new (envPtr) MM_EnvironmentStandard(omrVMThread);
 		if (!env->initialize(extensions)) {
 			env->kill();
-			env = NULL;	
+			env = NULL;
 		}
-	}	
+	}
 
 	return env;
 }

@@ -100,24 +100,18 @@ getZFSClientCacheSize(uint64_t *clientCacheSizePtr)
 		Trc_PRT_getZFSClientCacheSize_MallocFailure();
 		return -1;
 	}
-	/* Invoke pfsctl() callable service */
-#if defined(_LP64)					/* AMODE 64-bit */
-	BPX4PCT(fsName,                 /* File system type: ZFS (in) */
-			J9ZFSCALL_CONFIG,       /* Command: Configuration operation (in) */
-			sizeof(configParam),    /* Argument length (in) */
-			(char *)&configParam,   /* Argument (in & out) */
-			&bpxrv,                 /* Return_value (out) */
-			&bpxrc,                 /* Return_code (out) */
-			&bpxrs);                /* Reason_code (out) */
-#else								/* AMODE 31-bit */
-	BPX1PCT(fsName,
-			J9ZFSCALL_CONFIG,
-			sizeof(configParam),
-			(char *)&configParam,
-			&bpxrv,
-			&bpxrc,
-			&bpxrs);
-#endif /* defined(_LP64) */
+/* Invoke pfsctl() callable service */
+#if defined(_LP64)				  /* AMODE 64-bit */
+	BPX4PCT(fsName,				  /* File system type: ZFS (in) */
+			J9ZFSCALL_CONFIG,	 /* Command: Configuration operation (in) */
+			sizeof(configParam),  /* Argument length (in) */
+			(char *)&configParam, /* Argument (in & out) */
+			&bpxrv,				  /* Return_value (out) */
+			&bpxrc,				  /* Return_code (out) */
+			&bpxrs);			  /* Reason_code (out) */
+#else							  /* AMODE 31-bit */
+	BPX1PCT(fsName, J9ZFSCALL_CONFIG, sizeof(configParam), (char *)&configParam, &bpxrv, &bpxrc, &bpxrs);
+#endif							  /* defined(_LP64) */
 	free(fsName);
 
 	/* Check pfsctl() service return value */
@@ -196,24 +190,18 @@ getZFSUserCacheUsed(uint64_t *userCacheUsedPtr)
 		Trc_PRT_getZFSUserCacheUsed_MallocFailure();
 		return -1;
 	}
-	/* Invoke pfsctl() callable service */
-#if defined(_LP64)					/* AMODE 64-bit */
-	BPX4PCT(fsName,                 /* File system type: ZFS (in) */
-			J9ZFSCALL_STATS, 	    /* Command: Statistics operation (in) */
-			sizeof(statParam),    	/* Argument length (in) */
-			(char *)&statParam,    	/* Argument (in & out) */
-			&bpxrv,                 /* Return_value (out) */
-			&bpxrc,                 /* Return_code (out) */
-			&bpxrs);                /* Reason_code (out) */
-#else								/* AMODE 31-bit */
-	BPX1PCT(fsName,
-			J9ZFSCALL_STATS,
-			sizeof(statParam),
-			(char *)&statParam,
-			&bpxrv,
-			&bpxrc,
-			&bpxrs);
-#endif /* defined(_LP64) */
+/* Invoke pfsctl() callable service */
+#if defined(_LP64)				/* AMODE 64-bit */
+	BPX4PCT(fsName,				/* File system type: ZFS (in) */
+			J9ZFSCALL_STATS,	/* Command: Statistics operation (in) */
+			sizeof(statParam),  /* Argument length (in) */
+			(char *)&statParam, /* Argument (in & out) */
+			&bpxrv,				/* Return_value (out) */
+			&bpxrc,				/* Return_code (out) */
+			&bpxrs);			/* Reason_code (out) */
+#else							/* AMODE 31-bit */
+	BPX1PCT(fsName, J9ZFSCALL_STATS, sizeof(statParam), (char *)&statParam, &bpxrv, &bpxrc, &bpxrs);
+#endif							/* defined(_LP64) */
 	free(fsName);
 
 	/* Check pfsctl() service return value */
@@ -288,24 +276,18 @@ getZFSMetaCacheSize(uint64_t *bufferCacheSizePtr)
 		Trc_PRT_getZFSMetaCacheSize_MallocFailure();
 		return -1;
 	}
-	/* Invoke pfsctl() callable service */
+/* Invoke pfsctl() callable service */
 #if defined(_LP64)					/* AMODE 64-bit */
-	BPX4PCT(fsName,                 /* File system type: ZFS (in) */
-			J9ZFSCALL_STATS,        /* Command: Statistics operation (in) */
-			sizeof(metaStatParam), 	/* Argument length (in) */
+	BPX4PCT(fsName,					/* File system type: ZFS (in) */
+			J9ZFSCALL_STATS,		/* Command: Statistics operation (in) */
+			sizeof(metaStatParam),  /* Argument length (in) */
 			(char *)&metaStatParam, /* Argument (in & out) */
-			&bpxrv,                 /* Return_value (out) */
-			&bpxrc,                 /* Return_code (out) */
-			&bpxrs);                /* Reason_code (out) */
+			&bpxrv,					/* Return_value (out) */
+			&bpxrc,					/* Return_code (out) */
+			&bpxrs);				/* Reason_code (out) */
 #else								/* AMODE 31-bit */
-	BPX1PCT(fsName,
-			J9ZFSCALL_STATS,
-			sizeof(metaStatParam),
-			(char *)&metaStatParam,
-			&bpxrv,
-			&bpxrc,
-			&bpxrs);
-#endif /* defined(_LP64) */
+	BPX1PCT(fsName, J9ZFSCALL_STATS, sizeof(metaStatParam), (char *)&metaStatParam, &bpxrv, &bpxrc, &bpxrs);
+#endif								/* defined(_LP64) */
 	free(fsName);
 
 	/* Check pfsctl() service return value */

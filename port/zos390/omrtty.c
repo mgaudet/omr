@@ -24,7 +24,6 @@
   * All VM output goes to stderr by default.  These routines provide the helpers for such output.
   */
 
-
 #include <stdio.h>
 #include <stdlib.h> /* minimally needed for atoe.h below - for malloc() prototype */
 #include <stdarg.h>
@@ -34,11 +33,9 @@
 #include <sys/types.h>
 #include <errno.h>
 
-
 #include "atoe.h"
 
 void WRITE_TTY(int fileno, char *b, int bcount);
-
 
 void
 WRITE_TTY(int fileno, char *b, int bcount)
@@ -47,7 +44,6 @@ WRITE_TTY(int fileno, char *b, int bcount)
 	write(fileno, s, bcount);
 	free(s);
 }
-
 
 /**
  * Determine the number of characters remaining to be read from stdin.
@@ -80,7 +76,6 @@ omrtty_available(struct OMRPortLibrary *portLibrary)
 	}
 	return 0;
 }
-
 
 /**
  * Output message to stderr.
@@ -237,4 +232,3 @@ omrtty_daemonize(struct OMRPortLibrary *portLibrary)
 {
 	/* no special handling of file handles, nothing to do */
 }
-

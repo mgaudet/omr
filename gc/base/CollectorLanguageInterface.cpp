@@ -29,7 +29,8 @@
 struct OMR_VMThread;
 
 void
-MM_CollectorLanguageInterface::writeBarrierStore(OMR_VMThread *omrThread, omrobjectptr_t parentObject, fomrobject_t *parentSlot, omrobjectptr_t childObject)
+MM_CollectorLanguageInterface::writeBarrierStore(OMR_VMThread *omrThread, omrobjectptr_t parentObject,
+												 fomrobject_t *parentSlot, omrobjectptr_t childObject)
 {
 	GC_SlotObject slotObject(omrThread->_vm, parentSlot);
 	slotObject.writeReferenceToSlot(childObject);
@@ -54,7 +55,3 @@ MM_CollectorLanguageInterface::writeBarrierStore(OMR_VMThread *omrThread, omrobj
 	}
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */
 }
-
-
-
-

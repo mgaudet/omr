@@ -45,10 +45,12 @@ class MM_MemoryPoolSplitAddressOrderedList : public MM_MemoryPoolSplitAddressOrd
 	 * Data members
 	 */
 private:
- 	uintptr_t _reservedFreeEntrySize;		/**< set during postSweepProcess */
-  	MM_HeapLinkedFreeHeader* _previousReservedFreeEntry;	/**< combination _previousReservedFreeEntry and _reservedFreeListIndex are used to identify or update the reservedFreeEntry */
- 	uintptr_t _reservedFreeListIndex;		/**< the reservedFreeEntry is initialized only once in first pass iterating after sweep, used/updated only in second pass */
-	bool _reservedFreeEntryAvaliable;	/**< True if the reserved Free Entry can be used */
+	uintptr_t _reservedFreeEntrySize; /**< set during postSweepProcess */
+	MM_HeapLinkedFreeHeader *
+		_previousReservedFreeEntry; /**< combination _previousReservedFreeEntry and _reservedFreeListIndex are used to identify or update the reservedFreeEntry */
+	uintptr_t
+		_reservedFreeListIndex;		  /**< the reservedFreeEntry is initialized only once in first pass iterating after sweep, used/updated only in second pass */
+	bool _reservedFreeEntryAvaliable; /**< True if the reserved Free Entry can be used */
 protected:
 public:
 	/*
@@ -65,20 +67,25 @@ private:
 	 * @param[in/out]  largestFreeEntry   a pointer to largestFreeEntry
 	 * @return a free entry, NULL if not find a free entry
 	 */
-	MM_HeapLinkedFreeHeader* internalAllocateFromList(MM_EnvironmentBase* env, uintptr_t sizeInBytesRequired, uintptr_t curFreeList, MM_HeapLinkedFreeHeader** previousFreeEntry, uintptr_t* largestFreeEntry);
+	MM_HeapLinkedFreeHeader *internalAllocateFromList(MM_EnvironmentBase *env, uintptr_t sizeInBytesRequired,
+													  uintptr_t curFreeList,
+													  MM_HeapLinkedFreeHeader **previousFreeEntry,
+													  uintptr_t *largestFreeEntry);
 
 	/* helpers for maintaining reserved free entry - start */
 	/**
 	 * check if previousFreeEntry is the same as previousReservedFreeEntry
 	 */
-	MMINLINE bool isPreviousReservedFreeEntry(MM_HeapLinkedFreeHeader* previousFreeEntry, uintptr_t curFreeList)
+	MMINLINE bool
+	isPreviousReservedFreeEntry(MM_HeapLinkedFreeHeader *previousFreeEntry, uintptr_t curFreeList)
 	{
 		return ((previousFreeEntry == _previousReservedFreeEntry) && (curFreeList == _reservedFreeListIndex));
 	}
 
-	MMINLINE MM_HeapLinkedFreeHeader* getReservedFreeEntry()
+	MMINLINE MM_HeapLinkedFreeHeader *
+	getReservedFreeEntry()
 	{
-		MM_HeapLinkedFreeHeader* freeEntry = NULL;
+		MM_HeapLinkedFreeHeader *freeEntry = NULL;
 		if (_reservedFreeEntryAvaliable) {
 			Assert_MM_true(_heapFreeListCount > _reservedFreeListIndex);
 			Assert_MM_true((void *)UDATA_MAX != _previousReservedFreeEntry);
@@ -92,11 +99,12 @@ private:
 		return freeEntry;
 	}
 
-	MMINLINE  bool	reservedFreeEntryConsistencyCheck()
+	MMINLINE bool
+	reservedFreeEntryConsistencyCheck()
 	{
 		bool ret = true;
 		if (_reservedFreeEntryAvaliable) {
-			MM_HeapLinkedFreeHeader* freeEntry = NULL;
+			MM_HeapLinkedFreeHeader *freeEntry = NULL;
 			if (NULL == _previousReservedFreeEntry) {
 				freeEntry = _heapFreeLists[_reservedFreeListIndex]._freeList;
 			} else {
@@ -109,10 +117,11 @@ private:
 	/**
 	 * check if currentFreeEntry is the same as reservedFreeEntry
 	 */
-	MMINLINE bool isCurrentReservedFreeEntry(MM_HeapLinkedFreeHeader* curFreeEntry, uintptr_t curFreeList)
+	MMINLINE bool
+	isCurrentReservedFreeEntry(MM_HeapLinkedFreeHeader *curFreeEntry, uintptr_t curFreeList)
 	{
 		bool retValue = (curFreeList == _reservedFreeListIndex);
-		
+
 		if (retValue) {
 			if (NULL == _previousReservedFreeEntry) {
 				retValue = (_heapFreeLists[curFreeList]._freeList == curFreeEntry);
@@ -120,66 +129,74 @@ private:
 				retValue = (_previousReservedFreeEntry->getNext() == curFreeEntry);
 			}
 		}
-		
+
 		return retValue;
 	}
 
 	/**
 	 * reset reservedFreeEntry
 	 */
-	MMINLINE void resetReservedFreeEntry()
+	MMINLINE void
+	resetReservedFreeEntry()
 	{
 		_reservedFreeEntryAvaliable = false;
 		_reservedFreeEntrySize = 0;
 		/* if reserved free entry is not avaliable, previous entry and index are set to special values,
 		 * which is mostly used for debugging purposes
 		 */
-		_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader*) UDATA_MAX;
+		_previousReservedFreeEntry = (MM_HeapLinkedFreeHeader *)UDATA_MAX;
 		_reservedFreeListIndex = _heapFreeListCount;
 	}
 
 	/* helpers for maintaining reserved free entry - end */
-	
+
 protected:
-	virtual void *internalAllocate(MM_EnvironmentBase *env, uintptr_t sizeInBytesRequired, bool lockingRequired, MM_LargeObjectAllocateStats *largeObjectAllocateStats);
-	virtual bool internalAllocateTLH(MM_EnvironmentBase *env, uintptr_t maximumSizeInBytesRequired, void * &addrBase, void * &addrTop, bool lockingRequired, MM_LargeObjectAllocateStats *largeObjectAllocateStats);
+	virtual void *internalAllocate(MM_EnvironmentBase *env, uintptr_t sizeInBytesRequired, bool lockingRequired,
+								   MM_LargeObjectAllocateStats *largeObjectAllocateStats);
+	virtual bool internalAllocateTLH(MM_EnvironmentBase *env, uintptr_t maximumSizeInBytesRequired, void *&addrBase,
+									 void *&addrTop, bool lockingRequired,
+									 MM_LargeObjectAllocateStats *largeObjectAllocateStats);
+
 public:
-	static MM_MemoryPoolSplitAddressOrderedList* newInstance(MM_EnvironmentBase* env, uintptr_t minimumFreeEntrySize, uintptr_t maxSplit);
-	static MM_MemoryPoolSplitAddressOrderedList* newInstance(MM_EnvironmentBase* env, uintptr_t minimumFreeEntrySize, uintptr_t maxSplit, const char* name);
+	static MM_MemoryPoolSplitAddressOrderedList *newInstance(MM_EnvironmentBase *env, uintptr_t minimumFreeEntrySize,
+															 uintptr_t maxSplit);
+	static MM_MemoryPoolSplitAddressOrderedList *newInstance(MM_EnvironmentBase *env, uintptr_t minimumFreeEntrySize,
+															 uintptr_t maxSplit, const char *name);
 
 	virtual void reset(Cause cause = any);
 
-	virtual void addFreeEntries(MM_EnvironmentBase* env, MM_HeapLinkedFreeHeader*& freeListHead, MM_HeapLinkedFreeHeader*& freeListTail,
-								uintptr_t freeListMemoryCount, uintptr_t freeListMemorySize);
+	virtual void addFreeEntries(MM_EnvironmentBase *env, MM_HeapLinkedFreeHeader *&freeListHead,
+								MM_HeapLinkedFreeHeader *&freeListTail, uintptr_t freeListMemoryCount,
+								uintptr_t freeListMemorySize);
 
-	virtual bool removeFreeEntriesWithinRange(MM_EnvironmentBase* env, void* lowAddress, void* highAddress, uintptr_t minimumSize,
-											  MM_HeapLinkedFreeHeader*& retListHead, MM_HeapLinkedFreeHeader*& retListTail,
-											  uintptr_t& retListMemoryCount, uintptr_t& retListMemorySize);
+	virtual bool removeFreeEntriesWithinRange(MM_EnvironmentBase *env, void *lowAddress, void *highAddress,
+											  uintptr_t minimumSize, MM_HeapLinkedFreeHeader *&retListHead,
+											  MM_HeapLinkedFreeHeader *&retListTail, uintptr_t &retListMemoryCount,
+											  uintptr_t &retListMemorySize);
 
-	virtual void postProcess(MM_EnvironmentBase* env, Cause cause);
+	virtual void postProcess(MM_EnvironmentBase *env, Cause cause);
 
-	virtual void expandWithRange(MM_EnvironmentBase* env, uintptr_t expandSize, void* lowAddress, void* highAddress, bool canCoalesce);
-	virtual void* contractWithRange(MM_EnvironmentBase* env, uintptr_t contractSize, void* lowAddress, void* highAddress);
+	virtual void expandWithRange(MM_EnvironmentBase *env, uintptr_t expandSize, void *lowAddress, void *highAddress,
+								 bool canCoalesce);
+	virtual void *contractWithRange(MM_EnvironmentBase *env, uintptr_t contractSize, void *lowAddress,
+									void *highAddress);
 
 	/**
 	 * Create a MemoryPoolAddressOrderedList object.
 	 */
-	MM_MemoryPoolSplitAddressOrderedList(MM_EnvironmentBase* env, uintptr_t minimumFreeEntrySize, uintptr_t splitAmount)
-		: MM_MemoryPoolSplitAddressOrderedListBase(env, minimumFreeEntrySize, splitAmount)
-		, _reservedFreeEntrySize(0)
-		, _previousReservedFreeEntry((MM_HeapLinkedFreeHeader*) UDATA_MAX)
-		, _reservedFreeListIndex(splitAmount)
-		, _reservedFreeEntryAvaliable(false)
+	MM_MemoryPoolSplitAddressOrderedList(MM_EnvironmentBase *env, uintptr_t minimumFreeEntrySize, uintptr_t splitAmount)
+		: MM_MemoryPoolSplitAddressOrderedListBase(env, minimumFreeEntrySize, splitAmount), _reservedFreeEntrySize(0),
+		  _previousReservedFreeEntry((MM_HeapLinkedFreeHeader *)UDATA_MAX), _reservedFreeListIndex(splitAmount),
+		  _reservedFreeEntryAvaliable(false)
 	{
 		_typeId = __FUNCTION__;
 	};
 
-	MM_MemoryPoolSplitAddressOrderedList(MM_EnvironmentBase* env, uintptr_t minimumFreeEntrySize, uintptr_t splitAmount, const char* name)
-		: MM_MemoryPoolSplitAddressOrderedListBase(env, minimumFreeEntrySize, splitAmount, name)
-		, _reservedFreeEntrySize(0)
-		, _previousReservedFreeEntry((MM_HeapLinkedFreeHeader*)UDATA_MAX)
-		, _reservedFreeListIndex(splitAmount)
-		, _reservedFreeEntryAvaliable(false)
+	MM_MemoryPoolSplitAddressOrderedList(MM_EnvironmentBase *env, uintptr_t minimumFreeEntrySize, uintptr_t splitAmount,
+										 const char *name)
+		: MM_MemoryPoolSplitAddressOrderedListBase(env, minimumFreeEntrySize, splitAmount, name),
+		  _reservedFreeEntrySize(0), _previousReservedFreeEntry((MM_HeapLinkedFreeHeader *)UDATA_MAX),
+		  _reservedFreeListIndex(splitAmount), _reservedFreeEntryAvaliable(false)
 	{
 		_typeId = __FUNCTION__;
 	};
@@ -190,6 +207,5 @@ public:
 	friend class MM_ConcurrentSweepScheme;
 	friend class MM_SweepPoolManagerSplitAddressOrderedList;
 };
-
 
 #endif /* MEMORYPOOLSPLITADDRESSORDEREDLIST_HPP_ */

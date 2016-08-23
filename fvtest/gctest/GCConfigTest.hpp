@@ -29,14 +29,7 @@
 #include "StartupManagerTestExample.hpp"
 #include "VerboseManager.hpp"
 
-enum OMRGCObjectType {
-	INVALID = 0,
-	ROOT,
-	NORMAL,
-	GARBAGE_CHILD,
-	GARBAGE_TOP,
-	GARBAGE_ROOT
-};
+enum OMRGCObjectType { INVALID = 0, ROOT, NORMAL, GARBAGE_CHILD, GARBAGE_TOP, GARBAGE_ROOT };
 
 typedef struct AttributeElem {
 	int32_t value;
@@ -92,9 +85,12 @@ protected:
 	int32_t parseAttribute(AttributeElem **root, const char *attrStr);
 	OMRGCObjectType parseObjectType(pugi::xml_node node);
 	ObjectEntry *allocateHelper(const char *objName, uintptr_t size);
-	ObjectEntry *createObject(const char *namePrefix, OMRGCObjectType objType, int32_t depth, int32_t nthInRow, uintptr_t size);
-	int32_t createFixedSizeTree(ObjectEntry **objectEntry, const char *namePrefixStr, OMRGCObjectType objType, uintptr_t totalSize, uintptr_t objSize, int32_t breadth);
-	int32_t processObjNode(pugi::xml_node node, const char *namePrefixStr, OMRGCObjectType objType, AttributeElem *numOfFieldsElem, AttributeElem *breadthElem, int32_t depth);
+	ObjectEntry *createObject(const char *namePrefix, OMRGCObjectType objType, int32_t depth, int32_t nthInRow,
+							  uintptr_t size);
+	int32_t createFixedSizeTree(ObjectEntry **objectEntry, const char *namePrefixStr, OMRGCObjectType objType,
+								uintptr_t totalSize, uintptr_t objSize, int32_t breadth);
+	int32_t processObjNode(pugi::xml_node node, const char *namePrefixStr, OMRGCObjectType objType,
+						   AttributeElem *numOfFieldsElem, AttributeElem *breadthElem, int32_t depth);
 	int32_t insertGarbage();
 	int32_t attachChildEntry(ObjectEntry *parentEntry, ObjectEntry *childEntry);
 	int32_t removeObjectFromRootTable(const char *name);
@@ -136,9 +132,10 @@ protected:
 	ObjectEntry *
 	add(ObjectEntry *objectEntry)
 	{
-		ObjectEntry *hashedEntry = (ObjectEntry *) hashTableAdd(exampleVM->objectTable, objectEntry);
+		ObjectEntry *hashedEntry = (ObjectEntry *)hashTableAdd(exampleVM->objectTable, objectEntry);
 		if (NULL == hashedEntry) {
-			gcTestEnv->log(LEVEL_ERROR, "%s:%d Failed to add new object %s to hash table!\n", __FILE__, __LINE__, objectEntry->name);
+			gcTestEnv->log(LEVEL_ERROR, "%s:%d Failed to add new object %s to hash table!\n", __FILE__, __LINE__,
+						   objectEntry->name);
 		}
 		return hashedEntry;
 	}
@@ -148,14 +145,8 @@ protected:
 
 public:
 	GCConfigTest()
-		: ::testing::Test()
-		, ::testing::WithParamInterface<const char *>()
-		, exampleVM(&(gcTestEnv->exampleVM))
-		, env(NULL)
-		, cli(NULL)
-		, verboseManager(NULL)
-		, verboseFile(NULL)
-		, numOfFiles(0)
+		: ::testing::Test(), ::testing::WithParamInterface<const char *>(), exampleVM(&(gcTestEnv->exampleVM)),
+		  env(NULL), cli(NULL), verboseManager(NULL), verboseFile(NULL), numOfFiles(0)
 	{
 		gp.namePrefix = NULL;
 		gp.percentage = 0.0f;

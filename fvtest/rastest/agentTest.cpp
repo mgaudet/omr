@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrport.h"
 #include "omr.h"
 #include "omrTest.h"
@@ -25,7 +24,7 @@
 #include "OMR_Agent.hpp"
 #include "rasTestHelpers.hpp"
 
-class RASAgentTest: public ::testing::TestWithParam<const char *>
+class RASAgentTest : public ::testing::TestWithParam<const char *>
 {
 protected:
 	virtual void
@@ -71,7 +70,8 @@ TEST_P(RASAgentTest, AgentC)
 	omr_agent_destroy(agent);
 }
 
-INSTANTIATE_TEST_CASE_P(TraceNotStartedAgentOpts, RASAgentTest, ::testing::Values("traceNotStartedAgent", "traceNotStartedAgent=", "traceNotStartedAgent=abc"));
+INSTANTIATE_TEST_CASE_P(TraceNotStartedAgentOpts, RASAgentTest,
+						::testing::Values("traceNotStartedAgent", "traceNotStartedAgent=", "traceNotStartedAgent=abc"));
 INSTANTIATE_TEST_CASE_P(CpuLoadAgentOpts, RASAgentTest, ::testing::Values("cpuLoadAgent"));
 INSTANTIATE_TEST_CASE_P(BindThreadAgentOpts, RASAgentTest, ::testing::Values("bindthreadagent"));
 

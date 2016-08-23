@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if defined(J9ZOS390)
 #define _OPEN_THREADS 2
 #define _UNIX03_SOURCE
@@ -67,7 +66,7 @@ static void handlerTertiaryInstaller(int sig);
 #define sigsetjmp(env, savesigs) setjmp(env)
 #define siglongjmp(env, val) longjmp(env, val)
 static int signumOptions[] = {SIGABRT, 10000};
-#define NUM_TEST_CONDITIONS (2*2*4*2)
+#define NUM_TEST_CONDITIONS (2 * 2 * 4 * 2)
 #else /* defined(WIN32) */
 static int signalRaisingThread(void *entryArg);
 static volatile bool primaryMasked;
@@ -78,19 +77,18 @@ static int signumOptions[] = {
 	 * so cannot test SIGABRT effectively.
 	 */
 	SIGURG,
-#else /* defined(AIXPPC) */
+#else  /* defined(AIXPPC) */
 	SIGABRT,
 #endif /* defined(AIXPPC) */
-	10000, SIGCHLD, SIGCONT
-};
+	10000, SIGCHLD, SIGCONT};
 #define THREADING_TEST_ITERATIONS 200
-#define NUM_TEST_CONDITIONS (2*2*4*2*4*(2*2*2*2))
+#define NUM_TEST_CONDITIONS (2 * 2 * 4 * 2 * 4 * (2 * 2 * 2 * 2))
 static void handlerPrimaryInfo(int sig, siginfo_t *siginfo, void *uc);
 static void handlerSecondaryInfo(int sig, siginfo_t *siginfo, void *uc);
 static unsigned int flagOptions[] = {SA_SIGINFO, SA_RESETHAND, SA_NODEFER, SA_ONSTACK};
 typedef int (*SIGACTION)(int signum, const struct sigaction *act, struct sigaction *oldact);
 #if defined(J9ZOS390)
-#pragma map (sigactionOS, "\174\174SIGACT")
+#pragma map(sigactionOS, "\174\174SIGACT")
 extern int sigactionOS(int, const struct sigaction *, struct sigaction *);
 #else
 static SIGACTION sigactionOS = NULL;
@@ -99,38 +97,41 @@ static SIGACTION sigactionOS = NULL;
 static sighandler_t handlerOptions[] = {SIG_DFL, SIG_IGN, NULL, handlerPrimary, handlerSecondary};
 
 static omr_error_t test(TestAction testFunc);
-static omr_error_t setupExistingHandlerConditions(bool existingPrimary, bool existingSecondary, bool onStack, int signum);
-static bool checkPreviousHandler(int signum, TestAction testFunc, sighandler_t expectedPreviousHandler, sighandler_t previousHandler);
-static omr_error_t performTestAndCheck(int expectedHandlerCalls, bool onStackCondition, bool testingSecondaryHandler, int signum);
+static omr_error_t setupExistingHandlerConditions(bool existingPrimary, bool existingSecondary, bool onStack,
+												  int signum);
+static bool checkPreviousHandler(int signum, TestAction testFunc, sighandler_t expectedPreviousHandler,
+								 sighandler_t previousHandler);
+static omr_error_t performTestAndCheck(int expectedHandlerCalls, bool onStackCondition, bool testingSecondaryHandler,
+									   int signum);
 #if defined(WIN32)
-static omr_error_t runTest(bool existingPrimary, bool existingSecondary, sighandler_t action, int signum, TestAction testFunc);
-#else /* defined(WIN32) */
+static omr_error_t runTest(bool existingPrimary, bool existingSecondary, sighandler_t action, int signum,
+						   TestAction testFunc);
+#else  /* defined(WIN32) */
 static void checkSignalMask(int signum, bool expected, bool checkingPrimary);
 typedef void (*sigaction_t)(int sig, siginfo_t *siginfo, void *uc);
-static omr_error_t runTest(bool existingPrimary, bool existingSecondary, struct sigaction *action, bool onStack, int signum, TestAction testFunc);
-static omr_error_t runSigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-									int signum, struct sigaction *act, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler);
+static omr_error_t runTest(bool existingPrimary, bool existingSecondary, struct sigaction *action, bool onStack,
+						   int signum, TestAction testFunc);
+static omr_error_t runSigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum,
+									struct sigaction *act, sighandler_t *expectedPreviousHandler,
+									sighandler_t *previousHandler);
 static omr_error_t runPrimarySigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-		int signum, struct sigaction *act, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler);
+										   int signum, struct sigaction *act, sighandler_t *expectedPreviousHandler,
+										   sighandler_t *previousHandler);
 #endif /* defined(WIN32) */
-static omr_error_t runSignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-								 int signum, sighandler_t action, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler);
-static omr_error_t runHandlerTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-								  int signum, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler);
+static omr_error_t runSignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum,
+								 sighandler_t action, sighandler_t *expectedPreviousHandler,
+								 sighandler_t *previousHandler);
+static omr_error_t runHandlerTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum,
+								  sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler);
 static omr_error_t runPrimarySignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-										int signum, sighandler_t action, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler);
+										int signum, sighandler_t action, sighandler_t *expectedPreviousHandler,
+										sighandler_t *previousHandler);
 
 #if !defined(WIN32)
-TEST(OmrSigTest, sigactionTest)
-{
-	EXPECT_TRUE(OMR_ERROR_NONE == test(test_sigaction)) << "sigaction() test failed.";
-}
+TEST(OmrSigTest, sigactionTest) { EXPECT_TRUE(OMR_ERROR_NONE == test(test_sigaction)) << "sigaction() test failed."; }
 #endif /* !defined(WIN32) */
 
-TEST(OmrSigTest, signalTest)
-{
-	EXPECT_TRUE(OMR_ERROR_NONE == test(test_signal)) << "signal() test failed.";
-}
+TEST(OmrSigTest, signalTest) { EXPECT_TRUE(OMR_ERROR_NONE == test(test_signal)) << "signal() test failed."; }
 
 TEST(OmrSigTest, omrsig_handlerTest)
 {
@@ -173,11 +174,10 @@ TEST(OmrSigTest, omrsigReentrancyTest)
 		for (int j = 0; j < THREADING_TEST_ITERATIONS * 10; j += 1) {
 			omrsig_primary_sigaction(signum, &act, NULL);
 		}
-		EXPECT_TRUE(J9THREAD_SUCCESS == omrthread_join(thread))
-				<< "omrthread_join() failed.";
+		EXPECT_TRUE(J9THREAD_SUCCESS == omrthread_join(thread)) << "omrthread_join() failed.";
 
-		EXPECT_TRUE(handlerCalls > 0)
-				<< "Expected handler to be called for primary test, got " << handlerCalls << " calls.";
+		EXPECT_TRUE(handlerCalls > 0) << "Expected handler to be called for primary test, got " << handlerCalls
+									  << " calls.";
 		handlerCalls = 0;
 
 		/* Raise signals while installing a secondary handler. */
@@ -186,12 +186,11 @@ TEST(OmrSigTest, omrsigReentrancyTest)
 		for (int j = 0; j < THREADING_TEST_ITERATIONS * 10; j += 1) {
 			sigaction(signum, &act, NULL);
 		}
-		EXPECT_TRUE(J9THREAD_SUCCESS == omrthread_join(thread))
-				<< "omrthread_join() failed.";
+		EXPECT_TRUE(J9THREAD_SUCCESS == omrthread_join(thread)) << "omrthread_join() failed.";
 
 		/* Check handler calls. */
-		EXPECT_TRUE(handlerCalls > 0)
-				<< "Expected handler to be called for secondary test, got " << handlerCalls << " calls.";
+		EXPECT_TRUE(handlerCalls > 0) << "Expected handler to be called for secondary test, got " << handlerCalls
+									  << " calls.";
 	}
 }
 
@@ -199,7 +198,7 @@ TEST(OmrSigTest, omrsigReentrancyTest)
 
 TEST(OmrSigTest, handlerInstallingHandlerTest)
 {
-	/* Test using a signal handler which installs a handler and raises a signal. */
+/* Test using a signal handler which installs a handler and raises a signal. */
 #if !defined(WIN32)
 	sigset_t mask;
 	sigemptyset(&mask);
@@ -214,8 +213,7 @@ TEST(OmrSigTest, handlerInstallingHandlerTest)
 		raise(SIGABRT);
 	}
 
-	EXPECT_TRUE(handlerCalls == 4)
-			<< "Expected 4 handler calls, got " << handlerCalls << ".";
+	EXPECT_TRUE(handlerCalls == 4) << "Expected 4 handler calls, got " << handlerCalls << ".";
 }
 
 #if !defined(WIN32)
@@ -276,7 +274,7 @@ test(TestAction testFunc)
 		act.sa_flags = 0;
 		if ((test_sigaction == testFunc) || (test_omrsig_primary_sigaction == testFunc)) {
 			/* Compose flags. */
-			for (int j = 0; j < 4; ++ j) {
+			for (int j = 0; j < 4; ++j) {
 				act.sa_flags |= ((i >> (7 + j)) & 1) * flagOptions[j];
 			}
 
@@ -299,35 +297,30 @@ test(TestAction testFunc)
 		bool existingPrimary = (i & 1) != 0;
 		bool existingSecondary = (i & 2) != 0;
 
-		if (OMR_ERROR_NONE != runTest(
-				existingPrimary,
-				existingSecondary,
+		if (OMR_ERROR_NONE != runTest(existingPrimary, existingSecondary,
 #if defined(WIN32)
-				handlerOptions[handlerIndex],
-#else /* defined(WIN32) */
-				&act,
-				onStack,
+									  handlerOptions[handlerIndex],
+#else  /* defined(WIN32) */
+									  &act, onStack,
 #endif /* defined(WIN32) */
-				signum,
-				testFunc)) {
+									  signum, testFunc)) {
 			rc = OMR_ERROR_INTERNAL;
 #if (defined(S390) && defined(OMR_ENV_DATA64))
-			printf("Test %d:%d failed at %s:%d. Conditions: %sexisting primary, %sexisting secondary, flags = %ld, signum is %d, handler is 0x%p, %salt signal stack.\n",
-#else /* (defined(S390) && defined(OMR_ENV_DATA64)) */
-			printf("Test %d:%d failed at %s:%d. Conditions: %sexisting primary, %sexisting secondary, flags = %d, signum is %d, handler is 0x%p, %salt signal stack.\n",
+			printf(
+				"Test %d:%d failed at %s:%d. Conditions: %sexisting primary, %sexisting secondary, flags = %ld, signum "
+				"is %d, handler is 0x%p, %salt signal stack.\n",
+#else  /* (defined(S390) && defined(OMR_ENV_DATA64)) */
+			printf(
+				"Test %d:%d failed at %s:%d. Conditions: %sexisting primary, %sexisting secondary, flags = %d, signum "
+				"is %d, handler is 0x%p, %salt signal stack.\n",
 #endif /* (defined(S390) && defined(OMR_ENV_DATA64)) */
-				   testFunc, i,
-				   __FILE__, __LINE__,
-				   existingPrimary ? "" : "no ",
-				   existingSecondary ? "" : "no ",
+				testFunc, i, __FILE__, __LINE__, existingPrimary ? "" : "no ", existingSecondary ? "" : "no ",
 #if defined(WIN32)
-				   0,
-#else /* defined(WIN32) */
-				   act.sa_flags,
+				0,
+#else  /* defined(WIN32) */
+				act.sa_flags,
 #endif /* defined(WIN32) */
-				   signum,
-				   handlerOptions[handlerIndex],
-				   onStack ? "" : "no ");
+				signum, handlerOptions[handlerIndex], onStack ? "" : "no ");
 		}
 	}
 	return rc;
@@ -337,9 +330,10 @@ test(TestAction testFunc)
 #if defined(WIN32)
 static omr_error_t
 runTest(bool existingPrimary, bool existingSecondary, sighandler_t act, int signum, TestAction testFunc)
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 static omr_error_t
-runTest(bool existingPrimary, bool existingSecondary, struct sigaction *act, bool onStack, int signum, TestAction testFunc)
+runTest(bool existingPrimary, bool existingSecondary, struct sigaction *act, bool onStack, int signum,
+		TestAction testFunc)
 #endif /* defined(WIN32) */
 {
 	omr_error_t rc = OMR_ERROR_NONE;
@@ -350,7 +344,7 @@ runTest(bool existingPrimary, bool existingSecondary, struct sigaction *act, boo
 #if defined(WIN32)
 	sighandler_t action = act;
 	bool onStack = false;
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 	sighandler_t action = act->sa_handler;
 	primaryMasked = false;
 	secondaryMasked = false;
@@ -365,21 +359,26 @@ runTest(bool existingPrimary, bool existingSecondary, struct sigaction *act, boo
 		switch (testFunc) {
 #if !defined(WIN32)
 		case test_sigaction:
-			rc = runSigactionTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, act, &expectedPreviousHandler, &previousHandler);
+			rc = runSigactionTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, act,
+								  &expectedPreviousHandler, &previousHandler);
 			break;
 #endif /* !defined(WIN32) */
 		case test_signal:
-			rc = runSignalTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, action, &expectedPreviousHandler, &previousHandler);
+			rc = runSignalTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, action,
+							   &expectedPreviousHandler, &previousHandler);
 			break;
 		case test_omrsig_handler:
-			rc = runHandlerTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, &expectedPreviousHandler, &previousHandler);
+			rc = runHandlerTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum,
+								&expectedPreviousHandler, &previousHandler);
 			break;
 		case test_omrsig_primary_signal:
-			rc = runPrimarySignalTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, action, &expectedPreviousHandler, &previousHandler);
+			rc = runPrimarySignalTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, action,
+									  &expectedPreviousHandler, &previousHandler);
 			break;
 #if !defined(WIN32)
 		case test_omrsig_primary_sigaction:
-			rc = runPrimarySigactionTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, act, &expectedPreviousHandler, &previousHandler);
+			rc = runPrimarySigactionTest(&expectedHandlerCalls, existingPrimary, existingSecondary, signum, act,
+										 &expectedPreviousHandler, &previousHandler);
 			break;
 #endif /* !defined(WIN32) */
 		}
@@ -387,8 +386,8 @@ runTest(bool existingPrimary, bool existingSecondary, struct sigaction *act, boo
 	if (OMR_ERROR_NONE == rc) {
 		if (!checkPreviousHandler(signum, testFunc, expectedPreviousHandler, previousHandler)) {
 			rc = OMR_ERROR_INTERNAL;
-			printf("Incorrect returned previous handler. Found 0x%p, expected 0x%p at %s:%d.\n",
-				   previousHandler, expectedPreviousHandler, __FILE__, __LINE__);
+			printf("Incorrect returned previous handler. Found 0x%p, expected 0x%p at %s:%d.\n", previousHandler,
+				   expectedPreviousHandler, __FILE__, __LINE__);
 		}
 	}
 
@@ -396,17 +395,15 @@ runTest(bool existingPrimary, bool existingSecondary, struct sigaction *act, boo
 		if (signum == signumOptions[1]) {
 			expectedHandlerCalls = 0;
 		}
-		rc = performTestAndCheck(
-				 expectedHandlerCalls,
+		rc = performTestAndCheck(expectedHandlerCalls,
 #if defined(WIN32)
-				 false,
-				 false,
-#else /* defined(WIN32) */
-				 onStack && (SA_ONSTACK & act->sa_flags) && handlerIsFunction(action)
-				 && ((testFunc == test_sigaction) || (testFunc == test_omrsig_primary_sigaction)),
-				 testFunc == test_sigaction,
+								 false, false,
+#else  /* defined(WIN32) */
+								 onStack && (SA_ONSTACK & act->sa_flags) && handlerIsFunction(action)
+									 && ((testFunc == test_sigaction) || (testFunc == test_omrsig_primary_sigaction)),
+								 testFunc == test_sigaction,
 #endif /* defined(WIN32) */
-				 signum);
+								 signum);
 	}
 
 #if !defined(WIN32)
@@ -432,12 +429,14 @@ setupExistingHandlerConditions(bool existingPrimary, bool existingSecondary, boo
 	/* First, remove existing handlers. */
 	if (SIG_ERR == omrsig_primary_signal(signum, SIG_DFL)) {
 		rc = OMR_ERROR_INTERNAL;
-		printf("Setting primary handler to SIG_DFL before setting test conditions failed at %s:%d.\n", __FILE__, __LINE__);
+		printf("Setting primary handler to SIG_DFL before setting test conditions failed at %s:%d.\n", __FILE__,
+			   __LINE__);
 	}
 	if (OMR_ERROR_NONE == rc) {
 		if (SIG_ERR == signal(signum, SIG_DFL)) {
 			rc = OMR_ERROR_INTERNAL;
-			printf("Setting secondary handler to SIG_DFL before setting test conditions failed at %s:%d.\n", __FILE__, __LINE__);
+			printf("Setting secondary handler to SIG_DFL before setting test conditions failed at %s:%d.\n", __FILE__,
+				   __LINE__);
 		}
 	}
 
@@ -498,7 +497,8 @@ setupExistingHandlerConditions(bool existingPrimary, bool existingSecondary, boo
 		}
 		if (0 != sigaltstack(&stack, NULL)) {
 			rc = OMR_ERROR_INTERNAL;
-			printf("sigaltstack() failed with error code %d in setting test conditions at %s:%d.\n", errno, __FILE__, __LINE__);
+			printf("sigaltstack() failed with error code %d in setting test conditions at %s:%d.\n", errno, __FILE__,
+				   __LINE__);
 		}
 	}
 #endif /* !defined(WIN32) */
@@ -510,8 +510,8 @@ setupExistingHandlerConditions(bool existingPrimary, bool existingSecondary, boo
 
 #if !defined(WIN32)
 static omr_error_t
-runPrimarySigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-						int signum, struct sigaction *act, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
+runPrimarySigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum,
+						struct sigaction *act, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
 {
 	omr_error_t rc = OMR_ERROR_NONE;
 	struct sigaction oldact = {{0}};
@@ -526,9 +526,7 @@ runPrimarySigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool ex
 	if ((0 == omrsig_primary_sigaction(signum, act, &oldact)) == (signum == signumOptions[1])) {
 		rc = OMR_ERROR_INTERNAL;
 		printf("omrsig_primary_sigaction() unexpectedly returned %d, expected %d at %s:%d.\n",
-			   (signum == signumOptions[1]) ? 0 : -1,
-			   (signum == signumOptions[1]) ? -1 : 0,
-			   __FILE__, __LINE__);
+			   (signum == signumOptions[1]) ? 0 : -1, (signum == signumOptions[1]) ? -1 : 0, __FILE__, __LINE__);
 	}
 	*previousHandler = oldact.sa_handler;
 	if (existingPrimary) {
@@ -544,12 +542,12 @@ runPrimarySigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool ex
 #endif /* !defined(WIN32) */
 
 static omr_error_t
-runPrimarySignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-					 int signum, sighandler_t action, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
+runPrimarySignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum,
+					 sighandler_t action, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
 {
 #if defined(WIN32)
 	*expectedHandlerCalls = 1;
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 	*expectedHandlerCalls = 2;
 #endif /* defined(WIN32) */
 	if (existingSecondary) {
@@ -570,8 +568,8 @@ runPrimarySignalTest(int *expectedHandlerCalls, bool existingPrimary, bool exist
 }
 
 static omr_error_t
-runHandlerTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-			   int signum, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
+runHandlerTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum,
+			   sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
 {
 	omr_error_t rc = OMR_ERROR_NONE;
 	*expectedHandlerCalls = 0;
@@ -585,7 +583,7 @@ runHandlerTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSec
 	if (existingSecondary) {
 		*expectedHandlerCalls += 2;
 	}
-#else /* !defined(WIN32) */
+#else  /* !defined(WIN32) */
 	if (existingPrimary) {
 		*expectedHandlerCalls = 2;
 	}
@@ -595,8 +593,7 @@ runHandlerTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSec
 #endif /* !defined(WIN32) */
 	if (0 == setjmp(env) && (signum != signumOptions[1])) {
 		int ret = omrsig_handler(signum, NULL, NULL);
-		if ((OMRSIG_RC_SIGNAL_HANDLED != ret)
-			== ((signum != signumOptions[1]) && existingSecondary)) {
+		if ((OMRSIG_RC_SIGNAL_HANDLED != ret) == ((signum != signumOptions[1]) && existingSecondary)) {
 			rc = OMR_ERROR_INTERNAL;
 			printf("omrsig_handler() unexpectedly returned %s, expected %s at %s:%d.\n",
 				   (OMRSIG_RC_SIGNAL_HANDLED == ret) ? "OMRSIG_RC_SIGNAL_HANDLED" : "OMRSIG_RC_DEFAULT_ACTION_REQUIRED",
@@ -613,8 +610,8 @@ runHandlerTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSec
 
 #if !defined(WIN32)
 static omr_error_t
-runSigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-				 int signum, struct sigaction *act, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
+runSigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum,
+				 struct sigaction *act, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
 {
 	omr_error_t rc = OMR_ERROR_NONE;
 	struct sigaction oldact = {{0}};
@@ -632,9 +629,7 @@ runSigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingS
 	if ((0 == sigaction(signum, act, &oldact)) == (signum == signumOptions[1])) {
 		rc = OMR_ERROR_INTERNAL;
 		printf("omrsig_primary_sigaction() unexpectedly returned %d, expected %d at %s:%d.\n",
-			   (signum == signumOptions[1]) ? 0 : -1,
-			   (signum == signumOptions[1]) ? -1 : 0,
-			   __FILE__, __LINE__);
+			   (signum == signumOptions[1]) ? 0 : -1, (signum == signumOptions[1]) ? -1 : 0, __FILE__, __LINE__);
 	}
 	*previousHandler = oldact.sa_handler;
 	if (existingSecondary) {
@@ -653,21 +648,21 @@ runSigactionTest(int *expectedHandlerCalls, bool existingPrimary, bool existingS
 #endif /* !defined(WIN32) */
 
 static omr_error_t
-runSignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary,
-			  int signum, sighandler_t action, sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
+runSignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSecondary, int signum, sighandler_t action,
+			  sighandler_t *expectedPreviousHandler, sighandler_t *previousHandler)
 {
 	*expectedHandlerCalls = 1;
 	if (existingPrimary) {
 #if defined(WIN32)
 		*expectedHandlerCalls = 2;
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 		*expectedHandlerCalls = 3;
 #endif /* defined(WIN32) */
 	}
 	if (!handlerIsFunction(action)) {
 #if defined(WIN32)
 		*expectedHandlerCalls = existingPrimary ? 1 : 0;
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 		*expectedHandlerCalls = existingPrimary ? 2 : 0;
 #endif /* defined(WIN32) */
 	}
@@ -687,7 +682,8 @@ runSignalTest(int *expectedHandlerCalls, bool existingPrimary, bool existingSeco
 }
 
 static bool
-checkPreviousHandler(int signum, TestAction testFunc, sighandler_t expectedPreviousHandler, sighandler_t previousHandler)
+checkPreviousHandler(int signum, TestAction testFunc, sighandler_t expectedPreviousHandler,
+					 sighandler_t previousHandler)
 {
 	/* Check returned previous handler to expected value. */
 	if (signum == signumOptions[1]) {
@@ -734,18 +730,23 @@ performTestAndCheck(int expectedHandlerCalls, bool onStackCondition, bool testin
 			}
 
 			/* Check that the installed handlers have the correct alternate stack flags. */
-			bool currentlyOnstack = (actprimary.sa_flags & SA_ONSTACK) && handlerIsFunction(&actprimary) && (SS_DISABLE != stack.ss_flags);
-			bool secondaryOnstack = ((actsecondary.sa_flags & SA_ONSTACK) && handlerIsFunction(&actsecondary)) == testingSecondaryHandler;
-			if ((onStackCondition != currentlyOnstack) && handlerIsFunction(&actprimary) && (actprimary.sa_handler != actsecondary.sa_handler)) {
+			bool currentlyOnstack =
+				(actprimary.sa_flags & SA_ONSTACK) && handlerIsFunction(&actprimary) && (SS_DISABLE != stack.ss_flags);
+			bool secondaryOnstack =
+				((actsecondary.sa_flags & SA_ONSTACK) && handlerIsFunction(&actsecondary)) == testingSecondaryHandler;
+			if ((onStackCondition != currentlyOnstack) && handlerIsFunction(&actprimary)
+				&& (actprimary.sa_handler != actsecondary.sa_handler)) {
 				rc = OMR_ERROR_INTERNAL;
-				printf("Signal alternate stack not correctly set: primary handler %scurrently on stack while %sin on stack condition at %s:%d.\n",
-					   currentlyOnstack ? "" : "not ",
-					   onStackCondition ? "" : "not ",
-					   __FILE__, __LINE__);
+				printf(
+					"Signal alternate stack not correctly set: primary handler %scurrently on stack while %sin on "
+					"stack condition at %s:%d.\n",
+					currentlyOnstack ? "" : "not ", onStackCondition ? "" : "not ", __FILE__, __LINE__);
 			} else if (onStackCondition && !secondaryOnstack) {
 				rc = OMR_ERROR_INTERNAL;
-				printf("Signal alternate stack not correctly set: secondary handler not on alternate stack while in on stack condition at %s:%d.\n",
-					   __FILE__, __LINE__);
+				printf(
+					"Signal alternate stack not correctly set: secondary handler not on alternate stack while in on "
+					"stack condition at %s:%d.\n",
+					__FILE__, __LINE__);
 			}
 		}
 	}
@@ -771,8 +772,8 @@ performTestAndCheck(int expectedHandlerCalls, bool onStackCondition, bool testin
 
 	if (expectedHandlerCalls != handlerCalls) {
 		rc = OMR_ERROR_INTERNAL;
-		printf("Expected %d handler calls, %d properly invoked. Failed at %s:%d.\n",
-			   expectedHandlerCalls, handlerCalls, __FILE__, __LINE__);
+		printf("Expected %d handler calls, %d properly invoked. Failed at %s:%d.\n", expectedHandlerCalls, handlerCalls,
+			   __FILE__, __LINE__);
 	}
 
 	return rc;
@@ -787,9 +788,7 @@ checkSignalMask(int signum, bool expected, bool checkingPrimary)
 	if (sigismember(&currentMask, signum) != expected) {
 		handlerCalls -= 1;
 		printf("Incorrect signal mask in %s signal handler. Expected signal to %sbe masked at %s:%d.\n",
-			   checkingPrimary ? "primary" : "secondary",
-			   expected ? "" : "not ",
-			   __FILE__, __LINE__);
+			   checkingPrimary ? "primary" : "secondary", expected ? "" : "not ", __FILE__, __LINE__);
 	}
 }
 #endif /* !defined(WIN32) */

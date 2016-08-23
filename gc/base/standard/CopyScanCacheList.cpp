@@ -34,17 +34,19 @@ MM_CopyScanCacheList::initialize(MM_EnvironmentBase *env, volatile uintptr_t *ca
 {
 	MM_GCExtensionsBase *extensions = env->getExtensions();
 	bool result = true;
-	
+
 	_sublistCount = extensions->cacheListSplit;
 	Assert_MM_true(0 < _sublistCount);
 
-	_sublists = (struct CopyScanCacheSublist *)extensions->getForge()->allocate(sizeof(struct CopyScanCacheSublist) * _sublistCount, MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	_sublists = (struct CopyScanCacheSublist *)extensions->getForge()->allocate(
+		sizeof(struct CopyScanCacheSublist) * _sublistCount, MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (NULL == _sublists) {
 		result = false;
 	} else {
 		memset(_sublists, 0, sizeof(struct CopyScanCacheSublist) * _sublistCount);
 		for (uintptr_t i = 0; i < _sublistCount; i++) {
-			if (!_sublists[i]._cacheLock.initialize(env, &extensions->lnrlOptions, "MM_CopyScanCacheList:_sublists[]._cacheLock")) {
+			if (!_sublists[i]._cacheLock.initialize(env, &extensions->lnrlOptions,
+													"MM_CopyScanCacheList:_sublists[]._cacheLock")) {
 				result = false;
 				break;
 			}
@@ -67,7 +69,7 @@ MM_CopyScanCacheList::tearDown(MM_EnvironmentBase *env)
 		_chunkHead->kill(env);
 		_chunkHead = _next;
 	}
-	
+
 	if (NULL != _sublists) {
 		for (uintptr_t i = 0; i < _sublistCount; i++) {
 			_sublists[i]._cacheLock.tearDown();
@@ -75,22 +77,22 @@ MM_CopyScanCacheList::tearDown(MM_EnvironmentBase *env)
 		extensions->getForge()->free(_sublists);
 		_sublists = NULL;
 	}
-
 }
 
 bool
-MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount, uintptr_t incrementCacheEntryCount)
+MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount,
+										 uintptr_t incrementCacheEntryCount)
 {
 	MM_GCExtensionsBase *ext = env->getExtensions();
-	
+
 	/* 0 has special meaning of 'do not change' */
 	if (0 == allocateCacheEntryCount) {
 		allocateCacheEntryCount = _totalAllocatedEntryCount;
 	}
 	if (0 != incrementCacheEntryCount) {
-		 _incrementEntryCount = incrementCacheEntryCount;
+		_incrementEntryCount = incrementCacheEntryCount;
 	}
-	
+
 	/* If -Xgc:fvtest=scanCacheCountn has been specified, then restrict the number of scan caches to n.
 	 * Stop all future resizes from having any effect. */
 	if (0 != ext->fvtest_scanCacheCount) {
@@ -102,15 +104,15 @@ MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allo
 			return true;
 		}
 	}
-	
-	if ( allocateCacheEntryCount > _totalAllocatedEntryCount) {
+
+	if (allocateCacheEntryCount > _totalAllocatedEntryCount) {
 		/* Increase cacheEntries by incrementEntryCount */
 		return appendCacheEntries(env, _incrementEntryCount);
 	}
 
 	/* downsizing is non-trivial with current list/chunk implementation since
 	 * the free caches are scattered across the chunks and cross reference themselves */
-	
+
 	return true;
 }
 
@@ -126,8 +128,8 @@ MM_CopyScanCacheList::removeAllHeapAllocatedChunks(MM_EnvironmentStandard *env)
 		for (uintptr_t index = 0; index < _sublistCount; index++) {
 			MM_CopyScanCacheStandard *previousCache = NULL;
 			MM_CopyScanCacheStandard *cache = _sublists[index]._cacheHead;
-	
-			while(cache != NULL) {
+
+			while (cache != NULL) {
 				if (0 != (cache->flags & OMR_SCAVENGER_CACHE_TYPE_HEAP)) {
 					/* this cache is heap allocated - remove it from list */
 					if (NULL == previousCache) {
@@ -156,7 +158,7 @@ MM_CopyScanCacheList::removeAllHeapAllocatedChunks(MM_EnvironmentStandard *env)
 		MM_CopyScanCacheChunk *previousChunk = NULL;
 		MM_CopyScanCacheChunk *chunk = _chunkHead;
 
-		while(chunk != NULL) {
+		while (chunk != NULL) {
 			MM_CopyScanCacheChunk *nextChunk = chunk->getNext();
 
 			if (0 != (chunk->getBase()->flags & OMR_SCAVENGER_CACHE_TYPE_HEAP)) {
@@ -195,7 +197,7 @@ MM_CopyScanCacheList::appendCacheEntries(MM_EnvironmentBase *env, uintptr_t cach
 	bool result = false;
 	MM_CopyScanCacheStandard *sublistTail = NULL;
 	MM_CopyScanCacheChunk *chunk = MM_CopyScanCacheChunk::newInstance(env, cacheEntryCount, _chunkHead, &sublistTail);
-	if(NULL != chunk) {
+	if (NULL != chunk) {
 		uintptr_t index = getSublistIndex(env);
 
 		Assert_MM_true(NULL != sublistTail);
@@ -216,13 +218,15 @@ MM_CopyScanCacheList::appendCacheEntries(MM_EnvironmentBase *env, uintptr_t cach
 }
 
 MM_CopyScanCacheStandard *
-MM_CopyScanCacheList::appendCacheEntriesInHeap(MM_EnvironmentStandard *env, MM_MemorySubSpace *memorySubSpace, MM_Collector *requestCollector)
+MM_CopyScanCacheList::appendCacheEntriesInHeap(MM_EnvironmentStandard *env, MM_MemorySubSpace *memorySubSpace,
+											   MM_Collector *requestCollector)
 {
 	MM_CopyScanCacheStandard *result = NULL;
 	MM_CopyScanCacheStandard *sublistTail = NULL;
 	uintptr_t entries = 0;
-	MM_CopyScanCacheChunkInHeap *chunk = MM_CopyScanCacheChunkInHeap::newInstance(env, _chunkHead, memorySubSpace, requestCollector, &sublistTail, &entries);
-	if(NULL != chunk) {
+	MM_CopyScanCacheChunkInHeap *chunk = MM_CopyScanCacheChunkInHeap::newInstance(
+		env, _chunkHead, memorySubSpace, requestCollector, &sublistTail, &entries);
+	if (NULL != chunk) {
 		uintptr_t index = getSublistIndex(env);
 
 		Assert_MM_true(0 <= entries);
@@ -347,4 +351,3 @@ MM_CopyScanCacheList::popCache(MM_EnvironmentBase *env)
 }
 
 #endif /* OMR_GC_MODRON_SCAVENGER */
-

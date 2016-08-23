@@ -28,7 +28,6 @@
  * These functions are not accessible via the port library function table.
  */
 
-
 #include <string.h>
 #include <errno.h>
 #include "omrportpriv.h"
@@ -56,7 +55,8 @@ errorMessage(struct OMRPortLibrary *portLibrary, int32_t errorCode)
 
 	ptBuffers = omrport_tls_peek(portLibrary);
 	if (0 == ptBuffers->errorMessageBufferSize) {
-		ptBuffers->errorMessageBuffer = portLibrary->mem_allocate_memory(portLibrary, J9ERROR_DEFAULT_BUFFER_SIZE, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+		ptBuffers->errorMessageBuffer = portLibrary->mem_allocate_memory(
+			portLibrary, J9ERROR_DEFAULT_BUFFER_SIZE, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (NULL == ptBuffers->errorMessageBuffer) {
 			return "";
 		}
@@ -64,8 +64,8 @@ errorMessage(struct OMRPortLibrary *portLibrary, int32_t errorCode)
 	}
 
 	/* Copy from OS to ptBuffers */
-	portLibrary->str_printf(portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s", strerror(errorCode));
+	portLibrary->str_printf(portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s",
+							strerror(errorCode));
 	ptBuffers->errorMessageBuffer[ptBuffers->errorMessageBufferSize - 1] = '\0';
 	return ptBuffers->errorMessageBuffer;
 }
-

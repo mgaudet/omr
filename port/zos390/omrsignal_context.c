@@ -36,7 +36,6 @@
 #define SIG_DEBUG
 #endif
 
-
 /* Returns TRUE if the configuration supports resuming execution from a signal handler,
  * FALSE otherwise
  */
@@ -57,7 +56,8 @@ checkIfResumableTrapsSupported(struct OMRPortLibrary *portLibrary)
 #endif
 
 	trap_on = ceeocb()->ceeocb_opt[__trap].ceeocb_opt_on;
-	trap_opts = (struct ceeocb_trap_sub_options *)((char *)ceeocb() + ceeocb()->ceeocb_opt[__trap].ceeocb_opt_subopts_offset);
+	trap_opts =
+		(struct ceeocb_trap_sub_options *)((char *)ceeocb() + ceeocb()->ceeocb_opt[__trap].ceeocb_opt_subopts_offset);
 
 #if defined(SIG_DEBUG)
 	portLibrary->tty_printf(portLibrary, "trap(on)=%01x\n", trap_on);
@@ -73,21 +73,20 @@ checkIfResumableTrapsSupported(struct OMRPortLibrary *portLibrary)
 	return rc;
 }
 
-
 void
 fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, struct J9UnixSignalInfo *j9Info)
 {
 	/* __mcontext_t_ is defined in port/zos390/edcwccwi.h and appears to overlay the ucontext_t structure */
-	j9Info->platformSignalInfo.context = (__mcontext_t_ *) contextInfo;
+	j9Info->platformSignalInfo.context = (__mcontext_t_ *)contextInfo;
 	/* module info is filled on demand */
 }
 
 void
-fillInJumpInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, void  *jumpInfo)
+fillInJumpInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, void *jumpInfo)
 {
 	int i = 0;
-	__mcontext_t_ * sigContextInfo  = (__mcontext_t_ *)contextInfo;
-	struct __jumpinfo *farJumpInfo  = (struct __jumpinfo *)jumpInfo;
+	__mcontext_t_ *sigContextInfo = (__mcontext_t_ *)contextInfo;
+	struct __jumpinfo *farJumpInfo = (struct __jumpinfo *)jumpInfo;
 
 	/* zero out the jump buffer*/
 	{
@@ -104,22 +103,22 @@ fillInJumpInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, void  *jum
 	 * to restore the values of the FPRs (see JAZZ 81821)
 	 */
 	if (portLibrary->portGlobals->vectorRegsSupportOn) {
-		farJumpInfo->__ji_fl_fp4  = 0;
+		farJumpInfo->__ji_fl_fp4 = 0;
 		farJumpInfo->__ji_fl_fp16 = 0;
 	} else {
-		farJumpInfo->__ji_fl_fp4  = sigContextInfo->__mc_fl_fp4;
+		farJumpInfo->__ji_fl_fp4 = sigContextInfo->__mc_fl_fp4;
 		farJumpInfo->__ji_fl_fp16 = sigContextInfo->__mc_fl_fp16;
 	}
 
-	farJumpInfo->__ji_fl_fpc	= sigContextInfo->__mc_fl_fpc	;
-	farJumpInfo->__ji_fl_res1a = 0 /*sigContextInfo->__mc_fl_res1a */ ;
+	farJumpInfo->__ji_fl_fpc = sigContextInfo->__mc_fl_fpc;
+	farJumpInfo->__ji_fl_res1a = 0 /*sigContextInfo->__mc_fl_res1a */;
 
 #if !defined(OMR_ENV_DATA64)
-	farJumpInfo->__ji_fl_hr	 = sigContextInfo->__mc_fl_hr	 ;
+	farJumpInfo->__ji_fl_hr = sigContextInfo->__mc_fl_hr;
 #endif
-	farJumpInfo->__ji_fl_res2  = 0 /*sigContextInfo->__mc_fl_res2 */  ;
-	farJumpInfo->__ji_fl_exp	= sigContextInfo->__mc_fl_exp	;
-	farJumpInfo->__ji_fl_res2a = 0 /*sigContextInfo->__mc_fl_res2a */ ;
+	farJumpInfo->__ji_fl_res2 = 0 /*sigContextInfo->__mc_fl_res2 */;
+	farJumpInfo->__ji_fl_exp = sigContextInfo->__mc_fl_exp;
+	farJumpInfo->__ji_fl_res2a = 0 /*sigContextInfo->__mc_fl_res2a */;
 	farJumpInfo->__ji_vr_ext = sigContextInfo->__mc_vr_ext;
 
 	/* For the time being, LE requires this field to be set to zero */
@@ -139,12 +138,12 @@ fillInJumpInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, void  *jum
 		farJumpInfo->__ji_fpr[i] = sigContextInfo->__mc_fpr[i];
 	}
 
-	farJumpInfo->__ji_fpc = sigContextInfo->__mc_fpc ;
+	farJumpInfo->__ji_fpc = sigContextInfo->__mc_fpc;
 }
 
-
 uint32_t
-infoForSignal(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForSignal(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	*name = "";
 
@@ -193,24 +192,8 @@ infoForSignal(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_
 uint32_t
 infoForFPR(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
 {
-	const char *n_fpr[NUM_REGS] = {
-		"fpr0",
-		"fpr1",
-		"fpr2",
-		"fpr3",
-		"fpr4",
-		"fpr5",
-		"fpr6",
-		"fpr7",
-		"fpr8",
-		"fpr9",
-		"fpr10",
-		"fpr11",
-		"fpr12",
-		"fpr13",
-		"fpr14",
-		"fpr15"
-	};
+	const char *n_fpr[NUM_REGS] = {"fpr0", "fpr1", "fpr2",  "fpr3",  "fpr4",  "fpr5",  "fpr6",  "fpr7",
+								   "fpr8", "fpr9", "fpr10", "fpr11", "fpr12", "fpr13", "fpr14", "fpr15"};
 
 	*name = "";
 
@@ -286,50 +269,18 @@ infoForGPR(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t i
 uint32_t
 infoForVR(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
 {
-	const char *const n_vr[NUM_VECTOR_REGS] = {
-		"vr0",
-		"vr1",
-		"vr2",
-		"vr3",
-		"vr4",
-		"vr5",
-		"vr6",
-		"vr7",
-		"vr8",
-		"vr9",
-		"vr10",
-		"vr11",
-		"vr12",
-		"vr13",
-		"vr14",
-		"vr15",
-		"vr16",
-		"vr17",
-		"vr18",
-		"vr19",
-		"vr20",
-		"vr21",
-		"vr22",
-		"vr23",
-		"vr24",
-		"vr25",
-		"vr26",
-		"vr27",
-		"vr28",
-		"vr29",
-		"vr30",
-		"vr31"
-	};
+	const char *const n_vr[NUM_VECTOR_REGS] = {"vr0",  "vr1",  "vr2",  "vr3",  "vr4",  "vr5",  "vr6",  "vr7",
+											   "vr8",  "vr9",  "vr10", "vr11", "vr12", "vr13", "vr14", "vr15",
+											   "vr16", "vr17", "vr18", "vr19", "vr20", "vr21", "vr22", "vr23",
+											   "vr24", "vr25", "vr26", "vr27", "vr28", "vr29", "vr30", "vr31"};
 
 	*name = "";
 
-	if ((! info->platformSignalInfo.context->__mc_fl_vr) ||
-		(NULL == info->platformSignalInfo.context->__mc_vr_ext)) {
+	if ((!info->platformSignalInfo.context->__mc_fl_vr) || (NULL == info->platformSignalInfo.context->__mc_vr_ext)) {
 		return OMRPORT_SIG_VALUE_UNDEFINED;
 	}
 	if ((index >= 0) && (index < NUM_VECTOR_REGS)) {
-		__jumpinfo_vr_ext_t_ * const vr_ext = (__jumpinfo_vr_ext_t_ *)
-											  info->platformSignalInfo.context->__mc_vr_ext;
+		__jumpinfo_vr_ext_t_ *const vr_ext = (__jumpinfo_vr_ext_t_ *)info->platformSignalInfo.context->__mc_vr_ext;
 
 		*name = n_vr[index];
 		*value = &(vr_ext->__ji_ve_savearea[index]);
@@ -340,7 +291,8 @@ infoForVR(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t in
 }
 
 uint32_t
-infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			   void **value)
 {
 #if defined(OMR_ENV_DATA64)
 	struct __cib *conditionInfoBlock = NULL;
@@ -400,7 +352,7 @@ infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32
 		CEE3CIB(NULL, &conditionInfoBlock, &cibfc);
 
 		/* verify that CEE3CIB was successful */
-		if (0 == _FBCHECK(cibfc , CEE000)) {
+		if (0 == _FBCHECK(cibfc, CEE000)) {
 			j9mch = (j9_31bit_mch *)conditionInfoBlock->cib_machine;
 			info->platformSignalInfo.breakingEventAddr = *(uintptr_t *)(&j9mch->bea);
 #endif
@@ -430,7 +382,8 @@ infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32
  *
  */
 uint32_t
-infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 
 #if defined(J9ZOS39064)
@@ -456,8 +409,8 @@ infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_
 	struct _FEEDBACK fc;
 
 	/* Input parameters to CEETBCK */
-	void *caaptr = (void *)_gtca();	/* see note about _gtca() use in function documentation */
-	_INT4 dsa_format = -1; /* we don't know if the interrupted routine was OSLINK or XPLINK */
+	void *caaptr = (void *)_gtca(); /* see note about _gtca() use in function documentation */
+	_INT4 dsa_format = -1;			/* we don't know if the interrupted routine was OSLINK or XPLINK */
 	void *dsaptr;
 
 	/* We don't know if the failing routine was XPLINK or OSLINK so we don't know if we should look
@@ -471,27 +424,11 @@ infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_
 	dsaptr = info->platformSignalInfo.context->__mc_int_dsa;
 
 	/* call CEETBCK */
-	ceetbck(
-		&dsaptr,
-		&dsa_format,
-		&caaptr,
-		&member_id,
-		info->platformSignalInfo.program_unit_name,
-		&program_unit_name_length,
-		&info->platformSignalInfo.program_unit_address,
-		&call_instruction_address,
-		info->platformSignalInfo.entry_name,
-		&entry_name_length,
-		&info->platformSignalInfo.entry_address,
-		&callers_call_instruction_address,
-		&callers_dsaptr,
-		&callers_dsa_format,
-		statement_id,
-		&statement_id_length,
-		&cibptr,
-		&main_program,
-		&fc
-	);
+	ceetbck(&dsaptr, &dsa_format, &caaptr, &member_id, info->platformSignalInfo.program_unit_name,
+			&program_unit_name_length, &info->platformSignalInfo.program_unit_address, &call_instruction_address,
+			info->platformSignalInfo.entry_name, &entry_name_length, &info->platformSignalInfo.entry_address,
+			&callers_call_instruction_address, &callers_dsaptr, &callers_dsa_format, statement_id, &statement_id_length,
+			&cibptr, &main_program, &fc);
 
 	if (fc.tok_sev != 0) {
 		return OMRPORT_SIG_VALUE_UNDEFINED;
@@ -537,4 +474,3 @@ infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_
 
 #endif
 }
-

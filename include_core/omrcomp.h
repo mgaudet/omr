@@ -45,21 +45,21 @@
 	U_8 / I_8		unsigned/signed 8 bits (bytes -- not to be confused with char)
 	BOOLEAN			something that can be zero or non-zero.
 */
-typedef uint64_t				U_64;
-typedef int64_t					I_64;
-typedef uintptr_t				UDATA;
-typedef uint32_t				U_32;
-typedef uint16_t				U_16;
-typedef uint8_t					U_8;
-typedef intptr_t				IDATA;
-typedef int32_t					I_32;
-typedef int16_t					I_16;
-typedef int8_t					I_8;
+typedef uint64_t U_64;
+typedef int64_t I_64;
+typedef uintptr_t UDATA;
+typedef uint32_t U_32;
+typedef uint16_t U_16;
+typedef uint8_t U_8;
+typedef intptr_t IDATA;
+typedef int32_t I_32;
+typedef int16_t I_16;
+typedef int8_t I_8;
 
 #if defined(MVS)
-typedef int32_t					BOOLEAN;
+typedef int32_t BOOLEAN;
 #elif defined(LINUX) || defined(RS6000) || defined(J9ZOS390) || defined(OSX) /* MVS */
-typedef uint32_t					BOOLEAN;
+typedef uint32_t BOOLEAN;
 #else /* MVS */
 /* Don't typedef BOOLEAN since it's already defined on Windows */
 #define BOOLEAN UDATA
@@ -102,9 +102,8 @@ EXE_EXTENSION_CHAR: the executable has a delimiter that we want to stop at as pa
 
 */
 
-
 /* Linux ANSI compiler (gcc) and OSX (clang). */
-#if defined(LINUX) || defined (OSX)
+#if defined(LINUX) || defined(OSX)
 
 /* NOTE: Linux supports different processors -- do not assume 386 */
 
@@ -114,12 +113,12 @@ EXE_EXTENSION_CHAR: the executable has a delimiter that we want to stop at as pa
 #if defined(LINUXPPC64)
 #if defined(OMR_ENV_LITTLE_ENDIAN)
 /* LINUXPPC64LE has a new ABI that uses direct functions, not function descriptors */
-#define TOC_UNWRAP_ADDRESS(wrappedPointer) ((void *) (wrappedPointer))
+#define TOC_UNWRAP_ADDRESS(wrappedPointer) ((void *)(wrappedPointer))
 extern uintptr_t getTOC();
-#define TOC_STORE_TOC(dest,wrappedPointer) ((dest) = getTOC())
+#define TOC_STORE_TOC(dest, wrappedPointer) ((dest) = getTOC())
 #else /* OMR_ENV_LITTLE_ENDIAN */
 #define TOC_UNWRAP_ADDRESS(wrappedPointer) (((void **)(wrappedPointer))[0])
-#define TOC_STORE_TOC(dest,wrappedPointer) (dest = (((uintptr_t*)(wrappedPointer))[1]))
+#define TOC_STORE_TOC(dest, wrappedPointer) (dest = (((uintptr_t *)(wrappedPointer))[1]))
 #endif /* OMR_ENV_LITTLE_ENDIAN */
 #endif /* LINUXPPC64 */
 #endif /* J9HAMMER || S39064 || LINUXPPC64 */
@@ -131,18 +130,20 @@ typedef double SYS_FLOAT;
 #define J9CONST_U64(x) x##ULL
 
 #define NO_LVALUE_CASTING
-#define FLOAT_EXTENDED	long double
+#define FLOAT_EXTENDED long double
 #define PLATFORM_IS_ASCII
-#define PLATFORM_LINE_DELIMITER	"\012"
+#define PLATFORM_LINE_DELIMITER "\012"
 #define DIR_SEPARATOR '/'
 #define DIR_SEPARATOR_STR "/"
 
 /* no priorities on Linux */
-#define J9_PRIORITY_MAP {0,0,0,0,0,0,0,0,0,0,0,0}
-
+#define J9_PRIORITY_MAP                                                                                                \
+	{                                                                                                                  \
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                                                                             \
+	}
 
 #if (defined(LINUXPPC) && !defined(LINUXPPC64)) || defined(S390) || defined(J9HAMMER)
-#define VA_PTR(valist) ((va_list*)&valist[0])
+#define VA_PTR(valist) ((va_list *)&valist[0])
 #endif
 
 #if defined(__GNUC__)
@@ -170,18 +171,17 @@ typedef double SYS_FLOAT;
 
 #endif /* defined(LINUX) || defined (OSX) */
 
-
 /* MVS compiler */
 #ifdef MVS
-typedef double 					SYS_FLOAT;
-typedef long double				FLOAT_EXTENDED;
+typedef double SYS_FLOAT;
+typedef long double FLOAT_EXTENDED;
 
 #define J9CONST64(x) x##LL
 #define J9CONST_I64(x) x##LL
 #define J9CONST_U64(x) x##ULL
 
 #define NO_LVALUE_CASTING
-#define PLATFORM_LINE_DELIMITER	"\025"
+#define PLATFORM_LINE_DELIMITER "\025"
 #define DIR_SEPARATOR '.'
 #define DIR_SEPARATOR_STR "."
 
@@ -189,8 +189,7 @@ typedef long double				FLOAT_EXTENDED;
 
 #endif /* MVS */
 
-
-#define GLOBAL_DATA(symbol) ((void*)&(symbol))
+#define GLOBAL_DATA(symbol) ((void *)&(symbol))
 #define GLOBAL_TABLE(symbol) GLOBAL_DATA(symbol)
 
 /* RS6000 */
@@ -206,12 +205,12 @@ typedef double SYS_FLOAT;
 #define J9CONST_U64(x) x##ULL
 
 #define NO_LVALUE_CASTING
-#define PLATFORM_LINE_DELIMITER	"\012"
+#define PLATFORM_LINE_DELIMITER "\012"
 #define DIR_SEPARATOR '/'
 #define DIR_SEPARATOR_STR "/"
 
 #define TOC_UNWRAP_ADDRESS(wrappedPointer) (((void **)(wrappedPointer))[0])
-#define TOC_STORE_TOC(dest,wrappedPointer) (dest = (((uintptr_t*)(wrappedPointer))[1]))
+#define TOC_STORE_TOC(dest, wrappedPointer) (dest = (((uintptr_t *)(wrappedPointer))[1]))
 
 /*
  * Have to have priorities between 40 and 60 inclusive for AIX >=5.3
@@ -219,17 +218,31 @@ typedef double SYS_FLOAT;
  */
 
 #if (defined(J9OS_I5) && !defined(J9OS_I5_V5R4)) /* i5/OS V6R1 or newer */
-#define J9_PRIORITY_MAP  { 55,56,57,58,59,60,60,60,60,60,60,60 }
-#define J9_PRIORITY_MAP_ALT  { 54,55,55,56,56,57,57,58,58,59,59,60 }
+#define J9_PRIORITY_MAP                                                                                                \
+	{                                                                                                                  \
+		55, 56, 57, 58, 59, 60, 60, 60, 60, 60, 60, 60                                                                 \
+	}
+#define J9_PRIORITY_MAP_ALT                                                                                            \
+	{                                                                                                                  \
+		54, 55, 55, 56, 56, 57, 57, 58, 58, 59, 59, 60                                                                 \
+	}
 
 #elif (defined(J9OS_I5) && defined(J9OS_I5_V5R4)) /* i5/OS V5R4 */
-#define J9_PRIORITY_MAP  { 54,55,55,56,56,57,57,58,58,59,59,60 }
-#define J9_PRIORITY_MAP_ALT  { 55,56,57,58,59,60,60,60,60,60,60,60 }
+#define J9_PRIORITY_MAP                                                                                                \
+	{                                                                                                                  \
+		54, 55, 55, 56, 56, 57, 57, 58, 58, 59, 59, 60                                                                 \
+	}
+#define J9_PRIORITY_MAP_ALT                                                                                            \
+	{                                                                                                                  \
+		55, 56, 57, 58, 59, 60, 60, 60, 60, 60, 60, 60                                                                 \
+	}
 
 #else /* not i5/OS */
-#define J9_PRIORITY_MAP  { 40,41,43,45,47,49,51,53,55,57,59,60 }
+#define J9_PRIORITY_MAP                                                                                                \
+	{                                                                                                                  \
+		40, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 60                                                                 \
+	}
 #endif /* J9OS_I5 checks */
-
 
 #if defined(__xlC__)
 /*
@@ -250,10 +263,10 @@ typedef double SYS_FLOAT;
 #endif /* RS6000 */
 
 #if defined(WIN32)
-typedef double 					SYS_FLOAT;
+typedef double SYS_FLOAT;
 
 #define NO_LVALUE_CASTING
-#define EXE_EXTENSION_CHAR	'.'
+#define EXE_EXTENSION_CHAR '.'
 
 #define DIR_SEPARATOR '\\'
 #define DIR_SEPARATOR_STR "\\"
@@ -263,19 +276,21 @@ typedef double 					SYS_FLOAT;
 #define OS_ENCODING_MB_FLAGS 0
 #define OS_ENCODING_WC_FLAGS 0
 
-#define J9_PRIORITY_MAP {	\
-	THREAD_PRIORITY_IDLE,							/* 0 */\
-	THREAD_PRIORITY_LOWEST,					/* 1 */\
-	THREAD_PRIORITY_BELOW_NORMAL,	/* 2 */\
-	THREAD_PRIORITY_BELOW_NORMAL,	/* 3 */\
-	THREAD_PRIORITY_BELOW_NORMAL,	/* 4 */\
-	THREAD_PRIORITY_NORMAL,						/* 5 */\
-	THREAD_PRIORITY_ABOVE_NORMAL,		/* 6 */\
-	THREAD_PRIORITY_ABOVE_NORMAL,		/* 7 */\
-	THREAD_PRIORITY_ABOVE_NORMAL,		/* 8 */\
-	THREAD_PRIORITY_ABOVE_NORMAL,		/* 9 */\
-	THREAD_PRIORITY_HIGHEST,					/*10 */\
-	THREAD_PRIORITY_TIME_CRITICAL			/*11 */}
+#define J9_PRIORITY_MAP                                                                                                \
+	{                                                                                                                  \
+		THREAD_PRIORITY_IDLE,			  /* 0 */                                                                      \
+			THREAD_PRIORITY_LOWEST,		  /* 1 */                                                                      \
+			THREAD_PRIORITY_BELOW_NORMAL, /* 2 */                                                                      \
+			THREAD_PRIORITY_BELOW_NORMAL, /* 3 */                                                                      \
+			THREAD_PRIORITY_BELOW_NORMAL, /* 4 */                                                                      \
+			THREAD_PRIORITY_NORMAL,		  /* 5 */                                                                      \
+			THREAD_PRIORITY_ABOVE_NORMAL, /* 6 */                                                                      \
+			THREAD_PRIORITY_ABOVE_NORMAL, /* 7 */                                                                      \
+			THREAD_PRIORITY_ABOVE_NORMAL, /* 8 */                                                                      \
+			THREAD_PRIORITY_ABOVE_NORMAL, /* 9 */                                                                      \
+			THREAD_PRIORITY_HIGHEST,	  /*10 */                                                                      \
+			THREAD_PRIORITY_TIME_CRITICAL /*11 */                                                                      \
+	}
 
 #if defined(__GNUC__)
 #define VMINLINE_ALWAYS inline __attribute((always_inline))
@@ -291,18 +306,18 @@ typedef double 					SYS_FLOAT;
 #endif /* WIN32 */
 
 #if defined(J9ZOS390)
-typedef double				SYS_FLOAT;
+typedef double SYS_FLOAT;
 
 #define J9CONST64(x) x##LL
 #define J9CONST_I64(x) x##LL
 #define J9CONST_U64(x) x##ULL
 
 #define NO_LVALUE_CASTING
-#define PLATFORM_LINE_DELIMITER	"\012"
+#define PLATFORM_LINE_DELIMITER "\012"
 #define DIR_SEPARATOR '/'
 #define DIR_SEPARATOR_STR "/"
 
-#define VA_PTR(valist) ((va_list*)&valist[0])
+#define VA_PTR(valist) ((va_list *)&valist[0])
 
 typedef struct {
 #if !defined(OMR_ENV_DATA64)
@@ -312,8 +327,8 @@ typedef struct {
 	void *rawFnAddress;
 } J9FunctionDescriptor_T;
 
-#define TOC_UNWRAP_ADDRESS(wrappedPointer) (wrappedPointer ? ((J9FunctionDescriptor_T *)(uintptr_t)(wrappedPointer))->rawFnAddress : NULL)
-
+#define TOC_UNWRAP_ADDRESS(wrappedPointer)                                                                             \
+	(wrappedPointer ? ((J9FunctionDescriptor_T *)(uintptr_t)(wrappedPointer))->rawFnAddress : NULL)
 
 #if defined(__cplusplus)
 
@@ -375,118 +390,118 @@ typedef struct {
 /* if no priority map if provided, priorities will be determined algorithmically */
 #endif
 
-#ifndef	FALSE
-#define	FALSE		((BOOLEAN) 0)
+#ifndef FALSE
+#define FALSE ((BOOLEAN)0)
 
 #ifndef TRUE
-#define	TRUE		((BOOLEAN) (!FALSE))
+#define TRUE ((BOOLEAN)(!FALSE))
 #endif
 #endif
 
 #ifndef NULL
 #ifdef __cplusplus
-#define NULL    (0)
+#define NULL (0)
 #else
-#define NULL    ((void *)0)
+#define NULL ((void *)0)
 #endif
 #endif
 
 #define USE_PROTOTYPES
-#ifdef	USE_PROTOTYPES
-#define	PROTOTYPE(x)	x
-#define	VARARGS		, ...
+#ifdef USE_PROTOTYPES
+#define PROTOTYPE(x) x
+#define VARARGS , ...
 #else
-#define	PROTOTYPE(x)	()
-#define	VARARGS
+#define PROTOTYPE(x) ()
+#define VARARGS
 #endif
 
 /* Assign the default line delimiter if it was not set */
 #ifndef PLATFORM_LINE_DELIMITER
-#define PLATFORM_LINE_DELIMITER	"\015\012"
+#define PLATFORM_LINE_DELIMITER "\015\012"
 #endif
 
 /* Set the max path length if it was not set */
 #ifndef MAX_IMAGE_PATH_LENGTH
-#define MAX_IMAGE_PATH_LENGTH	(2048)
+#define MAX_IMAGE_PATH_LENGTH (2048)
 #endif
 
-typedef	double	ESDOUBLE;
-typedef	float		ESSINGLE;
+typedef double ESDOUBLE;
+typedef float ESSINGLE;
 
 typedef struct U_128 {
 #if defined(OMR_ENV_LITTLE_ENDIAN)
 	uint64_t low64;
 	uint64_t high64;
-#else /* OMR_ENV_LITTLE_ENDIAN */
+#else  /* OMR_ENV_LITTLE_ENDIAN */
 	uint64_t high64;
 	uint64_t low64;
 #endif /* OMR_ENV_LITTLE_ENDIAN */
 } U_128;
 
 /* helpers for U_64s */
-#define CLEAR_U64(u64)  (u64 = (uint64_t)0)
+#define CLEAR_U64(u64) (u64 = (uint64_t)0)
 
-#ifdef	OMR_ENV_LITTLE_ENDIAN
-#define	LOW_LONG(l)	(*((uint32_t *) &(l)))
-#define	HIGH_LONG(l)	(*(((uint32_t *) &(l)) + 1))
+#ifdef OMR_ENV_LITTLE_ENDIAN
+#define LOW_LONG(l) (*((uint32_t *)&(l)))
+#define HIGH_LONG(l) (*(((uint32_t *)&(l)) + 1))
 #else
-#define	HIGH_LONG(l)	(*((uint32_t *) &(l)))
-#define	LOW_LONG(l)	(*(((uint32_t *) &(l)) + 1))
+#define HIGH_LONG(l) (*((uint32_t *)&(l)))
+#define LOW_LONG(l) (*(((uint32_t *)&(l)) + 1))
 #endif
 
-#define	I8(x)			((int8_t) (x))
-#define	I8P(x)			((int8_t *) (x))
-#define	U16(x)			((uint16_t) (x))
-#define	I16(x)			((int16_t) (x))
-#define	I16P(x)			((int16_t *) (x))
-#define	U32(x)			((uint32_t) (x))
-#define	I32(x)			((int32_t) (x))
-#define	I32P(x)			((int32_t *) (x))
-#define	U16P(x)			((uint16_t *) (x))
-#define	U32P(x)			((uint32_t *) (x))
-#define	BYTEP(x)		((BYTE *) (x))
+#define I8(x) ((int8_t)(x))
+#define I8P(x) ((int8_t *)(x))
+#define U16(x) ((uint16_t)(x))
+#define I16(x) ((int16_t)(x))
+#define I16P(x) ((int16_t *)(x))
+#define U32(x) ((uint32_t)(x))
+#define I32(x) ((int32_t)(x))
+#define I32P(x) ((int32_t *)(x))
+#define U16P(x) ((uint16_t *)(x))
+#define U32P(x) ((uint32_t *)(x))
+#define BYTEP(x) ((BYTE *)(x))
 
 /* Test - was conflicting with OS2.h */
-#define	ESCHAR(x)		((CHARACTER) (x))
-#define	FLT(x)			((FLOAT) x)
-#define	FLTP(x)			((FLOAT *) (x))
+#define ESCHAR(x) ((CHARACTER)(x))
+#define FLT(x) ((FLOAT)x)
+#define FLTP(x) ((FLOAT *)(x))
 
-#ifdef	NO_LVALUE_CASTING
-#define	LI8(x)			(*((int8_t *) &(x)))
-#define	LI8P(x)			(*((int8_t **) &(x)))
-#define	LU16(x)			(*((uint16_t *) &(x)))
-#define	LI16(x)			(*((int16_t *) &(x)))
-#define	LU32(x)			(*((uint32_t *) &(x)))
-#define	LI32(x)			(*((int32_t *) &(x)))
-#define	LI32P(x)		(*((int32_t **) &(x)))
-#define	LU16P(x)		(*((uint16_t **) &(x)))
-#define	LU32P(x)		(*((uint32_t **) &(x)))
-#define	LBYTEP(x)		(*((BYTE **) &(x)))
-#define	LCHAR(x)		(*((CHARACTER) &(x)))
-#define	LFLT(x)			(*((FLOAT) &x))
-#define	LFLTP(x)		(*((FLOAT *) &(x)))
+#ifdef NO_LVALUE_CASTING
+#define LI8(x) (*((int8_t *)&(x)))
+#define LI8P(x) (*((int8_t **)&(x)))
+#define LU16(x) (*((uint16_t *)&(x)))
+#define LI16(x) (*((int16_t *)&(x)))
+#define LU32(x) (*((uint32_t *)&(x)))
+#define LI32(x) (*((int32_t *)&(x)))
+#define LI32P(x) (*((int32_t **)&(x)))
+#define LU16P(x) (*((uint16_t **)&(x)))
+#define LU32P(x) (*((uint32_t **)&(x)))
+#define LBYTEP(x) (*((BYTE **)&(x)))
+#define LCHAR(x) (*((CHARACTER) & (x)))
+#define LFLT(x) (*((FLOAT)&x))
+#define LFLTP(x) (*((FLOAT *)&(x)))
 #else
-#define	LI8(x)			I8((x))
-#define	LI8P(x)			I8P((x))
-#define	LU16(x)			U16((x))
-#define	LI16(x)			I16((x))
-#define	LU32(x)			U32((x))
-#define	LI32(x)			I32((x))
-#define	LI32P(x)		I32P((x))
-#define	LU16P(x)		U16P((x))
-#define	LU32P(x)		U32P((x))
-#define	LBYTEP(x)		BYTEP((x))
-#define	LCHAR(x)		CHAR((x))
-#define	LFLT(x)			FLT((x))
-#define	LFLTP(x)		FLTP((x))
+#define LI8(x) I8((x))
+#define LI8P(x) I8P((x))
+#define LU16(x) U16((x))
+#define LI16(x) I16((x))
+#define LU32(x) U32((x))
+#define LI32(x) I32((x))
+#define LI32P(x) I32P((x))
+#define LU16P(x) U16P((x))
+#define LU32P(x) U32P((x))
+#define LBYTEP(x) BYTEP((x))
+#define LCHAR(x) CHAR((x))
+#define LFLT(x) FLT((x))
+#define LFLTP(x) FLTP((x))
 #endif
 
 /* Macros for converting between words and longs and accessing bits */
 
-#define	HIGH_WORD(x)	U16(U32((x)) >> 16)
-#define	LOW_WORD(x)		U16(U32((x)) & 0xFFFF)
-#define	MAKE_32(h, l)	((U32((h)) << 16) | U32((l)))
-#define	MAKE_64(h, l)	((((int64_t)(h)) << 32) | (l))
+#define HIGH_WORD(x) U16(U32((x)) >> 16)
+#define LOW_WORD(x) U16(U32((x)) & 0xFFFF)
+#define MAKE_32(h, l) ((U32((h)) << 16) | U32((l)))
+#define MAKE_64(h, l) ((((int64_t)(h)) << 32) | (l))
 
 #ifdef __cplusplus
 #define J9_CFUNC "C"
@@ -523,16 +538,18 @@ typedef struct U_128 {
 
 /* Macros used on RS6000 to manipulate wrapped function pointers */
 #ifndef TOC_UNWRAP_ADDRESS
-#define TOC_UNWRAP_ADDRESS(wrappedPointer) ((void *) (wrappedPointer))
+#define TOC_UNWRAP_ADDRESS(wrappedPointer) ((void *)(wrappedPointer))
 #endif
 #ifndef TOC_STORE_TOC
-#define TOC_STORE_TOC(dest,wrappedPointer)
+#define TOC_STORE_TOC(dest, wrappedPointer)
 #endif
 
 /* Macros for accessing int64_t values */
 #ifdef ATOMIC_LONG_ACCESS
-#define PTR_LONG_STORE(dstPtr, aLongPtr) ((*U32P(dstPtr) = *U32P(aLongPtr)), (*(U32P(dstPtr)+1) = *(U32P(aLongPtr)+1)))
-#define PTR_LONG_VALUE(dstPtr, aLongPtr) ((*U32P(aLongPtr) = *U32P(dstPtr)), (*(U32P(aLongPtr)+1) = *(U32P(dstPtr)+1)))
+#define PTR_LONG_STORE(dstPtr, aLongPtr)                                                                               \
+	((*U32P(dstPtr) = *U32P(aLongPtr)), (*(U32P(dstPtr) + 1) = *(U32P(aLongPtr) + 1)))
+#define PTR_LONG_VALUE(dstPtr, aLongPtr)                                                                               \
+	((*U32P(aLongPtr) = *U32P(dstPtr)), (*(U32P(aLongPtr) + 1) = *(U32P(dstPtr) + 1)))
 #else
 #define PTR_LONG_STORE(dstPtr, aLongPtr) (*(dstPtr) = *(aLongPtr))
 #define PTR_LONG_VALUE(dstPtr, aLongPtr) (*(aLongPtr) = *(dstPtr))
@@ -566,15 +583,15 @@ typedef struct U_128 {
 
 #if defined(HAS_BUILTIN_EXPECT)
 #undef HAS_BUILTIN_EXPECT
-#define J9_EXPECTED(e)		__builtin_expect(!!(e), 1)
-#define J9_UNEXPECTED(e)	__builtin_expect(!!(e), 0)
+#define J9_EXPECTED(e) __builtin_expect(!!(e), 1)
+#define J9_UNEXPECTED(e) __builtin_expect(!!(e), 0)
 #else
 #define J9_EXPECTED(e) (e)
 #define J9_UNEXPECTED(e) (e)
 #endif
 
-#define OMR_MAX(a,b) (((a) > (b)) ? (a) : (b))
-#define OMR_MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define OMR_MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define OMR_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 /* Provide macros which can be used for bit testing */
 #define J9_ARE_ANY_BITS_SET(value, bits) (0 != ((value) & (bits)))
@@ -583,10 +600,10 @@ typedef struct U_128 {
 
 /* Workaround for gcc -Wunused-result, which was added in 4.5.4 */
 #if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)))
-#define J9_IGNORE_RETURNVAL(funcCall) \
-	do { \
-		UDATA _ignoredRc = (UDATA)(funcCall); \
-		_ignoredRc = _ignoredRc; \
+#define J9_IGNORE_RETURNVAL(funcCall)                                                                                  \
+	do {                                                                                                               \
+		UDATA _ignoredRc = (UDATA)(funcCall);                                                                          \
+		_ignoredRc = _ignoredRc;                                                                                       \
 	} while (0)
 #else /* defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5))) */
 #define J9_IGNORE_RETURNVAL(funcCall) (funcCall)

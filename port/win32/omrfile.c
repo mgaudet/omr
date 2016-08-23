@@ -22,7 +22,6 @@
  * @brief file
  */
 
-
 #include <windows.h>
 #include "omrport.h"
 #include "omrportpriv.h"
@@ -32,7 +31,8 @@
 #include "ut_omrport.h"
 #include "omrfilehelpers.h"
 
-static wchar_t *file_get_unicode_path(OMRPortLibrary *portLibrary, const char *utf8Path, wchar_t *unicodeBuffer, uintptr_t unicodeBufferSize);
+static wchar_t *file_get_unicode_path(OMRPortLibrary *portLibrary, const char *utf8Path, wchar_t *unicodeBuffer,
+									  uintptr_t unicodeBufferSize);
 
 #define J9FILE_UNC_EXTENDED_LENGTH_PREFIX (L"\\\\?\\")
 #define J9FILE_UNC_EXTENDED_LENGTH_PREFIX_NETWORK (L"\\\\?\\UNC")
@@ -54,7 +54,7 @@ toHandle(OMRPortLibrary *portLibrary, intptr_t fd)
 	case OMRPORT_TTY_ERR:
 		return PPG_tty_consoleErrorHd;
 	default:
-		return (HANDLE) fd;
+		return (HANDLE)fd;
 	}
 }
 
@@ -77,9 +77,8 @@ fromHandle(OMRPortLibrary *portLibrary, HANDLE handle)
 		return OMRPORT_TTY_ERR;
 	}
 
-	return (intptr_t) handle;
+	return (intptr_t)handle;
 }
-
 
 /*
  * Uses the standard port_convertFromUTF8 and if the resulting unicode path is longer than the Windows defined MAX_PATH,
@@ -98,7 +97,8 @@ fromHandle(OMRPortLibrary *portLibrary, HANDLE handle)
  * 					unicode path - the caller is responsible for freeing this memory by calling @ref omrmem_free_memory on the returned value.
  */
 static wchar_t *
-file_get_unicode_path(OMRPortLibrary *portLibrary, const char *utf8Path, wchar_t *unicodeBuffer, uintptr_t unicodeBufferSize)
+file_get_unicode_path(OMRPortLibrary *portLibrary, const char *utf8Path, wchar_t *unicodeBuffer,
+					  uintptr_t unicodeBufferSize)
 {
 	wchar_t *unicodePath;
 	wchar_t *pathName;
@@ -138,7 +138,7 @@ file_get_unicode_path(OMRPortLibrary *portLibrary, const char *utf8Path, wchar_t
 		} else {
 			pathPrefix = J9FILE_UNC_EXTENDED_LENGTH_PREFIX;
 			lengthOfPathPrefix = wcslen(pathPrefix);
-			sizeOfPathPrefix = lengthOfPathPrefix * sizeof(wchar_t) + sizeof(wchar_t) /* null terminator */ ;
+			sizeOfPathPrefix = lengthOfPathPrefix * sizeof(wchar_t) + sizeof(wchar_t) /* null terminator */;
 			startOfPathInBuffer = (UDATA)lengthOfPathPrefix;
 		}
 
@@ -156,7 +156,8 @@ file_get_unicode_path(OMRPortLibrary *portLibrary, const char *utf8Path, wchar_t
 		 */
 
 		/* find out how big a buffer we need */
-		fullPathNameLengthInWcharts = GetFullPathNameW(unicodePath, 0 /* zero means give us back the size we need */, NULL, NULL);
+		fullPathNameLengthInWcharts =
+			GetFullPathNameW(unicodePath, 0 /* zero means give us back the size we need */, NULL, NULL);
 		if (0 == fullPathNameLengthInWcharts) {
 			pathName = NULL;
 			goto cleanup;
@@ -164,29 +165,30 @@ file_get_unicode_path(OMRPortLibrary *portLibrary, const char *utf8Path, wchar_t
 
 		fullPathNameBufferSizeBytes = fullPathNameLengthInWcharts * sizeof(wchar_t) + sizeOfPathPrefix;
 
-		fullPathNameBuffer = portLibrary->mem_allocate_memory(portLibrary, fullPathNameBufferSizeBytes, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+		fullPathNameBuffer = portLibrary->mem_allocate_memory(portLibrary, fullPathNameBufferSizeBytes,
+															  OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (NULL == fullPathNameBuffer) {
 			pathName = NULL;
 			goto cleanup;
 		}
 
-		getFullPathNameRc = GetFullPathNameW(unicodePath, fullPathNameLengthInWcharts , fullPathNameBuffer, NULL);
+		getFullPathNameRc = GetFullPathNameW(unicodePath, fullPathNameLengthInWcharts, fullPathNameBuffer, NULL);
 		if (0 == getFullPathNameRc) {
 			pathName = NULL;
 			goto cleanup;
 		}
 
 		/*  now prepend the fullPathNameBuffer with "\\?\UNC" or "\\?\" */
-		memmove((void *)(fullPathNameBuffer + startOfPathInBuffer), fullPathNameBuffer, fullPathNameLengthInWcharts * sizeof(wchar_t));
+		memmove((void *)(fullPathNameBuffer + startOfPathInBuffer), fullPathNameBuffer,
+				fullPathNameLengthInWcharts * sizeof(wchar_t));
 		wcsncpy(fullPathNameBuffer, pathPrefix, lengthOfPathPrefix);
 
 		pathName = fullPathNameBuffer;
 
-cleanup:
+	cleanup:
 		if (unicodeBuffer != unicodePath) {
 			portLibrary->mem_free_memory(portLibrary, unicodePath);
 		}
-
 	}
 
 	return pathName;
@@ -296,7 +298,7 @@ omrfile_close(struct OMRPortLibrary *portLibrary, intptr_t fd)
 
 	Trc_PRT_file_close_Entry(fd);
 
-	if ((intptr_t) INVALID_HANDLE_VALUE == fd) {
+	if ((intptr_t)INVALID_HANDLE_VALUE == fd) {
 		/* RTC 100203 Windows 10 does not report an error when closing an invalid handle */
 		portLibrary->error_set_last_error(portLibrary, 0, OMRPORT_ERROR_FILE_INVALID_PARAMETER);
 		Trc_PRT_file_close_invalidFileHandle();
@@ -365,7 +367,7 @@ omrfile_findfirst(struct OMRPortLibrary *portLibrary, const char *path, char *re
 	/* Assume a successful conversion. The data may be truncated to fit. */
 	port_convertToUTF8(portLibrary, findFileData.cFileName, resultbuf, EsMaxPath);
 	Trc_PRT_file_findfirst_Exit((uintptr_t)result);
-	return (uintptr_t) result;
+	return (uintptr_t)result;
 }
 
 int32_t
@@ -405,7 +407,8 @@ omrfile_lastmod(struct OMRPortLibrary *portLibrary, const char *path)
 			/*
 			 * Search MSDN for 'Converting a time_t Value to a File Time' for following implementation.
 			 */
-			result = ((int64_t) myStat.ftLastWriteTime.dwHighDateTime << 32) | (int64_t) myStat.ftLastWriteTime.dwLowDateTime;
+			result =
+				((int64_t)myStat.ftLastWriteTime.dwHighDateTime << 32) | (int64_t)myStat.ftLastWriteTime.dwLowDateTime;
 			result = (result - 116444736000000000) / 10000;
 		}
 
@@ -533,8 +536,8 @@ omrfile_move(struct OMRPortLibrary *portLibrary, const char *pathExist, const ch
 intptr_t
 omrfile_open(struct OMRPortLibrary *portLibrary, const char *path, int32_t flags, int32_t mode)
 {
-	DWORD	accessMode, shareMode, createMode, flagsAndAttributes;
-	HANDLE	aHandle;
+	DWORD accessMode, shareMode, createMode, flagsAndAttributes;
+	HANDLE aHandle;
 	int32_t error = 0;
 	wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodePath;
 	SECURITY_ATTRIBUTES sAttrib;
@@ -696,7 +699,7 @@ omrfile_seek(struct OMRPortLibrary *portLibrary, intptr_t fd, int64_t offset, in
 	if (whence == EsSeekSet) {
 		moveMethod = FILE_BEGIN;
 	}
-	if (whence == EsSeekEnd)	{
+	if (whence == EsSeekEnd) {
 		moveMethod = FILE_END;
 	}
 	if (whence == EsSeekCur) {
@@ -783,7 +786,7 @@ omrfile_unlink(struct OMRPortLibrary *portLibrary, const char *path)
 	/*PR 93036 - should be able to delete read-only files, so we set the file attribute back to normal*/
 	if (0 == SetFileAttributesW(unicodePath, FILE_ATTRIBUTE_NORMAL)) {
 		int32_t error = GetLastError();
-		portLibrary->error_set_last_error(portLibrary, error, findError(error));	 /* continue */
+		portLibrary->error_set_last_error(portLibrary, error, findError(error)); /* continue */
 	}
 
 	result = DeleteFileW(unicodePath);
@@ -814,7 +817,7 @@ omrfile_unlinkdir(struct OMRPortLibrary *portLibrary, const char *path)
 	/*PR 93036 - should be able to delete read-only dirs, so we set the file attribute back to normal*/
 	if (0 == SetFileAttributesW(unicodePath, FILE_ATTRIBUTE_NORMAL)) {
 		int32_t error = GetLastError();
-		portLibrary->error_set_last_error(portLibrary, error, findError(error));	 /* continue */
+		portLibrary->error_set_last_error(portLibrary, error, findError(error)); /* continue */
 	}
 
 	result = RemoveDirectoryW(unicodePath);
@@ -859,7 +862,8 @@ omrfile_vprintf(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *for
 	numberWritten = portLibrary->str_vprintf(portLibrary, NULL, (uint32_t)(-1), format, copyOfArgs);
 	numberWritten += 1;
 
-	allocatedBuffer = portLibrary->mem_allocate_memory(portLibrary, numberWritten, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	allocatedBuffer =
+		portLibrary->mem_allocate_memory(portLibrary, numberWritten, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == allocatedBuffer) {
 		portLibrary->nls_printf(portLibrary, J9NLS_ERROR, J9NLS_PORT_FILE_MEMORY_ALLOCATE_FAILURE);
 		return;
@@ -873,7 +877,7 @@ omrfile_vprintf(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *for
 intptr_t
 omrfile_write(struct OMRPortLibrary *portLibrary, intptr_t fd, void *buf, intptr_t nbytes)
 {
-	DWORD	nCharsWritten;
+	DWORD nCharsWritten;
 	intptr_t toWrite, offset = 0;
 	int32_t errorCode;
 	HANDLE handle;
@@ -950,7 +954,7 @@ omrfile_set_length(struct OMRPortLibrary *portLibrary, intptr_t fd, int64_t newL
 	if ((-1 != currentFilePtr) && (-1 != omrfile_seek(portLibrary, fd, newLength, FILE_BEGIN))) {
 		if (0 == SetEndOfFile((HANDLE)fd)) {
 			lastError = GetLastError();
-			lastError =  portLibrary->error_set_last_error(portLibrary, lastError, findError(lastError));
+			lastError = portLibrary->error_set_last_error(portLibrary, lastError, findError(lastError));
 			Trc_PRT_file_setlength_Exit(lastError);
 			return lastError;
 		}
@@ -973,7 +977,6 @@ omrfile_lock_bytes(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lock
 {
 	return omrfile_lock_bytes_helper(portLibrary, fd, lockFlags, offset, length, FALSE);
 }
-
 
 int32_t
 omrfile_unlock_bytes(struct OMRPortLibrary *portLibrary, intptr_t fd, uint64_t offset, uint64_t length)
@@ -1024,16 +1027,16 @@ omrfile_stat(struct OMRPortLibrary *portLibrary, const char *path, uint32_t flag
 	}
 
 	if (result & FILE_ATTRIBUTE_READONLY) {
-		buf->perm.isUserWriteable  = 0;
+		buf->perm.isUserWriteable = 0;
 		buf->perm.isGroupWriteable = 0;
 		buf->perm.isOtherWriteable = 0;
 
 	} else {
-		buf->perm.isUserWriteable  = 1;
+		buf->perm.isUserWriteable = 1;
 		buf->perm.isGroupWriteable = 1;
 		buf->perm.isOtherWriteable = 1;
 	}
-	buf->perm.isUserReadable  = 1;
+	buf->perm.isUserReadable = 1;
 	buf->perm.isGroupReadable = 1;
 	buf->perm.isOtherReadable = 1;
 
@@ -1063,7 +1066,8 @@ omrfile_stat(struct OMRPortLibrary *portLibrary, const char *path, uint32_t flag
 }
 
 int32_t
-omrfile_stat_filesystem(struct OMRPortLibrary *portLibrary, const char *path, uint32_t flags, struct J9FileStatFilesystem *buf)
+omrfile_stat_filesystem(struct OMRPortLibrary *portLibrary, const char *path, uint32_t flags,
+						struct J9FileStatFilesystem *buf)
 {
 	DWORD result;
 	wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodePath;
@@ -1090,10 +1094,8 @@ omrfile_stat_filesystem(struct OMRPortLibrary *portLibrary, const char *path, ui
 	}
 	driveBuffer[3] = '\0'; /* Chop off everything after the initial X:\ */
 
-	result = GetDiskFreeSpaceExW(driveBuffer,
-								 (PULARGE_INTEGER)&buf->freeSizeBytes,
-								 (PULARGE_INTEGER)&buf->totalSizeBytes,
-								 NULL);
+	result = GetDiskFreeSpaceExW(driveBuffer, (PULARGE_INTEGER)&buf->freeSizeBytes,
+								 (PULARGE_INTEGER)&buf->totalSizeBytes, NULL);
 	if (0 == result) {
 		result = GetLastError();
 		return portLibrary->error_set_last_error(portLibrary, result, findError(result));
@@ -1104,11 +1106,11 @@ omrfile_stat_filesystem(struct OMRPortLibrary *portLibrary, const char *path, ui
 intptr_t
 omrfile_convert_native_fd_to_omrfile_fd(struct OMRPortLibrary *portLibrary, intptr_t nativeFD)
 {
-	return fromHandle(portLibrary, (HANDLE) nativeFD);
+	return fromHandle(portLibrary, (HANDLE)nativeFD);
 }
 
 intptr_t
 omrfile_convert_omrfile_fd_to_native_fd(struct OMRPortLibrary *portLibrary, intptr_t omrfileFD)
 {
-	return (intptr_t) toHandle(portLibrary, omrfileFD);
+	return (intptr_t)toHandle(portLibrary, omrfileFD);
 }

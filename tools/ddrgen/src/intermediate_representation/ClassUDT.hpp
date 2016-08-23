@@ -22,7 +22,7 @@
 #include "ClassType.hpp"
 
 /* This type represents both class and struct types */
-class ClassUDT: public ClassType
+class ClassUDT : public ClassType
 {
 public:
 	ClassUDT *_superClass;
@@ -31,7 +31,7 @@ public:
 	ClassUDT(size_t size, bool isClass = true, unsigned int lineNumber = 0);
 	virtual ~ClassUDT();
 
-	virtual bool equal(Type const& type, set<Type const*> *checked) const;
+	virtual bool equal(Type const &type, set<Type const *> *checked) const;
 	virtual void replaceType(Type *typeToReplace, Type *replaceWith);
 	virtual string getSymbolTypeName();
 

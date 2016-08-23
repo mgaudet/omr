@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base_Core
@@ -45,26 +44,26 @@ public:
 protected:
 private:
 #define MAX_STACK_SLOTS 4
-	MM_MemorySubSpace *_subSpaceStack[MAX_STACK_SLOTS]; /**< current stack of subspaces used for recursive search of leaf subspaces. root subspace is at slot 0. */
-	uintptr_t _leafStackSlot; /**< current most nested subspace in the stack */
+	MM_MemorySubSpace *_subSpaceStack
+		[MAX_STACK_SLOTS]; /**< current stack of subspaces used for recursive search of leaf subspaces. root subspace is at slot 0. */
+	uintptr_t _leafStackSlot;		  /**< current most nested subspace in the stack */
 	MM_HeapRegionDescriptor *_region; /**< The region we will process next */
 public:
-
 	/**
 	 * Construct a MemorySubSpaceRegionIterator for the regions which belong to the specified subspace
 	 * 
 	 * @param subspace the memory subspace whose regions should be walked
 	 */
-	GC_MemorySubSpaceRegionIterator(MM_MemorySubSpace* subspace);
-	
+	GC_MemorySubSpaceRegionIterator(MM_MemorySubSpace *subspace);
+
 	/**
 	 * @return the next region in the heap, or NULL if there are no more regions
 	 */
 	MM_HeapRegionDescriptor *nextRegion();
+
 protected:
 private:
 	void initializeStack(uintptr_t fromStackSlot);
 };
 
 #endif /* MEMORYSUBSPACEREGIONITERATOR_HPP_ */
-

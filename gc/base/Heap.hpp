@@ -37,7 +37,7 @@ class MM_PhysicalArena;
 
 class MM_Heap : public MM_BaseVirtual
 {
-/*
+	/*
 * Data members
 */
 private:
@@ -56,30 +56,58 @@ protected:
 	MM_HeapRegionManager *_heapRegionManager;
 
 public:
-
-/*
+	/*
 * Function members
 */
 private:
 protected:
 	bool initialize(MM_EnvironmentBase *env);
 	void tearDown(MM_EnvironmentBase *env);
+
 public:
 	virtual void kill(MM_EnvironmentBase *env);
 
-	virtual uintptr_t calculateOffsetFromHeapBase(void*) = 0;
+	virtual uintptr_t calculateOffsetFromHeapBase(void *) = 0;
 
-	MMINLINE MM_HeapResizeStats *getResizeStats() { return &_heapResizeStats; }
+	MMINLINE MM_HeapResizeStats *
+	getResizeStats()
+	{
+		return &_heapResizeStats;
+	}
 
-	MMINLINE MM_PercolateStats *getPercolateStats() { return &_percolateStats; }
+	MMINLINE MM_PercolateStats *
+	getPercolateStats()
+	{
+		return &_percolateStats;
+	}
 
-	MMINLINE MM_MemorySpace *getDefaultMemorySpace() { return _defaultMemorySpace; }
-	MMINLINE void setDefaultMemorySpace(MM_MemorySpace *memorySpace) { _defaultMemorySpace = memorySpace; }
-	MMINLINE MM_MemorySpace *getMemorySpaceList() { return _memorySpaceList; }
-	MMINLINE MM_HeapRegionManager *getHeapRegionManager() { return _heapRegionManager; }
+	MMINLINE MM_MemorySpace *
+	getDefaultMemorySpace()
+	{
+		return _defaultMemorySpace;
+	}
+	MMINLINE void
+	setDefaultMemorySpace(MM_MemorySpace *memorySpace)
+	{
+		_defaultMemorySpace = memorySpace;
+	}
+	MMINLINE MM_MemorySpace *
+	getMemorySpaceList()
+	{
+		return _memorySpaceList;
+	}
+	MMINLINE MM_HeapRegionManager *
+	getHeapRegionManager()
+	{
+		return _heapRegionManager;
+	}
 
 	uintptr_t getMemorySize();
-	MMINLINE uintptr_t getMaximumMemorySize() { return _maximumMemorySize; }
+	MMINLINE uintptr_t
+	getMaximumMemorySize()
+	{
+		return _maximumMemorySize;
+	}
 	uintptr_t getActualFreeMemorySize();
 	uintptr_t getApproximateFreeMemorySize();
 
@@ -108,7 +136,7 @@ public:
 	 * Return the page flags describing the pages used for the heap memory.
 	 */
 	virtual uintptr_t getPageFlags() = 0;
-	
+
 	virtual void *getHeapBase() = 0;
 	virtual void *getHeapTop() = 0;
 
@@ -132,8 +160,10 @@ public:
 	void systemGarbageCollect(MM_EnvironmentBase *env, uint32_t gcCode);
 	void resetSpacesForGarbageCollect(MM_EnvironmentBase *env);
 
-	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
+	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+							  void *highAddress);
+	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+								 void *highAddress, void *lowValidAddress, void *highValidAddress);
 
 	/**
 	 * Called after the heap geometry changes to allow any data structures dependent on this to be updated.
@@ -153,7 +183,7 @@ public:
 	 */
 	virtual bool initializeHeapRegionManager(MM_EnvironmentBase *env, MM_HeapRegionManager *manager) = 0;
 
-	struct MM_CommonGCData* initializeCommonGCData(MM_EnvironmentBase *env, struct MM_CommonGCData *data);
+	struct MM_CommonGCData *initializeCommonGCData(MM_EnvironmentBase *env, struct MM_CommonGCData *data);
 	void initializeCommonGCStartData(MM_EnvironmentBase *env, struct MM_CommonGCStartData *data);
 	void initializeCommonGCEndData(MM_EnvironmentBase *env, struct MM_CommonGCEndData *data);
 
@@ -162,20 +192,13 @@ public:
 	/**
 	 * Create a Heap object.
 	 */
-	MM_Heap(MM_EnvironmentBase *env, uintptr_t maximumMemorySize, MM_HeapRegionManager *regionManager) :
-		MM_BaseVirtual()
-		,_omrVM(env->getOmrVM())
-		,_portLibrary(env->getPortLibrary())
-		,_defaultMemorySpace(NULL)
-		,_memorySpaceList(NULL)
-		,_maximumMemorySize(maximumMemorySize)
-		,_heapResizeStats()
-		,_percolateStats()
-		,_heapRegionManager(regionManager)
+	MM_Heap(MM_EnvironmentBase *env, uintptr_t maximumMemorySize, MM_HeapRegionManager *regionManager)
+		: MM_BaseVirtual(), _omrVM(env->getOmrVM()), _portLibrary(env->getPortLibrary()), _defaultMemorySpace(NULL),
+		  _memorySpaceList(NULL), _maximumMemorySize(maximumMemorySize), _heapResizeStats(), _percolateStats(),
+		  _heapRegionManager(regionManager)
 	{
 		_typeId = __FUNCTION__;
 	}
 };
-
 
 #endif /* HEAP_HPP_ */

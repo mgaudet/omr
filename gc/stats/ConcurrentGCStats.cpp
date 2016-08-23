@@ -19,8 +19,9 @@
 #include "ConcurrentGCStats.hpp"
 #include "EnvironmentBase.hpp"
 
-const char*
-MM_ConcurrentGCStats::getConcurrentStatusString(MM_EnvironmentBase *env, uintptr_t status, char *statusBuffer, uintptr_t statusBufferLength)
+const char *
+MM_ConcurrentGCStats::getConcurrentStatusString(MM_EnvironmentBase *env, uintptr_t status, char *statusBuffer,
+												uintptr_t statusBufferLength)
 {
 	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
 	switch (status) {
@@ -50,7 +51,8 @@ MM_ConcurrentGCStats::getConcurrentStatusString(MM_EnvironmentBase *env, uintptr
 		break;
 	default:
 		if (CONCURRENT_ROOT_TRACING < status) {
-			omrstr_printf(statusBuffer, statusBufferLength, "root tracing + %lld", (status - (uintptr_t)CONCURRENT_ROOT_TRACING));
+			omrstr_printf(statusBuffer, statusBufferLength, "root tracing + %lld",
+						  (status - (uintptr_t)CONCURRENT_ROOT_TRACING));
 		} else {
 			omrstr_printf(statusBuffer, statusBufferLength, "unknown");
 		}

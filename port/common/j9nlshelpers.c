@@ -18,8 +18,6 @@
 
 #include "omrnlshelpers.h"
 
-
-
 /**
  * @internal
  * Set set locale.

@@ -39,17 +39,17 @@ using std::set;
 using std::stringstream;
 #if defined(AIXPPC)
 using std::tr1::unordered_map;
-#else /* defined(AIXPPC) */
+#else  /* defined(AIXPPC) */
 using std::unordered_map;
 #endif /* !defined(AIXPPC) */
 
-class JavaSupersetGenerator: public SupersetGenerator
+class JavaSupersetGenerator : public SupersetGenerator
 {
 private:
-	set<string> _baseTypedefSet; /* Set of types renamed to "[U/I][SIZE]" */
-	unordered_map<string, string> _baseTypedefMap; /* Types remapped for assembled type names. */
+	set<string> _baseTypedefSet;					   /* Set of types renamed to "[U/I][SIZE]" */
+	unordered_map<string, string> _baseTypedefMap;	 /* Types remapped for assembled type names. */
 	unordered_map<string, string> _baseTypedefReplace; /* Type names which are replaced everywhere. */
-	set<string> _baseTypedefIgnore; /* Set of types to not rename when found as a typedef */
+	set<string> _baseTypedefIgnore;					   /* Set of types to not rename when found as a typedef */
 	intptr_t _file;
 	OMRPortLibrary *_portLibrary;
 

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base_Core
@@ -29,9 +28,8 @@
 #include "HeapRegionDescriptor.hpp"
 #include "MemorySubSpace.hpp"
 
-GC_MemorySubSpaceRegionIterator::GC_MemorySubSpaceRegionIterator(MM_MemorySubSpace* subspace) :
-	_leafStackSlot(0)
-	,_region(NULL)
+GC_MemorySubSpaceRegionIterator::GC_MemorySubSpaceRegionIterator(MM_MemorySubSpace *subspace)
+	: _leafStackSlot(0), _region(NULL)
 {
 	_subSpaceStack[0] = subspace;
 	initializeStack(0);

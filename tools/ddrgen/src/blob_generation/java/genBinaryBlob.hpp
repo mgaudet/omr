@@ -35,7 +35,7 @@
 
 using std::pair;
 
-class JavaBlobGenerator: public BlobGenerator
+class JavaBlobGenerator : public BlobGenerator
 {
 private:
 	typedef struct BitField {
@@ -102,18 +102,9 @@ private:
 		uint8_t *stringBuffer;
 		intptr_t fd;
 
-		BuildBlobInfo() :
-			stringHash(NULL),
-			fieldCount(0),
-			constCount(0),
-			blobStructs(NULL),
-			curBlobStruct(NULL),
-			blobFields(NULL),
-			curBlobField(NULL),
-			blobConsts(NULL),
-			curBlobConst(NULL),
-			stringBuffer(NULL),
-			fd(-1)
+		BuildBlobInfo()
+			: stringHash(NULL), fieldCount(0), constCount(0), blobStructs(NULL), curBlobStruct(NULL), blobFields(NULL),
+			  curBlobField(NULL), blobConsts(NULL), curBlobConst(NULL), stringBuffer(NULL), fd(-1)
 		{
 			initBlobHeader();
 		}

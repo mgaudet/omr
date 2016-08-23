@@ -59,7 +59,7 @@ MM_EnvironmentBase::newInstance(MM_GCExtensionsBase *extensions, OMR_VMThread *o
 
 	envPtr = (void *)pool_newElement(extensions->environments);
 	if (NULL != envPtr) {
-		env = new(envPtr) MM_EnvironmentBase(omrVMThread);
+		env = new (envPtr) MM_EnvironmentBase(omrVMThread);
 		if (!env->initialize(extensions)) {
 			env->kill();
 			env = NULL;
@@ -89,8 +89,13 @@ MM_EnvironmentBase::initialize(MM_GCExtensionsBase *extensions)
 		/* pass veryLargeObjectThreshold = 0 to initialize limited size of veryLargeEntryPool for thread (to reduce footprint), 
 		 * but if the threshold is bigger than maxHeap size, we would pass orignal threshold to indicate no veryLargeEntryPool needed 
 		 */
-		uintptr_t veryLargeObjectThreshold = (extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold <= extensions->memoryMax)?0:extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold;
-		if (!_freeEntrySizeClassStats.initialize(this, extensions->largeObjectAllocationProfilingTopK, extensions->freeMemoryProfileMaxSizeClasses, veryLargeObjectThreshold)) {
+		uintptr_t veryLargeObjectThreshold =
+			(extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold <= extensions->memoryMax)
+				? 0
+				: extensions->largeObjectAllocationProfilingVeryLargeObjectThreshold;
+		if (!_freeEntrySizeClassStats.initialize(this, extensions->largeObjectAllocationProfilingTopK,
+												 extensions->freeMemoryProfileMaxSizeClasses,
+												 veryLargeObjectThreshold)) {
 			return false;
 		}
 	}
@@ -103,15 +108,18 @@ MM_EnvironmentBase::initialize(MM_GCExtensionsBase *extensions)
 
 #if defined(OMR_GC_SEGREGATED_HEAP)
 	if (extensions->isSegregatedHeap()) {
-		_regionWorkList = MM_RegionPoolSegregated::allocateHeapRegionQueue(this, MM_HeapRegionList::HRL_KIND_LOCAL_WORK, true, false, false);
+		_regionWorkList = MM_RegionPoolSegregated::allocateHeapRegionQueue(this, MM_HeapRegionList::HRL_KIND_LOCAL_WORK,
+																		   true, false, false);
 		if (NULL == _regionWorkList) {
 			return false;
 		}
-		_regionLocalFree = MM_RegionPoolSegregated::allocateHeapRegionQueue(this, MM_HeapRegionList::HRL_KIND_LOCAL_WORK, true, false, false);
+		_regionLocalFree = MM_RegionPoolSegregated::allocateHeapRegionQueue(
+			this, MM_HeapRegionList::HRL_KIND_LOCAL_WORK, true, false, false);
 		if (NULL == _regionLocalFree) {
 			return false;
 		}
-		_regionLocalFull = MM_RegionPoolSegregated::allocateHeapRegionQueue(this, MM_HeapRegionList::HRL_KIND_LOCAL_WORK, true, false, false);
+		_regionLocalFull = MM_RegionPoolSegregated::allocateHeapRegionQueue(
+			this, MM_HeapRegionList::HRL_KIND_LOCAL_WORK, true, false, false);
 		if (NULL == _regionLocalFull) {
 			return false;
 		}
@@ -128,7 +136,6 @@ MM_EnvironmentBase::tearDown(MM_GCExtensionsBase *extensions)
 	if (_regionWorkList != NULL) {
 		_regionWorkList->kill(this);
 		_regionWorkList = NULL;
-
 	}
 	if (_regionLocalFree != NULL) {
 		_regionLocalFree->kill(this);
@@ -150,12 +157,12 @@ MM_EnvironmentBase::tearDown(MM_GCExtensionsBase *extensions)
 	_hotFieldStats.tearDown(this);
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) || defined(OMR_GC_VLHGC) */
 
-	if(NULL != _envLanguageInterface) {
+	if (NULL != _envLanguageInterface) {
 		_envLanguageInterface->kill(this);
 		_envLanguageInterface = NULL;
 	}
 
-	if(NULL != _objectAllocationInterface) {
+	if (NULL != _objectAllocationInterface) {
 		_objectAllocationInterface->kill(this);
 		_objectAllocationInterface = NULL;
 	}
@@ -202,7 +209,8 @@ MM_EnvironmentBase::reportExclusiveAccessAcquire()
 	OMRPORT_ACCESS_FROM_OMRPORT(_portLibrary);
 
 	/* record statistics */
-	U_64 meanResponseTime = _omrVM->exclusiveVMAccessStats.totalResponseTime / (_omrVM->exclusiveVMAccessStats.haltedThreads + 1); /* +1 for the requester */
+	U_64 meanResponseTime = _omrVM->exclusiveVMAccessStats.totalResponseTime
+							/ (_omrVM->exclusiveVMAccessStats.haltedThreads + 1); /* +1 for the requester */
 	_exclusiveAccessTime = _omrVM->exclusiveVMAccessStats.endTime - _omrVM->exclusiveVMAccessStats.startTime;
 	_meanExclusiveAccessIdleTime = _exclusiveAccessTime - meanResponseTime;
 	_lastExclusiveAccessResponder = _omrVM->exclusiveVMAccessStats.lastResponder;
@@ -213,25 +221,18 @@ MM_EnvironmentBase::reportExclusiveAccessAcquire()
 	TRIGGER_J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS(this->getExtensions()->privateHookInterface, _omrVMThread);
 	/* now the new trigger */
 	TRIGGER_J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS_ACQUIRE(
-			this->getExtensions()->privateHookInterface,
-			_omrVMThread,
-			omrtime_hires_clock(),
-			J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS_ACQUIRE,
-			_exclusiveAccessTime,
-			_meanExclusiveAccessIdleTime,
-			_lastExclusiveAccessResponder,
-			_exclusiveAccessHaltedThreads);
+		this->getExtensions()->privateHookInterface, _omrVMThread, omrtime_hires_clock(),
+		J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS_ACQUIRE, _exclusiveAccessTime, _meanExclusiveAccessIdleTime,
+		_lastExclusiveAccessResponder, _exclusiveAccessHaltedThreads);
 }
 
 void
 MM_EnvironmentBase::reportExclusiveAccessRelease()
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(_portLibrary);
-	TRIGGER_J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS_RELEASE(
-				this->getExtensions()->privateHookInterface,
-				_omrVMThread,
-				omrtime_hires_clock(),
-				J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS_RELEASE);
+	TRIGGER_J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS_RELEASE(this->getExtensions()->privateHookInterface, _omrVMThread,
+													   omrtime_hires_clock(),
+													   J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS_RELEASE);
 }
 
 void
@@ -241,21 +242,23 @@ MM_EnvironmentBase::allocationFailureStartReportIfRequired(MM_AllocateDescriptio
 		MM_GCExtensionsBase *extensions = getExtensions();
 		OMRPORT_ACCESS_FROM_OMRPORT(_portLibrary);
 
-		Trc_MM_AllocationFailureStart(getLanguageVMThread(),
-			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
+		Trc_MM_AllocationFailureStart(
+			getLanguageVMThread(), extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_OLD),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_OLD),
-			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD) : 0),
+			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD)
+										 : 0),
 			(extensions->largeObjectArea ? extensions->heap->getActiveLOAMemorySize(MEMORY_TYPE_OLD) : 0),
 			allocDescription->getBytesRequested());
 
-		Trc_OMRMM_AllocationFailureStart(getOmrVMThread(),
-			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
+		Trc_OMRMM_AllocationFailureStart(
+			getOmrVMThread(), extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_OLD),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_OLD),
-			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD) : 0),
+			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD)
+										 : 0),
 			(extensions->largeObjectArea ? extensions->heap->getActiveLOAMemorySize(MEMORY_TYPE_OLD) : 0),
 			allocDescription->getBytesRequested());
 
@@ -264,13 +267,8 @@ MM_EnvironmentBase::allocationFailureStartReportIfRequired(MM_AllocateDescriptio
 			extensions->heap->initializeCommonGCStartData(this, &commonData);
 
 			ALWAYS_TRIGGER_J9HOOK_MM_PRIVATE_ALLOCATION_FAILURE_START(
-				extensions->privateHookInterface,
-				getOmrVMThread(),
-				omrtime_hires_clock(),
-				J9HOOK_MM_PRIVATE_ALLOCATION_FAILURE_START,
-				allocDescription->getBytesRequested(),
-				&commonData,
-				flags,
+				extensions->privateHookInterface, getOmrVMThread(), omrtime_hires_clock(),
+				J9HOOK_MM_PRIVATE_ALLOCATION_FAILURE_START, allocDescription->getBytesRequested(), &commonData, flags,
 				allocDescription->getTenuredFlag());
 		}
 
@@ -286,27 +284,26 @@ MM_EnvironmentBase::allocationFailureEndReportIfRequired(MM_AllocateDescription 
 		OMRPORT_ACCESS_FROM_OMRPORT(_portLibrary);
 
 		TRIGGER_J9HOOK_MM_PRIVATE_FAILED_ALLOCATION_COMPLETED(
-			extensions->privateHookInterface,
-			getOmrVMThread(),
-			omrtime_hires_clock(),
-			J9HOOK_MM_PRIVATE_FAILED_ALLOCATION_COMPLETED,
-			allocDescription->getAllocationSucceeded() ? TRUE : FALSE,
+			extensions->privateHookInterface, getOmrVMThread(), omrtime_hires_clock(),
+			J9HOOK_MM_PRIVATE_FAILED_ALLOCATION_COMPLETED, allocDescription->getAllocationSucceeded() ? TRUE : FALSE,
 			allocDescription->getBytesRequested());
 
-		Trc_MM_AllocationFailureEnd(getLanguageVMThread(),
-			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
+		Trc_MM_AllocationFailureEnd(
+			getLanguageVMThread(), extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_OLD),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_OLD),
-			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD) : 0),
+			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD)
+										 : 0),
 			(extensions->largeObjectArea ? extensions->heap->getActiveLOAMemorySize(MEMORY_TYPE_OLD) : 0));
 
-		Trc_OMRMM_AllocationFailureEnd(getOmrVMThread(),
-			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
+		Trc_OMRMM_AllocationFailureEnd(
+			getOmrVMThread(), extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW),
 			extensions->heap->getApproximateActiveFreeMemorySize(MEMORY_TYPE_OLD),
 			extensions->heap->getActiveMemorySize(MEMORY_TYPE_OLD),
-			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD) : 0),
+			(extensions->largeObjectArea ? extensions->heap->getApproximateActiveFreeLOAMemorySize(MEMORY_TYPE_OLD)
+										 : 0),
 			(extensions->largeObjectArea ? extensions->heap->getActiveLOAMemorySize(MEMORY_TYPE_OLD) : 0));
 
 		if (J9_EVENT_IS_HOOKED(extensions->privateHookInterface, J9HOOK_MM_PRIVATE_ALLOCATION_FAILURE_END)) {
@@ -314,13 +311,8 @@ MM_EnvironmentBase::allocationFailureEndReportIfRequired(MM_AllocateDescription 
 			extensions->heap->initializeCommonGCEndData(this, &commonData);
 
 			ALWAYS_TRIGGER_J9HOOK_MM_PRIVATE_ALLOCATION_FAILURE_END(
-				extensions->privateHookInterface,
-				getOmrVMThread(),
-				omrtime_hires_clock(),
-				J9HOOK_MM_PRIVATE_ALLOCATION_FAILURE_END,
-				getExclusiveAccessTime(),
-				&commonData,
-				allocDescription);
+				extensions->privateHookInterface, getOmrVMThread(), omrtime_hires_clock(),
+				J9HOOK_MM_PRIVATE_ALLOCATION_FAILURE_END, getExclusiveAccessTime(), &commonData, allocDescription);
 		}
 
 		_allocationFailureReported = false;
@@ -342,11 +334,11 @@ MM_EnvironmentBase::releaseVMAccess()
 bool
 MM_EnvironmentBase::tryAcquireExclusiveVMAccess()
 {
-	if(0 == _exclusiveCount) {
+	if (0 == _exclusiveCount) {
 		bool result = _envLanguageInterface->tryAcquireExclusiveVMAccess();
 
 		/* Check if we won the exclusive access race..return if we lost */
-		if(!result) {
+		if (!result) {
 			return false;
 		}
 
@@ -392,19 +384,19 @@ MM_EnvironmentBase::acquireExclusiveVMAccessForGC(MM_Collector *collector)
 
 	_exclusiveAccessBeatenByOtherThread = false;
 
-	while(_omrVMThread != extensions->gcExclusiveAccessThreadId) {
-		if(NULL == extensions->gcExclusiveAccessThreadId) {
+	while (_omrVMThread != extensions->gcExclusiveAccessThreadId) {
+		if (NULL == extensions->gcExclusiveAccessThreadId) {
 			/* there is a chance the thread can win the race to acquiring
 			 * exclusive for GC */
 			omrthread_monitor_enter(extensions->gcExclusiveAccessMutex);
-			if(NULL == extensions->gcExclusiveAccessThreadId) {
+			if (NULL == extensions->gcExclusiveAccessThreadId) {
 				/* thread is the winner and will request the GC */
 				extensions->gcExclusiveAccessThreadId = _omrVMThread;
 			}
 			omrthread_monitor_exit(extensions->gcExclusiveAccessMutex);
 		}
 
-		if(_omrVMThread != extensions->gcExclusiveAccessThreadId) {
+		if (_omrVMThread != extensions->gcExclusiveAccessThreadId) {
 			/* thread was not the winner for requesting a GC - allow the GC to
 			 * proceed and wait for it to complete */
 			Assert_MM_true(NULL != extensions->gcExclusiveAccessThreadId);
@@ -418,7 +410,7 @@ MM_EnvironmentBase::acquireExclusiveVMAccessForGC(MM_Collector *collector)
 			 * the thread sees that no more GCs are being requested.
 			 */
 			omrthread_monitor_enter(extensions->gcExclusiveAccessMutex);
-			while(NULL != extensions->gcExclusiveAccessThreadId) {
+			while (NULL != extensions->gcExclusiveAccessThreadId) {
 				omrthread_monitor_wait(extensions->gcExclusiveAccessMutex);
 			}
 			/* thread can now win and will request a GC */
@@ -444,7 +436,6 @@ MM_EnvironmentBase::acquireExclusiveVMAccessForGC(MM_Collector *collector)
 	GC_OMRVMInterface::flushCachesForGC(this);
 
 	return !_exclusiveAccessBeatenByOtherThread;
-
 }
 
 bool
@@ -455,18 +446,18 @@ MM_EnvironmentBase::tryAcquireExclusiveVMAccessForGC(MM_Collector *collector)
 
 	_exclusiveAccessBeatenByOtherThread = false;
 
-	while(_omrVMThread != extensions->gcExclusiveAccessThreadId) {
-		if(NULL == extensions->gcExclusiveAccessThreadId) {
+	while (_omrVMThread != extensions->gcExclusiveAccessThreadId) {
+		if (NULL == extensions->gcExclusiveAccessThreadId) {
 			/* there is a chance the thread can win the race to acquiring exclusive for GC */
 			omrthread_monitor_enter(extensions->gcExclusiveAccessMutex);
-			if(NULL == extensions->gcExclusiveAccessThreadId) {
+			if (NULL == extensions->gcExclusiveAccessThreadId) {
 				/* thread is the winner and will request the GC */
 				extensions->gcExclusiveAccessThreadId = _omrVMThread;
 			}
 			omrthread_monitor_exit(extensions->gcExclusiveAccessMutex);
 		}
 
-		if(_omrVMThread != extensions->gcExclusiveAccessThreadId) {
+		if (_omrVMThread != extensions->gcExclusiveAccessThreadId) {
 			/* thread was not the winner for requesting a GC - allow the GC to proceed and wait for it to complete */
 			Assert_MM_true(NULL != extensions->gcExclusiveAccessThreadId);
 
@@ -477,7 +468,7 @@ MM_EnvironmentBase::tryAcquireExclusiveVMAccessForGC(MM_Collector *collector)
 			 * thread sees that no more GCs are being requested.
 			 */
 			omrthread_monitor_enter(extensions->gcExclusiveAccessMutex);
-			while(NULL != extensions->gcExclusiveAccessThreadId) {
+			while (NULL != extensions->gcExclusiveAccessThreadId) {
 				omrthread_monitor_wait(extensions->gcExclusiveAccessMutex);
 			}
 			omrthread_monitor_exit(extensions->gcExclusiveAccessMutex);
@@ -487,7 +478,7 @@ MM_EnvironmentBase::tryAcquireExclusiveVMAccessForGC(MM_Collector *collector)
 			/* May have been beaten to a GC, but perhaps not the one we wanted.  Check and if in fact the collection we intended has been
 			 * completed, we will not acquire exclusive access.
 			 */
-			if(collector->getExclusiveAccessCount() != collectorAccessCount) {
+			if (collector->getExclusiveAccessCount() != collectorAccessCount) {
 				return false;
 			}
 		}
@@ -514,7 +505,7 @@ MM_EnvironmentBase::releaseExclusiveVMAccessForGC()
 	Assert_MM_true(0 != _exclusiveCount);
 
 	_exclusiveCount -= 1;
-	if(0 == _exclusiveCount) {
+	if (0 == _exclusiveCount) {
 		omrthread_monitor_enter(extensions->gcExclusiveAccessMutex);
 		extensions->gcExclusiveAccessThreadId = NULL;
 		omrthread_monitor_notify_all(extensions->gcExclusiveAccessMutex);
@@ -531,7 +522,7 @@ MM_EnvironmentBase::unwindExclusiveVMAccessForGC()
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
 
-	if(_exclusiveCount > 0) {
+	if (_exclusiveCount > 0) {
 		Assert_MM_true(extensions->gcExclusiveAccessThreadId == _omrVMThread);
 
 		_exclusiveCount = 0;
@@ -560,7 +551,7 @@ MM_EnvironmentBase::tryAcquireExclusiveForConcurrentKickoff(MM_ConcurrentGCStats
 			omrthread_monitor_enter(extensions->gcExclusiveAccessMutex);
 			if (NULL == extensions->gcExclusiveAccessThreadId) {
 				/* thread is the winner and will request the GC */
-				extensions->gcExclusiveAccessThreadId =_omrVMThread ;
+				extensions->gcExclusiveAccessThreadId = _omrVMThread;
 			}
 			omrthread_monitor_exit(extensions->gcExclusiveAccessMutex);
 		}
@@ -587,7 +578,8 @@ MM_EnvironmentBase::tryAcquireExclusiveForConcurrentKickoff(MM_ConcurrentGCStats
 			/* May have been beaten to a GC, but perhaps not the one we wanted.  Check and if in fact the collection we intended has been
 			 * completed, we will not acquire exclusive access.
 			 */
-			if ((gcCount != extensions->globalGCStats.gcCount) || (CONCURRENT_INIT_COMPLETE != stats->getExecutionMode())) {
+			if ((gcCount != extensions->globalGCStats.gcCount)
+				|| (CONCURRENT_INIT_COMPLETE != stats->getExecutionMode())) {
 				return false;
 			}
 		}
@@ -607,7 +599,7 @@ MM_EnvironmentBase::releaseExclusiveForConcurrentKickoff()
 {
 	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
 
-	Assert_MM_true(extensions->gcExclusiveAccessThreadId ==_omrVMThread );
+	Assert_MM_true(extensions->gcExclusiveAccessThreadId == _omrVMThread);
 	Assert_MM_true(0 != _exclusiveCount);
 
 	_exclusiveCount -= 1;

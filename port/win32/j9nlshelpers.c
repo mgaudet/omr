@@ -22,7 +22,6 @@
  * @brief Native language support helpers
  */
 
-
 #include <windows.h>
 #include <winbase.h>
 #include <stdlib.h>
@@ -99,7 +98,4 @@ nls_determine_locale(struct OMRPortLibrary *portLibrary)
 		country[2] = 0; /* force null-terminator */
 		strncpy(nls->region, country, 2);
 	}
-
 }
-
-

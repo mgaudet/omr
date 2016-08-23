@@ -37,30 +37,28 @@ public:
 	/**
 	 * Create an iterator which will start with the main thread in the given javaVM
 	 */
-	GC_OMRVMThreadListIterator(OMR_VM *vm) :
-		_initialOMRVMThread(vm->_vmThreadList),
-		_omrVMThread(vm->_vmThreadList)
-	{}
+	GC_OMRVMThreadListIterator(OMR_VM *vm) : _initialOMRVMThread(vm->_vmThreadList), _omrVMThread(vm->_vmThreadList) {}
 
 	/**
 	 * Create an iterator which will start with the given thread
 	 */
-	GC_OMRVMThreadListIterator(OMR_VMThread *thread) :
-		_initialOMRVMThread(thread),
-		_omrVMThread(thread)
-	{}
+	GC_OMRVMThreadListIterator(OMR_VMThread *thread) : _initialOMRVMThread(thread), _omrVMThread(thread) {}
 
 	/**
 	 * Restart the iterator back to the initial thread.
 	 */
-	MMINLINE void reset() {
+	MMINLINE void
+	reset()
+	{
 		_omrVMThread = _initialOMRVMThread;
 	}
 
 	/**
 	 * Restart the iterator back to a specific initial thread.
 	 */
-	MMINLINE void reset(OMR_VMThread *resetThread) {
+	MMINLINE void
+	reset(OMR_VMThread *resetThread)
+	{
 		_omrVMThread = _initialOMRVMThread = resetThread;
 	}
 
@@ -68,4 +66,3 @@ public:
 };
 
 #endif /* OMRVMTHREADLISTITERATOR_HPP_ */
-

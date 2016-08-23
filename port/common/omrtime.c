@@ -23,8 +23,6 @@
  */
 #include "omrport.h"
 
-
-
 /**
  * Query OS for timestamp.
  * Retrieve the current value of system clock and convert to milliseconds since
@@ -103,7 +101,8 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime,
+					uint64_t requiredResolution)
 {
 	return 0;
 }
@@ -185,5 +184,3 @@ omrtime_startup(struct OMRPortLibrary *portLibrary)
 {
 	return 0;
 }
-
-

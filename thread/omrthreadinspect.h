@@ -25,6 +25,4 @@
 
 #include "common/omrthreadinspect.h"
 
-#endif     /* root_omrthread_inspect_h */
-
-
+#endif /* root_omrthread_inspect_h */

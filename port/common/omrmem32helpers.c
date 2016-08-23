@@ -21,24 +21,29 @@
 #include "omrportpg.h"
 #include "ut_omrport.h"
 
-static void *allocateVmemRegion32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount, J9HeapWrapper **heapWrapper, const char *callSite, uint32_t memoryCategory, uintptr_t vmemMode, uintptr_t vmemAllocOptions);
+static void *allocateVmemRegion32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount, J9HeapWrapper **heapWrapper,
+								  const char *callSite, uint32_t memoryCategory, uintptr_t vmemMode,
+								  uintptr_t vmemAllocOptions);
 static void prependHeapWrapper(struct OMRPortLibrary *portLibrary, J9HeapWrapper *heapWrapper);
 static void updatePPGHeapSizeInfo(struct OMRPortLibrary *portLibrary, uintptr_t totalSizeDelta, BOOLEAN isIncrement);
-static void *allocateLargeRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, const char *callSite, uintptr_t vmemAllocOptions);
+static void *allocateLargeRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, const char *callSite,
+								 uintptr_t vmemAllocOptions);
 static void *iterateHeapsAndSubAllocate(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount);
-static J9HeapWrapper *findMatchingHeap(struct OMRPortLibrary *portLibrary, void *memoryPointer, J9HeapWrapper ***heapWrapperLocation);
-static void *allocateRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, uintptr_t byteAmount, const char *callSite, uintptr_t vmemAllocOptions);
-static void *reserveAndCommitRegion(struct OMRPortLibrary *portLibrary, uintptr_t reserveSize, const char *callSite, uintptr_t vmemAllocOptions);
+static J9HeapWrapper *findMatchingHeap(struct OMRPortLibrary *portLibrary, void *memoryPointer,
+									   J9HeapWrapper ***heapWrapperLocation);
+static void *allocateRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, uintptr_t byteAmount,
+							const char *callSite, uintptr_t vmemAllocOptions);
+static void *reserveAndCommitRegion(struct OMRPortLibrary *portLibrary, uintptr_t reserveSize, const char *callSite,
+									uintptr_t vmemAllocOptions);
 
-#define VMEM_MODE_COMMIT OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT
+#define VMEM_MODE_COMMIT                                                                                               \
+	OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE | OMRPORT_VMEM_MEMORY_MODE_COMMIT
 #define VMEM_MODE_WITHOUT_COMMIT OMRPORT_VMEM_MEMORY_MODE_READ | OMRPORT_VMEM_MEMORY_MODE_WRITE
 
 struct {
 	uintptr_t base;
 	uintptr_t limit;
-} regions[] = {
-	{0x0, 0xFFFFFFFF}
-};
+} regions[] = {{0x0, 0xFFFFFFFF}};
 
 #define MEM32_LIMIT 0XFFFFFFFF
 
@@ -49,9 +54,9 @@ struct {
  */
 #if defined(AIXPPC) && defined(OMR_GC_COMPRESSED_POINTERS)
 /* virtual memory is allocated in 256M segments on AIX, so grab the whole segment */
-#define HEAP_SIZE_BYTES 256*1024*1024
+#define HEAP_SIZE_BYTES 256 * 1024 * 1024
 #else
-#define HEAP_SIZE_BYTES 8*1024*1024
+#define HEAP_SIZE_BYTES 8 * 1024 * 1024
 #endif
 /* Creates any of the resources required to use allocate_memory32
  *
@@ -71,7 +76,7 @@ startup_memory32(struct OMRPortLibrary *portLibrary)
 
 	/* initialize the monitor in subAllocHeap32 */
 	if (0 != omrthread_monitor_init(&(PPG_mem_mem32_subAllocHeapMem32.monitor), 0)) {
-		return (int32_t) OMRPORT_ERROR_STARTUP_MEM;
+		return (int32_t)OMRPORT_ERROR_STARTUP_MEM;
 	}
 	return 0;
 }
@@ -96,7 +101,7 @@ shutdown_memory32(struct OMRPortLibrary *portLibrary)
 
 			vmemID = currentHeapWrapper->vmemID;
 
-			if (! currentHeapWrapper->heap) {
+			if (!currentHeapWrapper->heap) {
 				/* jmem double-accounting prevention: Increment the memory counter so it can be decremented again inside vmem_free_memory */
 				omrmem_categories_increment_counters(vmemID->category, vmemID->size);
 			}
@@ -137,7 +142,8 @@ updatePPGHeapSizeInfo(struct OMRPortLibrary *portLibrary, uintptr_t totalSizeDel
 
 /* vmem alloc the large size requested and don't treat it as a J9Heap */
 static void *
-allocateLargeRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, const char *callSite, uintptr_t vmemAllocOptions)
+allocateLargeRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, const char *callSite,
+					uintptr_t vmemAllocOptions)
 {
 	J9HeapWrapper *heapWrapper = NULL;
 	void *allocPtr = NULL;
@@ -151,7 +157,8 @@ allocateLargeRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, co
 	}
 
 	/* reserve and commit the memory */
-	allocPtr = allocateVmemRegion32(portLibrary, roundedRegionSize, &heapWrapper, callSite, OMRMEM_CATEGORY_PORT_LIBRARY, VMEM_MODE_COMMIT, vmemAllocOptions);
+	allocPtr = allocateVmemRegion32(portLibrary, roundedRegionSize, &heapWrapper, callSite,
+									OMRMEM_CATEGORY_PORT_LIBRARY, VMEM_MODE_COMMIT, vmemAllocOptions);
 
 	if (NULL != allocPtr) {
 		prependHeapWrapper(portLibrary, heapWrapper);
@@ -186,7 +193,9 @@ iterateHeapsAndSubAllocate(struct OMRPortLibrary *portLibrary, uintptr_t byteAmo
 				Trc_PRT_mem_allocate_memory32_suballoc_block(subAllocPtr, heap, byteAmount);
 
 				/* omrmem category double-accounting prevention: subtract the amount allocated from the unused category */
-				omrmem_categories_decrement_bytes(omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS), byteAmount);
+				omrmem_categories_decrement_bytes(
+					omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS),
+					byteAmount);
 
 				return subAllocPtr;
 			} else {
@@ -205,12 +214,13 @@ iterateHeapsAndSubAllocate(struct OMRPortLibrary *portLibrary, uintptr_t byteAmo
 	 * otherwise, return NULL.
 	 *
 	 */
-	if ((NULL != PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper) &&
-		(TRUE == PPG_mem_mem32_subAllocHeapMem32.canSubCommitHeapGrow)) {
+	if ((NULL != PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper)
+		&& (TRUE == PPG_mem_mem32_subAllocHeapMem32.canSubCommitHeapGrow)) {
 		void *commitPtr = NULL;
 		J9Heap *heap = NULL;
 		uintptr_t commitSize = PPG_mem_mem32_subAllocHeapMem32.suballocator_commitSize;
-		uintptr_t remainingSize = PPG_mem_mem32_subAllocHeapMem32.suballocator_initialSize - PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize;
+		uintptr_t remainingSize = PPG_mem_mem32_subAllocHeapMem32.suballocator_initialSize
+								  - PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize;
 
 		heap = PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper->heap;
 
@@ -221,20 +231,23 @@ iterateHeapsAndSubAllocate(struct OMRPortLibrary *portLibrary, uintptr_t byteAmo
 		/* commit the memory from the end of the last committed chunk,
 		 * not the end address of the heap since it is probably different cause of rounding down in heap creation.
 		 */
-		commitPtr = (void *)(((uintptr_t)PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper->vmemID->address) + PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize);
-		commitPtr = omrvmem_commit_memory(portLibrary, commitPtr, commitSize, PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper->vmemID);
+		commitPtr = (void *)(((uintptr_t)PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper->vmemID->address)
+							 + PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize);
+		commitPtr = omrvmem_commit_memory(portLibrary, commitPtr, commitSize,
+										  PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper->vmemID);
 
 		if (NULL == commitPtr) {
 			PPG_mem_mem32_subAllocHeapMem32.canSubCommitHeapGrow = FALSE;
-			Trc_PRT_mem_iterateHeapsAndSubAllocate_commitMemoryFailure(commitPtr, commitSize, PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper->vmemID);
+			Trc_PRT_mem_iterateHeapsAndSubAllocate_commitMemoryFailure(
+				commitPtr, commitSize, PPG_mem_mem32_subAllocHeapMem32.subCommitHeapWrapper->vmemID);
 			return NULL;
 		}
-
 
 		/* If memory is committed successfully, then update the value of committedSize */
 		PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize += commitSize;
 
-		if (PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize ==  PPG_mem_mem32_subAllocHeapMem32.suballocator_initialSize) {
+		if (PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize
+			== PPG_mem_mem32_subAllocHeapMem32.suballocator_initialSize) {
 			PPG_mem_mem32_subAllocHeapMem32.canSubCommitHeapGrow = FALSE;
 		}
 
@@ -245,7 +258,9 @@ iterateHeapsAndSubAllocate(struct OMRPortLibrary *portLibrary, uintptr_t byteAmo
 			if (NULL != subAllocPtr) {
 				Trc_PRT_mem_allocate_memory32_suballoc_block(subAllocPtr, heap, byteAmount);
 				/* omrmem category double-accounting prevention: subtract the amount allocated from the unused category */
-				omrmem_categories_decrement_bytes(omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS), byteAmount);
+				omrmem_categories_decrement_bytes(
+					omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS),
+					byteAmount);
 				return subAllocPtr;
 			} else {
 				Trc_PRT_mem_allocate_memory32_suballoc_block_failed(heap, byteAmount);
@@ -262,7 +277,8 @@ iterateHeapsAndSubAllocate(struct OMRPortLibrary *portLibrary, uintptr_t byteAmo
  * If the overhead of omrheap precludes using suballocation, omrheap will not be used and the memory will be used directly instead.
  */
 static void *
-allocateRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, uintptr_t byteAmount, const char *callSite, uintptr_t vmemAllocOptions)
+allocateRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, uintptr_t byteAmount, const char *callSite,
+			   uintptr_t vmemAllocOptions)
 {
 	void *alloc32Ptr = NULL;
 	J9HeapWrapper *heapWrapper = NULL;
@@ -281,7 +297,9 @@ allocateRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, uintptr
 	/* the existing J9Heap in chain cannot satisfy the request,
 	 * allocate and create a new roundedRegionSize bytes J9Heap and attempt the request again
 	 */
-	alloc32Ptr = allocateVmemRegion32(portLibrary, roundedRegionSize, &heapWrapper, callSite, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS, VMEM_MODE_COMMIT, vmemAllocOptions);
+	alloc32Ptr = allocateVmemRegion32(portLibrary, roundedRegionSize, &heapWrapper, callSite,
+									  OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS, VMEM_MODE_COMMIT,
+									  vmemAllocOptions);
 	if (NULL == alloc32Ptr) {
 		Trc_PRT_mem_allocate_memory32_alloc_normal_region_failed_2(callSite, roundedRegionSize);
 		return NULL;
@@ -301,7 +319,8 @@ allocateRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, uintptr
 		returnPtr = subAllocPtr;
 
 		/* omrmem_category double-accounting prevention: subtract allocated amount from unused category */
-		omrmem_categories_decrement_bytes(omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS), byteAmount);
+		omrmem_categories_decrement_bytes(
+			omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS), byteAmount);
 
 		Trc_PRT_mem_allocate_memory32_alloc_normal_region_suballoc(alloc32Ptr, omrheap, returnPtr, byteAmount);
 	} else {
@@ -339,7 +358,8 @@ allocateRegion(struct OMRPortLibrary *portLibrary, uintptr_t regionSize, uintptr
  *
  */
 static void *
-reserveAndCommitRegion(struct OMRPortLibrary *portLibrary, uintptr_t reserveSize, const char *callSite, uintptr_t vmemAllocOptions)
+reserveAndCommitRegion(struct OMRPortLibrary *portLibrary, uintptr_t reserveSize, const char *callSite,
+					   uintptr_t vmemAllocOptions)
 {
 	/* Initialize the local variables */
 	void *reserve32Ptr = NULL;
@@ -364,7 +384,9 @@ reserveAndCommitRegion(struct OMRPortLibrary *portLibrary, uintptr_t reserveSize
 	}
 
 	/* Attempt to reserve memory */
-	reserve32Ptr = allocateVmemRegion32(portLibrary, roundedInitialSize, &heapWrapper, callSite, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS, VMEM_MODE_WITHOUT_COMMIT, vmemAllocOptions);
+	reserve32Ptr = allocateVmemRegion32(portLibrary, roundedInitialSize, &heapWrapper, callSite,
+										OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS,
+										VMEM_MODE_WITHOUT_COMMIT, vmemAllocOptions);
 	/* If reserving memory has failed, then do not continue and return NULL */
 	if (NULL == reserve32Ptr) {
 		Trc_PRT_mem_reserveAndCommitRegion_reserveMemoryFailure(roundedInitialSize);
@@ -496,7 +518,8 @@ ensure_capacity32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount)
 		if (0 == PPG_mem_mem32_subAllocHeapMem32.subCommitCommittedMemorySize) {
 			Trc_PRT_mem_ensure_capacity32_uninitialized();
 			/* Reserve a memory and commit requested chunk of it */
-			returnValue = (uintptr_t)reserveAndCommitRegion(portLibrary, byteAmount, OMR_GET_CALLSITE(), vmemAllocOptions);
+			returnValue =
+				(uintptr_t)reserveAndCommitRegion(portLibrary, byteAmount, OMR_GET_CALLSITE(), vmemAllocOptions);
 		} else {
 			returnValue = (uintptr_t)allocateRegion(portLibrary, byteAmount, 0, OMR_GET_CALLSITE(), vmemAllocOptions);
 		}
@@ -514,11 +537,12 @@ ensure_capacity32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount)
  * If the underlying vmem allocation is successful, allocate a J9HeapWrapper and initialize its fields.
  */
 static void *
-allocateVmemRegion32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount, J9HeapWrapper **heapWrapper, const char *callSite, uint32_t memoryCategory, uintptr_t vmemMode, uintptr_t vmemAllocOptions)
+allocateVmemRegion32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount, J9HeapWrapper **heapWrapper,
+					 const char *callSite, uint32_t memoryCategory, uintptr_t vmemMode, uintptr_t vmemAllocOptions)
 {
 	void *pointer = NULL;
 
-	/* If the port library does not support OMR_PORT_CAPABILITY_CAN_RESERVE_SPECIFIC_ADDRESS capability
+/* If the port library does not support OMR_PORT_CAPABILITY_CAN_RESERVE_SPECIFIC_ADDRESS capability
 	 * on this platform, allocateVmemRegion32 should return NULL, as omrvmem won't be able to
 	 * satisfy the request for a specific address (it might get lucky, but we don't want to rely on that)
 	 */
@@ -528,20 +552,22 @@ allocateVmemRegion32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount, J
 	uintptr_t i = 0;
 	J9HeapWrapper *wrapper = NULL;
 
-	if (0 == byteAmount)	{
+	if (0 == byteAmount) {
 		/* prevent malloc from failing causing allocate to return null */
 		byteAmount = 1;
 	}
 
 	/* Create the vmemidentifier */
-	vmemID = portLibrary->mem_allocate_memory(portLibrary, sizeof(J9PortVmemIdentifier), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	vmemID = portLibrary->mem_allocate_memory(portLibrary, sizeof(J9PortVmemIdentifier), OMR_GET_CALLSITE(),
+											  OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == vmemID) {
 		Trc_PRT_mem_allocate_memory32_failed_vmemID(callSite);
 		return NULL;
 	}
 
 	/* Create the heap wrapper */
-	wrapper = portLibrary->mem_allocate_memory(portLibrary, sizeof(J9HeapWrapper), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+	wrapper = portLibrary->mem_allocate_memory(portLibrary, sizeof(J9HeapWrapper), OMR_GET_CALLSITE(),
+											   OMRMEM_CATEGORY_PORT_LIBRARY);
 	if (NULL == wrapper) {
 		Trc_PRT_mem_allocate_memory32_failed_heapWrapper(callSite);
 		portLibrary->mem_free_memory(portLibrary, vmemID);
@@ -693,7 +719,9 @@ free_memory32(struct OMRPortLibrary *portLibrary, void *memoryPointer)
 
 				/* omrmem_category double-accounting prevention: add the size of the block to the "unused" category */
 				allocationSize = portLibrary->heap_query_size(portLibrary, omrheap, memoryPointer);
-				omrmem_categories_increment_bytes(omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS), allocationSize);
+				omrmem_categories_increment_bytes(
+					omrmem_get_category(portLibrary, OMRMEM_CATEGORY_PORT_LIBRARY_UNUSED_ALLOCATE32_REGIONS),
+					allocationSize);
 
 				/* we are freeing a suballocated block from a J9Heap */
 				portLibrary->heap_free(portLibrary, omrheap, memoryPointer);

@@ -45,7 +45,6 @@ class MM_ConfigurationSegregated : public MM_Configuration
 public:
 protected:
 private:
-
 	/*
 	 * Function members
 	 */
@@ -53,18 +52,22 @@ public:
 	static MM_Configuration *newInstance(MM_EnvironmentBase *env, MM_ConfigurationLanguageInterface *cli);
 
 	virtual MM_GlobalCollector *createGlobalCollector(MM_EnvironmentBase *env);
-	virtual MM_Heap *createHeapWithManager(MM_EnvironmentBase *env, uintptr_t heapBytesRequested, MM_HeapRegionManager *regionManager);
+	virtual MM_Heap *createHeapWithManager(MM_EnvironmentBase *env, uintptr_t heapBytesRequested,
+										   MM_HeapRegionManager *regionManager);
 	virtual MM_HeapRegionManager *createHeapRegionManager(MM_EnvironmentBase *env);
-	virtual MM_MemorySpace *createDefaultMemorySpace(MM_EnvironmentBase *env, MM_Heap *heap, MM_InitializationParameters *parameters);
+	virtual MM_MemorySpace *createDefaultMemorySpace(MM_EnvironmentBase *env, MM_Heap *heap,
+													 MM_InitializationParameters *parameters);
 	virtual J9Pool *createEnvironmentPool(MM_EnvironmentBase *env);
 	virtual MM_ObjectAllocationInterface *createObjectAllocationInterface(MM_EnvironmentBase *env);
-	virtual MM_SegregatedAllocationTracker* createAllocationTracker(MM_EnvironmentBase* env);
-	virtual MM_Dispatcher *createDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize);
-	
-	virtual void defaultMemorySpaceAllocated(MM_GCExtensionsBase *extensions, void* defaultMemorySpace);
-	
-	MM_ConfigurationSegregated(MM_EnvironmentBase *env, MM_ConfigurationLanguageInterface* configurationLanguageInterface) :
-		MM_Configuration(env, configurationLanguageInterface, mm_regionAlignment)
+	virtual MM_SegregatedAllocationTracker *createAllocationTracker(MM_EnvironmentBase *env);
+	virtual MM_Dispatcher *createDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void *handler_arg,
+											uintptr_t defaultOSStackSize);
+
+	virtual void defaultMemorySpaceAllocated(MM_GCExtensionsBase *extensions, void *defaultMemorySpace);
+
+	MM_ConfigurationSegregated(MM_EnvironmentBase *env,
+							   MM_ConfigurationLanguageInterface *configurationLanguageInterface)
+		: MM_Configuration(env, configurationLanguageInterface, mm_regionAlignment)
 	{
 		_typeId = __FUNCTION__;
 	};
@@ -91,7 +94,11 @@ protected:
 	 * @param regionSize[in] - the current regionSize to verify
 	 * @return valid - is the regionSize valid
 	 */
-	virtual bool verifyRegionSize(MM_EnvironmentBase *env, uintptr_t regionSize) {return true;}
+	virtual bool
+	verifyRegionSize(MM_EnvironmentBase *env, uintptr_t regionSize)
+	{
+		return true;
+	}
 
 	/**
 	 * Each configuration is responsible for providing a default arrayletLeafSize.

@@ -35,6 +35,4 @@ typedef struct J9Win32SignalInfo {
 	BOOLEAN tryExceptHandlerIgnore;
 } J9Win32SignalInfo;
 
-#endif     /* omrsignal_h */
-
-
+#endif /* omrsignal_h */

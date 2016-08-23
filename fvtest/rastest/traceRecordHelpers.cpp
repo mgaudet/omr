@@ -40,16 +40,13 @@ typedef struct TracePointIterator {
 	void *userData;
 } TracePointIterator;
 
-typedef enum TracePointIteratorState {
-	CONTINUE,
-	STOP,
-	STOP_WITH_ERROR
-} TracePointIteratorState;
+typedef enum TracePointIteratorState { CONTINUE, STOP, STOP_WITH_ERROR } TracePointIteratorState;
 
-static TracePointIteratorState nextTracePoint(PerThreadWrapBuffer *wrapBuffer, const UtTraceRecord *record, TracePointIterator *iter);
-static TracePointIteratorState parseTracePoint(const UtTraceRecord *record, uint32_t offset, uint32_t tpLength, TracePointIterator *iter);
+static TracePointIteratorState nextTracePoint(PerThreadWrapBuffer *wrapBuffer, const UtTraceRecord *record,
+											  TracePointIterator *iter);
+static TracePointIteratorState parseTracePoint(const UtTraceRecord *record, uint32_t offset, uint32_t tpLength,
+											   TracePointIterator *iter);
 static uint32_t getTraceIdFromBuffer(const UtTraceRecord *record, uint32_t offset);
-
 
 void
 initWrapBuffer(PerThreadWrapBuffer *wrapBuffer)
@@ -68,7 +65,8 @@ freeWrapBuffer(PerThreadWrapBuffer *wrapBuffer)
 }
 
 omr_error_t
-processTraceRecord(PerThreadWrapBuffer *wrapBuffer, UtSubscription *subscriptionID, TracePointCallback userCallback, void *userData)
+processTraceRecord(PerThreadWrapBuffer *wrapBuffer, UtSubscription *subscriptionID, TracePointCallback userCallback,
+				   void *userData)
 {
 	omr_error_t rc = OMR_ERROR_NONE;
 	const UtTraceRecord *record = (const UtTraceRecord *)subscriptionID->data;
@@ -76,7 +74,8 @@ processTraceRecord(PerThreadWrapBuffer *wrapBuffer, UtSubscription *subscription
 
 	int32_t recordSize = record->nextEntry + 1;
 	if (recordSize > subscriptionID->dataLength) {
-		fprintf(stderr, "ERROR: trace buffer (%d bytes) doesn't contain last entry (%d bytes)\n", subscriptionID->dataLength, recordSize);
+		fprintf(stderr, "ERROR: trace buffer (%d bytes) doesn't contain last entry (%d bytes)\n",
+				subscriptionID->dataLength, recordSize);
 		abort();
 	}
 
@@ -156,7 +155,6 @@ processTraceRecord(PerThreadWrapBuffer *wrapBuffer, UtSubscription *subscription
 	return rc;
 }
 
-
 static TracePointIteratorState
 nextTracePoint(PerThreadWrapBuffer *wrapBuffer, const UtTraceRecord *record, TracePointIterator *iter)
 {
@@ -209,17 +207,18 @@ nextTracePoint(PerThreadWrapBuffer *wrapBuffer, const UtTraceRecord *record, Tra
 			abort();
 		}
 
-
 		size_t partialBytes = offset - record->firstEntry + 1;
 		if (wrapBuffer->lastRecordBytes < (wrapBuffer->lastRecordPos + partialBytes)) {
 			wrapBuffer->lastRecordBytes += partialBytes;
 			wrapBuffer->lastRecord = (uint8_t *)realloc(wrapBuffer->lastRecord, wrapBuffer->lastRecordBytes);
 		}
-		memcpy(wrapBuffer->lastRecord + wrapBuffer->lastRecordPos, (uint8_t *)record + record->firstEntry, partialBytes);
-//		printf("thread %p wrapped tpLength %u partialBytes %lu\n", omrthread_self(), tpLength, partialBytes);
+		memcpy(wrapBuffer->lastRecord + wrapBuffer->lastRecordPos, (uint8_t *)record + record->firstEntry,
+			   partialBytes);
+		//		printf("thread %p wrapped tpLength %u partialBytes %lu\n", omrthread_self(), tpLength, partialBytes);
 		wrapBuffer->lastRecordPos += partialBytes;
 
-		parseTracePoint((const UtTraceRecord *)wrapBuffer->lastRecord, (uint32_t)(wrapBuffer->lastRecordPos - tpLength - 1), tpLength, iter);
+		parseTracePoint((const UtTraceRecord *)wrapBuffer->lastRecord,
+						(uint32_t)(wrapBuffer->lastRecordPos - tpLength - 1), tpLength, iter);
 
 		/* mark the temp buffer reusable */
 		wrapBuffer->lastRecordPos = 0;
@@ -232,7 +231,6 @@ nextTracePoint(PerThreadWrapBuffer *wrapBuffer, const UtTraceRecord *record, Tra
 	/* parse the relevant section into a tracepoint */
 	return parseTracePoint(record, offset - tpLength, tpLength, iter);
 }
-
 
 /**
  * OMRTODO Some cases may not be handled; cross-check with omrtraceformatter.c
@@ -267,11 +265,13 @@ parseTracePoint(const UtTraceRecord *record, uint32_t offset, uint32_t tpLength,
 
 	} else {
 		/* otherwise all is well and we have a normal tracepoint */
-		uint32_t modNameLength = getU32FromTraceRecord(record, offset + TRACEPOINT_RAW_DATA_MODULE_NAME_LENGTH_OFFSET, iter->isBigEndian);
+		uint32_t modNameLength =
+			getU32FromTraceRecord(record, offset + TRACEPOINT_RAW_DATA_MODULE_NAME_LENGTH_OFFSET, iter->isBigEndian);
 
 		/* Module name must not be longer than (the tracepoint length - start of module name string) */
 		/* modNameLength == 0 -- no modname - most likely partially overwritten - it's unformattable as a result! */
-		if ((0 != modNameLength) && (tpLength >= TRACEPOINT_RAW_DATA_MODULE_NAME_DATA_OFFSET) && (modNameLength <= (uint32_t)(tpLength - TRACEPOINT_RAW_DATA_MODULE_NAME_DATA_OFFSET))) {
+		if ((0 != modNameLength) && (tpLength >= TRACEPOINT_RAW_DATA_MODULE_NAME_DATA_OFFSET)
+			&& (modNameLength <= (uint32_t)(tpLength - TRACEPOINT_RAW_DATA_MODULE_NAME_DATA_OFFSET))) {
 			if (traceId > 257) {
 				traceId -= 257;
 
@@ -280,10 +280,9 @@ parseTracePoint(const UtTraceRecord *record, uint32_t offset, uint32_t tpLength,
 				const char *modName = &recordAsCharBuf[offset + TRACEPOINT_RAW_DATA_MODULE_NAME_DATA_OFFSET];
 				uint32_t parameterOffset = offset + TRACEPOINT_RAW_DATA_MODULE_NAME_DATA_OFFSET + modNameLength;
 				uint32_t parameterDataLength = tpLength - (TRACEPOINT_RAW_DATA_MODULE_NAME_DATA_OFFSET + modNameLength);
-				if (OMR_ERROR_NONE !=
-					iter->userCallback(iter->userData, modName, modNameLength, traceId, record,
-									   parameterOffset, parameterDataLength, iter->isBigEndian)
-				) {
+				if (OMR_ERROR_NONE
+					!= iter->userCallback(iter->userData, modName, modNameLength, traceId, record, parameterOffset,
+										  parameterDataLength, iter->isBigEndian)) {
 					return STOP_WITH_ERROR;
 				}
 			}
@@ -354,11 +353,13 @@ getU64FromTraceRecord(const UtTraceRecord *record, uint32_t offset, int32_t isBi
 
 	/* integer values are written out in platform endianess */
 	if (isBigEndian) {
-		ret = ((uint64_t)data[0] << 56) | ((uint64_t)data[1] << 48) | ((uint64_t)data[2] << 40) | ((uint64_t)data[3] << 32)
-				| ((uint64_t)data[4] << 24) | ((uint64_t)data[5] << 16) | ((uint64_t)data[6] << 8) | ((uint64_t)data[7]);
+		ret = ((uint64_t)data[0] << 56) | ((uint64_t)data[1] << 48) | ((uint64_t)data[2] << 40)
+			  | ((uint64_t)data[3] << 32) | ((uint64_t)data[4] << 24) | ((uint64_t)data[5] << 16)
+			  | ((uint64_t)data[6] << 8) | ((uint64_t)data[7]);
 	} else {
-		ret = ((uint64_t)data[7] << 56) | ((uint64_t)data[6] << 48) | ((uint64_t)data[5] << 40) | ((uint64_t)data[4] << 32)
-				| ((uint64_t)data[3] << 24) | ((uint64_t)data[2] << 16) | ((uint64_t)data[1] << 8) | ((uint64_t)data[0]);
+		ret = ((uint64_t)data[7] << 56) | ((uint64_t)data[6] << 48) | ((uint64_t)data[5] << 40)
+			  | ((uint64_t)data[4] << 32) | ((uint64_t)data[3] << 24) | ((uint64_t)data[2] << 16)
+			  | ((uint64_t)data[1] << 8) | ((uint64_t)data[0]);
 	}
 	return ret;
 }

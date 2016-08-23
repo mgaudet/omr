@@ -76,11 +76,11 @@ omrfile_blockingasync_open(struct OMRPortLibrary *portLibrary, const char *path,
  * @return                              0 on success, -1 on failure
  */
 int32_t
-omrfile_blockingasync_lock_bytes(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset, uint64_t length)
+omrfile_blockingasync_lock_bytes(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset,
+								 uint64_t length)
 {
 	return -1;
 }
-
 
 /**
  * This function will release the lock on the given file, starting at offset bytes
@@ -113,7 +113,6 @@ omrfile_blockingasync_read(struct OMRPortLibrary *portLibrary, intptr_t fd, void
 {
 	return -1;
 }
-
 
 /**
  * Write to a file.

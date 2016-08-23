@@ -33,9 +33,6 @@
 #include "omrport.h"
 #include "ut_omrport.h"
 
-
-
-
 /**
  * Map a part of file into memory.
  *
@@ -58,7 +55,8 @@
  * @return                      A J9MmapHandle struct or NULL is an error has occurred
  */
 J9MmapHandle *
-omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t offset, uintptr_t size, const char *mappingName, uint32_t flags, uint32_t category)
+omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t offset, uintptr_t size,
+				 const char *mappingName, uint32_t flags, uint32_t category)
 {
 	/* default implementation will allocate memory and read the file into it */
 	uintptr_t numBytesRead;
@@ -75,7 +73,8 @@ omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t off
 	}
 
 	/* ensure that allocated memory is 8 byte aligned, just in case it matters */
-	allocPointer = portLibrary->mem_allocate_memory(portLibrary, size + 8, OMR_GET_CALLSITE() , OMRMEM_CATEGORY_PORT_LIBRARY);
+	allocPointer =
+		portLibrary->mem_allocate_memory(portLibrary, size + 8, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 	Trc_PRT_mmap_map_file_default_allocPointer(allocPointer, size + 8);
 
 	if (allocPointer == NULL) {
@@ -94,7 +93,8 @@ omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t off
 	numBytesRead = 0;
 	rc = 0;
 	while (size - numBytesRead > 0) {
-		rc = portLibrary->file_read(portLibrary, file, (void *)(((uintptr_t)mappedMemory) + numBytesRead), size - numBytesRead);
+		rc = portLibrary->file_read(portLibrary, file, (void *)(((uintptr_t)mappedMemory) + numBytesRead),
+									size - numBytesRead);
 		if (rc == -1) {
 			/* failed to completely read the file */
 			Trc_PRT_mmap_map_file_default_badread();
@@ -105,7 +105,8 @@ omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t off
 		Trc_PRT_mmap_map_file_default_readingFile(numBytesRead);
 	}
 
-	if (!(returnVal = (J9MmapHandle *)portLibrary->mem_allocate_memory(portLibrary, sizeof(J9MmapHandle), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY))) {
+	if (!(returnVal = (J9MmapHandle *)portLibrary->mem_allocate_memory(
+			  portLibrary, sizeof(J9MmapHandle), OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY))) {
 		Trc_PRT_mmap_map_file_cannotallocatehandle();
 		portLibrary->mem_free_memory(portLibrary, allocPointer);
 		return NULL;
@@ -261,4 +262,3 @@ omrmmap_dont_need(struct OMRPortLibrary *portLibrary, const void *startAddress, 
 {
 	return;
 }
-

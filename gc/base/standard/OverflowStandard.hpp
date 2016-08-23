@@ -32,13 +32,13 @@ class MM_GCExtensionsBase;
 
 class MM_OverflowStandard : public MM_WorkPacketOverflow
 {
-/* Data members */
+	/* Data members */
 public:
 protected:
 private:
 	MM_GCExtensionsBase *_extensions;
-	
-/* Methods */
+
+	/* Methods */
 public:
 	static MM_OverflowStandard *newInstance(MM_EnvironmentBase *env, MM_WorkPackets *workPackets);
 
@@ -87,9 +87,8 @@ public:
 	/**
 	 * Create a MM_OverflowStandard object.
 	 */
-	MM_OverflowStandard(MM_EnvironmentBase *env, MM_WorkPackets *workPackets) :
-		MM_WorkPacketOverflow(env, workPackets),
-		_extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
+	MM_OverflowStandard(MM_EnvironmentBase *env, MM_WorkPackets *workPackets)
+		: MM_WorkPacketOverflow(env, workPackets), _extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
 	{
 		_typeId = __FUNCTION__;
 	};
@@ -118,7 +117,6 @@ protected:
 	void overflowItemInternal(MM_EnvironmentBase *env, void *item);
 
 private:
-
 };
 
 #endif /* OVERFLOWSTANDARD_HPP_ */

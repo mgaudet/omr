@@ -28,7 +28,6 @@ class MM_MemorySubSpace;
 class MM_HeapRegionDescriptor;
 class MM_HeapMemorySnapshot;
 
-
 class MM_HeapRegionManagerTarok : public MM_HeapRegionManager
 {
 	/*
@@ -36,20 +35,33 @@ class MM_HeapRegionManagerTarok : public MM_HeapRegionManager
 	 */
 private:
 	uintptr_t _freeRegionTableSize; /**< the number of lists in the _freeRegionTable (always >= 1) */
-	MM_HeapRegionDescriptor **_freeRegionTable; /**< a table of pointers to free region lists, each associated with a specific NUMA node */
+	MM_HeapRegionDescriptor *
+		*_freeRegionTable; /**< a table of pointers to free region lists, each associated with a specific NUMA node */
 protected:
 public:
-
 	/*
 	 * Function members
 	 */
 public:
-	MMINLINE static MM_HeapRegionManagerTarok *getHeapRegionManager(MM_Heap *heap) { return (MM_HeapRegionManagerTarok *)heap->getHeapRegionManager(); }
-	MMINLINE static MM_HeapRegionManagerTarok *getHeapRegionManager(MM_HeapRegionManager *manager) { return (MM_HeapRegionManagerTarok *)manager; }
+	MMINLINE static MM_HeapRegionManagerTarok *
+	getHeapRegionManager(MM_Heap *heap)
+	{
+		return (MM_HeapRegionManagerTarok *)heap->getHeapRegionManager();
+	}
+	MMINLINE static MM_HeapRegionManagerTarok *
+	getHeapRegionManager(MM_HeapRegionManager *manager)
+	{
+		return (MM_HeapRegionManagerTarok *)manager;
+	}
 
-	static MM_HeapRegionManagerTarok *newInstance(MM_EnvironmentBase *env, uintptr_t regionSize, uintptr_t tableDescriptorSize, MM_RegionDescriptorInitializer regionDescriptorInitializer, MM_RegionDescriptorDestructor regionDescriptorDestructor);
+	static MM_HeapRegionManagerTarok *newInstance(MM_EnvironmentBase *env, uintptr_t regionSize,
+												  uintptr_t tableDescriptorSize,
+												  MM_RegionDescriptorInitializer regionDescriptorInitializer,
+												  MM_RegionDescriptorDestructor regionDescriptorDestructor);
 
-	MM_HeapRegionManagerTarok(MM_EnvironmentBase *env, uintptr_t regionSize, uintptr_t tableDescriptorSize, MM_RegionDescriptorInitializer regionDescriptorInitializer, MM_RegionDescriptorDestructor regionDescriptorDestructor);
+	MM_HeapRegionManagerTarok(MM_EnvironmentBase *env, uintptr_t regionSize, uintptr_t tableDescriptorSize,
+							  MM_RegionDescriptorInitializer regionDescriptorInitializer,
+							  MM_RegionDescriptorDestructor regionDescriptorDestructor);
 
 	/**
 	 * Returns a region within the heap's contiguous region table, attached to subSpace, and describing one region size
@@ -62,7 +74,8 @@ public:
 	 * @param numaNode The NUMA node (indexed from 1) to allocate the region from
 	 * @return a region for the caller's use, or NULL if none available
 	 */
-	MM_HeapRegionDescriptor *acquireSingleTableRegion(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, uintptr_t numaNode);
+	MM_HeapRegionDescriptor *acquireSingleTableRegion(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+													  uintptr_t numaNode);
 
 	/**
 	 * find the nearest low valid addresses that's below the given region
@@ -92,19 +105,20 @@ public:
 	 */
 	virtual bool setContiguousHeapRange(MM_EnvironmentBase *env, void *lowHeapEdge, void *highHeapEdge);
 
-	 /**
+	/**
 	  * Provide destruction of Region Table if necessary
 	  * Use in heap shutdown (correspondent call with setContiguousHeapRange)
 	  * @param env The environment
 	  */
-	 virtual void destroyRegionTable(MM_EnvironmentBase *env);
+	virtual void destroyRegionTable(MM_EnvironmentBase *env);
 
 	/**
 	 * @see MM_HeapRegionManager::enableRegionsInTable
 	 */
 	virtual bool enableRegionsInTable(MM_EnvironmentBase *env, MM_MemoryHandle *handle);
 
-	virtual MM_HeapMemorySnapshot* getHeapMemorySnapshot(MM_GCExtensionsBase *extensions, MM_HeapMemorySnapshot* snapshot, bool gcEnd);
+	virtual MM_HeapMemorySnapshot *getHeapMemorySnapshot(MM_GCExtensionsBase *extensions,
+														 MM_HeapMemorySnapshot *snapshot, bool gcEnd);
 
 	/**
 	 * Releases the heap regions described by the given rootRegion (joined through "_nextInSet" links) to the heap for other uses.
@@ -136,7 +150,8 @@ private:
 	 *
 	 * @return the new region
 	 */
-	MM_HeapRegionDescriptor *internalAcquireSingleTableRegion(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, uintptr_t freeListIndex);
+	MM_HeapRegionDescriptor *internalAcquireSingleTableRegion(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+															  uintptr_t freeListIndex);
 
 	/**
 	 * Update the regions as a linked list of single regions.

@@ -30,9 +30,10 @@ MM_ConfigurationLanguageInterfaceImpl::newInstance(MM_EnvironmentBase *env)
 {
 	MM_ConfigurationLanguageInterfaceImpl *configurationLanguageInterface = NULL;
 
-	configurationLanguageInterface = (MM_ConfigurationLanguageInterfaceImpl *)env->getForge()->allocate(sizeof(MM_ConfigurationLanguageInterfaceImpl), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	configurationLanguageInterface = (MM_ConfigurationLanguageInterfaceImpl *)env->getForge()->allocate(
+		sizeof(MM_ConfigurationLanguageInterfaceImpl), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (NULL != configurationLanguageInterface) {
-		new(configurationLanguageInterface) MM_ConfigurationLanguageInterfaceImpl();
+		new (configurationLanguageInterface) MM_ConfigurationLanguageInterfaceImpl();
 		if (!configurationLanguageInterface->initialize(env)) {
 			configurationLanguageInterface->kill(env);
 			configurationLanguageInterface = NULL;
@@ -75,7 +76,7 @@ MM_ConfigurationLanguageInterfaceImpl::tearDown(MM_EnvironmentBase *env)
  * @param env The environment to initialize
  */
 bool
-MM_ConfigurationLanguageInterfaceImpl::initializeEnvironment(MM_EnvironmentBase* env)
+MM_ConfigurationLanguageInterfaceImpl::initializeEnvironment(MM_EnvironmentBase *env)
 {
 	return true;
 }
@@ -85,8 +86,8 @@ MM_ConfigurationLanguageInterfaceImpl::initializeEnvironment(MM_EnvironmentBase*
  * Given the allocation scheme and particular environment, select and return the appropriate object allocation interface.
  * @return new subtype instance of MM_ObjectAllocationInterface, or NULL on failure.
  */
-MM_ObjectAllocationInterface*
-MM_ConfigurationLanguageInterfaceImpl::createObjectAllocationInterface(MM_EnvironmentBase* env)
+MM_ObjectAllocationInterface *
+MM_ConfigurationLanguageInterfaceImpl::createObjectAllocationInterface(MM_EnvironmentBase *env)
 {
 	return MM_TLHAllocationInterface::newInstance(env);
 }
@@ -98,25 +99,28 @@ MM_ConfigurationLanguageInterfaceImpl::createEnvironmentLanguageInterface(MM_Env
 }
 
 bool
-MM_ConfigurationLanguageInterfaceImpl::initializeArrayletLeafSize(MM_EnvironmentBase* env)
+MM_ConfigurationLanguageInterfaceImpl::initializeArrayletLeafSize(MM_EnvironmentBase *env)
 {
 	return true;
 }
 
 void
-MM_ConfigurationLanguageInterfaceImpl::initializeWriteBarrierType(MM_EnvironmentBase* env, uintptr_t configWriteBarrierType)
+MM_ConfigurationLanguageInterfaceImpl::initializeWriteBarrierType(MM_EnvironmentBase *env,
+																  uintptr_t configWriteBarrierType)
 {
 }
 
 void
-MM_ConfigurationLanguageInterfaceImpl::initializeAllocationType(MM_EnvironmentBase* env, uintptr_t configGcAllocationType)
+MM_ConfigurationLanguageInterfaceImpl::initializeAllocationType(MM_EnvironmentBase *env,
+																uintptr_t configGcAllocationType)
 {
 }
 
 MM_GlobalCollector *
 MM_ConfigurationLanguageInterfaceImpl::createGlobalCollector(MM_EnvironmentBase *env)
 {
-	return MM_ParallelGlobalGC::newInstance(env, MM_GCExtensionsBase::getExtensions(env->getOmrVM())->collectorLanguageInterface);
+	return MM_ParallelGlobalGC::newInstance(
+		env, MM_GCExtensionsBase::getExtensions(env->getOmrVM())->collectorLanguageInterface);
 }
 
 void
@@ -125,13 +129,13 @@ MM_ConfigurationLanguageInterfaceImpl::initializeSaltData(MM_EnvironmentBase *en
 }
 
 uintptr_t
-MM_ConfigurationLanguageInterfaceImpl::internalGetWriteBarrierType(MM_EnvironmentBase* env)
+MM_ConfigurationLanguageInterfaceImpl::internalGetWriteBarrierType(MM_EnvironmentBase *env)
 {
 	return 0;
 }
 
 uintptr_t
-MM_ConfigurationLanguageInterfaceImpl::internalGetAllocationType(MM_EnvironmentBase* env)
+MM_ConfigurationLanguageInterfaceImpl::internalGetAllocationType(MM_EnvironmentBase *env)
 {
 	return 0;
 }

@@ -96,5 +96,4 @@ detachVM(OMR_Runtime *runtime, OMR_VM *vm)
 	omrthread_monitor_exit(runtime->_vmListMutex);
 	return OMR_ERROR_NONE;
 }
-
 }

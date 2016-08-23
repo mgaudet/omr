@@ -16,16 +16,15 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include <math.h>
 
 #include "omrTest.h"
 #include "thread_api.h"
 #include "threadExtendedTestHelpers.hpp"
 
-#define MATRIX_SIZE 			500
-#define NUM_ITERATIONS_MONOTONIC_TEST	500
-#define NUM_ITERATIONS_SYSTEM_CPU_BURN	3000
+#define MATRIX_SIZE 500
+#define NUM_ITERATIONS_MONOTONIC_TEST 500
+#define NUM_ITERATIONS_SYSTEM_CPU_BURN 3000
 
 typedef struct SupportThreadInfo {
 	uint32_t counter;
@@ -183,13 +182,13 @@ TEST(ThreadExtendedTest, TestUserTimesMonotonic)
 	ASSERT_TRUE(isMonotonic == 1);
 }
 
-#define NUM_ITERATIONS_JVM_CPU_USAGE  250
+#define NUM_ITERATIONS_JVM_CPU_USAGE 250
 
-#define LONG_MILLI_TIMEOUT      900000
-#define MILLI_TIMEOUT           10000
-#define NANO_TIMEOUT            0
+#define LONG_MILLI_TIMEOUT 900000
+#define MILLI_TIMEOUT 10000
+#define NANO_TIMEOUT 0
 
-#define ONESEC					1000 /**< 1 sec in ms */
+#define ONESEC 1000 /**< 1 sec in ms */
 
 /**
  * Generate CPU Load for 1 second
@@ -301,8 +300,8 @@ appThread(void *arg)
 	return 0;
 }
 
-#define NUM_APP_THREAD	50
-#define NUM_SYS_THREAD	10
+#define NUM_APP_THREAD 50
+#define NUM_SYS_THREAD 10
 
 /**
  * Compare the values of omrthread_get_cpu_time and omrthread_get_self_cpu_time
@@ -336,24 +335,15 @@ TEST(ThreadExtendedTest, TestThreadCpuTime)
 	/* Create the required number of threads */
 	omrthread_monitor_enter(thrInfo->synchronization);
 	for (i = 0; i < NUM_APP_THREAD; i++) {
-		ret = omrthread_create_ex(
-				  &(tid[i]),
-				  &attr,
-				  0,
-				  (omrthread_entrypoint_t) appThread,
-				  (void *) &tid[i]);
+		ret = omrthread_create_ex(&(tid[i]), &attr, 0, (omrthread_entrypoint_t)appThread, (void *)&tid[i]);
 		ASSERT_TRUE(ret == 0);
 	}
 
 	omrthread_attr_destroy(&attr);
 	/* Now create the system threads */
 	for (i = 0; i < NUM_SYS_THREAD; i++) {
-		ret = omrthread_create_ex(
-				  &(tid[i]),
-				  J9THREAD_ATTR_DEFAULT,
-				  0,
-				  (omrthread_entrypoint_t) sysThread,
-				  (void *) &tid[i]);
+		ret = omrthread_create_ex(&(tid[i]), J9THREAD_ATTR_DEFAULT, 0, (omrthread_entrypoint_t)sysThread,
+								  (void *)&tid[i]);
 		ASSERT_TRUE(ret == 0);
 	}
 

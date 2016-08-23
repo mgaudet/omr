@@ -48,13 +48,8 @@ static RCType
 help(int argc, char *argv[])
 {
 	for (int i = 0; i < argc; i++) {
-		if (0 == strcmp(argv[i], "-help")
-			|| 0 == strcmp(argv[i], "--help")
-			|| 0 == strcmp(argv[i], "-h")
-			|| 0 == strcmp(argv[i], "--h")
-			|| 0 == strcmp(argv[i], "/h")
-			|| 0 == strcmp(argv[i], "/help")
-		) {
+		if (0 == strcmp(argv[i], "-help") || 0 == strcmp(argv[i], "--help") || 0 == strcmp(argv[i], "-h")
+			|| 0 == strcmp(argv[i], "--h") || 0 == strcmp(argv[i], "/h") || 0 == strcmp(argv[i], "/help")) {
 			printf("%s -majorversion num -minorversion num\n", argv[0]);
 			printf("\t-majorversion (default 5)\n");
 			printf("\t-minorversion (default 1)\n");
@@ -86,7 +81,8 @@ startTraceMerge(int argc, char *argv[])
 
 	dir = options.rootDirectory;
 	while (NULL != dir) {
-		if (0 != FileUtils::visitDirectory(&options, dir->path, TRACE_FILE_FRAGMENT_EXT, &datMerge, DATMerge::mergeCallback))	{
+		if (0 != FileUtils::visitDirectory(&options, dir->path, TRACE_FILE_FRAGMENT_EXT, &datMerge,
+										   DATMerge::mergeCallback)) {
 			FileUtils::printError("Failed to merge PDAT files\n");
 			goto failed;
 		}
@@ -99,7 +95,6 @@ failed:
 	argParser.freeOptions(&options);
 	return RC_FAILED;
 }
-
 
 RCType
 DATMerge::merge(J9TDFOptions *options, const char *fromFileName)
@@ -229,7 +224,6 @@ DATMerge::merge(J9TDFOptions *options, const char *fromFileName)
 		fprintf(toFile, "%u.%u\n", options->rasMajorVersion, options->rasMinorVersion);
 	}
 
-
 	printf("Adding %s to dat file: %s\n", fromFileName, toFileName);
 
 	while (fromFilereader.hasNext()) {
@@ -246,7 +240,6 @@ DATMerge::merge(J9TDFOptions *options, const char *fromFileName)
 		goto failed;
 	}
 
-
 	return RC_OK;
 
 failed:
@@ -256,7 +249,6 @@ failed:
 RCType
 DATMerge::mergeCallback(void *targetObject, J9TDFOptions *options, const char *fromFileName)
 {
-	DATMerge *self = (DATMerge *) targetObject;
+	DATMerge *self = (DATMerge *)targetObject;
 	return self->merge(options, fromFileName);
 }
-

@@ -18,7 +18,6 @@
 
 #include "omrfilehelpers.h"
 
-
 /**
  * @internal
  * Determines the proper portable error code to return given a native error code
@@ -93,7 +92,6 @@ omrfile_get_overlapped_handle_helper(struct OMRPortLibrary *portLibrary)
 	return overlappedHandle;
 }
 
-
 /**
  * This function will acquire a lock of the requested type on the given file, starting at offset bytes
  * from the start of the file and continuing for length bytes
@@ -112,7 +110,8 @@ omrfile_get_overlapped_handle_helper(struct OMRPortLibrary *portLibrary)
  * @return                                              0 on success, -1 on failure
  */
 int32_t
-omrfile_lock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset, uint64_t length, BOOLEAN async)
+omrfile_lock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset,
+						  uint64_t length, BOOLEAN async)
 {
 	HANDLE hFile = (HANDLE)fd;
 	DWORD dwFlags = 0;
@@ -129,23 +128,21 @@ omrfile_lock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, int32
 
 	if (!(lockFlags & OMRPORT_FILE_READ_LOCK) && !(lockFlags & OMRPORT_FILE_WRITE_LOCK)) {
 		Trc_PRT_file_lock_bytes_win32_failed_noReadWrite();
-		errMsg = portLibrary->nls_lookup_message(portLibrary,
-				 J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-				 J9NLS_PORT_FILE_LOCK_INVALID_FLAG,
-				 NULL);
+		errMsg = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+												 J9NLS_PORT_FILE_LOCK_INVALID_FLAG, NULL);
 		portLibrary->str_printf(portLibrary, errBuf, sizeof(errBuf), errMsg, lockFlags);
-		lastError = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_ERROR_FILE_LOCK_NOREADWRITE, errBuf);
+		lastError =
+			portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_ERROR_FILE_LOCK_NOREADWRITE, errBuf);
 		Trc_PRT_file_lock_bytes_win32_exiting_with_error(lastError);
 		return -1;
 	}
 	if (!(lockFlags & OMRPORT_FILE_WAIT_FOR_LOCK) && !(lockFlags & OMRPORT_FILE_NOWAIT_FOR_LOCK)) {
 		Trc_PRT_file_lock_bytes_win32_failed_noWaitNoWait();
-		errMsg = portLibrary->nls_lookup_message(portLibrary,
-				 J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-				 J9NLS_PORT_FILE_LOCK_INVALID_FLAG,
-				 NULL);
+		errMsg = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+												 J9NLS_PORT_FILE_LOCK_INVALID_FLAG, NULL);
 		portLibrary->str_printf(portLibrary, errBuf, sizeof(errBuf), errMsg, lockFlags);
-		lastError = portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_ERROR_FILE_LOCK_NOWAITNOWAIT, errBuf);
+		lastError =
+			portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_ERROR_FILE_LOCK_NOWAITNOWAIT, errBuf);
 		Trc_PRT_file_lock_bytes_win32_exiting_with_error(lastError);
 		return -1;
 	}
@@ -167,7 +164,8 @@ omrfile_lock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, int32
 	overlapped.Offset = (DWORD)(offset & 0xFFFFFFFF);
 	overlapped.OffsetHigh = (DWORD)(offset >> 32);
 
-	Trc_PRT_file_lock_bytes_win32_callingLockFileEx(dwFlags, overlapped.Offset, overlapped.OffsetHigh, nNumberOfBytesToLockLow, nNumberOfBytesToLockHigh);
+	Trc_PRT_file_lock_bytes_win32_callingLockFileEx(dwFlags, overlapped.Offset, overlapped.OffsetHigh,
+													nNumberOfBytesToLockLow, nNumberOfBytesToLockHigh);
 
 	/*
 	 * Regarding to asychronous files, this function returns right away without waiting its execution to finish.
@@ -189,9 +187,7 @@ error:
 	lastError = portLibrary->error_set_last_error(portLibrary, GetLastError(), OMRPORT_ERROR_FILE_LOCK_BADLOCK);
 	Trc_PRT_file_lock_bytes_win32_exiting_with_error(lastError);
 	return -1;
-
 }
-
 
 /**
  * This function will release the lock on the given file, starting at offset bytes
@@ -206,7 +202,8 @@ error:
  * @return                                              0 on success, -1 on failure
  */
 int32_t
-omrfile_unlock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, uint64_t offset, uint64_t length, BOOLEAN async)
+omrfile_unlock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, uint64_t offset, uint64_t length,
+							BOOLEAN async)
 {
 	HANDLE hFile = (HANDLE)fd;
 	DWORD nNumberOfBytesToLockLow = (DWORD)(length & 0xFFFFFFFF);
@@ -229,7 +226,8 @@ omrfile_unlock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, uin
 	overlapped.Offset = (DWORD)(offset & 0xFFFFFFFF);
 	overlapped.OffsetHigh = (DWORD)(offset >> 32);
 
-	Trc_PRT_file_unlock_bytes_win32_callingUnlockFileEx(overlapped.Offset, overlapped.OffsetHigh, nNumberOfBytesToLockLow, nNumberOfBytesToLockHigh);
+	Trc_PRT_file_unlock_bytes_win32_callingUnlockFileEx(overlapped.Offset, overlapped.OffsetHigh,
+														nNumberOfBytesToLockLow, nNumberOfBytesToLockHigh);
 
 	/*
 	 * Regarding to asychronous files, this function returns right away without waiting its execution to finish.

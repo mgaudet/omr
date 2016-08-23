@@ -35,11 +35,11 @@
 MM_SublistPuddle *
 GC_SublistIterator::nextList()
 {
-	if(NULL != _currentPuddle) {
+	if (NULL != _currentPuddle) {
 		_currentPuddle = _currentPuddle->_next;
 	} else {
 		_currentPuddle = _sublistPool->_list;
 	}
-	
+
 	return _currentPuddle;
 }

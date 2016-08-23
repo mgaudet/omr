@@ -36,12 +36,7 @@ private:
 	// - enum
 	enum { ENUM1, ENUM2, ENUM3 } anonymousEnum;
 
-	enum InnerEnum
-	{
-		ENUM_A,
-		ENUM_B,
-		ENUM_C
-	};
+	enum InnerEnum { ENUM_A, ENUM_B, ENUM_C };
 
 	// - struct
 	struct Z {
@@ -53,10 +48,13 @@ private:
 public:
 	// - typedef
 	typedef unsigned short USDATA;
-	uint64_t getData() { return (data + Z.g * (USDATA)Z.h[7][2]); }
+	uint64_t
+	getData()
+	{
+		return (data + Z.g * (USDATA)Z.h[7][2]);
+	}
 };
 MyClass instanceOfMyClass;
-
 
 // 7. typedef
 // - typedef'ed primitive
@@ -85,7 +83,7 @@ typedef struct {
 T2 instanceOfT2 = {{0, {0}}};
 
 /* Type without struct name at beginning used as a field. */
-typedef S2 * T3 ;
+typedef S2 *T3;
 typedef struct {
 	T2 d;
 	S2 e;
@@ -94,14 +92,7 @@ typedef struct {
 T4 instanceOfT4 = {{{0, {0}}}, {0, {0}}, NULL};
 
 // - typedef'ed enum
-typedef enum {
-	something1,
-	something2,
-	something3,
-	something4,
-	something5,
-	somethingN
-} MyEnum;
+typedef enum { something1, something2, something3, something4, something5, somethingN } MyEnum;
 MyEnum instanceOfEnum;
 
 // - typedef'ed union
@@ -123,20 +114,58 @@ class BoxV2
 {
 protected:
 	volatile int64_t hashCode;
+
 private:
 	int64_t length;
 	int64_t width;
 	int64_t height;
+
 public:
-	int64_t getLength() { return length; }
-	int64_t getWidth() { return width; }
-	int64_t getHeight() { return height; }
-	void setLength(int64_t lengthIn) { length = lengthIn; }
-	void setWidth(int64_t widthIn) { width = widthIn; }
-	void setHeight(int64_t heightIn) { height = heightIn; }
-	uint64_t getVolume() { return (length * width * height); }
-	void generateHashCode() { hashCode = (length + width + height); }
-	int64_t getHashCode() { return hashCode; }
+	int64_t
+	getLength()
+	{
+		return length;
+	}
+	int64_t
+	getWidth()
+	{
+		return width;
+	}
+	int64_t
+	getHeight()
+	{
+		return height;
+	}
+	void
+	setLength(int64_t lengthIn)
+	{
+		length = lengthIn;
+	}
+	void
+	setWidth(int64_t widthIn)
+	{
+		width = widthIn;
+	}
+	void
+	setHeight(int64_t heightIn)
+	{
+		height = heightIn;
+	}
+	uint64_t
+	getVolume()
+	{
+		return (length * width * height);
+	}
+	void
+	generateHashCode()
+	{
+		hashCode = (length + width + height);
+	}
+	int64_t
+	getHashCode()
+	{
+		return hashCode;
+	}
 };
 
 class Foo
@@ -145,6 +174,7 @@ private:
 	static int staticTest;
 	uintptr_t data;
 	const int data2;
+
 public:
 	Foo(int x) : data(x), data2(4) {}
 };
@@ -185,7 +215,12 @@ HasUnionField instanceOfHasUnionField;
 #define DECREMENT(x) x--
 #define MULT(x, y) (x) * (y)
 #define ADD_FIVE(a) ((a) + 5)
-#define SWAP(a, b)  do { a ^= b; b ^= a; a ^= b; } while ( 0 )
+#define SWAP(a, b)                                                                                                     \
+	do {                                                                                                               \
+		a ^= b;                                                                                                        \
+		b ^= a;                                                                                                        \
+		a ^= b;                                                                                                        \
+	} while (0)
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 
 void

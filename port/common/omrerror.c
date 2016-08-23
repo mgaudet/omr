@@ -71,7 +71,6 @@ swapMessageBuffer(PortlibPTBuffers_t ptBuffers, const char *message)
 	return ptBuffers->reportedMessageBuffer;
 }
 
-
 /**
  * PortLibrary startup.
  *
@@ -139,7 +138,7 @@ omrerror_last_error_message(struct OMRPortLibrary *portLibrary)
 
 		/* Call a helper to get the last message from the OS.  */
 		if (message == NULL) {
-			message = errorMessage(portLibrary,  ptBuffers->platformErrorCode);
+			message = errorMessage(portLibrary, ptBuffers->platformErrorCode);
 		}
 
 		/* Avoid overwrite by internal portlib errors */
@@ -208,7 +207,7 @@ omrerror_last_error_number(struct OMRPortLibrary *portLibrary)
  * case an application will receive a generic message/errorCode when querying for the last stored values.
  */
 int32_t
-omrerror_set_last_error(struct OMRPortLibrary *portLibrary,  int32_t platformCode, int32_t portableCode)
+omrerror_set_last_error(struct OMRPortLibrary *portLibrary, int32_t platformCode, int32_t portableCode)
 {
 	PortlibPTBuffers_t ptBuffers;
 
@@ -274,7 +273,8 @@ omrerror_set_last_error_with_message(struct OMRPortLibrary *portLibrary, int32_t
 	requiredSize = (uint32_t)strlen(errorMessage) + 1;
 	requiredSize = requiredSize < J9ERROR_DEFAULT_BUFFER_SIZE ? J9ERROR_DEFAULT_BUFFER_SIZE : requiredSize;
 	if (requiredSize > ptBuffers->errorMessageBufferSize) {
-		char *newBuffer = portLibrary->mem_allocate_memory(portLibrary, requiredSize, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+		char *newBuffer = portLibrary->mem_allocate_memory(portLibrary, requiredSize, OMR_GET_CALLSITE(),
+														   OMRMEM_CATEGORY_PORT_LIBRARY);
 		if (NULL != newBuffer) {
 			if (ptBuffers->errorMessageBuffer != NULL) {
 				portLibrary->mem_free_memory(portLibrary, ptBuffers->errorMessageBuffer);
@@ -286,10 +286,10 @@ omrerror_set_last_error_with_message(struct OMRPortLibrary *portLibrary, int32_t
 
 	/* Save the message */
 	if (ptBuffers->errorMessageBufferSize > 0) {
-		portLibrary->str_printf(portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s", errorMessage);
+		portLibrary->str_printf(portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s",
+								errorMessage);
 		ptBuffers->errorMessageBuffer[ptBuffers->errorMessageBufferSize - 1] = '\0';
 	}
 
 	return portableCode;
 }
-

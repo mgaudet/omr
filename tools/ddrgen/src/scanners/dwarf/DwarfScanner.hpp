@@ -41,14 +41,14 @@ using std::tr1::unordered_map;
 
 #if defined(AIXPPC)
 using std::tr1::hash;
-#else /* defined(AIXPPC) */
+#else  /* defined(AIXPPC) */
 using std::hash;
 #endif /* !defined(AIXPPC) */
 using std::map;
 using std::string;
 #if defined(AIXPPC)
 using std::tr1::unordered_map;
-#else /* defined(AIXPPC) */
+#else  /* defined(AIXPPC) */
 using std::unordered_map;
 #endif /* !defined(AIXPPC) */
 
@@ -57,14 +57,14 @@ struct TypeKey {
 	string typeName;
 	int lineNumber;
 
-	bool operator==(const TypeKey& other) const;
+	bool operator==(const TypeKey &other) const;
 };
 
 struct KeyHasher {
-	size_t operator()(const TypeKey& key) const;
+	size_t operator()(const TypeKey &key) const;
 };
 
-class DwarfScanner: public Scanner
+class DwarfScanner : public Scanner
 {
 public:
 	DwarfScanner();
@@ -95,7 +95,8 @@ private:
 	DDR_RC addEnumMember(Dwarf_Die die, EnumUDT *const udt);
 	DDR_RC addClassField(Dwarf_Die die, ClassType *const newClass, string fieldName);
 	DDR_RC getSuperUDT(Dwarf_Die die, ClassUDT *const udt);
-	DDR_RC getTypeInfo(Dwarf_Die die, Dwarf_Die *dieout, string *typeName, Modifiers *modifiers, size_t *typeSize, size_t *bitField);
+	DDR_RC getTypeInfo(Dwarf_Die die, Dwarf_Die *dieout, string *typeName, Modifiers *modifiers, size_t *typeSize,
+					   size_t *bitField);
 	DDR_RC getTypeSize(Dwarf_Die die, size_t *typeSize);
 	DDR_RC getTypeTag(Dwarf_Die die, Dwarf_Die *typedie, Dwarf_Half *tag);
 	DDR_RC getBlacklist(Dwarf_Die die);

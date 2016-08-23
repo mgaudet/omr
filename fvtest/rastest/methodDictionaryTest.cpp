@@ -25,7 +25,7 @@
 #include "rasTestHelpers.hpp"
 
 static const size_t propertyCount = 2;
-static const char *propertyNames[propertyCount] = { "Year", "Month" };
+static const char *propertyNames[propertyCount] = {"Year", "Month"};
 
 static const char *sstrstr(const char *haystack, const char *needle, size_t length);
 
@@ -35,7 +35,7 @@ typedef struct Test_MethodDesc {
 	const char *propertyValues[propertyCount];
 } Test_MethodDesc;
 
-class RASMethodDictionaryTest: public ::testing::TestWithParam<const char *>
+class RASMethodDictionaryTest : public ::testing::TestWithParam<const char *>
 {
 protected:
 	virtual void
@@ -67,8 +67,7 @@ TEST_F(RASMethodDictionaryTest, Test0)
 
 	OMRPORT_ACCESS_FROM_OMRPORT(testVM.portLibrary);
 	OMR_MethodDictionaryEntry *newEntry = (OMR_MethodDictionaryEntry *)omrmem_allocate_memory(
-			sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount,
-			OMRMEM_CATEGORY_OMRTI);
+		sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount, OMRMEM_CATEGORY_OMRTI);
 	ASSERT_NE((void *)NULL, newEntry);
 
 	newEntry->key = (void *)0;
@@ -122,12 +121,14 @@ TEST_F(RASMethodDictionaryTest, Test0)
 
 	const size_t numMethods = 5;
 	Test_MethodDesc desc[numMethods];
-	void *methodArray[numMethods] = { (void *)0, (void *)2, (void *)3, (void *)4, (void *)1 };
+	void *methodArray[numMethods] = {(void *)0, (void *)2, (void *)3, (void *)4, (void *)1};
 	size_t firstRetryMethod = 0;
 	size_t nameBytesRemaining = 0;
 
 	/* NULL name buffer. All available methods should be marked RETRY. */
-	OMRTEST_ASSERT_ERROR(OMR_ERROR_RETRY, ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, NULL, 0, &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_RETRY, ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+																	(OMR_SampledMethodDescription *)desc, NULL, 0,
+																	&firstRetryMethod, &nameBytesRemaining));
 	ASSERT_EQ((size_t)0, firstRetryMethod);
 	ASSERT_LT((size_t)0, nameBytesRemaining);
 	ASSERT_EQ(OMR_ERROR_RETRY, desc[0].reasonCode);
@@ -138,7 +139,9 @@ TEST_F(RASMethodDictionaryTest, Test0)
 
 	/* All available methods should be successfully retrieved. */
 	char nameBuffer[50];
-	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+														(OMR_SampledMethodDescription *)desc, nameBuffer,
+														sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
 	ASSERT_EQ(OMR_ERROR_NONE, desc[0].reasonCode);
 	ASSERT_STREQ("2000", desc[0].propertyValues[0]);
 	ASSERT_STREQ("Dec", desc[0].propertyValues[1]);
@@ -158,7 +161,9 @@ TEST_F(RASMethodDictionaryTest, Test0)
 	ASSERT_STREQ("Mar", desc[4].propertyValues[1]);
 
 	/* On re-query, all methods already retrieved are no longer available */
-	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+														(OMR_SampledMethodDescription *)desc, nameBuffer,
+														sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
 	ASSERT_EQ(OMR_ERROR_NOT_AVAILABLE, desc[0].reasonCode);
 	ASSERT_EQ(OMR_ERROR_NOT_AVAILABLE, desc[1].reasonCode);
 	ASSERT_EQ(OMR_ERROR_NOT_AVAILABLE, desc[2].reasonCode);
@@ -171,7 +176,6 @@ TEST_F(RASMethodDictionaryTest, Test0)
 	 */
 
 	omr_ras_cleanupMethodDictionary(&testVM.omrVM);
-
 }
 
 TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodProperties)
@@ -181,19 +185,23 @@ TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodProperties)
 	size_t getSizeof = 0;
 
 	/* call GetMethodProperties before MethodDictionary is enabled */
-	OMRTEST_ASSERT_ERROR(OMR_ERROR_NOT_AVAILABLE, ti->GetMethodProperties(vmthread, &getPropertyCount, &getPropertyNames, &getSizeof));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_NOT_AVAILABLE,
+						 ti->GetMethodProperties(vmthread, &getPropertyCount, &getPropertyNames, &getSizeof));
 
 	/* init method dictionary */
 	OMRTEST_ASSERT_ERROR_NONE(omr_ras_initMethodDictionary(&testVM.omrVM, propertyCount, propertyNames));
 
 	/* NULL getPropertyCount */
-	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT, ti->GetMethodProperties(vmthread, NULL, &getPropertyNames, &getSizeof));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT,
+						 ti->GetMethodProperties(vmthread, NULL, &getPropertyNames, &getSizeof));
 
 	/* NULL getPropertyNames */
-	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT, ti->GetMethodProperties(vmthread, &getPropertyCount, NULL, &getSizeof));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT,
+						 ti->GetMethodProperties(vmthread, &getPropertyCount, NULL, &getSizeof));
 
 	/* NULL getSizeof */
-	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT, ti->GetMethodProperties(vmthread, &getPropertyCount, &getPropertyNames, NULL));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT,
+						 ti->GetMethodProperties(vmthread, &getPropertyCount, &getPropertyNames, NULL));
 
 	omr_ras_cleanupMethodDictionary(&testVM.omrVM);
 }
@@ -205,7 +213,7 @@ TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodDescriptions)
 	size_t getSizeof = 0;
 	const size_t numMethods = 2;
 	Test_MethodDesc desc[numMethods];
-	void *methodArray[numMethods] = { (void *)0, (void *)1 };
+	void *methodArray[numMethods] = {(void *)0, (void *)1};
 	size_t firstRetryMethod = 0;
 	size_t nameBytesRemaining = 0;
 	char nameBuffer[27];
@@ -213,9 +221,10 @@ TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodDescriptions)
 	strcpy(nameBuffer, origBuffer);
 
 	/* call GetMethodDescriptions before MethodDictionary is enabled */
-	OMRTEST_ASSERT_ERROR(
-		OMR_ERROR_NOT_AVAILABLE,
-		ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_NOT_AVAILABLE,
+						 ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+												   (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer),
+												   &firstRetryMethod, &nameBytesRemaining));
 
 	/* init method dictionary */
 	OMRTEST_ASSERT_ERROR_NONE(omr_ras_initMethodDictionary(&testVM.omrVM, propertyCount, propertyNames));
@@ -228,8 +237,9 @@ TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodDescriptions)
 	 * OMR_ERROR_NONE is expected as there is no method dictionary inserted
 	 * nameBuffer should not be changed
 	 */
-	OMRTEST_ASSERT_ERROR_NONE(
-		ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+														(OMR_SampledMethodDescription *)desc, nameBuffer,
+														sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
 	ASSERT_STREQ(origBuffer, nameBuffer);
 	ASSERT_EQ((size_t)0, firstRetryMethod);
 	ASSERT_EQ((size_t)0, nameBytesRemaining);
@@ -238,7 +248,8 @@ TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodDescriptions)
 	}
 
 	OMRPORT_ACCESS_FROM_OMRPORT(testVM.portLibrary);
-	OMR_MethodDictionaryEntry *newEntry = (OMR_MethodDictionaryEntry *)omrmem_allocate_memory(sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount, OMRMEM_CATEGORY_OMRTI);
+	OMR_MethodDictionaryEntry *newEntry = (OMR_MethodDictionaryEntry *)omrmem_allocate_memory(
+		sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount, OMRMEM_CATEGORY_OMRTI);
 	ASSERT_NE((void *)NULL, newEntry);
 
 	newEntry->key = (void *)0;
@@ -260,7 +271,9 @@ TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodDescriptions)
 	/*
 	 * zero nameBytes
 	 */
-	OMRTEST_ASSERT_ERROR(OMR_ERROR_RETRY, ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, nameBuffer, 0, &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_RETRY, ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+																	(OMR_SampledMethodDescription *)desc, nameBuffer, 0,
+																	&firstRetryMethod, &nameBytesRemaining));
 	ASSERT_STREQ(origBuffer, nameBuffer);
 	ASSERT_EQ((size_t)0, firstRetryMethod);
 	ASSERT_EQ((size_t)18, nameBytesRemaining);
@@ -269,22 +282,26 @@ TEST_F(RASMethodDictionaryTest, TestNegativeCasesForGetMethodDescriptions)
 	}
 
 	/* NULL nameBuffer and non-zero nameBytes */
-	OMRTEST_ASSERT_ERROR(
-		OMR_ERROR_ILLEGAL_ARGUMENT,
-		ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, NULL, sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT,
+						 ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+												   (OMR_SampledMethodDescription *)desc, NULL, sizeof(nameBuffer),
+												   &firstRetryMethod, &nameBytesRemaining));
 
 	/* zero methodArrayCount */
-	OMRTEST_ASSERT_ERROR_NONE(
-		ti->GetMethodDescriptions(vmthread, methodArray, (size_t)0, (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer), &firstRetryMethod, NULL));
+	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, (size_t)0,
+														(OMR_SampledMethodDescription *)desc, nameBuffer,
+														sizeof(nameBuffer), &firstRetryMethod, NULL));
 	ASSERT_STREQ(origBuffer, nameBuffer);
 
 	/* NULL methodArray */
-	OMRTEST_ASSERT_ERROR(
-		OMR_ERROR_ILLEGAL_ARGUMENT,
-		ti->GetMethodDescriptions(vmthread, NULL, numMethods, (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer), NULL, NULL));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT,
+						 ti->GetMethodDescriptions(vmthread, NULL, numMethods, (OMR_SampledMethodDescription *)desc,
+												   nameBuffer, sizeof(nameBuffer), NULL, NULL));
 
 	/* NULL methodDescriptions */
-	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT, ti->GetMethodDescriptions(vmthread, methodArray, numMethods, NULL, nameBuffer, sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_ILLEGAL_ARGUMENT,
+						 ti->GetMethodDescriptions(vmthread, methodArray, numMethods, NULL, nameBuffer,
+												   sizeof(nameBuffer), &firstRetryMethod, &nameBytesRemaining));
 
 	omr_ras_cleanupMethodDictionary(&testVM.omrVM);
 }
@@ -294,7 +311,8 @@ TEST_F(RASMethodDictionaryTest, TestUndersizedNameBytes)
 	OMRTEST_ASSERT_ERROR_NONE(omr_ras_initMethodDictionary(&testVM.omrVM, propertyCount, propertyNames));
 
 	OMRPORT_ACCESS_FROM_OMRPORT(testVM.portLibrary);
-	OMR_MethodDictionaryEntry *newEntry = (OMR_MethodDictionaryEntry *)omrmem_allocate_memory(sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount, OMRMEM_CATEGORY_OMRTI);
+	OMR_MethodDictionaryEntry *newEntry = (OMR_MethodDictionaryEntry *)omrmem_allocate_memory(
+		sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount, OMRMEM_CATEGORY_OMRTI);
 	ASSERT_NE((void *)NULL, newEntry);
 
 	newEntry->key = (void *)0;
@@ -323,7 +341,7 @@ TEST_F(RASMethodDictionaryTest, TestUndersizedNameBytes)
 
 	const size_t numMethods = 3;
 	Test_MethodDesc desc[numMethods];
-	void *methodArray[numMethods] = { (void *)1, (void *)0, (void *)2 };
+	void *methodArray[numMethods] = {(void *)1, (void *)0, (void *)2};
 	size_t firstRetryMethod = 0;
 	size_t nameBytesRemaining = 0;
 	char nameBuffer[27];
@@ -333,9 +351,9 @@ TEST_F(RASMethodDictionaryTest, TestUndersizedNameBytes)
 	/* undersized nameBytes */
 	size_t undersize = 10;
 	strcpy(nameBuffer, origBuffer);
-	OMRTEST_ASSERT_ERROR(
-		OMR_ERROR_RETRY,
-		ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, nameBuffer, undersize, &firstRetryMethod, &nameBytesRemaining));
+	OMRTEST_ASSERT_ERROR(OMR_ERROR_RETRY, ti->GetMethodDescriptions(vmthread, methodArray, numMethods,
+																	(OMR_SampledMethodDescription *)desc, nameBuffer,
+																	undersize, &firstRetryMethod, &nameBytesRemaining));
 	ASSERT_STRNE(origBuffer, nameBuffer);
 	ASSERT_TRUE(sstrstr(nameBuffer, "2014", sizeof(nameBuffer)) != NULL);
 	ASSERT_TRUE(sstrstr(nameBuffer, "Aug", sizeof(nameBuffer)) != NULL);
@@ -352,7 +370,8 @@ TEST_F(RASMethodDictionaryTest, TestUndersizedNameBytes)
 	size_t newFirstRetryMethod = 0;
 	size_t newNameBytesRemaining = 0;
 	OMRTEST_ASSERT_ERROR_NONE(
-		ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc, newNameBuffer, sizeof(newNameBuffer), &newFirstRetryMethod, &newNameBytesRemaining));
+		ti->GetMethodDescriptions(vmthread, methodArray, numMethods, (OMR_SampledMethodDescription *)desc,
+								  newNameBuffer, sizeof(newNameBuffer), &newFirstRetryMethod, &newNameBytesRemaining));
 	ASSERT_TRUE(sstrstr(newNameBuffer, "2000", sizeof(nameBuffer)) != NULL);
 	ASSERT_TRUE(sstrstr(newNameBuffer, "Dec", sizeof(nameBuffer)) != NULL);
 	ASSERT_EQ(size_t(0), newFirstRetryMethod);
@@ -370,7 +389,8 @@ TEST_F(RASMethodDictionaryTest, TestUndersizedMethodArrayCount)
 	OMRTEST_ASSERT_ERROR_NONE(omr_ras_initMethodDictionary(&testVM.omrVM, propertyCount, propertyNames));
 
 	OMRPORT_ACCESS_FROM_OMRPORT(testVM.portLibrary);
-	OMR_MethodDictionaryEntry *newEntry = (OMR_MethodDictionaryEntry *)omrmem_allocate_memory(sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount, OMRMEM_CATEGORY_OMRTI);
+	OMR_MethodDictionaryEntry *newEntry = (OMR_MethodDictionaryEntry *)omrmem_allocate_memory(
+		sizeof(OMR_MethodDictionaryEntry) + sizeof(const char *) * propertyCount, OMRMEM_CATEGORY_OMRTI);
 	ASSERT_NE((void *)NULL, newEntry);
 
 	newEntry->key = (void *)0;
@@ -399,13 +419,15 @@ TEST_F(RASMethodDictionaryTest, TestUndersizedMethodArrayCount)
 
 	const size_t numMethods = 2;
 	Test_MethodDesc desc[numMethods];
-	void *methodArray[numMethods] = { (void *)1, (void *)0 };
+	void *methodArray[numMethods] = {(void *)1, (void *)0};
 	char nameBuffer[27];
 	char origBuffer[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	strcpy(nameBuffer, origBuffer);
 
 	/* undersized methodArrayCount */
-	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, numMethods - 1, (OMR_SampledMethodDescription *)desc, nameBuffer, sizeof(nameBuffer), NULL, NULL));
+	OMRTEST_ASSERT_ERROR_NONE(ti->GetMethodDescriptions(vmthread, methodArray, numMethods - 1,
+														(OMR_SampledMethodDescription *)desc, nameBuffer,
+														sizeof(nameBuffer), NULL, NULL));
 	ASSERT_STRNE(origBuffer, nameBuffer);
 	ASSERT_TRUE(sstrstr(nameBuffer, "2001", sizeof(nameBuffer)) != NULL);
 	ASSERT_TRUE(sstrstr(nameBuffer, "Jan", sizeof(nameBuffer)) != NULL);

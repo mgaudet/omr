@@ -32,25 +32,23 @@ private:
 	void *_srcBase;
 	void *_srcTop;
 	void *_dstBase;
+
 protected:
 public:
-
 private:
 protected:
 public:
-	MM_ContractSlotScanner(MM_EnvironmentBase *env, void *srcBase, void *srcTop, void *dstBase) :
-		MM_Base()
-		,_srcBase(srcBase)
-		,_srcTop(srcTop)
-		,_dstBase(dstBase)
-	{}
+	MM_ContractSlotScanner(MM_EnvironmentBase *env, void *srcBase, void *srcTop, void *dstBase)
+		: MM_Base(), _srcBase(srcBase), _srcTop(srcTop), _dstBase(dstBase)
+	{
+	}
 
 	virtual void
 	doSlot(omrobjectptr_t *slotPtr)
 	{
 		omrobjectptr_t objectPtr = *slotPtr;
-		if(NULL != objectPtr) {
-			if((objectPtr >= (omrobjectptr_t)_srcBase) && (objectPtr < (omrobjectptr_t)_srcTop)) {
+		if (NULL != objectPtr) {
+			if ((objectPtr >= (omrobjectptr_t)_srcBase) && (objectPtr < (omrobjectptr_t)_srcTop)) {
 				objectPtr = (omrobjectptr_t)((((uintptr_t)objectPtr) - ((uintptr_t)_srcBase)) + ((uintptr_t)_dstBase));
 				*slotPtr = objectPtr;
 			}

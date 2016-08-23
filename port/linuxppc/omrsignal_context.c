@@ -21,7 +21,6 @@
 #include <sys/ucontext.h>
 #include "omrsignal_context.h"
 
-
 #ifdef PPC64
 #define J9SIG_VALUE_UDATA OMRPORT_SIG_VALUE_64
 #else
@@ -38,7 +37,8 @@ fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, stru
 }
 
 uint32_t
-infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	*name = "";
 
@@ -83,44 +83,15 @@ infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info,
 }
 
 uint32_t
-infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+		   void **value)
 {
 
 #if defined(LINUXPPC64)
-	const char *n_fpr[NGPRS] = {
-		"FPR0",
-		"FPR1",
-		"FPR2",
-		"FPR3",
-		"FPR4",
-		"FPR5",
-		"FPR6",
-		"FPR7",
-		"FPR8",
-		"FPR9",
-		"FPR10",
-		"FPR11",
-		"FPR12",
-		"FPR13",
-		"FPR14",
-		"FPR15",
-		"FPR16",
-		"FPR17",
-		"FPR18",
-		"FPR19",
-		"FPR20",
-		"FPR21",
-		"FPR22",
-		"FPR23",
-		"FPR24",
-		"FPR25",
-		"FPR26",
-		"FPR27",
-		"FPR28",
-		"FPR29",
-		"FPR30",
-		"FPR31"
-	};
+	const char *n_fpr[NGPRS] = {"FPR0",  "FPR1",  "FPR2",  "FPR3",  "FPR4",  "FPR5",  "FPR6",  "FPR7",
+								"FPR8",  "FPR9",  "FPR10", "FPR11", "FPR12", "FPR13", "FPR14", "FPR15",
+								"FPR16", "FPR17", "FPR18", "FPR19", "FPR20", "FPR21", "FPR22", "FPR23",
+								"FPR24", "FPR25", "FPR26", "FPR27", "FPR28", "FPR29", "FPR30", "FPR31"};
 
 	*name = "";
 
@@ -137,43 +108,13 @@ infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, in
 }
 
 uint32_t
-infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+		   void **value)
 {
 
-	const char *n_gpr[NGPRS] = {
-		"R0",
-		"R1",
-		"R2",
-		"R3",
-		"R4",
-		"R5",
-		"R6",
-		"R7",
-		"R8",
-		"R9",
-		"R10",
-		"R11",
-		"R12",
-		"R13",
-		"R14",
-		"R15",
-		"R16",
-		"R17",
-		"R18",
-		"R19",
-		"R20",
-		"R21",
-		"R22",
-		"R23",
-		"R24",
-		"R25",
-		"R26",
-		"R27",
-		"R28",
-		"R29",
-		"R30",
-		"R31"
-	};
+	const char *n_gpr[NGPRS] = {"R0",  "R1",  "R2",  "R3",  "R4",  "R5",  "R6",  "R7",  "R8",  "R9",  "R10",
+								"R11", "R12", "R13", "R14", "R15", "R16", "R17", "R18", "R19", "R20", "R21",
+								"R22", "R23", "R24", "R25", "R26", "R27", "R28", "R29", "R30", "R31"};
 
 	*name = "";
 
@@ -187,7 +128,8 @@ infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, in
 }
 
 uint32_t
-infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+			   void **value)
 {
 	*name = "";
 
@@ -259,11 +201,11 @@ infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info
 	default:
 		return OMRPORT_SIG_VALUE_UNDEFINED;
 	}
-
 }
 
 uint32_t
-infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	void *address;
 	Dl_info *dl_info = &(info->platformSignalInfo.dl_info);
@@ -307,4 +249,3 @@ infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info,
 		return OMRPORT_SIG_VALUE_UNDEFINED;
 	}
 }
-

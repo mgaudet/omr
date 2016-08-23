@@ -62,7 +62,6 @@ omrthread_get_os_errno2(void)
 }
 #endif /* J9ZOS390 */
 
-
 /**
  * Retrieve a string description corresponding to a J9THREAD_ERR_xxx value.
  * Currently only supports return values from omrthread_create().

@@ -40,9 +40,10 @@ private:
 	 * Function members
 	 */
 public:
-	static MM_VerboseWriterFileLoggingBuffered *newInstance(MM_EnvironmentBase *env, MM_VerboseManager *manager, char* filename, uintptr_t fileCount, uintptr_t iterations);
+	static MM_VerboseWriterFileLoggingBuffered *newInstance(MM_EnvironmentBase *env, MM_VerboseManager *manager,
+															char *filename, uintptr_t fileCount, uintptr_t iterations);
 
-	virtual void outputString(MM_EnvironmentBase *env, const char* string);
+	virtual void outputString(MM_EnvironmentBase *env, const char *string);
 
 protected:
 	MM_VerboseWriterFileLoggingBuffered(MM_EnvironmentBase *env, MM_VerboseManager *manager);

@@ -22,7 +22,7 @@
  * @brief Thread creation attributes. May have platform-specific implementation.
  */
 #include <stdlib.h>
-#include "omrcfg.h" /* needed for platform-specific defines */
+#include "omrcfg.h"  /* needed for platform-specific defines */
 #include "omrcomp.h" /* needed for platform-specific defines */
 #include "omrthread.h"
 #include "threaddef.h"

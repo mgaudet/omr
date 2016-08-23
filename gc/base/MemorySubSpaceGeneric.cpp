@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 #include "modronopt.h"
 
@@ -51,7 +50,7 @@ int j9zos390LinkTrickMemorySubSpaceGeneric;
  * Return the memory pool associated to the receiver.
  * @return MM_MemoryPool
  */
-MM_MemoryPool*
+MM_MemoryPool *
 MM_MemorySubSpaceGeneric::getMemoryPool()
 {
 	return _memoryPool;
@@ -82,8 +81,8 @@ MM_MemorySubSpaceGeneric::getActiveMemoryPoolCount()
  * @param Address of storage location 
  * @return MM_MemoryPool
  */
-MM_MemoryPool*
-MM_MemorySubSpaceGeneric::getMemoryPool(void* addr)
+MM_MemoryPool *
+MM_MemorySubSpaceGeneric::getMemoryPool(void *addr)
 {
 	return _memoryPool->getMemoryPool(addr);
 }
@@ -93,7 +92,7 @@ MM_MemorySubSpaceGeneric::getMemoryPool(void* addr)
  * @param Size of allocation request
  * @return MM_MemoryPool
  */
-MM_MemoryPool*
+MM_MemoryPool *
 MM_MemorySubSpaceGeneric::getMemoryPool(uintptr_t size)
 {
 	return _memoryPool->getMemoryPool(size);
@@ -108,12 +107,11 @@ MM_MemorySubSpaceGeneric::getMemoryPool(uintptr_t size)
  * which does not belong in returned pool.
  * @return MM_MemoryPool for storage location addrBase
  */
-MM_MemoryPool*
-MM_MemorySubSpaceGeneric::getMemoryPool(MM_EnvironmentBase* env, void* addrBase, void* addrTop, void*& highAddr)
+MM_MemoryPool *
+MM_MemorySubSpaceGeneric::getMemoryPool(MM_EnvironmentBase *env, void *addrBase, void *addrTop, void *&highAddr)
 {
 	return _memoryPool->getMemoryPool(env, addrBase, addrTop, highAddr);
 }
-
 
 /* ***************************************
  * Allocation
@@ -216,7 +214,6 @@ MM_MemorySubSpaceGeneric::getApproximateActiveFreeMemorySize(uintptr_t includeMe
 	}
 }
 
-
 /**
  * @copydoc MM_MemorySubSpace::getApproximateActiveFreeLOAMemorySize()
  */
@@ -240,13 +237,13 @@ MM_MemorySubSpaceGeneric::getApproximateActiveFreeLOAMemorySize(uintptr_t includ
 }
 
 void
-MM_MemorySubSpaceGeneric::mergeHeapStats(MM_HeapStats* heapStats)
+MM_MemorySubSpaceGeneric::mergeHeapStats(MM_HeapStats *heapStats)
 {
 	_memoryPool->mergeHeapStats(heapStats, isActive());
 }
 
 void
-MM_MemorySubSpaceGeneric::mergeHeapStats(MM_HeapStats* heapStats, uintptr_t includeMemoryType)
+MM_MemorySubSpaceGeneric::mergeHeapStats(MM_HeapStats *heapStats, uintptr_t includeMemoryType)
 {
 	if (getTypeFlags() & includeMemoryType) {
 		_memoryPool->mergeHeapStats(heapStats, isActive());
@@ -266,7 +263,7 @@ MM_MemorySubSpaceGeneric::resetHeapStatistics(bool globalCollect)
 /**
  * Return the allocation failure stats for this subSpace.
  */
-MM_AllocationFailureStats*
+MM_AllocationFailureStats *
 MM_MemorySubSpaceGeneric::getAllocationFailureStats()
 {
 	return _parent->getAllocationFailureStats();
@@ -277,8 +274,10 @@ MM_MemorySubSpaceGeneric::getAllocationFailureStats()
  ****************************************
  */
 
-void*
-MM_MemorySubSpaceGeneric::allocateObject(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure)
+void *
+MM_MemorySubSpaceGeneric::allocateObject(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+										 MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+										 bool shouldCollectOnFailure)
 {
 	void *result = NULL;
 
@@ -293,14 +292,15 @@ MM_MemorySubSpaceGeneric::allocateObject(MM_EnvironmentBase* env, MM_AllocateDes
 			result = _memoryPool->allocateObject(env, allocDescription);
 		}
 
-		if(NULL != result) {
+		if (NULL != result) {
 			/* Allocate succeeded */
 			allocDescription->setMemorySubSpace(this);
 			allocDescription->setObjectFlags(getObjectFlags());
 		} else {
 			/* Allocate failed - try the parent */
 			if (shouldCollectOnFailure) {
-				result = _parent->allocationRequestFailed(env, allocDescription, ALLOCATION_TYPE_OBJECT, NULL, this, this);
+				result =
+					_parent->allocationRequestFailed(env, allocDescription, ALLOCATION_TYPE_OBJECT, NULL, this, this);
 			} else {
 				result = _parent->allocateObject(env, allocDescription, baseSubSpace, this, shouldCollectOnFailure);
 			}
@@ -314,8 +314,10 @@ MM_MemorySubSpaceGeneric::allocateObject(MM_EnvironmentBase* env, MM_AllocateDes
  * Allocate the arraylet spine in immortal or scoped memory.
  */
 #if defined(OMR_GC_ARRAYLETS)
-void*
-MM_MemorySubSpaceGeneric::allocateArrayletLeaf(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure)
+void *
+MM_MemorySubSpaceGeneric::allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+											   MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+											   bool shouldCollectOnFailure)
 {
 	void *result = NULL;
 
@@ -324,12 +326,14 @@ MM_MemorySubSpaceGeneric::allocateArrayletLeaf(MM_EnvironmentBase* env, MM_Alloc
 			result = _memoryPool->allocateArrayletLeaf(env, allocDescription);
 		}
 
-		if(NULL == result) {
+		if (NULL == result) {
 			/* Allocate failed - try the parent */
 			if (shouldCollectOnFailure) {
-				result = _parent->allocationRequestFailed(env, allocDescription, ALLOCATION_TYPE_LEAF, NULL, this, this);
+				result =
+					_parent->allocationRequestFailed(env, allocDescription, ALLOCATION_TYPE_LEAF, NULL, this, this);
 			} else {
-				result = _parent->allocateArrayletLeaf(env, allocDescription, baseSubSpace, this, shouldCollectOnFailure);
+				result =
+					_parent->allocateArrayletLeaf(env, allocDescription, baseSubSpace, this, shouldCollectOnFailure);
 			}
 		}
 	}
@@ -338,10 +342,13 @@ MM_MemorySubSpaceGeneric::allocateArrayletLeaf(MM_EnvironmentBase* env, MM_Alloc
 }
 #endif /* OMR_GC_ARRAYLETS */
 
-void*
-MM_MemorySubSpaceGeneric::allocationRequestFailed(MM_EnvironmentBase* env, MM_AllocateDescription* allocateDescription, AllocationType allocationType, MM_ObjectAllocationInterface* objectAllocationInterface, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace)
+void *
+MM_MemorySubSpaceGeneric::allocationRequestFailed(MM_EnvironmentBase *env, MM_AllocateDescription *allocateDescription,
+												  AllocationType allocationType,
+												  MM_ObjectAllocationInterface *objectAllocationInterface,
+												  MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace)
 {
-	void* result = allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, this);
+	void *result = allocateGeneric(env, allocateDescription, allocationType, objectAllocationInterface, this);
 
 	if ((ALLOCATION_TYPE_OBJECT == allocationType) && (NULL != result)) {
 		/* Allocate succeeded */
@@ -353,8 +360,11 @@ MM_MemorySubSpaceGeneric::allocationRequestFailed(MM_EnvironmentBase* env, MM_Al
 }
 
 #if defined(OMR_GC_THREAD_LOCAL_HEAP)
-void*
-MM_MemorySubSpaceGeneric::allocateTLH(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription, MM_ObjectAllocationInterface* objectAllocationInterface, MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure)
+void *
+MM_MemorySubSpaceGeneric::allocateTLH(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+									  MM_ObjectAllocationInterface *objectAllocationInterface,
+									  MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace,
+									  bool shouldCollectOnFailure)
 {
 	void *result = NULL;
 
@@ -372,10 +382,12 @@ MM_MemorySubSpaceGeneric::allocateTLH(MM_EnvironmentBase* env, MM_AllocateDescri
 		if (NULL == result) {
 			if (shouldCollectOnFailure) {
 				if (allocDescription->shouldCollectAndClimb()) {
-					result = _parent->allocationRequestFailed(env, allocDescription, ALLOCATION_TYPE_TLH, objectAllocationInterface, this, this);
+					result = _parent->allocationRequestFailed(env, allocDescription, ALLOCATION_TYPE_TLH,
+															  objectAllocationInterface, this, this);
 				}
 			} else {
-				result = _parent->allocateTLH(env, allocDescription, objectAllocationInterface, baseSubSpace, this, false);
+				result =
+					_parent->allocateTLH(env, allocDescription, objectAllocationInterface, baseSubSpace, this, false);
 			}
 		}
 	}
@@ -388,10 +400,11 @@ MM_MemorySubSpaceGeneric::allocateTLH(MM_EnvironmentBase* env, MM_AllocateDescri
  * Internal Allocation
  ****************************************
  */
-void*
-MM_MemorySubSpaceGeneric::collectorAllocate(MM_EnvironmentBase* env, MM_Collector* requestCollector, MM_AllocateDescription* allocDescription)
+void *
+MM_MemorySubSpaceGeneric::collectorAllocate(MM_EnvironmentBase *env, MM_Collector *requestCollector,
+											MM_AllocateDescription *allocDescription)
 {
-	void* result;
+	void *result;
 
 	result = _memoryPool->collectorAllocate(env, allocDescription, true);
 	if (NULL == result) {
@@ -410,20 +423,23 @@ MM_MemorySubSpaceGeneric::collectorAllocate(MM_EnvironmentBase* env, MM_Collecto
 }
 
 #if defined(OMR_GC_THREAD_LOCAL_HEAP)
-void*
-MM_MemorySubSpaceGeneric::collectorAllocateTLH(MM_EnvironmentBase* env, MM_Collector* requestCollector, MM_AllocateDescription* allocDescription,
-											   uintptr_t maximumBytesRequired, void*& addrBase, void*& addrTop)
+void *
+MM_MemorySubSpaceGeneric::collectorAllocateTLH(MM_EnvironmentBase *env, MM_Collector *requestCollector,
+											   MM_AllocateDescription *allocDescription, uintptr_t maximumBytesRequired,
+											   void *&addrBase, void *&addrTop)
 {
-	void* result = NULL;
+	void *result = NULL;
 
 	result = _memoryPool->collectorAllocateTLH(env, allocDescription, maximumBytesRequired, addrBase, addrTop, true);
 	if (NULL == result) {
 		_memoryPool->lock(env);
-		result = _memoryPool->collectorAllocateTLH(env, allocDescription, maximumBytesRequired, addrBase, addrTop, false);
+		result =
+			_memoryPool->collectorAllocateTLH(env, allocDescription, maximumBytesRequired, addrBase, addrTop, false);
 		if ((NULL == result) && allocDescription->isCollectorAllocateExpandOnFailure()) {
 			if (0 != collectorExpand(env, requestCollector, allocDescription)) {
 				allocDescription->setCollectorAllocateSatisfyAnywhere(true);
-				result = _memoryPool->collectorAllocateTLH(env, allocDescription, maximumBytesRequired, addrBase, addrTop, false);
+				result = _memoryPool->collectorAllocateTLH(env, allocDescription, maximumBytesRequired, addrBase,
+														   addrTop, false);
 			}
 		}
 		_memoryPool->unlock(env);
@@ -435,11 +451,11 @@ MM_MemorySubSpaceGeneric::collectorAllocateTLH(MM_EnvironmentBase* env, MM_Colle
 #endif /* OMR_GC_THREAD_LOCAL_HEAP */
 
 void
-MM_MemorySubSpaceGeneric::abandonHeapChunk(void* addrBase, void* addrTop)
+MM_MemorySubSpaceGeneric::abandonHeapChunk(void *addrBase, void *addrTop)
 {
 	/* OMRTODO turn tarokEnableExpensiveAssertions into a generic (non tarok specific option) */
 	if (_extensions->tarokEnableExpensiveAssertions) {
-		MM_HeapRegionDescriptor* region = NULL;
+		MM_HeapRegionDescriptor *region = NULL;
 		GC_MemorySubSpaceRegionIterator regionIterator(this);
 		while (NULL != (region = regionIterator.nextRegion())) {
 			if ((region->getLowAddress() <= addrBase) && (addrTop <= region->getHighAddress())) {
@@ -462,7 +478,8 @@ MM_MemorySubSpaceGeneric::abandonHeapChunk(void* addrBase, void* addrTop)
  * @note This call is not protected by any locking mechanism.
  */
 uintptr_t
-MM_MemorySubSpaceGeneric::collectorExpand(MM_EnvironmentBase* env, MM_Collector* requestCollector, MM_AllocateDescription* allocDescription)
+MM_MemorySubSpaceGeneric::collectorExpand(MM_EnvironmentBase *env, MM_Collector *requestCollector,
+										  MM_AllocateDescription *allocDescription)
 {
 	return _parent->collectorExpand(env, requestCollector, allocDescription);
 }
@@ -471,13 +488,13 @@ MM_MemorySubSpaceGeneric::collectorExpand(MM_EnvironmentBase* env, MM_Collector*
  *	Sub Space Categorization
  ****************************************
  */
-MM_MemorySubSpace*
+MM_MemorySubSpace *
 MM_MemorySubSpaceGeneric::getDefaultMemorySubSpace()
 {
 	return _parent->getDefaultMemorySubSpace();
 }
 
-MM_MemorySubSpace*
+MM_MemorySubSpace *
 MM_MemorySubSpaceGeneric::getTenureMemorySubSpace()
 {
 	return _parent->getTenureMemorySubSpace();
@@ -496,7 +513,7 @@ MM_MemorySubSpaceGeneric::isActive()
  * Ask memory pools if a complete rebuild of freelist is required
  */
 bool
-MM_MemorySubSpaceGeneric::completeFreelistRebuildRequired(MM_EnvironmentBase* env)
+MM_MemorySubSpaceGeneric::completeFreelistRebuildRequired(MM_EnvironmentBase *env)
 {
 	return _memoryPool->completeFreelistRebuildRequired(env);
 }
@@ -517,7 +534,7 @@ MM_MemorySubSpaceGeneric::reset()
  * As opposed to reset, which will empty out, this will fill out as if everything is free
  */
 void
-MM_MemorySubSpaceGeneric::rebuildFreeList(MM_EnvironmentBase* env)
+MM_MemorySubSpaceGeneric::rebuildFreeList(MM_EnvironmentBase *env)
 {
 	if (env->getExtensions()->isVLHGC()) {
 		/* TODO we need a better way of defining rebuildFreeListInRegion.
@@ -527,11 +544,11 @@ MM_MemorySubSpaceGeneric::rebuildFreeList(MM_EnvironmentBase* env)
 		 */
 		_memoryPool->rebuildFreeListInRegion(env, NULL, NULL);
 	} else {
-		MM_HeapRegionDescriptor* region = NULL;
+		MM_HeapRegionDescriptor *region = NULL;
 		lockRegionList();
 
 		GC_MemorySubSpaceRegionIterator regionIterator(this);
-		MM_HeapLinkedFreeHeader* freeListEntry = NULL;
+		MM_HeapLinkedFreeHeader *freeListEntry = NULL;
 		while (NULL != (region = regionIterator.nextRegion())) {
 			freeListEntry = _memoryPool->rebuildFreeListInRegion(env, region, freeListEntry);
 		}
@@ -543,14 +560,18 @@ MM_MemorySubSpaceGeneric::rebuildFreeList(MM_EnvironmentBase* env)
 /**
  * Initialization
  */
-MM_MemorySubSpaceGeneric*
-MM_MemorySubSpaceGeneric::newInstance(MM_EnvironmentBase* env, MM_MemoryPool* memoryPool, MM_RegionPool* regionPool, bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize, uintptr_t maximumSize, uintptr_t memoryType, uint32_t objectFlags)
+MM_MemorySubSpaceGeneric *
+MM_MemorySubSpaceGeneric::newInstance(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool, MM_RegionPool *regionPool,
+									  bool usesGlobalCollector, uintptr_t minimumSize, uintptr_t initialSize,
+									  uintptr_t maximumSize, uintptr_t memoryType, uint32_t objectFlags)
 {
-	MM_MemorySubSpaceGeneric* memorySubSpace;
+	MM_MemorySubSpaceGeneric *memorySubSpace;
 
-	memorySubSpace = (MM_MemorySubSpaceGeneric*)env->getForge()->allocate(sizeof(MM_MemorySubSpaceGeneric), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	memorySubSpace = (MM_MemorySubSpaceGeneric *)env->getForge()->allocate(
+		sizeof(MM_MemorySubSpaceGeneric), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (NULL != memorySubSpace) {
-		new (memorySubSpace) MM_MemorySubSpaceGeneric(env, memoryPool, regionPool, usesGlobalCollector, minimumSize, initialSize, maximumSize, memoryType, objectFlags);
+		new (memorySubSpace) MM_MemorySubSpaceGeneric(env, memoryPool, regionPool, usesGlobalCollector, minimumSize,
+													  initialSize, maximumSize, memoryType, objectFlags);
 		if (!memorySubSpace->initialize(env)) {
 			memorySubSpace->kill(env);
 			memorySubSpace = NULL;
@@ -570,7 +591,7 @@ MM_MemorySubSpaceGeneric::newInstance(MM_EnvironmentBase* env, MM_MemoryPool* me
 }
 
 bool
-MM_MemorySubSpaceGeneric::initialize(MM_EnvironmentBase* env)
+MM_MemorySubSpaceGeneric::initialize(MM_EnvironmentBase *env)
 {
 	if (!MM_MemorySubSpace::initialize(env)) {
 		return false;
@@ -582,7 +603,7 @@ MM_MemorySubSpaceGeneric::initialize(MM_EnvironmentBase* env)
 }
 
 void
-MM_MemorySubSpaceGeneric::tearDown(MM_EnvironmentBase* env)
+MM_MemorySubSpaceGeneric::tearDown(MM_EnvironmentBase *env)
 {
 	if (NULL != _memoryPool) {
 		_memoryPool->kill(env);
@@ -601,11 +622,12 @@ MM_MemorySubSpaceGeneric::tearDown(MM_EnvironmentBase* env)
  * Memory described by the range has added to the heap and been made available to the subspace as free memory.
  */
 bool
-MM_MemorySubSpaceGeneric::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena, MM_HeapRegionDescriptor* region, bool canCoalesce)
+MM_MemorySubSpaceGeneric::expanded(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena,
+								   MM_HeapRegionDescriptor *region, bool canCoalesce)
 {
 	uintptr_t size = region->getSize();
-	void* lowAddress = region->getLowAddress();
-	void* highAddress = region->getHighAddress();
+	void *lowAddress = region->getLowAddress();
+	void *highAddress = region->getHighAddress();
 
 	/* Inform the sub space hierarchy of the size change */
 	bool result = heapAddRange(env, this, size, lowAddress, highAddress);
@@ -622,7 +644,8 @@ MM_MemorySubSpaceGeneric::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena*
  * @Note this code only exists for Phase 2 Gencon collectors.  No new code should use this API.
  */
 bool
-MM_MemorySubSpaceGeneric::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena, uintptr_t size, void* lowAddress, void* highAddress, bool canCoalesce)
+MM_MemorySubSpaceGeneric::expanded(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, uintptr_t size,
+								   void *lowAddress, void *highAddress, bool canCoalesce)
 {
 	/* Inform the sub space hierarchy of the size change */
 	bool result = heapAddRange(env, this, size, lowAddress, highAddress);
@@ -645,7 +668,8 @@ MM_MemorySubSpaceGeneric::expanded(MM_EnvironmentBase* env, MM_PhysicalSubArena*
  * @warn This routine is fairly hacky - is there a better way?
  */
 void
-MM_MemorySubSpaceGeneric::addExistingMemory(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena, uintptr_t size, void* lowAddress, void* highAddress, bool canCoalesce)
+MM_MemorySubSpaceGeneric::addExistingMemory(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, uintptr_t size,
+											void *lowAddress, void *highAddress, bool canCoalesce)
 {
 	/* Feed the range to the memory pool */
 	_memoryPool->expandWithRange(env, size, lowAddress, highAddress, canCoalesce);
@@ -661,8 +685,9 @@ MM_MemorySubSpaceGeneric::addExistingMemory(MM_EnvironmentBase* env, MM_Physical
  * @note Size information (current) is not updated.
  * @warn This routine is fairly hacky - is there a better way?
  */
-void*
-MM_MemorySubSpaceGeneric::removeExistingMemory(MM_EnvironmentBase* env, MM_PhysicalSubArena* subArena, uintptr_t size, void* lowAddress, void* highAddress)
+void *
+MM_MemorySubSpaceGeneric::removeExistingMemory(MM_EnvironmentBase *env, MM_PhysicalSubArena *subArena, uintptr_t size,
+											   void *lowAddress, void *highAddress)
 {
 	if (MEMORY_TYPE_OLD == (getTypeFlags() & MEMORY_TYPE_OLD)) {
 		removeTenureRange(env, size, lowAddress, highAddress);
@@ -680,8 +705,8 @@ MM_MemorySubSpaceGeneric::removeExistingMemory(MM_EnvironmentBase* env, MM_Physi
  * 
  * @return The leading address of the free entry whos top matches addr.
  */
-void*
-MM_MemorySubSpaceGeneric::findFreeEntryEndingAtAddr(MM_EnvironmentBase* env, void* addr)
+void *
+MM_MemorySubSpaceGeneric::findFreeEntryEndingAtAddr(MM_EnvironmentBase *env, void *addr)
 {
 	return _memoryPool->findFreeEntryEndingAtAddr(env, addr);
 }
@@ -693,8 +718,8 @@ MM_MemorySubSpaceGeneric::findFreeEntryEndingAtAddr(MM_EnvironmentBase* env, voi
  * 
  * @return The trailing address of the free entry whos top matches addr.
  */
-void*
-MM_MemorySubSpaceGeneric::findFreeEntryTopStartingAtAddr(MM_EnvironmentBase* env, void* addr)
+void *
+MM_MemorySubSpaceGeneric::findFreeEntryTopStartingAtAddr(MM_EnvironmentBase *env, void *addr)
 {
 	return _memoryPool->findFreeEntryTopStartingAtAddr(env, addr);
 }
@@ -705,8 +730,8 @@ MM_MemorySubSpaceGeneric::findFreeEntryTopStartingAtAddr(MM_EnvironmentBase* env
  * 
  * @return The address of head of free chain 
  */
-void*
-MM_MemorySubSpaceGeneric::getFirstFreeStartingAddr(MM_EnvironmentBase* env)
+void *
+MM_MemorySubSpaceGeneric::getFirstFreeStartingAddr(MM_EnvironmentBase *env)
 {
 	return _memoryPool->getFirstFreeStartingAddr(env);
 }
@@ -717,8 +742,8 @@ MM_MemorySubSpaceGeneric::getFirstFreeStartingAddr(MM_EnvironmentBase* env)
  * 
  * @return The address of next free entry or NULL 
  */
-void*
-MM_MemorySubSpaceGeneric::getNextFreeStartingAddr(MM_EnvironmentBase* env, void* currentFree)
+void *
+MM_MemorySubSpaceGeneric::getNextFreeStartingAddr(MM_EnvironmentBase *env, void *currentFree)
 {
 	return _memoryPool->getNextFreeStartingAddr(env, currentFree);
 }
@@ -732,7 +757,7 @@ MM_MemorySubSpaceGeneric::getNextFreeStartingAddr(MM_EnvironmentBase* env, void*
  * 
  */
 void
-MM_MemorySubSpaceGeneric::moveHeap(MM_EnvironmentBase* env, void* srcBase, void* srcTop, void* dstBase)
+MM_MemorySubSpaceGeneric::moveHeap(MM_EnvironmentBase *env, void *srcBase, void *srcTop, void *dstBase)
 {
 	/* Fix the free list for the new destination */
 	_memoryPool->moveHeap(env, srcBase, srcTop, dstBase);
@@ -740,16 +765,17 @@ MM_MemorySubSpaceGeneric::moveHeap(MM_EnvironmentBase* env, void* srcBase, void*
 #endif /* OMR_GC_MODRON_STANDARD */
 
 void
-MM_MemorySubSpaceGeneric::addTenureRange(MM_EnvironmentBase* env, uintptr_t size, void* low, void* high)
+MM_MemorySubSpaceGeneric::addTenureRange(MM_EnvironmentBase *env, uintptr_t size, void *low, void *high)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	Assert_MM_true((uintptr_t)high - (uintptr_t)low == size);
 
 	if (high == extensions->heapBaseForBarrierRange0) {
 		/* expanding the base so base and size need to be updated */
 		extensions->heapBaseForBarrierRange0 = low;
 		extensions->heapSizeForBarrierRange0 += size;
-	} else if (low == (void*)((uintptr_t)extensions->heapBaseForBarrierRange0 + extensions->heapSizeForBarrierRange0)) {
+	} else if (low
+			   == (void *)((uintptr_t)extensions->heapBaseForBarrierRange0 + extensions->heapSizeForBarrierRange0)) {
 		/* expanding the top so only size needs to be updated */
 		extensions->heapSizeForBarrierRange0 += size;
 	} else {
@@ -763,16 +789,17 @@ MM_MemorySubSpaceGeneric::addTenureRange(MM_EnvironmentBase* env, uintptr_t size
 }
 
 void
-MM_MemorySubSpaceGeneric::removeTenureRange(MM_EnvironmentBase* env, uintptr_t size, void* low, void* high)
+MM_MemorySubSpaceGeneric::removeTenureRange(MM_EnvironmentBase *env, uintptr_t size, void *low, void *high)
 {
-	MM_GCExtensionsBase* extensions = env->getExtensions();
+	MM_GCExtensionsBase *extensions = env->getExtensions();
 	Assert_MM_true((uintptr_t)high - (uintptr_t)low == size);
 
 	if (low == extensions->heapBaseForBarrierRange0) {
 		/* contracting from low */
 		extensions->heapBaseForBarrierRange0 = high;
 		extensions->heapSizeForBarrierRange0 -= size;
-	} else if (high == (void*)((uintptr_t)extensions->heapBaseForBarrierRange0 + extensions->heapSizeForBarrierRange0)) {
+	} else if (high
+			   == (void *)((uintptr_t)extensions->heapBaseForBarrierRange0 + extensions->heapSizeForBarrierRange0)) {
 		/* contracting from high */
 		extensions->heapSizeForBarrierRange0 -= size;
 	} else {

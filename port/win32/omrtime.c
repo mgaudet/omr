@@ -25,7 +25,7 @@
 void shutdown_timer(void);
 int32_t init_timer(void);
 
-#define OMRTIME_NANOSECONDS_PER_SECOND ((long double) 1000000000)
+#define OMRTIME_NANOSECONDS_PER_SECOND ((long double)1000000000)
 #define UNIX_EPOCH_TIME_DELTA J9CONST_I64(116444736000000000)
 /**
  * Query OS for timestamp.
@@ -55,7 +55,7 @@ omrtime_msec_clock(struct OMRPortLibrary *portLibrary)
 	}
 
 	/* GetTickCount() returns ticks in milliseconds */
-	return (uintptr_t) GetTickCount();
+	return (uintptr_t)GetTickCount();
 }
 
 /**
@@ -86,7 +86,7 @@ omrtime_usec_clock(struct OMRPortLibrary *portLibrary)
 	}
 
 	/* GetTickCount() returns ticks in milliseconds */
-	return (uintptr_t) GetTickCount() * 1000;
+	return (uintptr_t)GetTickCount() * 1000;
 }
 
 uint64_t
@@ -125,7 +125,7 @@ omrtime_current_time_millis(struct OMRPortLibrary *portLibrary)
 int32_t
 init_timer(void)
 {
-	/* on Win98 this hack forced the process to run with a higher
+/* on Win98 this hack forced the process to run with a higher
 	 * resolution clock. It made things like Thread.sleep() more
 	 * accurate. But the functions it calls are defined in WINMM.DLL,
 	 * which forces USER32.DLL, GDI.DLL and other modules to
@@ -145,12 +145,11 @@ init_timer(void)
 	return 0;
 }
 
-
 void
 shutdown_timer(void)
 {
 
-	/* see init_timer */
+/* see init_timer */
 #if 0
 
 	TIMECAPS timecaps;
@@ -184,7 +183,6 @@ omrtime_nano_time(struct OMRPortLibrary *portLibrary)
 
 	return nanos;
 }
-
 
 /**
  * Query OS for timestamp.
@@ -241,7 +239,8 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime,
+					uint64_t requiredResolution)
 {
 	uint64_t ticks;
 	uint64_t frequency = PPG_time_hiresClockFrequency;
@@ -294,11 +293,10 @@ omrtime_startup(struct OMRPortLibrary *portLibrary)
 	LARGE_INTEGER freq;
 
 	if (QueryPerformanceFrequency(&freq)) {
-		PPG_time_hiresClockFrequency =  freq.QuadPart;
+		PPG_time_hiresClockFrequency = freq.QuadPart;
 	} else {
 		PPG_time_hiresClockFrequency = 1000; /* GetTickCount() returns millis */
 	}
 
 	return init_timer();
 }
-

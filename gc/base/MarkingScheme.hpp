@@ -47,6 +47,7 @@ class MM_MarkingScheme : public MM_BaseVirtual
 	 */
 private:
 	OMR_VM *_omrVM;
+
 protected:
 	MM_GCExtensionsBase *_extensions;
 	MM_CollectorLanguageInterface *_cli;
@@ -54,8 +55,8 @@ protected:
 	MM_WorkPackets *_workPackets;
 	void *_heapBase;
 	void *_heapTop;
-public:
 
+public:
 	/*
 	 * Function members
 	 */
@@ -65,7 +66,8 @@ private:
 	{
 		Assert_GC_true_with_message(env, objectPtr != J9_INVALID_OBJECT, "Invalid object pointer %p\n", objectPtr);
 		Assert_MM_objectAligned(env, objectPtr);
-		Assert_GC_true_with_message3(env, isHeapObject(objectPtr), "Object %p not in heap range [%p,%p)\n", objectPtr, _heapBase, _heapTop);
+		Assert_GC_true_with_message3(env, isHeapObject(objectPtr), "Object %p not in heap range [%p,%p)\n", objectPtr,
+									 _heapBase, _heapTop);
 	}
 
 	MM_WorkPackets *createWorkPackets(MM_EnvironmentBase *env);
@@ -79,7 +81,7 @@ protected:
 public:
 	static MM_MarkingScheme *newInstance(MM_EnvironmentBase *env);
 	virtual void kill(MM_EnvironmentBase *env);
-	
+
 	void masterSetupForGC(MM_EnvironmentBase *env);
 	void masterSetupForWalk(MM_EnvironmentBase *env);
 	void masterCleanupAfterGC(MM_EnvironmentBase *env);
@@ -108,13 +110,12 @@ public:
 	 *  @param[in] env - passed Environment 
 	 */
 	void markLiveObjectsScan(MM_EnvironmentBase *env);
-	
+
 	/**
 	 *  Final Mark services including scanning of Clearables
 	 *  @param[in] env - passed Environment 
 	 */
 	void markLiveObjectsComplete(MM_EnvironmentBase *env);
-
 
 	MMINLINE bool
 	inlineMarkObjectNoCheck(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, bool leafType = false)
@@ -127,7 +128,7 @@ public:
 		}
 
 		/* mark successful - Attempt to add to the work stack */
-		if(!leafType) {
+		if (!leafType) {
 			env->_workStack.push(env, (void *)objectPtr);
 		}
 
@@ -137,7 +138,7 @@ public:
 	}
 
 	MMINLINE bool
-	inlineMarkObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, bool leafType=false)
+	inlineMarkObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, bool leafType = false)
 	{
 		bool didMark = false;
 
@@ -155,7 +156,7 @@ public:
 	isMarked(omrobjectptr_t objectPtr)
 	{
 		bool shouldCheck = isHeapObject(objectPtr);
-		if(shouldCheck) {
+		if (shouldCheck) {
 			return _markMap->isBitSet(objectPtr);
 		}
 
@@ -165,14 +166,19 @@ public:
 
 	uintptr_t numMarkBitsInRange(MM_EnvironmentBase *env, void *heapBase, void *heapTop);
 	uintptr_t setMarkBitsInRange(MM_EnvironmentBase *env, void *heapBase, void *heapTop, bool clear);
-	uintptr_t numHeapBytesPerMarkMapByte() { return (_markMap->getObjectGrain() * BITS_PER_BYTE); };
+	uintptr_t
+	numHeapBytesPerMarkMapByte()
+	{
+		return (_markMap->getObjectGrain() * BITS_PER_BYTE);
+	};
 
 	void completeScan(MM_EnvironmentBase *env);
-	
+
 	MMINLINE void
-	scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MM_CollectorLanguageInterface::MarkingSchemeScanReason reason)
+	scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr,
+			   MM_CollectorLanguageInterface::MarkingSchemeScanReason reason)
 	{
-		if(MM_CollectorLanguageInterface::SCAN_REASON_PACKET == reason) {
+		if (MM_CollectorLanguageInterface::SCAN_REASON_PACKET == reason) {
 			env->_markStats._objectsScanned += 1;
 		}
 		uintptr_t sizeScanned = _cli->markingScheme_scanObject(env, objectPtr, reason);
@@ -184,9 +190,10 @@ public:
 
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 	MMINLINE uintptr_t
-	scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MM_CollectorLanguageInterface::MarkingSchemeScanReason reason, UDATA sizeToDo)
+	scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr,
+					   MM_CollectorLanguageInterface::MarkingSchemeScanReason reason, UDATA sizeToDo)
 	{
-		if(MM_CollectorLanguageInterface::SCAN_REASON_PACKET == reason) {
+		if (MM_CollectorLanguageInterface::SCAN_REASON_PACKET == reason) {
 			env->_markStats._objectsScanned += 1;
 		}
 		uintptr_t sizeScanned = _cli->markingScheme_scanObjectWithSize(env, objectPtr, reason, sizeToDo);
@@ -198,15 +205,30 @@ public:
 	}
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
 
-	MMINLINE MM_MarkMap *getMarkMap() { return _markMap; }
-	MMINLINE void setMarkMap(MM_MarkMap *markMap) { _markMap = markMap; }
-	
+	MMINLINE MM_MarkMap *
+	getMarkMap()
+	{
+		return _markMap;
+	}
+	MMINLINE void
+	setMarkMap(MM_MarkMap *markMap)
+	{
+		_markMap = markMap;
+	}
+
 	bool isMarkedOutline(omrobjectptr_t objectPtr);
-	MMINLINE MM_WorkPackets *getWorkPackets() { return _workPackets; }
-	
-	bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
-	MMINLINE bool isHeapObject(omrobjectptr_t objectPtr)
+	MMINLINE MM_WorkPackets *
+	getWorkPackets()
+	{
+		return _workPackets;
+	}
+
+	bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+					  void *highAddress);
+	bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+						 void *highAddress, void *lowValidAddress, void *highValidAddress);
+	MMINLINE bool
+	isHeapObject(omrobjectptr_t objectPtr)
 	{
 		return ((_heapBase <= (uint8_t *)objectPtr) && (_heapTop > (uint8_t *)objectPtr));
 	}
@@ -215,18 +237,13 @@ public:
 	 * Create a MarkingScheme object.
 	 */
 	MM_MarkingScheme(MM_EnvironmentBase *env)
-		: MM_BaseVirtual()
-		, _omrVM(env->getOmrVM())
-		, _extensions(env->getExtensions())
-		, _cli(_extensions->collectorLanguageInterface)
-		, _markMap(NULL)
-		, _workPackets(NULL)
-		, _heapBase(NULL)
-		, _heapTop(NULL)
+		: MM_BaseVirtual(), _omrVM(env->getOmrVM()), _extensions(env->getExtensions()),
+		  _cli(_extensions->collectorLanguageInterface), _markMap(NULL), _workPackets(NULL), _heapBase(NULL),
+		  _heapTop(NULL)
 	{
 		_typeId = __FUNCTION__;
 	}
-	
+
 	/*
 	 * Friends
 	 */
@@ -244,4 +261,3 @@ typedef struct markSchemeStackIteratorData {
 } markSchemeStackIteratorData;
 
 #endif /* MARKINGSCHEME_HPP_ */
-

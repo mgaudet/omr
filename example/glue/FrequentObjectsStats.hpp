@@ -36,7 +36,6 @@ class MM_EnvironmentBase;
 class MM_FrequentObjectsStats : public MM_Base
 {
 private:
-
 	/*
 	 * Estimates the space necessary to report the top k elements accurately 90% of the time.
 	 * Derived from a sample run of Eclipse, which showed that the size necessary to have accurately report the top k
@@ -49,13 +48,14 @@ private:
 		return 0;
 	}
 
-/* Function Members */
+	/* Function Members */
 public:
 	static MM_FrequentObjectsStats *newInstance(MM_EnvironmentBase *env);
 	virtual void kill(MM_EnvironmentBase *env);
 
 	/* reset the stats*/
-	void clear()
+	void
+	clear()
 	{
 		/* DO NOTHING */
 		return;
@@ -77,12 +77,10 @@ public:
 	 * @param portLibrary the port library
 	 * @param k the number of frequent objects we'd like to accurately report
 	 */
-	MM_FrequentObjectsStats(OMRPortLibrary *portLibrary, uint32_t k=TOPK_FREQUENT_DEFAULT)
-	{}
-
+	MM_FrequentObjectsStats(OMRPortLibrary *portLibrary, uint32_t k = TOPK_FREQUENT_DEFAULT) {}
 
 	/* Merges a FrequentObjectStats structures together together with this one*/
-	void merge(MM_FrequentObjectsStats* frequentObjectsStats);
+	void merge(MM_FrequentObjectsStats *frequentObjectsStats);
 
 	void traceStats(MM_EnvironmentBase *env);
 

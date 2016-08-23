@@ -34,11 +34,14 @@
  * Categories OMRMEM_CATEGORY_THREADS, OMRMEM_CATEGORY_THREADS_NATIVE_STACK are
  * defined inside the thread library.
  */
-OMRMEM_CATEGORY_3_CHILDREN("RUNTIME", OMR_MEM_CATEGORY_RUNTIME, OMRMEM_CATEGORY_VM, OMRMEM_CATEGORY_JIT, OMRMEM_CATEGORY_UNKNOWN);
+OMRMEM_CATEGORY_3_CHILDREN("RUNTIME", OMR_MEM_CATEGORY_RUNTIME, OMRMEM_CATEGORY_VM, OMRMEM_CATEGORY_JIT,
+						   OMRMEM_CATEGORY_UNKNOWN);
 #if defined(OMR_OPT_CUDA)
-OMRMEM_CATEGORY_6_CHILDREN("VM", OMRMEM_CATEGORY_VM, OMRMEM_CATEGORY_MM, OMRMEM_CATEGORY_THREADS, OMRMEM_CATEGORY_CUDA, OMRMEM_CATEGORY_PORT_LIBRARY, OMRMEM_CATEGORY_TRACE, OMRMEM_CATEGORY_OMRTI);
+OMRMEM_CATEGORY_6_CHILDREN("VM", OMRMEM_CATEGORY_VM, OMRMEM_CATEGORY_MM, OMRMEM_CATEGORY_THREADS, OMRMEM_CATEGORY_CUDA,
+						   OMRMEM_CATEGORY_PORT_LIBRARY, OMRMEM_CATEGORY_TRACE, OMRMEM_CATEGORY_OMRTI);
 #else
-OMRMEM_CATEGORY_5_CHILDREN("VM", OMRMEM_CATEGORY_VM, OMRMEM_CATEGORY_MM, OMRMEM_CATEGORY_THREADS, OMRMEM_CATEGORY_PORT_LIBRARY, OMRMEM_CATEGORY_TRACE, OMRMEM_CATEGORY_OMRTI);
+OMRMEM_CATEGORY_5_CHILDREN("VM", OMRMEM_CATEGORY_VM, OMRMEM_CATEGORY_MM, OMRMEM_CATEGORY_THREADS,
+						   OMRMEM_CATEGORY_PORT_LIBRARY, OMRMEM_CATEGORY_TRACE, OMRMEM_CATEGORY_OMRTI);
 #endif /* OMR_OPT_CUDA */
 OMRMEM_CATEGORY_1_CHILD("Memory Manager (GC)", OMRMEM_CATEGORY_MM, OMRMEM_CATEGORY_MM_RUNTIME_HEAP);
 OMRMEM_CATEGORY_NO_CHILDREN("Object Heap", OMRMEM_CATEGORY_MM_RUNTIME_HEAP);
@@ -51,7 +54,6 @@ OMRMEM_CATEGORY_NO_CHILDREN("JIT Data Cache", OMRMEM_CATEGORY_JIT_DATA_CACHE);
 #if defined(OMR_OPT_CUDA)
 OMRMEM_CATEGORY_NO_CHILDREN("CUDA", OMRMEM_CATEGORY_CUDA);
 #endif /* OMR_OPT_CUDA */
-
 
 omr_error_t
 omr_ras_initMemCategories(OMRPortLibrary *portLibrary)
@@ -77,7 +79,7 @@ omr_ras_initMemCategories(OMRPortLibrary *portLibrary)
 #if defined(OMR_THR_FORK_SUPPORT)
 		NULL, /* OMRMEM_CATEGORY_OSMUTEXES populated by thread library */
 		NULL, /* OMRMEM_CATEGORY_OSCONDVARS populated by thread library */
-#endif /* defined(OMR_THR_FORK_SUPPORT) */
+#endif		  /* defined(OMR_THR_FORK_SUPPORT) */
 		CATEGORY_TABLE_ENTRY(OMRMEM_CATEGORY_JIT),
 		CATEGORY_TABLE_ENTRY(OMRMEM_CATEGORY_JIT_CODE_CACHE),
 		CATEGORY_TABLE_ENTRY(OMRMEM_CATEGORY_JIT_DATA_CACHE),
@@ -85,7 +87,7 @@ omr_ras_initMemCategories(OMRPortLibrary *portLibrary)
 		CATEGORY_TABLE_ENTRY(OMRMEM_CATEGORY_CUDA),
 #endif /* OMR_OPT_CUDA */
 	};
-	OMRMemCategorySet memCategorySet = { sizeof(memCategories) / sizeof(memCategories[0]), memCategories };
+	OMRMemCategorySet memCategorySet = {sizeof(memCategories) / sizeof(memCategories[0]), memCategories};
 	omr_error_t rc = OMR_ERROR_NONE;
 	OMRPORT_ACCESS_FROM_OMRPORT(portLibrary);
 
@@ -180,8 +182,8 @@ omr_ras_initTI(OMR_VM *vm)
 			vm->sysInfo = (OMR_SysInfo *)omrmem_allocate_memory(sizeof(OMR_SysInfo), OMRMEM_CATEGORY_OMRTI);
 			if (NULL != vm->sysInfo) {
 				if ((0 != omrthread_monitor_init_with_name(&vm->sysInfo->syncProcessCpuLoad, 0, "syncProcessCpuLoad"))
-					|| (0 != omrthread_monitor_init_with_name(&vm->sysInfo->syncSystemCpuLoad, 0, "syncSystemCpuLoad"))
-				) {
+					|| (0
+						!= omrthread_monitor_init_with_name(&vm->sysInfo->syncSystemCpuLoad, 0, "syncSystemCpuLoad"))) {
 					omrmem_free_memory(vm->sysInfo);
 					vm->sysInfo = NULL;
 					rc = OMR_ERROR_FAILED_TO_ALLOCATE_MONITOR;

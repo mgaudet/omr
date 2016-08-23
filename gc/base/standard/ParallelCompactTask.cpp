@@ -57,5 +57,3 @@ MM_ParallelCompactTask::cleanup(MM_EnvironmentBase *env)
 }
 
 #endif /* OMR_GC_MODRON_COMPACTION */
-
-

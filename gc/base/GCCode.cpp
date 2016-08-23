@@ -24,7 +24,7 @@
  * Determine if the GC is implicit or explicit (i.e. triggered externally).
  * @return true if the gc code indicates an explicit GC
  */
-bool 
+bool
 MM_GCCode::isExplicitGC() const
 {
 	bool explicitGC = false;
@@ -48,7 +48,7 @@ MM_GCCode::isExplicitGC() const
 	default:
 		Assert_MM_unreachable();
 	}
-	
+
 	return explicitGC;
 }
 
@@ -56,7 +56,7 @@ MM_GCCode::isExplicitGC() const
  * Determine if the GC should aggressively try to compact the heap.
  * @return true if heap should be compacted aggressively
  */
-bool 
+bool
 MM_GCCode::shouldAggressivelyCompact() const
 {
 	bool aggressivelyCompact = true;
@@ -80,7 +80,7 @@ MM_GCCode::shouldAggressivelyCompact() const
 	default:
 		Assert_MM_unreachable();
 	}
-	
+
 	return aggressivelyCompact;
 }
 
@@ -88,7 +88,7 @@ MM_GCCode::shouldAggressivelyCompact() const
  * Determine if the GC is going to throw OOM if enough memory is not collected.
  * @return true if OOM can be thrown at the end of this GC
  */
-bool 
+bool
 MM_GCCode::isOutOfMemoryGC() const
 {
 	bool OOM = true;
@@ -112,7 +112,7 @@ MM_GCCode::isOutOfMemoryGC() const
 	default:
 		Assert_MM_unreachable();
 	}
-	
+
 	return OOM;
 }
 
@@ -120,7 +120,7 @@ MM_GCCode::isOutOfMemoryGC() const
  * Determine if the GC should be aggressive.
  * @return true if the gc code indicates an aggressive GC
  */
-bool 
+bool
 MM_GCCode::isAggressiveGC() const
 {
 	bool aggressiveGC = true;
@@ -144,7 +144,7 @@ MM_GCCode::isAggressiveGC() const
 	default:
 		Assert_MM_unreachable();
 	}
-	
+
 	return aggressiveGC;
 }
 
@@ -153,7 +153,7 @@ MM_GCCode::isAggressiveGC() const
  * @param gcCode requested GC code
  * @return true if it is a percolate call
  */
-bool 
+bool
 MM_GCCode::isPercolateGC() const
 {
 	bool percolateGC = false;
@@ -177,15 +177,15 @@ MM_GCCode::isPercolateGC() const
 	default:
 		Assert_MM_unreachable();
 	}
-	
+
 	return percolateGC;
 }
 
 /**
  * Determine if it is a GC request from a RAS dump agent.
  * @return true if it is a RAS dump call
- */	
-bool 
+ */
+bool
 MM_GCCode::isRASDumpGC() const
 {
 	return J9MMCONSTANT_EXPLICIT_GC_RASDUMP_COMPACT == _gcCode;

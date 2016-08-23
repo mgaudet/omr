@@ -189,7 +189,8 @@ barrier_init_r(barrier_r *barrier, int value)
 
 	do {
 		old_value = barrier->initial_value;
-	} while (compareAndSwapUDATA((uintptr_t *)&barrier->initial_value, old_value, value, &barrier->spinlock) != old_value);
+	} while (compareAndSwapUDATA((uintptr_t *)&barrier->initial_value, old_value, value, &barrier->spinlock)
+			 != old_value);
 	do {
 		old_value = barrier->in_count;
 	} while (compareAndSwapUDATA((uintptr_t *)&barrier->in_count, old_value, value, &barrier->spinlock) != old_value);
@@ -330,7 +331,8 @@ barrier_enter_r(barrier_r *barrier, uintptr_t deadline)
 	/* decrement the wait count */
 	do {
 		old_value = barrier->in_count;
-	} while (compareAndSwapUDATA((uintptr_t *)&barrier->in_count, old_value, old_value - 1, &barrier->spinlock) != old_value);
+	} while (compareAndSwapUDATA((uintptr_t *)&barrier->in_count, old_value, old_value - 1, &barrier->spinlock)
+			 != old_value);
 
 	if (old_value == 1 && (compareAndSwapUDATA((uintptr_t *)&barrier->released, 0, 0, &barrier->spinlock))) {
 		/* we're the last through the barrier so wake everyone up */
@@ -350,7 +352,8 @@ barrier_enter_r(barrier_r *barrier, uintptr_t deadline)
 	/* increment the out count */
 	do {
 		old_value = barrier->out_count;
-	} while (compareAndSwapUDATA((uintptr_t *)&barrier->out_count, old_value, old_value + 1, &barrier->spinlock) != old_value);
+	} while (compareAndSwapUDATA((uintptr_t *)&barrier->out_count, old_value, old_value + 1, &barrier->spinlock)
+			 != old_value);
 
 	return result;
 }
@@ -377,7 +380,8 @@ barrier_update_r(barrier_r *barrier, int new_value)
 
 	do {
 		old_value = barrier->in_count;
-	} while (compareAndSwapUDATA((uintptr_t *)&barrier->in_count, old_value, old_value + difference, &barrier->spinlock) != old_value);
+	} while (compareAndSwapUDATA((uintptr_t *)&barrier->in_count, old_value, old_value + difference, &barrier->spinlock)
+			 != old_value);
 
 	if (old_value < 0 || (old_value == 0 && barrier->initial_value != 0)) {
 		int restore_value = old_value;
@@ -385,14 +389,16 @@ barrier_update_r(barrier_r *barrier, int new_value)
 		/* barrier was already exited, so undo update and return error */
 		do {
 			old_value = barrier->in_count;
-		} while (compareAndSwapUDATA((uintptr_t *)&barrier->in_count, old_value, restore_value, &barrier->spinlock) != old_value);
+		} while (compareAndSwapUDATA((uintptr_t *)&barrier->in_count, old_value, restore_value, &barrier->spinlock)
+				 != old_value);
 
 		return -1;
 	} else {
 		/* we've updated the in_count so update the initial_value */
 		do {
 			old_value = barrier->initial_value;
-		} while (compareAndSwapUDATA((uintptr_t *)&barrier->initial_value, old_value, new_value, &barrier->spinlock) != old_value);
+		} while (compareAndSwapUDATA((uintptr_t *)&barrier->initial_value, old_value, new_value, &barrier->spinlock)
+				 != old_value);
 
 		/* don't need to notify anyone if updated_value is <= 0 as release will do it when called */
 
@@ -502,7 +508,8 @@ sem_timedwait_r(sem_t_r *sem, uintptr_t seconds)
 	while (1) {
 		old_value = compareAndSwapUDATA((uintptr_t *)&sem->sem_value, -1, -1, &sem->spinlock);
 		while (old_value > 0) {
-			if (compareAndSwapUDATA((uintptr_t *)&sem->sem_value, old_value, old_value - 1, &sem->spinlock) == old_value) {
+			if (compareAndSwapUDATA((uintptr_t *)&sem->sem_value, old_value, old_value - 1, &sem->spinlock)
+				== old_value) {
 				/* successfully acquired lock */
 				return 0;
 			}
@@ -615,13 +622,17 @@ sem_destroy_r(sem_t_r *sem)
 	/* prevent the semaphore from being acquired by subtracting initial value*/
 	do {
 		old_value = sem->sem_value;
-	} while (compareAndSwapUDATA((uintptr_t *)&sem->sem_value, old_value, old_value - sem->initial_value, &sem->spinlock) != old_value);
+	} while (
+		compareAndSwapUDATA((uintptr_t *)&sem->sem_value, old_value, old_value - sem->initial_value, &sem->spinlock)
+		!= old_value);
 
 	if (old_value != sem->initial_value) {
 		/* undo the block and return error */
 		do {
 			old_value = sem->sem_value;
-		} while (compareAndSwapUDATA((uintptr_t *)&sem->sem_value, old_value, old_value + sem->initial_value, &sem->spinlock) != old_value);
+		} while (
+			compareAndSwapUDATA((uintptr_t *)&sem->sem_value, old_value, old_value + sem->initial_value, &sem->spinlock)
+			!= old_value);
 
 		/* semaphore is still in use */
 		return -1;
@@ -749,7 +760,7 @@ upcall_handler(int signal, siginfo_t *siginfo, void *context_arg)
 		/* pid is only valid on zOS if si_code <= 0. SI_QUEUE is > 0 */
 		|| siginfo->si_pid != pid
 #endif
-	) {
+		) {
 		/* these are not the signals you are looking for */
 		return;
 	}
@@ -786,7 +797,8 @@ upcall_handler(int signal, siginfo_t *siginfo, void *context_arg)
 			data->thread->context = context;
 #ifdef J9ZOS390
 			data->thread->caa = _gtca();
-			data->thread->dsa = __dsa_prev(getdsa(), __EDCWCCWI_LOGICAL, __EDCWCCWI_DOWN, NULL, data->thread->caa, &format, NULL, NULL);
+			data->thread->dsa =
+				__dsa_prev(getdsa(), __EDCWCCWI_LOGICAL, __EDCWCCWI_DOWN, NULL, data->thread->caa, &format, NULL, NULL);
 			data->thread->dsa_format = format;
 #endif /* J9ZOS390 */
 
@@ -865,7 +877,8 @@ count_threads(struct PlatformWalkData *data)
 		/* add 1 to account for the initial thread */
 		thread_count++;
 	} else {
-		for (thread_count = 0; readdir(tids) != NULL; thread_count++);
+		for (thread_count = 0; readdir(tids) != NULL; thread_count++)
+			;
 		/* remove the count for . and .. */
 		thread_count -= 2;
 
@@ -930,7 +943,8 @@ count_threads(struct PlatformWalkData *data)
 	}
 
 	/* sanity check */
-	if (__e2a_l(((struct pgthb *)output_buffer)->id, 4) != 4 || strncmp(((struct pgthb *)output_buffer)->id, "gthb", 4)) {
+	if (__e2a_l(((struct pgthb *)output_buffer)->id, 4) != 4
+		|| strncmp(((struct pgthb *)output_buffer)->id, "gthb", 4)) {
 		return -2;
 	}
 
@@ -1222,11 +1236,11 @@ resume_all_preempted(struct PlatformWalkData *data)
 	struct timespec time_out;
 	J9ThreadWalkState *state = data->state;
 
-	/* We skip everything but the semaphores and the process mask if we didn't sucessfully install the
+/* We skip everything but the semaphores and the process mask if we didn't sucessfully install the
 	 * signal handlers.
 	 */
 
-	/* now there are no outstanding signals on the queue we can drop the handler */
+/* now there are no outstanding signals on the queue we can drop the handler */
 #ifdef AIXPPC
 	struct sigaction ign;
 
@@ -1372,14 +1386,16 @@ setup_native_thread(J9ThreadWalkState *state, thread_context *sigContext, int he
 
 	if (heapAllocate || sigContext) {
 		/* allocate the thread container*/
-		state->current_thread = (J9PlatformThread *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, sizeof(J9PlatformThread));
+		state->current_thread = (J9PlatformThread *)state->portLibrary->heap_allocate(state->portLibrary, state->heap,
+																					  sizeof(J9PlatformThread));
 		if (state->current_thread == NULL) {
 			return -1;
 		}
 		memset(state->current_thread, 0, sizeof(J9PlatformThread));
 
 		/* allocate space for the copy of the context */
-		state->current_thread->context = (thread_context *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, size);
+		state->current_thread->context =
+			(thread_context *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, size);
 		if (state->current_thread->context == NULL) {
 			return -2;
 		}
@@ -1418,8 +1434,10 @@ setup_native_thread(J9ThreadWalkState *state, thread_context *sigContext, int he
 		if (state->current_thread->callstack == NULL && data->uninitializedThreads) {
 			/* if we encountered threads under construction while counting then this could be legitimate */
 			char *message = "no stack frames available, the thread may not have finished initialization";
-			char *symbol = (char *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, strlen(message) + 1);
-			J9PlatformStackFrame *frame = (J9PlatformStackFrame *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, sizeof(J9PlatformStackFrame));
+			char *symbol =
+				(char *)state->portLibrary->heap_allocate(state->portLibrary, state->heap, strlen(message) + 1);
+			J9PlatformStackFrame *frame = (J9PlatformStackFrame *)state->portLibrary->heap_allocate(
+				state->portLibrary, state->heap, sizeof(J9PlatformStackFrame));
 			/* we have to copy the message into heap allocated memory because we can't differentiate constant strings and alloc'd strings
 			 * when freeing thread data.
 			 */
@@ -1499,7 +1517,8 @@ sigqueue_is_reliable(void)
  * and error_detail fields of the state structure. A brief textual description is in error_string.
  */
 J9PlatformThread *
-omrintrospect_threads_startDo_with_signal(struct OMRPortLibrary *portLibrary, J9Heap *heap, J9ThreadWalkState *state, void *signal_info)
+omrintrospect_threads_startDo_with_signal(struct OMRPortLibrary *portLibrary, J9Heap *heap, J9ThreadWalkState *state,
+										  void *signal_info)
 {
 	int result = 0;
 	struct PlatformWalkData *data;
@@ -1643,7 +1662,7 @@ omrintrospect_threads_nextDo(J9ThreadWalkState *state)
 	int result = 0;
 #if !defined(J9OS_I5)
 	sigset_t mask, old_mask;
-#else /* !defined(J9OS_I5) */
+#else  /* !defined(J9OS_I5) */
 	int regbuf[64];
 	int val = sizeof(regbuf);
 #endif /* !defined(J9OS_I5) */
@@ -1680,7 +1699,7 @@ omrintrospect_threads_nextDo(J9ThreadWalkState *state)
 
 #if !defined(J9OS_I5)
 	if (data->threadsOutstanding <= 0) {
-#else /* !defined(J9OS_I5) */
+#else  /* !defined(J9OS_I5) */
 	if ((data->threadsOutstanding <= 0) || (data->threadsOutstanding != data->threadCount - 1) && (data->thr == 0)) {
 #endif /* !defined(J9OS_I5) */
 		/* we've finished processing threads */
@@ -1696,7 +1715,7 @@ omrintrospect_threads_nextDo(J9ThreadWalkState *state)
 
 	if (result == -1 || data->error) {
 		/* failed to solicit thread context */
-		RECORD_ERROR(state, COLLECTION_FAILURE, result == -1? -1 : data->error);
+		RECORD_ERROR(state, COLLECTION_FAILURE, result == -1 ? -1 : data->error);
 		goto cleanup;
 	}
 
@@ -1735,13 +1754,17 @@ omrintrospect_threads_nextDo(J9ThreadWalkState *state)
 
 #else /* !defined(J9OS_I5) */
 	while (data->thr == pthread_self() || data->thr == 0) {
-		if ((result = pthread_getthrds_np(&data->thr, PTHRDSINFO_QUERY_TID, &data->pinfo, sizeof(data->pinfo), regbuf, &val)) != 0) {
+		if ((result =
+				 pthread_getthrds_np(&data->thr, PTHRDSINFO_QUERY_TID, &data->pinfo, sizeof(data->pinfo), regbuf, &val))
+			!= 0) {
 			RECORD_ERROR(state, COLLECTION_FAILURE, result);
 			goto cleanup;
 		}
 	}
 
-	if ((result = pthread_getthrds_np(&data->thr, PTHRDSINFO_QUERY_ALL, &data->pinfo, sizeof(data->pinfo), regbuf, &val)) != 0) {
+	if ((result =
+			 pthread_getthrds_np(&data->thr, PTHRDSINFO_QUERY_ALL, &data->pinfo, sizeof(data->pinfo), regbuf, &val))
+		!= 0) {
 		RECORD_ERROR(state, COLLECTION_FAILURE, result);
 		goto cleanup;
 	}
@@ -1779,12 +1802,11 @@ omrintrospect_set_suspend_signal_offset(struct OMRPortLibrary *portLibrary, int3
 {
 	int32_t result = OMRPORT_ERROR_NOT_SUPPORTED_ON_THIS_PLATFORM;
 #if defined(OMR_CONFIGURABLE_SUSPEND_SIGNAL)
-	if ((signalOffset < 0)
-		|| (signalOffset > (SIGRTMAX - SIGRTMIN))
+	if ((signalOffset < 0) || (signalOffset > (SIGRTMAX - SIGRTMIN))
 #if defined(SIG_RI_INTERRUPT_INDEX)
 		|| (SIG_RI_INTERRUPT_INDEX == signalOffset)
-#endif  /* defined(SIG_RI_INTERRUPT_INDEX) */
-	) {
+#endif /* defined(SIG_RI_INTERRUPT_INDEX) */
+			) {
 		result = OMRPORT_ERROR_INVALID;
 	} else {
 		PPG_introspect_threadSuspendSignal = SIGRTMIN + signalOffset;

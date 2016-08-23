@@ -34,7 +34,6 @@
 class MM_AtomicOperations
 {
 public:
-
 	/**
 	 * If the CPU supports it, emit an instruction to yield the CPU to another thread.
 	 */
@@ -98,7 +97,7 @@ public:
 	 * by an instruction following the storeSync may be performed before a store caused by 
 	 * an instruction that precedes the storeSync, and the ordering does not apply to accesses 
 	 * to I/O memory (memory-mapped I/O).
-	 */ 
+	 */
 	MMINLINE_DEBUG static void
 	writeBarrier()
 	{
@@ -151,7 +150,7 @@ public:
 	 * @return the value at memory location <b>address</b> BEFORE the store was attempted
 	 */
 	MMINLINE_DEBUG static uintptr_t
-	lockCompareExchange(volatile uintptr_t * address, uintptr_t oldValue, uintptr_t newValue)
+	lockCompareExchange(volatile uintptr_t *address, uintptr_t oldValue, uintptr_t newValue)
 	{
 		return VM_AtomicSupport::lockCompareExchange(address, oldValue, newValue);
 	}
@@ -259,7 +258,7 @@ public:
 	{
 		return VM_AtomicSupport::subtract(address, value);
 	}
-	
+
 	/**
 	 * Subtracts a 32 bit number from the value at a specific memory location as an atomic operation.
 	 * Subtracts the value <b>value</b> from the value stored at memory location pointed
@@ -355,7 +354,7 @@ public:
 	{
 		/* Stop compiler optimizing away load of oldValue */
 		volatile uintptr_t *localAddr = address;
-		
+
 		uintptr_t oldValue = (uintptr_t)*localAddr;
 		uintptr_t newValue = MM_Math::saturatingSubtract(oldValue, subtrahend);
 		while ((lockCompareExchange(localAddr, oldValue, newValue)) != oldValue) {
@@ -364,7 +363,6 @@ public:
 		}
 		return newValue;
 	}
-
 };
 
 #endif /* ATOMIC_OPERATIONS_HPP_ */

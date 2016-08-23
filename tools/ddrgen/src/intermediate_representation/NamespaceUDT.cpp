@@ -18,21 +18,18 @@
 
 #include "NamespaceUDT.hpp"
 
-NamespaceUDT::NamespaceUDT(unsigned int lineNumber)
-	: UDT(NAMESPACE, 0, lineNumber)
-{
-}
+NamespaceUDT::NamespaceUDT(unsigned int lineNumber) : UDT(NAMESPACE, 0, lineNumber) {}
 
 NamespaceUDT::~NamespaceUDT()
 {
 	for (size_t i = 0; i < _subUDTs.size(); i += 1) {
-		delete(_subUDTs[i]);
+		delete (_subUDTs[i]);
 	}
 	_subUDTs.clear();
 }
 
 bool
-NamespaceUDT::equal(Type const& type, set<Type const*> *checked) const
+NamespaceUDT::equal(Type const &type, set<Type const *> *checked) const
 {
 	bool ret = false;
 	if (checked->find(this) != checked->end()) {
@@ -44,9 +41,7 @@ NamespaceUDT::equal(Type const& type, set<Type const*> *checked) const
 			bool subUDTsEqual = _subUDTs.size() == ns->_subUDTs.size();
 			if (subUDTsEqual) {
 				for (size_t i = 0; i < _subUDTs.size(); i += 1) {
-					if ((_subUDTs[i] != ns->_subUDTs[i])
-						&& !(*_subUDTs[i] == *ns->_subUDTs[i])
-					) {
+					if ((_subUDTs[i] != ns->_subUDTs[i]) && !(*_subUDTs[i] == *ns->_subUDTs[i])) {
 						subUDTsEqual = false;
 						break;
 					}
@@ -57,17 +52,14 @@ NamespaceUDT::equal(Type const& type, set<Type const*> *checked) const
 			if (macrosEqual) {
 				for (size_t i = 0; i < _macros.size(); i += 1) {
 					if ((_macros[i].getValue() != ((Macro)ns->_macros[i]).getValue())
-						|| (_macros[i]._name != ns->_macros[i]._name)
-					) {
+						|| (_macros[i]._name != ns->_macros[i]._name)) {
 						macrosEqual = false;
 						break;
 					}
 				}
 			}
 
-			ret = (UDT::equal(type, checked))
-				&& (subUDTsEqual)
-				&& (macrosEqual);
+			ret = (UDT::equal(type, checked)) && (subUDTsEqual) && (macrosEqual);
 		}
 	}
 	return ret;
@@ -89,10 +81,7 @@ NamespaceUDT::replaceType(Type *typeToReplace, Type *replaceWith)
 }
 
 DDR_RC
-NamespaceUDT::scanChildInfo(Scanner *scanner, void *data)
-{
-	return scanner->dispatchScanChildInfo(this, data);
-}
+NamespaceUDT::scanChildInfo(Scanner *scanner, void *data) { return scanner->dispatchScanChildInfo(this, data); }
 
 DDR_RC
 NamespaceUDT::enumerateType(BlobGenerator *blobGenerator, bool addFieldsOnly)

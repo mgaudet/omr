@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "sigTestHelpers.hpp"
 
 bool
@@ -30,8 +29,7 @@ bool
 handlerIsFunction(const struct sigaction *act)
 {
 	return handlerIsFunction(act->sa_handler)
-		   || ((act->sa_flags & SA_SIGINFO)
-			   && (SIG_DFL != (sighandler_t)act->sa_sigaction)
+		   || ((act->sa_flags & SA_SIGINFO) && (SIG_DFL != (sighandler_t)act->sa_sigaction)
 			   && (SIG_IGN != (sighandler_t)act->sa_sigaction));
 }
 #endif /* !defined(WIN32) */
@@ -45,8 +43,7 @@ createThread(omrthread_t *newThread, uintptr_t suspend, omrthread_detachstate_t 
 
 	ASSERT_EQ(J9THREAD_SUCCESS, omrthread_attr_init(&attr));
 	ASSERT_EQ(J9THREAD_SUCCESS, omrthread_attr_set_detachstate(&attr, detachstate));
-	EXPECT_EQ(J9THREAD_SUCCESS,
-			  rc = omrthread_create_ex(newThread, &attr, suspend, entryProc, entryArg));
+	EXPECT_EQ(J9THREAD_SUCCESS, rc = omrthread_create_ex(newThread, &attr, suspend, entryProc, entryArg));
 	if (rc & J9THREAD_ERR_OS_ERRNO_SET) {
 		printf("omrthread_create_ex() returned os_errno=%d\n", (int)omrthread_get_os_errno());
 	}

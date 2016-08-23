@@ -22,7 +22,6 @@
  * @brief file
  */
 
-
 #include <windows.h>
 #include "omrport.h"
 #include "omrutil.h"
@@ -79,7 +78,6 @@ omrfile_read_text(struct OMRPortLibrary *portLibrary, intptr_t fd, char *buf, in
 			} else {
 				*cursor++ = c;
 			}
-
 		}
 		nbytes -= count;
 	}
@@ -87,7 +85,6 @@ omrfile_read_text(struct OMRPortLibrary *portLibrary, intptr_t fd, char *buf, in
 	*cursor = '\0';
 	return buf;
 }
-
 
 intptr_t
 omrfile_write_text(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *buf, intptr_t nbytes)
@@ -114,7 +111,8 @@ omrfile_write_text(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *
 		uint16_t *wBuf = wStackBuf;
 		newLen = (nbytes + newlines) * 2;
 		if (newLen > sizeof(wStackBuf)) {
-			wBuf = portLibrary->mem_allocate_memory(portLibrary, newLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			wBuf =
+				portLibrary->mem_allocate_memory(portLibrary, newLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 		}
 		if (wBuf) {
 			uint8_t *in = (uint8_t *)buf;
@@ -141,7 +139,8 @@ omrfile_write_text(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *
 				intptr_t mbLen = WideCharToMultiByte(codePage, 0, wBuf, (int)wLen, NULL, 0, NULL, NULL);
 				if (mbLen > 0) {
 					if (mbLen > sizeof(stackBuf)) {
-						newBuf = portLibrary->mem_allocate_memory(portLibrary, mbLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+						newBuf = portLibrary->mem_allocate_memory(portLibrary, mbLen, OMR_GET_CALLSITE(),
+																  OMRMEM_CATEGORY_PORT_LIBRARY);
 						/* if we couldn't allocate the buffer, just output the data the way it was */
 					}
 					if (newBuf) {
@@ -159,7 +158,8 @@ omrfile_write_text(struct OMRPortLibrary *portLibrary, intptr_t fd, const char *
 		/* change any LFs to CRLFs */
 		newLen = nbytes + newlines;
 		if (newLen > sizeof(stackBuf)) {
-			newBuf = portLibrary->mem_allocate_memory(portLibrary, newLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+			newBuf =
+				portLibrary->mem_allocate_memory(portLibrary, newLen, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
 			/* if we couldn't allocate the buffer, just output the data the way it was */
 		}
 		if (newBuf) {

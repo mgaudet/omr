@@ -30,7 +30,8 @@ class OMR_Base
 private:
 protected:
 public:
-	void *operator new(size_t size, void *memoryPtr)
+	void *
+	operator new(size_t size, void *memoryPtr)
 	{
 		return memoryPtr;
 	}
@@ -39,7 +40,6 @@ public:
 	 * Create OMR_Base object.
 	 */
 	OMR_Base() {}
-
 };
 
 #endif /* OMR_BASE_HPP_ */

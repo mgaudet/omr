@@ -45,7 +45,11 @@
 class GC_ObjectHeapIterator
 {
 public:
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+	void *
+	operator new(size_t size, void *memoryPtr)
+	{
+		return memoryPtr;
+	};
 
 	/**
 	 * Return the next object in the heap.
@@ -56,7 +60,7 @@ public:
 	 * @note nextObject() must return NULL for an uninitialized iterator
 	 */
 	virtual omrobjectptr_t nextObject() = 0;
-	
+
 	/**
 	 * Return the next object, without advancing over it until the next
 	 * call to this method.
@@ -82,7 +86,7 @@ public:
 	 * @param size the number of bytes by which to advance the iterator
 	 */
 	virtual void advance(uintptr_t size) = 0;
-	
+
 	/**
 	 * Reset the iterator to walk a new chunk of heap.
 	 * 
@@ -94,4 +98,3 @@ public:
 };
 
 #endif /* OBJECTHEAPITERATOR_HPP_ */
-

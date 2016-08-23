@@ -22,7 +22,6 @@
  * @brief Timer utilities
  */
 
-
 #include <time.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -148,7 +147,8 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime,
+					uint64_t requiredResolution)
 {
 	uint64_t ticks;
 
@@ -185,5 +185,3 @@ omrtime_startup(struct OMRPortLibrary *portLibrary)
 {
 	return 0;
 }
-
-

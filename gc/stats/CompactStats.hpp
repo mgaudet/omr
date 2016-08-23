@@ -37,7 +37,7 @@
  * Storage for stats relevant to the compaction phase of a collection.
  * @ingroup GC_Stats
  */
-class MM_CompactStats : public MM_Base 
+class MM_CompactStats : public MM_Base
 {
 public:
 	CompactReason _compactReason;
@@ -54,25 +54,17 @@ public:
 	uint64_t _fixupEndTime;
 	uint64_t _rootFixupStartTime;
 	uint64_t _rootFixupEndTime;
-		
+
 	/* Remember gc count on last compaction of heap */
 	uintptr_t _lastHeapCompaction;
 
-	uint64_t _startTime;	/**< Compact start time */
-	uint64_t _endTime;		/**< Compact end time */
+	uint64_t _startTime; /**< Compact start time */
+	uint64_t _endTime;   /**< Compact end time */
 
 	void clear();
 	void merge(MM_CompactStats *statsToMerge);
 
-	MM_CompactStats() :
-		MM_Base()
-		,_lastHeapCompaction(0)
-		,_startTime(0)
-		,_endTime(0)
-	{
-		clear();
-	};
-
+	MM_CompactStats() : MM_Base(), _lastHeapCompaction(0), _startTime(0), _endTime(0) { clear(); };
 };
 
 #endif /* OMR_GC_MODRON_COMPACTION */

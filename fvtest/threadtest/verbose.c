@@ -49,9 +49,11 @@ omrthread_verboseCall(const char *func, intptr_t retVal)
 		if (retVal == J9THREAD_ERR_UNSUPPORTED_ATTR) {
 			if (errnoSet) {
 #if defined(J9ZOS390)
-				PRINTF("%s unsupported: retVal %zd (%zx) : errno %zd (%zx) %s, errno2 %zd (%zx)\n", func, retVal, retVal, os_errno, os_errno, strerror((int)os_errno), os_errno2, os_errno2);
-#else /* !J9ZOS390 */
-				PRINTF("%s unsupported: retVal %zd (%zx) : errno %zd %s\n", func, retVal, retVal, os_errno, strerror((int)os_errno));
+				PRINTF("%s unsupported: retVal %zd (%zx) : errno %zd (%zx) %s, errno2 %zd (%zx)\n", func, retVal,
+					   retVal, os_errno, os_errno, strerror((int)os_errno), os_errno2, os_errno2);
+#else  /* !J9ZOS390 */
+				PRINTF("%s unsupported: retVal %zd (%zx) : errno %zd %s\n", func, retVal, retVal, os_errno,
+					   strerror((int)os_errno));
 #endif /* !J9ZOS390 */
 			} else {
 				PRINTF("%s unsupported: retVal %zd (%zx)\n", func, retVal, retVal);
@@ -59,9 +61,11 @@ omrthread_verboseCall(const char *func, intptr_t retVal)
 		} else {
 			if (errnoSet) {
 #if defined(J9ZOS390)
-				PRINTF("%s failed: retVal %zd (%zx) : errno %zd (%zx) %s, errno2 %zd (%zx)\n", func, retVal, retVal, os_errno, os_errno, strerror((int)os_errno), os_errno2, os_errno2);
-#else /* !J9ZOS390 */
-				PRINTF("%s failed: retVal %zd (%zx) : errno %zd %s\n", func, retVal, retVal, os_errno, strerror((int)os_errno));
+				PRINTF("%s failed: retVal %zd (%zx) : errno %zd (%zx) %s, errno2 %zd (%zx)\n", func, retVal, retVal,
+					   os_errno, os_errno, strerror((int)os_errno), os_errno2, os_errno2);
+#else  /* !J9ZOS390 */
+				PRINTF("%s failed: retVal %zd (%zx) : errno %zd %s\n", func, retVal, retVal, os_errno,
+					   strerror((int)os_errno));
 #endif /* !J9ZOS390 */
 			} else {
 				PRINTF("%s failed: retVal %zd (%zx)\n", func, retVal, retVal);

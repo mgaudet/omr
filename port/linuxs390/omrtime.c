@@ -22,7 +22,6 @@
  * @brief Timer utilities
  */
 
-
 #include <time.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -39,8 +38,6 @@ static const clockid_t OMRTIME_NANO_CLOCK = CLOCK_MONOTONIC;
 extern int64_t maxprec();
 
 static void omrtime_calculate_hw_time_delta(struct OMRPortLibrary *portLibrary);
-
-
 
 /**
  * Query OS for timestamp.
@@ -60,8 +57,7 @@ omrtime_msec_clock(struct OMRPortLibrary *portLibrary)
 	msec = usec / 1000;
 
 	if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
-	 || (usec < PPG_last_clock_delta_update)
-	) {
+		|| (usec < PPG_last_clock_delta_update)) {
 		omrtime_calculate_hw_time_delta(portLibrary);
 	}
 
@@ -85,8 +81,7 @@ omrtime_usec_clock(struct OMRPortLibrary *portLibrary)
 	int64_t usec = maxprec() / 8;
 
 	if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
-	 || (usec < PPG_last_clock_delta_update)
-	) {
+		|| (usec < PPG_last_clock_delta_update)) {
 		omrtime_calculate_hw_time_delta(portLibrary);
 	}
 
@@ -147,8 +142,7 @@ omrtime_current_time_millis(struct OMRPortLibrary *portLibrary)
 	 */
 
 	if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
-	 || (usec < PPG_last_clock_delta_update)
-	) {
+		|| (usec < PPG_last_clock_delta_update)) {
 		omrtime_calculate_hw_time_delta(portLibrary);
 	}
 
@@ -220,7 +214,8 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime,
+					uint64_t requiredResolution)
 {
 	uint64_t ticks;
 
@@ -257,7 +252,7 @@ omrtime_calculate_hw_time_delta(struct OMRPortLibrary *portLibrary)
 
 	/* Get OS microsecond UTC clock */
 	gettimeofday(&tp, NULL);
-	currentSWTime = ((uint64_t) tp.tv_sec * 1000000) + tp.tv_usec;
+	currentSWTime = ((uint64_t)tp.tv_sec * 1000000) + tp.tv_usec;
 
 	/* Calculate the millisecond time delta between the software and hardware clocks */
 	PPG_software_msec_clock_delta = (currentSWTime - currentHWTime) / 1000;
@@ -309,4 +304,3 @@ omrtime_startup(struct OMRPortLibrary *portLibrary)
 
 	return rc;
 }
-

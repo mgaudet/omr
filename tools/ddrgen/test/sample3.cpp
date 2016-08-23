@@ -49,16 +49,19 @@ class MatchboxCar : public Vehicle, public Toy
 {
 public:
 	int hasWheels;
-	MatchboxCar(int hasWheelsIn, double speedIn, int durabilityIn) : Vehicle(speedIn), Toy(durabilityIn), hasWheels(hasWheelsIn) {}
+	MatchboxCar(int hasWheelsIn, double speedIn, int durabilityIn)
+		: Vehicle(speedIn), Toy(durabilityIn), hasWheels(hasWheelsIn)
+	{
+	}
 };
 
 /* Function pointer */
 typedef void VOID;
-typedef VOID* (*FunctionPointer)();
+typedef VOID *(*FunctionPointer)();
 
 /* Array and pointer typedef test */
-typedef int * INT[2];
-typedef INT * INT_ARRAY[10];
+typedef int *INT[2];
+typedef INT *INT_ARRAY[10];
 
 struct StructWithFunctionPointer {
 	FunctionPointer functionPointer;
@@ -103,6 +106,7 @@ private:
 		double g;
 	};
 	InnerClassWithSameName instanceOfInnerClassWithSameName;
+
 public:
 };
 OuterClassWithDifferentName1 instanceOfOuterClassWithDifferentName1;
@@ -116,15 +120,16 @@ private:
 		double h;
 	};
 	InnerClassWithSameName instanceOfInnerClassWithSameName;
+
 public:
 };
 OuterClassWithDifferentName2 instanceOfOuterClassWithDifferentName2;
 
 //Template class
-template <class T>
-class Complex
+template <class T> class Complex
 {
 	T real, imaginary;
+
 public:
 	Complex(T realIn, T imaginaryIn)
 	{
@@ -132,8 +137,8 @@ public:
 		imaginary = imaginaryIn;
 	}
 };
-Complex <int> instanceOfComplex1(100, 75);
-Complex <double> instanceOfComplex2(64.829, 23.42);
+Complex<int> instanceOfComplex1(100, 75);
+Complex<double> instanceOfComplex2(64.829, 23.42);
 
 //Array field with base type defined in a typedef
 typedef unsigned int UDATA2;

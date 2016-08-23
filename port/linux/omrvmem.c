@@ -65,15 +65,15 @@
 #define J9VMEM_DEBUG
 #endif
 
-#define VMEM_MEMINFO_SIZE_MAX	2048
-#define VMEM_PROC_MEMINFO_FNAME	"/proc/meminfo"
-#define VMEM_PROC_MAPS_FNAME	"/proc/self/maps"
+#define VMEM_MEMINFO_SIZE_MAX 2048
+#define VMEM_PROC_MEMINFO_FNAME "/proc/meminfo"
+#define VMEM_PROC_MAPS_FNAME "/proc/self/maps"
 
 typedef struct vmem_hugepage_info_t {
-	uintptr_t	enabled; /*!< boolean enabling j9 large page support */
-	uintptr_t	pages_total; /*!< total number of pages maintained by the kernel */
-	uintptr_t	pages_free; /*!< number of free pages that may be allocated by us */
-	uintptr_t	page_size;	 /*!< page size in bytes */
+	uintptr_t enabled;	 /*!< boolean enabling j9 large page support */
+	uintptr_t pages_total; /*!< total number of pages maintained by the kernel */
+	uintptr_t pages_free;  /*!< number of free pages that may be allocated by us */
+	uintptr_t page_size;   /*!< page size in bytes */
 } vmem_hugepage_info_t;
 
 typedef void *ADDRESS;
@@ -87,20 +87,35 @@ void addressRange_Init(AddressRange *range, ADDRESS start, ADDRESS end);
 BOOLEAN addressRange_Intersect(AddressRange *a, AddressRange *b, AddressRange *result);
 BOOLEAN addressRange_IsValid(AddressRange *range);
 uintptr_t addressRange_Width(AddressRange *range);
-ADDRESS findAvailableMemoryBlockNoMalloc(struct OMRPortLibrary *portLibrary, ADDRESS start, ADDRESS end, uintptr_t byteAmount, BOOLEAN reverse);
+ADDRESS findAvailableMemoryBlockNoMalloc(struct OMRPortLibrary *portLibrary, ADDRESS start, ADDRESS end,
+										 uintptr_t byteAmount, BOOLEAN reverse);
 
-static void *getMemoryInRangeForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, key_t addressKey, OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t pageSize, uintptr_t mode);
-static void *getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode);
-static void *allocateMemoryForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, void *currentAddress, key_t addressKey, OMRMemCategory *category, uintptr_t byteAmount, uintptr_t pageSize, uintptr_t mode);
+static void *getMemoryInRangeForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+										   key_t addressKey, OMRMemCategory *category, uintptr_t byteAmount,
+										   void *startAddress, void *endAddress, uintptr_t alignmentInBytes,
+										   uintptr_t vmemOptions, uintptr_t pageSize, uintptr_t mode);
+static void *getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary,
+											 struct J9PortVmemIdentifier *identifier, OMRMemCategory *category,
+											 uintptr_t byteAmount, void *startAddress, void *endAddress,
+											 uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode);
+static void *allocateMemoryForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+										 void *currentAddress, key_t addressKey, OMRMemCategory *category,
+										 uintptr_t byteAmount, uintptr_t pageSize, uintptr_t mode);
 static BOOLEAN isStrictAndOutOfRange(void *memoryPointer, void *startAddress, void *endAddress, uintptr_t vmemOptions);
 static BOOLEAN rangeIsValid(struct J9PortVmemIdentifier *identifier, void *address, uintptr_t byteAmount);
-static void *reserveLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress, uintptr_t pageSize, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode);
+static void *reserveLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+							   OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress,
+							   uintptr_t pageSize, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode);
 
-void *default_pageSize_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize, OMRMemCategory *category);
+void *default_pageSize_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+									  struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize,
+									  OMRMemCategory *category);
 #if defined(OMR_PORT_NUMA_SUPPORT)
 static void port_numa_interleave_memory(struct OMRPortLibrary *portLibrary, void *start, uintptr_t size);
 #endif /* OMR_PORT_NUMA_SUPPORT */
-void update_vmemIdentifier(J9PortVmemIdentifier *identifier, void *address, void *handle, uintptr_t byteAmount, uintptr_t mode, uintptr_t pageSize, uintptr_t pageFlags, uintptr_t allocator, OMRMemCategory *category);
+void update_vmemIdentifier(J9PortVmemIdentifier *identifier, void *address, void *handle, uintptr_t byteAmount,
+						   uintptr_t mode, uintptr_t pageSize, uintptr_t pageFlags, uintptr_t allocator,
+						   OMRMemCategory *category);
 static uintptr_t get_hugepages_info(struct OMRPortLibrary *portLibrary, vmem_hugepage_info_t *page_info);
 int get_protectionBits(uintptr_t mode);
 
@@ -110,7 +125,8 @@ int get_protectionBits(uintptr_t mode);
  * We define our own helper to make the syscall so that we can use it without relying on external libraries.
  */
 static long
-do_mbind(void *start, unsigned long len, int policy, const unsigned long *nodemask, unsigned long maxnode, unsigned flags)
+do_mbind(void *start, unsigned long len, int policy, const unsigned long *nodemask, unsigned long maxnode,
+		 unsigned flags)
 {
 	return (long)syscall(SYS_mbind, start, len, policy, nodemask, maxnode, flags);
 }
@@ -166,7 +182,8 @@ initializeNumaGlobals(struct OMRPortLibrary *portLibrary)
 	/* look-up the process's default NUMA policy as applied to the set of nodes (the policy is usually "0" and applies to no nodes) */
 	PPG_numa_policy_mode = -1;
 	memset(&PPG_numa_mempolicy_node_mask, 0, sizeof(J9PortNodeMask));
-	mempolicyReturnCode = do_get_mempolicy(&PPG_numa_policy_mode, PPG_numa_mempolicy_node_mask.mask, maxNodes, (unsigned long)NULL, 0);
+	mempolicyReturnCode =
+		do_get_mempolicy(&PPG_numa_policy_mode, PPG_numa_mempolicy_node_mask.mask, maxNodes, (unsigned long)NULL, 0);
 
 	if (0 == mempolicyReturnCode) {
 
@@ -181,7 +198,8 @@ initializeNumaGlobals(struct OMRPortLibrary *portLibrary)
 		}
 		if (0 == anySet) {
 			/* If an empty set is returned, e.g. if numactl is not used, ask again with MPOL_F_MEMS_ALLOWED to get the correct node mask. */
-			mempolicyReturnCode = do_get_mempolicy((int *) NULL, PPG_numa_mempolicy_node_mask.mask, maxNodes, (unsigned long)NULL, MPOL_F_MEMS_ALLOWED);
+			mempolicyReturnCode = do_get_mempolicy((int *)NULL, PPG_numa_mempolicy_node_mask.mask, maxNodes,
+												   (unsigned long)NULL, MPOL_F_MEMS_ALLOWED);
 
 			/* MPOL_F_MEMS_ALLOWED is unavailable on older systems. If it fails, we use PPG_numa_available_node_mask instead. */
 			if (0 != mempolicyReturnCode) {
@@ -230,7 +248,8 @@ initializeNumaGlobals(struct OMRPortLibrary *portLibrary)
 		result = -1;
 	} else if (1 == useAllNodes) {
 		/* Failed to get memory policy allowed nodes, use all available nodes instead. */
-		memcpy(PPG_numa_mempolicy_node_mask.mask, PPG_numa_available_node_mask.mask, sizeof(PPG_numa_available_node_mask.mask));
+		memcpy(PPG_numa_mempolicy_node_mask.mask, PPG_numa_available_node_mask.mask,
+			   sizeof(PPG_numa_available_node_mask.mask));
 	}
 
 	return result;
@@ -269,7 +288,6 @@ addressRange_Intersect(AddressRange *a, AddressRange *b, AddressRange *result)
 	return addressRange_IsValid(result);
 }
 
-
 /*
  * Calculate if a range is valid.
  * A valid range should have start < its end
@@ -279,10 +297,7 @@ addressRange_Intersect(AddressRange *a, AddressRange *b, AddressRange *result)
  * Returns TRUE if range's start < end.
  */
 BOOLEAN
-addressRange_IsValid(AddressRange *range)
-{
-	return (range->end > range->start) ? TRUE : FALSE;
-}
+addressRange_IsValid(AddressRange *range) { return (range->end > range->start) ? TRUE : FALSE; }
 
 /*
  * Calculate out the with of a range
@@ -315,7 +330,8 @@ addressRange_Width(AddressRange *range)
  * returns the address available.
  */
 ADDRESS
-findAvailableMemoryBlockNoMalloc(struct OMRPortLibrary *portLibrary, ADDRESS start, ADDRESS end, uintptr_t byteAmount, BOOLEAN reverse)
+findAvailableMemoryBlockNoMalloc(struct OMRPortLibrary *portLibrary, ADDRESS start, ADDRESS end, uintptr_t byteAmount,
+								 BOOLEAN reverse)
 {
 	BOOLEAN dataCorrupt = FALSE;
 	BOOLEAN matchFound = FALSE;
@@ -416,8 +432,8 @@ findAvailableMemoryBlockNoMalloc(struct OMRPortLibrary *portLibrary, ADDRESS sta
 						currentMmapRange.end = (ADDRESS)end;
 						lineCursor = 0;
 
-						if ((currentMmapRange.start >= currentMmapRange.end) ||
-							(currentMmapRange.start < lastMmapRange.end)) {
+						if ((currentMmapRange.start >= currentMmapRange.end)
+							|| (currentMmapRange.start < lastMmapRange.end)) {
 							dataCorrupt = TRUE;
 							break;
 						}
@@ -448,7 +464,7 @@ findAvailableMemoryBlockNoMalloc(struct OMRPortLibrary *portLibrary, ADDRESS sta
 						}
 					}
 					lineEnd = FALSE;
-				} /* end proc-line-data */
+				}							  /* end proc-line-data */
 			} while (readCursor < bytesRead); /* end proc-chars-loop */
 
 			if ((FALSE == reverse) && (TRUE == matchFound)) {
@@ -527,7 +543,8 @@ omrvmem_startup(struct OMRPortLibrary *portLibrary)
 }
 
 void *
-omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+					  struct J9PortVmemIdentifier *identifier)
 {
 	void *rc = NULL;
 	Trc_PRT_vmem_omrvmem_commit_memory_Entry(address, byteAmount);
@@ -537,9 +554,8 @@ omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr
 		ASSERT_VALUE_IS_PAGE_SIZE_ALIGNED(byteAmount, identifier->pageSize);
 
 		/* Default page size */
-		if (PPG_vmem_pageSize[0] == identifier->pageSize ||
-			0 != (identifier->mode & OMRPORT_VMEM_MEMORY_MODE_EXECUTE)
-		) {
+		if (PPG_vmem_pageSize[0] == identifier->pageSize
+			|| 0 != (identifier->mode & OMRPORT_VMEM_MEMORY_MODE_EXECUTE)) {
 			if (0 == mprotect(address, byteAmount, get_protectionBits(identifier->mode))) {
 #if defined(J9VMEM_DEBUG)
 				printf("\t\t omrvmem_commit_memory called mprotect, returning 0x%zx\n", address);
@@ -548,14 +564,14 @@ omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr
 				rc = address;
 			} else {
 				Trc_PRT_vmem_omrvmem_commit_memory_mprotect_failure(errno);
-				portLibrary->error_set_last_error(portLibrary,  errno, OMRPORT_ERROR_VMEM_OPFAILED);
+				portLibrary->error_set_last_error(portLibrary, errno, OMRPORT_ERROR_VMEM_OPFAILED);
 			}
 		} else if (PPG_vmem_pageSize[1] == identifier->pageSize) {
 			rc = address;
 		}
 	} else {
 		Trc_PRT_vmem_omrvmem_commit_memory_invalidRange(identifier->address, identifier->size, address, byteAmount);
-		portLibrary->error_set_last_error(portLibrary,  -1, OMRPORT_ERROR_VMEM_INVALID_PARAMS);
+		portLibrary->error_set_last_error(portLibrary, -1, OMRPORT_ERROR_VMEM_INVALID_PARAMS);
 	}
 
 #if defined(J9VMEM_DEBUG)
@@ -567,7 +583,8 @@ omrvmem_commit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr
 }
 
 intptr_t
-omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+						struct J9PortVmemIdentifier *identifier)
 {
 	intptr_t result = -1;
 
@@ -580,7 +597,7 @@ omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintp
 
 			if (byteAmount > 0) {
 				if (identifier->allocator == OMRPORT_VMEM_RESERVE_USED_MMAP) {
-					result  = (intptr_t)madvise((void *)address, (size_t) byteAmount, MADV_DONTNEED);
+					result = (intptr_t)madvise((void *)address, (size_t)byteAmount, MADV_DONTNEED);
 				} else {
 					/* need to determine what to use in the case of shmat/shmget, till then return success */
 					result = 0;
@@ -596,14 +613,16 @@ omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintp
 			}
 		} else {
 			result = -1;
-			Trc_PRT_vmem_omrvmem_decommit_memory_invalidRange(identifier->address, identifier->size, address, byteAmount);
-			portLibrary->error_set_last_error(portLibrary,  result, OMRPORT_ERROR_VMEM_INVALID_PARAMS);
+			Trc_PRT_vmem_omrvmem_decommit_memory_invalidRange(identifier->address, identifier->size, address,
+															  byteAmount);
+			portLibrary->error_set_last_error(portLibrary, result, OMRPORT_ERROR_VMEM_INVALID_PARAMS);
 		}
 	} else {
 		if (!rangeIsValid(identifier, address, byteAmount)) {
 			result = -1;
-			Trc_PRT_vmem_omrvmem_decommit_memory_invalidRange(identifier->address, identifier->size, address, byteAmount);
-			portLibrary->error_set_last_error(portLibrary,  result, OMRPORT_ERROR_VMEM_INVALID_PARAMS);
+			Trc_PRT_vmem_omrvmem_decommit_memory_invalidRange(identifier->address, identifier->size, address,
+															  byteAmount);
+			portLibrary->error_set_last_error(portLibrary, result, OMRPORT_ERROR_VMEM_INVALID_PARAMS);
 		} else {
 			ASSERT_VALUE_IS_PAGE_SIZE_ALIGNED(address, identifier->pageSize);
 			ASSERT_VALUE_IS_PAGE_SIZE_ALIGNED(byteAmount, identifier->pageSize);
@@ -618,7 +637,8 @@ omrvmem_decommit_memory(struct OMRPortLibrary *portLibrary, void *address, uintp
 }
 
 int32_t
-omrvmem_free_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_free_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+					struct J9PortVmemIdentifier *identifier)
 {
 	int32_t ret = -1;
 	OMRMemCategory *category = identifier->category;
@@ -662,7 +682,8 @@ omrvmem_vmem_params_init(struct OMRPortLibrary *portLibrary, struct J9PortVmemPa
 }
 
 void *
-omrvmem_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize, uint32_t category)
+omrvmem_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+					   struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize, uint32_t category)
 {
 	struct J9PortVmemParams params;
 	omrvmem_vmem_params_init(portLibrary, &params);
@@ -680,7 +701,8 @@ omrvmem_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintpt
 }
 
 void *
-omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, struct J9PortVmemParams *params)
+omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+						  struct J9PortVmemParams *params)
 {
 	void *memoryPointer = NULL;
 	OMRMemCategory *category = omrmem_get_category(portLibrary, params->category);
@@ -700,7 +722,9 @@ omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemI
 
 		/* Make sure that the alignment is a multiple of both requested alignment and page size (enforces that arguments are powers of two and, thus, their max is their lowest common multiple) */
 		if ((0 == minimumGranule) || (0 == (alignmentInBytes % minimumGranule))) {
-			memoryPointer = getMemoryInRangeForDefaultPages(portLibrary, identifier, category, params->byteAmount, params->startAddress, params->endAddress, alignmentInBytes, params->options, params->mode);
+			memoryPointer = getMemoryInRangeForDefaultPages(portLibrary, identifier, category, params->byteAmount,
+															params->startAddress, params->endAddress, alignmentInBytes,
+															params->options, params->mode);
 		}
 	} else if (PPG_vmem_pageSize[1] == params->pageSize) {
 		uintptr_t largePageAlignmentInBytes = OMR_MAX(params->pageSize, params->alignmentInBytes);
@@ -708,7 +732,9 @@ omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemI
 
 		/* Make sure that the alignment is a multiple of both requested alignment and page size (enforces that arguments are powers of two and, thus, their max is their lowest common multiple) */
 		if ((0 == largePageMinimumGranule) || (0 == (largePageAlignmentInBytes % largePageMinimumGranule))) {
-			memoryPointer = reserveLargePages(portLibrary, identifier, category, params->byteAmount, params->startAddress, params->endAddress, params->pageSize, largePageAlignmentInBytes, params->options, params->mode);
+			memoryPointer = reserveLargePages(portLibrary, identifier, category, params->byteAmount,
+											  params->startAddress, params->endAddress, params->pageSize,
+											  largePageAlignmentInBytes, params->options, params->mode);
 		}
 		if (NULL == memoryPointer) {
 			/* If strict page size flag is not set try again with default page size */
@@ -723,7 +749,9 @@ omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemI
 
 				/* Make sure that the alignment is a multiple of both requested alignment and page size (enforces that arguments are powers of two and, thus, their max is their lowest common multiple) */
 				if ((0 == minimumGranule) || (0 == (alignmentInBytes % minimumGranule))) {
-					memoryPointer = getMemoryInRangeForDefaultPages(portLibrary, identifier, category, params->byteAmount, params->startAddress, params->endAddress, alignmentInBytes, params->options, params->mode);
+					memoryPointer = getMemoryInRangeForDefaultPages(
+						portLibrary, identifier, category, params->byteAmount, params->startAddress, params->endAddress,
+						alignmentInBytes, params->options, params->mode);
 				}
 			} else {
 				update_vmemIdentifier(identifier, NULL, NULL, 0, 0, 0, 0, 0, NULL);
@@ -750,7 +778,9 @@ omrvmem_reserve_memory_ex(struct OMRPortLibrary *portLibrary, struct J9PortVmemI
 }
 
 static void *
-reserveLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress, uintptr_t pageSize, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode)
+reserveLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, OMRMemCategory *category,
+				  uintptr_t byteAmount, void *startAddress, void *endAddress, uintptr_t pageSize,
+				  uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode)
 {
 	/* The address should usually be passed in as NULL in order to let the kernel find and assign a
 	 * large enough window of virtual memory
@@ -769,11 +799,13 @@ reserveLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifie
 		shmgetFlags |= SHM_W;
 	}
 
-	addressKey = shmget(IPC_PRIVATE, (size_t) byteAmount, shmgetFlags);
+	addressKey = shmget(IPC_PRIVATE, (size_t)byteAmount, shmgetFlags);
 	if (-1 == addressKey) {
 		Trc_PRT_vmem_omrvmem_reserve_memory_shmget_failed(byteAmount, shmgetFlags);
 	} else {
-		memoryPointer = getMemoryInRangeForLargePages(portLibrary, identifier, addressKey, category, byteAmount, startAddress, endAddress, alignmentInBytes, vmemOptions, pageSize, mode);
+		memoryPointer =
+			getMemoryInRangeForLargePages(portLibrary, identifier, addressKey, category, byteAmount, startAddress,
+										  endAddress, alignmentInBytes, vmemOptions, pageSize, mode);
 
 		/* release when complete, protect from ^C or crash */
 		if (0 != shmctl(addressKey, IPC_RMID, NULL)) {
@@ -837,9 +869,9 @@ omrvmem_supported_page_flags(struct OMRPortLibrary *portLibrary)
 static uintptr_t
 get_hugepages_info(struct OMRPortLibrary *portLibrary, vmem_hugepage_info_t *page_info)
 {
-	int 	fd;
-	int	bytes_read;
-	char	*line_ptr, read_buf[VMEM_MEMINFO_SIZE_MAX];
+	int fd;
+	int bytes_read;
+	char *line_ptr, read_buf[VMEM_MEMINFO_SIZE_MAX];
 
 	fd = omrfile_open(portLibrary, VMEM_PROC_MEMINFO_FNAME, EsOpenRead, 0);
 	if (fd < 0) {
@@ -866,7 +898,8 @@ get_hugepages_info(struct OMRPortLibrary *portLibrary, vmem_hugepage_info_t *pag
 		int tokens_assigned = sscanf(line_ptr, "%127s %" SCNuPTR " %*s", token_name, &token_value);
 
 #ifdef LPDEBUG
-		portLibrary->tty_printf(portLibrary, "/proc/meminfo => %s [%" PRIuPTR "] %d\n", token_name, token_value, tokens_assigned);
+		portLibrary->tty_printf(portLibrary, "/proc/meminfo => %s [%" PRIuPTR "] %d\n", token_name, token_value,
+								tokens_assigned);
 #endif
 
 		if (2 == tokens_assigned) {
@@ -875,13 +908,13 @@ get_hugepages_info(struct OMRPortLibrary *portLibrary, vmem_hugepage_info_t *pag
 			} else if (!strcmp(token_name, "HugePages_Free:")) {
 				page_info->pages_free = token_value;
 			} else if (!strcmp(token_name, "Hugepagesize:")) {
-				page_info->page_size = token_value * 1024;	/* value is in KB, convert to bytes */
+				page_info->page_size = token_value * 1024; /* value is in KB, convert to bytes */
 			}
 		}
 
 		line_ptr = strpbrk(line_ptr, "\n");
 		if (line_ptr && *line_ptr) {
-			line_ptr++;	/* skip the \n if we are not done yet */
+			line_ptr++; /* skip the \n if we are not done yet */
 		}
 	}
 
@@ -895,7 +928,9 @@ get_hugepages_info(struct OMRPortLibrary *portLibrary, vmem_hugepage_info_t *pag
 	return 1;
 }
 void *
-default_pageSize_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize, OMRMemCategory *category)
+default_pageSize_reserve_memory(struct OMRPortLibrary *portLibrary, void *address, uintptr_t byteAmount,
+								struct J9PortVmemIdentifier *identifier, uintptr_t mode, uintptr_t pageSize,
+								OMRMemCategory *category)
 {
 	/* This function is cloned in J9SourceUnixJ9VMem (omrvmem_reserve_memory).
 	 * Any changes made here may need to be reflected in that version .
@@ -936,7 +971,8 @@ default_pageSize_reserve_memory(struct OMRPortLibrary *portLibrary, void *addres
 			result = NULL;
 		} else {
 			/* Update identifier and commit memory if required, else return reserved memory */
-			update_vmemIdentifier(identifier, result, result, byteAmount, mode, pageSize, OMRPORT_VMEM_PAGE_FLAG_NOT_USED, OMRPORT_VMEM_RESERVE_USED_MMAP, category);
+			update_vmemIdentifier(identifier, result, result, byteAmount, mode, pageSize,
+								  OMRPORT_VMEM_PAGE_FLAG_NOT_USED, OMRPORT_VMEM_RESERVE_USED_MMAP, category);
 			omrmem_categories_increment_counters(category, byteAmount);
 			if (0 != (OMRPORT_VMEM_MEMORY_MODE_COMMIT & mode)) {
 				if (NULL == omrvmem_commit_memory(portLibrary, result, byteAmount, identifier)) {
@@ -972,7 +1008,9 @@ default_pageSize_reserve_memory(struct OMRPortLibrary *portLibrary, void *addres
  * @param[in] category Memory allocation category
  */
 void
-update_vmemIdentifier(J9PortVmemIdentifier *identifier, void *address, void *handle, uintptr_t byteAmount, uintptr_t mode, uintptr_t pageSize, uintptr_t pageFlags, uintptr_t allocator, OMRMemCategory *category)
+update_vmemIdentifier(J9PortVmemIdentifier *identifier, void *address, void *handle, uintptr_t byteAmount,
+					  uintptr_t mode, uintptr_t pageSize, uintptr_t pageFlags, uintptr_t allocator,
+					  OMRMemCategory *category)
 {
 	identifier->address = address;
 	identifier->handle = handle;
@@ -1007,7 +1045,7 @@ get_protectionBits(uintptr_t mode)
 
 #if defined(OMR_PORT_NUMA_SUPPORT)
 void
-port_numa_interleave_memory(struct OMRPortLibrary *portLibrary, void  *start, uintptr_t  size)
+port_numa_interleave_memory(struct OMRPortLibrary *portLibrary, void *start, uintptr_t size)
 {
 	Trc_PRT_vmem_port_numa_interleave_memory_enter();
 
@@ -1022,11 +1060,12 @@ port_numa_interleave_memory(struct OMRPortLibrary *portLibrary, void  *start, ui
 		unsigned long maxnode = sizeof(J9PortNodeMask) * 8;
 
 		if (0 != do_mbind(start, size, MPOL_INTERLEAVE, PPG_numa_mempolicy_node_mask.mask, maxnode, 0)) {
-			if (0 != do_mbind(start, size, MPOL_INTERLEAVE, PPG_numa_mempolicy_node_mask.mask, PPG_numa_max_node_bits, 0)) {
+			if (0 != do_mbind(start, size, MPOL_INTERLEAVE, PPG_numa_mempolicy_node_mask.mask, PPG_numa_max_node_bits,
+							  0)) {
 				/* record the error in the trace buffer and assert */
 				Trc_PRT_vmem_port_numa_interleave_memory_mbind_failed(errno, strerror(errno));
 
-				/* There are cases where mbind() can fail that we are currently not handling. Instead of
+/* There are cases where mbind() can fail that we are currently not handling. Instead of
 				 * asserting, and thereby bringing down the VM in such cases, simply record the above
 				 * tracepoint and continue execution, since this isn't a fatal error.
 				 *
@@ -1053,7 +1092,8 @@ port_numa_interleave_memory(struct OMRPortLibrary *portLibrary, void  *start, ui
 #endif /* defined(OMR_PORT_NUMA_SUPPORT) */
 
 void
-omrvmem_default_large_page_size_ex(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize, uintptr_t *pageFlags)
+omrvmem_default_large_page_size_ex(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize,
+								   uintptr_t *pageFlags)
 {
 #if defined(LINUXPPC)
 	if (OMRPORT_VMEM_MEMORY_MODE_EXECUTE != (OMRPORT_VMEM_MEMORY_MODE_EXECUTE & mode))
@@ -1092,7 +1132,8 @@ omrvmem_default_large_page_size_ex(struct OMRPortLibrary *portLibrary, uintptr_t
 }
 
 intptr_t
-omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize, uintptr_t *pageFlags, BOOLEAN *isSizeSupported)
+omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode, uintptr_t *pageSize,
+							 uintptr_t *pageFlags, BOOLEAN *isSizeSupported)
 {
 	uintptr_t validPageSize = *pageSize;
 	uintptr_t validPageFlags = *pageFlags;
@@ -1103,13 +1144,13 @@ omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode,
 
 	if (0 != validPageSize) {
 #if defined(LINUXPPC)
-		/* On Linux PPC, for executable pages, search through the list of supported page sizes only if
+/* On Linux PPC, for executable pages, search through the list of supported page sizes only if
 		 * - request is for 16M pages, and
 		 * - 64 bit system OR (32 bit system AND CodeCacheConsolidation is enabled)
 		 */
 #if defined(OMR_ENV_DATA64)
-		if ((OMRPORT_VMEM_MEMORY_MODE_EXECUTE != (OMRPORT_VMEM_MEMORY_MODE_EXECUTE & mode)) ||
-			(SIXTEEN_M == validPageSize))
+		if ((OMRPORT_VMEM_MEMORY_MODE_EXECUTE != (OMRPORT_VMEM_MEMORY_MODE_EXECUTE & mode))
+			|| (SIXTEEN_M == validPageSize))
 #else
 		/* Check if the TR_ppcCodeCacheConsolidationEnabled env variable is set.
 		 * TR_ppcCodeCacheConsolidationEnabled is a manually set env variable used to indicate
@@ -1122,8 +1163,8 @@ omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode,
 				codeCacheConsolidationEnabled = TRUE;
 			}
 		}
-		if ((OMRPORT_VMEM_MEMORY_MODE_EXECUTE != (OMRPORT_VMEM_MEMORY_MODE_EXECUTE & mode)) ||
-			((TRUE == codeCacheConsolidationEnabled) && (SIXTEEN_M == validPageSize)))
+		if ((OMRPORT_VMEM_MEMORY_MODE_EXECUTE != (OMRPORT_VMEM_MEMORY_MODE_EXECUTE & mode))
+			|| ((TRUE == codeCacheConsolidationEnabled) && (SIXTEEN_M == validPageSize)))
 #endif /* defined(OMR_ENV_DATA64) */
 #endif /* defined(LINUXPPC) */
 		{
@@ -1132,9 +1173,8 @@ omrvmem_find_valid_page_size(struct OMRPortLibrary *portLibrary, uintptr_t mode,
 			uintptr_t *supportedPageFlags = portLibrary->vmem_supported_page_flags(portLibrary);
 
 			for (pageIndex = 0; 0 != supportedPageSizes[pageIndex]; pageIndex++) {
-				if ((supportedPageSizes[pageIndex] == validPageSize) &&
-					(supportedPageFlags[pageIndex] == validPageFlags)
-				) {
+				if ((supportedPageSizes[pageIndex] == validPageSize)
+					&& (supportedPageFlags[pageIndex] == validPageFlags)) {
 					goto _end;
 				}
 			}
@@ -1173,7 +1213,9 @@ _end:
  * to the newly allocated memory. Returns NULL on failure.
  */
 static void *
-getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode)
+getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+								OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress,
+								uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t mode)
 {
 	intptr_t direction = 1;
 	void *currentAddress = startAddress;
@@ -1212,10 +1254,12 @@ getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary, struct J9Por
 		if (1 == direction) {
 			smartAddress = findAvailableMemoryBlockNoMalloc(portLibrary, currentAddress, endAddress, byteAmount, FALSE);
 		} else {
-			smartAddress = findAvailableMemoryBlockNoMalloc(portLibrary, startAddress, currentAddress, byteAmount, TRUE);
+			smartAddress =
+				findAvailableMemoryBlockNoMalloc(portLibrary, startAddress, currentAddress, byteAmount, TRUE);
 		}
 
-		allocatedAddress = default_pageSize_reserve_memory(portLibrary, smartAddress, byteAmount, identifier, mode, PPG_vmem_pageSize[0], category);
+		allocatedAddress = default_pageSize_reserve_memory(portLibrary, smartAddress, byteAmount, identifier, mode,
+														   PPG_vmem_pageSize[0], category);
 
 		if (NULL != allocatedAddress) {
 			/* If the memoryPointer located outside of the range, free it and set the pointer to NULL */
@@ -1235,7 +1279,8 @@ getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary, struct J9Por
 	if (NULL == memoryPointer) {
 		/* try all addresses within range */
 		while ((startAddress <= currentAddress) && (endAddress >= currentAddress)) {
-			memoryPointer = default_pageSize_reserve_memory(portLibrary, currentAddress, byteAmount, identifier, mode, PPG_vmem_pageSize[0], category);
+			memoryPointer = default_pageSize_reserve_memory(portLibrary, currentAddress, byteAmount, identifier, mode,
+															PPG_vmem_pageSize[0], category);
 
 			if (NULL != memoryPointer) {
 				/* stop if returned pointer is within range */
@@ -1253,8 +1298,8 @@ getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary, struct J9Por
 			currentAddress += direction * alignmentInBytes;
 
 			/* protect against loop around */
-			if (((1 == direction) && ((uintptr_t)oldAddress > (uintptr_t)currentAddress)) ||
-				((-1 == direction) && ((uintptr_t)oldAddress < (uintptr_t)currentAddress))) {
+			if (((1 == direction) && ((uintptr_t)oldAddress > (uintptr_t)currentAddress))
+				|| ((-1 == direction) && ((uintptr_t)oldAddress < (uintptr_t)currentAddress))) {
 				break;
 			}
 		}
@@ -1262,8 +1307,9 @@ getMemoryInRangeForDefaultPages(struct OMRPortLibrary *portLibrary, struct J9Por
 
 	/* if strict flag is not set and we did not get any memory, attempt to get memory at any address */
 	if (0 == (OMRPORT_VMEM_STRICT_ADDRESS & vmemOptions) && (NULL == memoryPointer)) {
-allocAnywhere:
-		memoryPointer = default_pageSize_reserve_memory(portLibrary, NULL, byteAmount, identifier, mode, PPG_vmem_pageSize[0], category);
+	allocAnywhere:
+		memoryPointer = default_pageSize_reserve_memory(portLibrary, NULL, byteAmount, identifier, mode,
+														PPG_vmem_pageSize[0], category);
 	}
 
 	if (NULL == memoryPointer) {
@@ -1272,7 +1318,8 @@ allocAnywhere:
 		/* if strict flag is set and returned pointer is not within range then fail */
 		omrvmem_free_memory(portLibrary, memoryPointer, byteAmount, identifier);
 
-		Trc_PRT_vmem_omrvmem_reserve_memory_ex_UnableToAllocateWithinSpecifiedRange(byteAmount, startAddress, endAddress);
+		Trc_PRT_vmem_omrvmem_reserve_memory_ex_UnableToAllocateWithinSpecifiedRange(byteAmount, startAddress,
+																					endAddress);
 
 		memoryPointer = NULL;
 	}
@@ -1286,7 +1333,10 @@ allocAnywhere:
  * to the newly allocated memory. Returns NULL on failure.
  */
 static void *
-getMemoryInRangeForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, key_t addressKey, OMRMemCategory *category, uintptr_t byteAmount, void *startAddress, void *endAddress, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t pageSize, uintptr_t mode)
+getMemoryInRangeForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+							  key_t addressKey, OMRMemCategory *category, uintptr_t byteAmount, void *startAddress,
+							  void *endAddress, uintptr_t alignmentInBytes, uintptr_t vmemOptions, uintptr_t pageSize,
+							  uintptr_t mode)
 {
 	intptr_t direction = 1;
 	void *currentAddress = startAddress;
@@ -1328,7 +1378,8 @@ getMemoryInRangeForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortV
 			}
 		}
 
-		memoryPointer = allocateMemoryForLargePages(portLibrary, identifier, currentAddress, addressKey, category, byteAmount, pageSize, mode);
+		memoryPointer = allocateMemoryForLargePages(portLibrary, identifier, currentAddress, addressKey, category,
+													byteAmount, pageSize, mode);
 
 		/* stop if returned pointer is within range */
 		if ((MAP_FAILED != memoryPointer) && (startAddress <= memoryPointer) && (endAddress >= memoryPointer)) {
@@ -1340,16 +1391,17 @@ getMemoryInRangeForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortV
 		currentAddress += direction * alignmentInBytes;
 
 		/* protect against loop around */
-		if (((1 == direction) && ((uintptr_t)oldAddress > (uintptr_t)currentAddress)) ||
-			((-1 == direction) && ((uintptr_t)oldAddress < (uintptr_t)currentAddress))) {
+		if (((1 == direction) && ((uintptr_t)oldAddress > (uintptr_t)currentAddress))
+			|| ((-1 == direction) && ((uintptr_t)oldAddress < (uintptr_t)currentAddress))) {
 			break;
 		}
 	}
 
 	/* if strict flag is not set and we did not get any memory, attempt to get memory at any address */
 	if (0 == (OMRPORT_VMEM_STRICT_ADDRESS & vmemOptions) && (MAP_FAILED == memoryPointer)) {
-allocAnywhere:
-		memoryPointer = allocateMemoryForLargePages(portLibrary, identifier, NULL, addressKey, category, byteAmount, pageSize, mode);
+	allocAnywhere:
+		memoryPointer = allocateMemoryForLargePages(portLibrary, identifier, NULL, addressKey, category, byteAmount,
+													pageSize, mode);
 	}
 
 	if (MAP_FAILED == memoryPointer) {
@@ -1359,7 +1411,8 @@ allocAnywhere:
 		/* if strict flag is set and returned pointer is not within range then fail */
 		omrvmem_free_memory(portLibrary, memoryPointer, byteAmount, identifier);
 
-		Trc_PRT_vmem_omrvmem_reserve_memory_ex_UnableToAllocateWithinSpecifiedRange(byteAmount, startAddress, endAddress);
+		Trc_PRT_vmem_omrvmem_reserve_memory_ex_UnableToAllocateWithinSpecifiedRange(byteAmount, startAddress,
+																					endAddress);
 
 		memoryPointer = NULL;
 	}
@@ -1374,12 +1427,15 @@ allocAnywhere:
  * is being used NULL upon failure else -1 upon failure.
  */
 static void *
-allocateMemoryForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier, void *currentAddress, key_t addressKey, OMRMemCategory *category, uintptr_t byteAmount, uintptr_t pageSize, uintptr_t mode)
+allocateMemoryForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVmemIdentifier *identifier,
+							void *currentAddress, key_t addressKey, OMRMemCategory *category, uintptr_t byteAmount,
+							uintptr_t pageSize, uintptr_t mode)
 {
 	void *memoryPointer = shmat(addressKey, currentAddress, 0);
 
 	if (MAP_FAILED != memoryPointer) {
-		update_vmemIdentifier(identifier, memoryPointer, (void *)(uintptr_t)addressKey, byteAmount, mode, pageSize, OMRPORT_VMEM_PAGE_FLAG_NOT_USED, OMRPORT_VMEM_RESERVE_USED_SHM, category);
+		update_vmemIdentifier(identifier, memoryPointer, (void *)(uintptr_t)addressKey, byteAmount, mode, pageSize,
+							  OMRPORT_VMEM_PAGE_FLAG_NOT_USED, OMRPORT_VMEM_RESERVE_USED_SHM, category);
 		omrmem_categories_increment_counters(category, byteAmount);
 	}
 
@@ -1393,8 +1449,8 @@ allocateMemoryForLargePages(struct OMRPortLibrary *portLibrary, struct J9PortVme
 static BOOLEAN
 isStrictAndOutOfRange(void *memoryPointer, void *startAddress, void *endAddress, uintptr_t vmemOptions)
 {
-	if ((0 != (OMRPORT_VMEM_STRICT_ADDRESS & vmemOptions)) &&
-		((memoryPointer > endAddress) || (memoryPointer < startAddress))) {
+	if ((0 != (OMRPORT_VMEM_STRICT_ADDRESS & vmemOptions))
+		&& ((memoryPointer > endAddress) || (memoryPointer < startAddress))) {
 		return TRUE;
 	} else {
 		return FALSE;
@@ -1416,9 +1472,7 @@ rangeIsValid(struct J9PortVmemIdentifier *identifier, void *address, uintptr_t b
 		/* Requested range does not wrap around */
 		uintptr_t realUpperLimit = (uintptr_t)identifier->address + identifier->size - 1;
 
-		if (((uintptr_t)address >= (uintptr_t)identifier->address) &&
-			(requestedUpperLimit <= realUpperLimit)
-		) {
+		if (((uintptr_t)address >= (uintptr_t)identifier->address) && (requestedUpperLimit <= realUpperLimit)) {
 			isValid = TRUE;
 		}
 	}
@@ -1427,7 +1481,8 @@ rangeIsValid(struct J9PortVmemIdentifier *identifier, void *address, uintptr_t b
 }
 
 intptr_t
-omrvmem_numa_set_affinity(struct OMRPortLibrary *portLibrary, uintptr_t numaNode, void *address, uintptr_t byteAmount, struct J9PortVmemIdentifier *identifier)
+omrvmem_numa_set_affinity(struct OMRPortLibrary *portLibrary, uintptr_t numaNode, void *address, uintptr_t byteAmount,
+						  struct J9PortVmemIdentifier *identifier)
 {
 	intptr_t result = OMRPORT_ERROR_VMEM_OPFAILED;
 
@@ -1513,7 +1568,7 @@ omrvmem_numa_get_node_details(struct OMRPortLibrary *portLibrary, J9MemoryNodeDe
 				nodeClearState = J9NUMA_DENIED;
 				break;
 			case MPOL_INTERLEAVE:
-				/* interleave is allowed to fall back to other nodes */
+			/* interleave is allowed to fall back to other nodes */
 			case MPOL_PREFERRED:
 				/* preferred merely states the intent to favour the given node(s) */
 				nodeSetState = J9NUMA_PREFERRED;
@@ -1548,7 +1603,8 @@ omrvmem_numa_get_node_details(struct OMRPortLibrary *portLibrary, J9MemoryNodeDe
 								while ((0 == readdir_r(oneNode, &cpuStorage, &fileEntry)) && (NULL != fileEntry)) {
 									unsigned long cpuIndex = 0;
 									const char *fileName = fileEntry->d_name;
-									if ((1 == sscanf(fileName, "cpu%lu", &cpuIndex)) && (CPU_ISSET(cpuIndex, &PPG_process_affinity))) {
+									if ((1 == sscanf(fileName, "cpu%lu", &cpuIndex))
+										&& (CPU_ISSET(cpuIndex, &PPG_process_affinity))) {
 										/* the CPU exists and is in our process-wide affinity so we know that we can use it */
 										allowedCPUCount += 1;
 									} else if (0 == strcmp(fileName, "meminfo")) {
@@ -1561,7 +1617,8 @@ omrvmem_numa_get_node_details(struct OMRPortLibrary *portLibrary, J9MemoryNodeDe
 										strncat(memInfoFileName, "/meminfo", NAME_MAX);
 										memInfoStream = fopen(memInfoFileName, "r");
 										if (NULL != memInfoStream) {
-											if (1 != fscanf(memInfoStream, " Node %*u MemTotal: %" SCNu64 " kB", &memoryOnNodeInKibiBytes)) {
+											if (1 != fscanf(memInfoStream, " Node %*u MemTotal: %" SCNu64 " kB",
+															&memoryOnNodeInKibiBytes)) {
 												/* failed to find string */
 												memoryOnNodeInKibiBytes = 0;
 											}
@@ -1605,18 +1662,18 @@ omrvmem_get_available_physical_memory(struct OMRPortLibrary *portLibrary, uint64
 	int64_t pageSize = sysconf(_SC_PAGESIZE);
 	int64_t availablePages = 0;
 	uint64_t result = 0;
-	if (pageSize < 0)  {
+	if (pageSize < 0) {
 		intptr_t sysconfError = (intptr_t)errno;
 		Trc_PRT_vmem_get_available_physical_memory_failed("pageSize", sysconfError);
 		return OMRPORT_ERROR_VMEM_OPFAILED;
 	}
 	availablePages = sysconf(_SC_AVPHYS_PAGES);
-	if (availablePages < 0)  {
+	if (availablePages < 0) {
 		intptr_t sysconfError = (intptr_t)errno;
 		Trc_PRT_vmem_get_available_physical_memory_failed("availablePages", sysconfError);
 		return OMRPORT_ERROR_VMEM_OPFAILED;
 	}
-	result =  pageSize * availablePages;
+	result = pageSize * availablePages;
 	*freePhysicalMemorySize = result;
 	Trc_PRT_vmem_get_available_physical_memory_result(result);
 	return 0;
@@ -1629,7 +1686,7 @@ omrvmem_get_process_memory_size(struct OMRPortLibrary *portLibrary, J9VMemMemory
 	int64_t pageSize = -1;
 	Trc_PRT_vmem_get_process_memory_enter((int32_t)queryType);
 	pageSize = sysconf(_SC_PAGESIZE);
-	if (pageSize <= 0)  {
+	if (pageSize <= 0) {
 		intptr_t sysconfError = (intptr_t)errno;
 		Trc_PRT_vmem_get_process_memory_failed("pageSize", sysconfError);
 		result = OMRPORT_ERROR_VMEM_OPFAILED;

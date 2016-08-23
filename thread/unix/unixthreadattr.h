@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef UNIXTHREADATTR_H_
 #define UNIXTHREADATTR_H_
 

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "cudaTests.hpp"
 
 /**
@@ -47,13 +46,13 @@ TEST_F(CudaDeviceTest, linking)
 		ASSERT_EQ(0, rc) << "omrcuda_linkerCreate failed";
 		ASSERT_NOT_NULL(linker) << "created null linker";
 
-		rc = omrcuda_linkerAddData(deviceId, linker, J9CUDA_JIT_INPUT_TYPE_PTX,
-		        ptxFragment1.data, ptxFragment1.length, "fragment1", NULL);
+		rc = omrcuda_linkerAddData(deviceId, linker, J9CUDA_JIT_INPUT_TYPE_PTX, ptxFragment1.data, ptxFragment1.length,
+								   "fragment1", NULL);
 
 		ASSERT_EQ(0, rc) << "omrcuda_linkerAddData failed";
 
-		rc = omrcuda_linkerAddData(deviceId, linker, J9CUDA_JIT_INPUT_TYPE_PTX,
-				ptxFragment2.data, ptxFragment2.length, "fragment2", NULL);
+		rc = omrcuda_linkerAddData(deviceId, linker, J9CUDA_JIT_INPUT_TYPE_PTX, ptxFragment2.data, ptxFragment2.length,
+								   "fragment2", NULL);
 
 		ASSERT_EQ(0, rc) << "omrcuda_linkerAddData failed";
 

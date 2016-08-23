@@ -36,7 +36,7 @@ Symbol_IR::~Symbol_IR()
 		if (NULL == _types[i]) {
 			ERRMSG("Null member, cannot free");
 		} else {
-			delete(_types[i]);
+			delete (_types[i]);
 		}
 	}
 	_types.clear();
@@ -48,7 +48,6 @@ typedef struct {
 	string overrideName;
 	bool isTypeOverride;
 } FieldOverride;
-
 
 DDR_RC
 Symbol_IR::applyOverrideList(OMRPortLibrary *portLibrary, const char *overrideFiles)
@@ -150,11 +149,8 @@ Symbol_IR::applyOverrides(OMRPortLibrary *portLibrary, const char *overrideFile)
 						size_t dotPosition = line.find(".");
 						size_t equalsPosition = line.find("=", dotPosition);
 						FieldOverride to = {
-							line.substr(0, dotPosition),
-							line.substr(dotPosition + 1, equalsPosition - dotPosition - 1),
-							line.substr(equalsPosition + 1, line.length() - equalsPosition - 1),
-							isTypeOverride
-						};
+							line.substr(0, dotPosition), line.substr(dotPosition + 1, equalsPosition - dotPosition - 1),
+							line.substr(equalsPosition + 1, line.length() - equalsPosition - 1), isTypeOverride};
 						overrideList.push_back(to);
 						if (DDR_RC_OK != rc) {
 							break;
@@ -170,7 +166,7 @@ Symbol_IR::applyOverrides(OMRPortLibrary *portLibrary, const char *overrideFile)
 	/* Create a map of type name to vector of types to check all types
 	 * by name for type overrides.
 	 */
-	map<string, vector<Type *> > typeNames;
+	map<string, vector<Type *>> typeNames;
 	for (vector<Type *>::iterator it = _types.begin(); it != _types.end(); it += 1) {
 		Type *type = *it;
 		typeNames[type->_name].push_back(type);
@@ -199,7 +195,8 @@ Symbol_IR::applyOverrides(OMRPortLibrary *portLibrary, const char *overrideFile)
 				ClassType *ct = dynamic_cast<ClassType *>(*it2);
 				/* Iterate the fields of structures with matching names. */
 				if (NULL != ct) {
-					for (vector<Field *>::iterator it3 = ct->_fieldMembers.begin(); it3 != ct->_fieldMembers.end(); it3 += 1) {
+					for (vector<Field *>::iterator it3 = ct->_fieldMembers.begin(); it3 != ct->_fieldMembers.end();
+						 it3 += 1) {
 						/* Once a matching structure and field name are found, apply the override. */
 						if ((*it3)->_name == type.fieldName) {
 							if (type.isTypeOverride) {
@@ -278,7 +275,7 @@ DDR_RC
 Symbol_IR::removeDuplicates()
 {
 	DDR_RC rc = DDR_RC_OK;
-	map<string, vector<Type *> > typeNames;
+	map<string, vector<Type *>> typeNames;
 
 	/* Create a map of type name to vector of types to check all types
 	 * which share a name for duplicates.

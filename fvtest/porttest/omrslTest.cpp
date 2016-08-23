@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup PortTest
@@ -29,7 +28,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "omrport.h"
-
 
 #include "testHelpers.hpp"
 #include "testProcessHelpers.hpp"
@@ -66,9 +64,7 @@ TEST(PortSlTest, sl_verify_function_slots)
 	}
 
 	reportTestExit(OMRPORTLIB, testName);
-
 }
-
 
 /**
  * Basic test: load the port Library dll.
@@ -107,14 +103,14 @@ TEST(PortSlTest, sl_testOpenPathLengths)
 	uintptr_t rc = 0;
 #if defined(WIN32)
 	const char *fakeName = "\\temp";
-#else /* defined(WIN32) */
+#else  /* defined(WIN32) */
 	const char *fakeName = "/temp";
 #endif /* defined(WIN32) */
 	size_t fakeNameLength = strlen(fakeName);
-	char sharedLibName[2*EsMaxPath] = "temp";
+	char sharedLibName[2 * EsMaxPath] = "temp";
 	size_t pathLength = strlen(sharedLibName);
 
-	/* Within omrsl_open_shared_library,
+/* Within omrsl_open_shared_library,
 	 * zOS - "lib.so" is added to the input path
 	 * Win - ".dll" is added to the input path
 	 * Unix - "lib.so" is added to the input path
@@ -126,13 +122,13 @@ TEST(PortSlTest, sl_testOpenPathLengths)
 #elif defined(AIXPPC) /* defined(WIN32) */
 #if defined(J9OS_I5)
 	const char *extension = ".srvpgm";
-#else /* defined(J9OS_I5) */
+#else  /* defined(J9OS_I5) */
 	const char *extension = "lib.so";
 #endif /* defined(J9OS_I5) */
-#else /* defined(AIXPPC) */
+#else  /* defined(AIXPPC) */
 #if defined(OSX)
 	const char *extension = "lib.dylib";
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 	const char *extension = "lib.so";
 #endif /* defined(OSX) */
 #endif /* defined(WIN32) */
@@ -155,7 +151,9 @@ TEST(PortSlTest, sl_testOpenPathLengths)
 	/* Check if OMRPORT_SL_UNSUPPORTED is received for a path of EsMaxPath - strlen(extension) chars that includes the NUL terminator */
 	rc = omrsl_open_shared_library(sharedLibName, &handle, OMRPORT_SLOPEN_DECORATE);
 	if (OMRPORT_SL_UNSUPPORTED != rc) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Received error code %zu instead of error code %zu for shared library, \n%s,\n", rc, (uintptr_t)OMRPORT_SL_UNSUPPORTED, sharedLibName, omrerror_last_error_message());
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Received error code %zu instead of error code %zu for shared library, \n%s,\n", rc,
+						   (uintptr_t)OMRPORT_SL_UNSUPPORTED, sharedLibName, omrerror_last_error_message());
 		goto exit;
 	}
 
@@ -167,7 +165,10 @@ TEST(PortSlTest, sl_testOpenPathLengths)
 	/* Check if OMRPORT_SL_INVALID or OMRPORT_SL_NOT_FOUND is received for an incorrect path of EsMaxPath - strlen(extension) - 1 chars that includes the NUL terminator */
 	rc = omrsl_open_shared_library(sharedLibName, &handle, OMRPORT_SLOPEN_DECORATE);
 	if ((OMRPORT_SL_INVALID != rc) && (OMRPORT_SL_NOT_FOUND != rc)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Received error code %zu instead of error code %zu or %zu for shared library, \n%s,\n", rc, (uintptr_t)OMRPORT_SL_INVALID, (uintptr_t)OMRPORT_SL_NOT_FOUND, sharedLibName, omrerror_last_error_message());
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Received error code %zu instead of error code %zu or %zu for shared library, \n%s,\n", rc,
+						   (uintptr_t)OMRPORT_SL_INVALID, (uintptr_t)OMRPORT_SL_NOT_FOUND, sharedLibName,
+						   omrerror_last_error_message());
 		goto exit;
 	}
 
@@ -216,14 +217,17 @@ TEST(PortSlTest, sl_AixDLLMissingDependency)
 
 	rc = omrsl_open_shared_library(sharedLibName, &handle, OMRPORT_SLOPEN_DECORATE);
 	if (0 == rc) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, " Unexpectedly loaded %s, should have failed with dependency error\n", sharedLibName, omrerror_last_error_message());
+		outputErrorMessage(PORTTEST_ERROR_ARGS, " Unexpectedly loaded %s, should have failed with dependency error\n",
+						   sharedLibName, omrerror_last_error_message());
 		goto exit;
 	}
 
 	osErrMsg = omrerror_last_error_message();
 	outputComment(OMRPORTLIB, "System error message=\n\"%s\"\n", osErrMsg);
 	if (!isValidLoadErrorMessage(osErrMsg, possibleMessageStrings)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, " Cannot find valid error code, should have failed with dependency error\n", sharedLibName, omrerror_last_error_message());
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   " Cannot find valid error code, should have failed with dependency error\n", sharedLibName,
+						   omrerror_last_error_message());
 	}
 exit:
 
@@ -239,33 +243,34 @@ TEST(PortSlTest, sl_AixDLLWrongPlatform)
 	const char *testName = "omrsl_AixDLLWrongPlatform";
 	uintptr_t handle;
 	uintptr_t rc = 0;
-	/* Intentionally load 64bit dll on 32 bit AIX, and 32bit dll on 64bit AIX */
+/* Intentionally load 64bit dll on 32 bit AIX, and 32bit dll on 64bit AIX */
 #if defined(OMR_ENV_DATA64)
 	char *sharedLibName = "/usr/lib/jpa";
 #else
 	char *sharedLibName = "/usr/lib/jpa64";
 #endif
 	const char *osErrMsg;
-	const char *possibleMessageStrings[] = {"0509-103", "System error: Exec format error",
-											"0509-026", "System error: Cannot run a file that does not have a valid format",
-											NULL};
+	const char *possibleMessageStrings[] = {"0509-103", "System error: Exec format error", "0509-026",
+											"System error: Cannot run a file that does not have a valid format", NULL};
 
 	reportTestEntry(OMRPORTLIB, testName);
 
 	rc = omrsl_open_shared_library(sharedLibName, &handle, OMRPORT_SLOPEN_DECORATE);
 	if (0 == rc) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpectedly loaded %s, should have failed with dependency error\n", sharedLibName, omrerror_last_error_message());
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "Unexpectedly loaded %s, should have failed with dependency error\n",
+						   sharedLibName, omrerror_last_error_message());
 		goto exit;
 	}
 
 	osErrMsg = omrerror_last_error_message();
 	outputComment(OMRPORTLIB, "System error message=\n\"%s\"\n", osErrMsg);
 	if (!isValidLoadErrorMessage(osErrMsg, possibleMessageStrings)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "Cannot find valid error code, should have failed with wrong platform error\n", sharedLibName, omrerror_last_error_message());
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "Cannot find valid error code, should have failed with wrong platform error\n",
+						   sharedLibName, omrerror_last_error_message());
 	}
 exit:
 
 	reportTestExit(OMRPORTLIB, testName);
 }
 #endif /* defined(AIXPPC) */
-

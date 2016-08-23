@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "DbgMsg.hpp"
 #include <stdio.h>
 #include <stdarg.h>

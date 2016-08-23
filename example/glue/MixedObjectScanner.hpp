@@ -27,16 +27,13 @@ class GC_MixedObjectScanner : public GC_ObjectScanner
 {
 	/* Data Members */
 private:
-	fomrobject_t * const _endPtr;	/**< end scan pointer */
-	fomrobject_t *_mapPtr;			/**< pointer to first slot in current scan segment */
+	fomrobject_t *const _endPtr; /**< end scan pointer */
+	fomrobject_t *_mapPtr;		 /**< pointer to first slot in current scan segment */
 
 protected:
-
 public:
-
 	/* Member Functions */
 private:
-
 protected:
 	/**
 	 * @param[in] env The scanning thread environment
@@ -44,9 +41,11 @@ protected:
 	 * @param[in] flags Scanning context flags
 	 */
 	GC_MixedObjectScanner(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr, uintptr_t flags)
-		: GC_ObjectScanner(env, objectPtr, (fomrobject_t *)objectPtr + 1, 0, flags, 0)
-		, _endPtr((fomrobject_t *)((uint8_t*)objectPtr + MM_GCExtensionsBase::getExtensions(env->getOmrVM())->objectModel.getConsumedSizeInBytesWithHeader(objectPtr)))
-		, _mapPtr(_scanPtr)
+		: GC_ObjectScanner(env, objectPtr, (fomrobject_t *)objectPtr + 1, 0, flags, 0),
+		  _endPtr((fomrobject_t *)((uint8_t *)objectPtr
+								   + MM_GCExtensionsBase::getExtensions(env->getOmrVM())
+										 ->objectModel.getConsumedSizeInBytesWithHeader(objectPtr))),
+		  _mapPtr(_scanPtr)
 	{
 		_typeId = __FUNCTION__;
 	}
@@ -86,7 +85,7 @@ public:
 	{
 		GC_MixedObjectScanner *objectScanner = NULL;
 		if (NULL != allocSpace) {
-			new(allocSpace) GC_MixedObjectScanner(env, objectPtr, flags);
+			new (allocSpace) GC_MixedObjectScanner(env, objectPtr, flags);
 			objectScanner = (GC_MixedObjectScanner *)allocSpace;
 			objectScanner->initialize(env);
 		}

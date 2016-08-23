@@ -34,7 +34,7 @@ MM_Task::accept(MM_EnvironmentBase *env)
 	} else {
 		Assert_MM_true(J9VMSTATE_GC_DISPATCHER_IDLE == oldVMstate);
 	}
-	
+
 	/* do task-specific setup */
 	setup(env);
 }
@@ -49,17 +49,17 @@ MM_Task::masterCleanup(MM_EnvironmentBase *env)
 {
 }
 
-void 
+void
 MM_Task::setup(MM_EnvironmentBase *env)
 {
 }
 
-void 
+void
 MM_Task::cleanup(MM_EnvironmentBase *env)
 {
 }
 
-void 
+void
 MM_Task::complete(MM_EnvironmentBase *env)
 {
 	Assert_MM_true(getVMStateID() == env->getOmrVMThread()->vmState);
@@ -71,23 +71,23 @@ MM_Task::complete(MM_EnvironmentBase *env)
 	}
 
 	env->popVMstate(oldVMstate);
-	
+
 	/* do task-specific cleanup */
 	cleanup(env);
 }
 
-bool 
+bool
 MM_Task::handleNextWorkUnit(MM_EnvironmentBase *env)
 {
 	return true;
 }
 
-void 
+void
 MM_Task::synchronizeGCThreads(MM_EnvironmentBase *env, const char *id)
 {
 }
 
-bool 
+bool
 MM_Task::synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase *env, const char *id)
 {
 	return true;
@@ -99,12 +99,12 @@ MM_Task::synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase *env, con
 	return true;
 }
 
-void 
+void
 MM_Task::releaseSynchronizedGCThreads(MM_EnvironmentBase *env)
 {
 }
 
-bool 
+bool
 MM_Task::isSynchronized()
 {
 	return false;

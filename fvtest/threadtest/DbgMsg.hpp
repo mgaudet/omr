@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef DBGMSG_HPP_INCLUDED
 #define DBGMSG_HPP_INCLUDED
 

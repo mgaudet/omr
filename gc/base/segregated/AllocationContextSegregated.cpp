@@ -38,14 +38,16 @@
 
 #if defined(OMR_GC_SEGREGATED_HEAP)
 
-#define MAX_UINT ((uintptr_t) (-1))
+#define MAX_UINT ((uintptr_t)(-1))
 
 MM_AllocationContextSegregated *
-MM_AllocationContextSegregated::newInstance(MM_EnvironmentBase *env, MM_GlobalAllocationManagerSegregated *gam, MM_RegionPoolSegregated *regionPool)
+MM_AllocationContextSegregated::newInstance(MM_EnvironmentBase *env, MM_GlobalAllocationManagerSegregated *gam,
+											MM_RegionPoolSegregated *regionPool)
 {
-	MM_AllocationContextSegregated *allocCtxt = (MM_AllocationContextSegregated *)env->getForge()->allocate(sizeof(MM_AllocationContextSegregated), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	MM_AllocationContextSegregated *allocCtxt = (MM_AllocationContextSegregated *)env->getForge()->allocate(
+		sizeof(MM_AllocationContextSegregated), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (allocCtxt) {
-		new(allocCtxt) MM_AllocationContextSegregated(env, gam, regionPool);
+		new (allocCtxt) MM_AllocationContextSegregated(env, gam, regionPool);
 		if (!allocCtxt->initialize(env)) {
 			allocCtxt->kill(env);
 			allocCtxt = NULL;
@@ -63,28 +65,33 @@ MM_AllocationContextSegregated::initialize(MM_EnvironmentBase *env)
 		return false;
 	}
 
-	if (0 != omrthread_monitor_init_with_name(&_mutexSmallAllocations, 0, "MM_AllocationContextSegregated small allocation monitor")) {
+	if (0 != omrthread_monitor_init_with_name(&_mutexSmallAllocations, 0,
+											  "MM_AllocationContextSegregated small allocation monitor")) {
 		return false;
 	}
 
-	if (0 != omrthread_monitor_init_with_name(&_mutexArrayletAllocations, 0, "MM_AllocationContextSegregated arraylet allocation monitor")) {
+	if (0 != omrthread_monitor_init_with_name(&_mutexArrayletAllocations, 0,
+											  "MM_AllocationContextSegregated arraylet allocation monitor")) {
 		return false;
 	}
 
 	for (int32_t i = 0; i < OMR_SIZECLASSES_NUM_SMALL + 1; i++) {
 		_smallRegions[i] = NULL;
 		/* the small allocation lock needs to be acquired before small full region queue can be accessed, no concurrent access should be possible */
-		_perContextSmallFullRegions[i] = MM_RegionPoolSegregated::allocateHeapRegionQueue(env, MM_HeapRegionList::HRL_KIND_FULL, true, false, false);
+		_perContextSmallFullRegions[i] =
+			MM_RegionPoolSegregated::allocateHeapRegionQueue(env, MM_HeapRegionList::HRL_KIND_FULL, true, false, false);
 		if (NULL == _perContextSmallFullRegions[i]) {
 			return false;
 		}
 	}
 
 	/* the arraylet allocation lock needs to be acquired before arraylet full region queue can be accessed, no concurrent access should be possible */
-	_perContextArrayletFullRegions = MM_RegionPoolSegregated::allocateHeapRegionQueue(env, MM_HeapRegionList::HRL_KIND_FULL, true, false, false);
+	_perContextArrayletFullRegions =
+		MM_RegionPoolSegregated::allocateHeapRegionQueue(env, MM_HeapRegionList::HRL_KIND_FULL, true, false, false);
 	/* no locking done in the AC level for large allocation, large full page queue _is_ accessed concurrently */
-	_perContextLargeFullRegions = MM_RegionPoolSegregated::allocateHeapRegionQueue(env, MM_HeapRegionList::HRL_KIND_FULL, false, true, false);
-	if ((NULL == _perContextArrayletFullRegions ) || (NULL == _perContextLargeFullRegions)) {
+	_perContextLargeFullRegions =
+		MM_RegionPoolSegregated::allocateHeapRegionQueue(env, MM_HeapRegionList::HRL_KIND_FULL, false, true, false);
+	if ((NULL == _perContextArrayletFullRegions) || (NULL == _perContextLargeFullRegions)) {
 		return false;
 	}
 
@@ -205,7 +212,9 @@ MM_AllocationContextSegregated::tryAllocateRegionFromSmallSizeClass(MM_Environme
 }
 
 bool
-MM_AllocationContextSegregated::trySweepAndAllocateRegionFromSmallSizeClass(MM_EnvironmentBase *env, uintptr_t sizeClass, uintptr_t *sweepCount, uint64_t *sweepStartTime)
+MM_AllocationContextSegregated::trySweepAndAllocateRegionFromSmallSizeClass(MM_EnvironmentBase *env,
+																			uintptr_t sizeClass, uintptr_t *sweepCount,
+																			uint64_t *sweepStartTime)
 {
 	bool result = false;
 
@@ -224,7 +233,7 @@ MM_AllocationContextSegregated::tryAllocateFromRegionPool(MM_EnvironmentBase *en
 {
 	MM_HeapRegionDescriptorSegregated *region = _regionPool->allocateFromRegionPool(env, 1, sizeClass, MAX_UINT);
 	bool result = false;
-	if(NULL != region) {
+	if (NULL != region) {
 		/* cache the small full region in AC */
 		_perContextSmallFullRegions[sizeClass]->enqueue(region);
 
@@ -261,7 +270,8 @@ MM_AllocationContextSegregated::preAllocateSmall(MM_EnvironmentBase *env, uintpt
 	uintptr_t *result = NULL;
 
 	/* BEN TODO 1429: The object allocation interface base class should define all API used by this method such that casting would be unnecessary. */
-	MM_SegregatedAllocationInterface* segregatedAllocationInterface = (MM_SegregatedAllocationInterface*)env->_objectAllocationInterface;
+	MM_SegregatedAllocationInterface *segregatedAllocationInterface =
+		(MM_SegregatedAllocationInterface *)env->_objectAllocationInterface;
 	uintptr_t replenishSize = segregatedAllocationInterface->getReplenishSize(env, sizeInBytesRequired);
 	uintptr_t preAllocatedBytes = 0;
 
@@ -271,14 +281,15 @@ MM_AllocationContextSegregated::preAllocateSmall(MM_EnvironmentBase *env, uintpt
 		MM_HeapRegionDescriptorSegregated *region = _smallRegions[sizeClass];
 		if (NULL != region) {
 			MM_MemoryPoolAggregatedCellList *memoryPoolACL = region->getMemoryPoolACL();
-			uintptr_t* cellList = memoryPoolACL->preAllocateCells(env, sizeClasses->getCellSize(sizeClass), replenishSize, &preAllocatedBytes);
+			uintptr_t *cellList = memoryPoolACL->preAllocateCells(env, sizeClasses->getCellSize(sizeClass),
+																  replenishSize, &preAllocatedBytes);
 			if (NULL != cellList) {
 				Assert_MM_true(preAllocatedBytes > 0);
 				if (shouldPreMarkSmallCells(env)) {
 					_markingScheme->preMarkSmallCells(env, region, cellList, preAllocatedBytes);
 				}
 				segregatedAllocationInterface->replenishCache(env, sizeInBytesRequired, cellList, preAllocatedBytes);
-				result = (uintptr_t *) segregatedAllocationInterface->allocateFromCache(env, sizeInBytesRequired);
+				result = (uintptr_t *)segregatedAllocationInterface->allocateFromCache(env, sizeInBytesRequired);
 				done = true;
 			}
 		}
@@ -311,7 +322,6 @@ MM_AllocationContextSegregated::preAllocateSmall(MM_EnvironmentBase *env, uintpt
 		smallAllocationUnlock();
 	}
 	return result;
-
 }
 
 #if defined(OMR_GC_ARRAYLETS)

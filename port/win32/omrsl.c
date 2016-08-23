@@ -39,11 +39,7 @@
 #endif
 
 /* Error codes used by checkLibraryType() for incompatible library architecture */
-enum {
-	LIB_UNSUPPORTED_MAGIC = 1,
-	LIB_UNSUPPORTED_SIGNATURE,
-	LIB_UNSUPPORTED_MACHINE
-};
+enum { LIB_UNSUPPORTED_MAGIC = 1, LIB_UNSUPPORTED_SIGNATURE, LIB_UNSUPPORTED_MACHINE };
 
 static uintptr_t EsSharedLibraryLookupName(uintptr_t descriptor, char *name, uintptr_t *func);
 static int32_t findError(int32_t errorCode);
@@ -116,13 +112,9 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 								 | FORMAT_MESSAGE_ARGUMENT_ARRAY | FORMAT_MESSAGE_MAX_WIDTH_MASK;
 				int rc = 0;
 
-				rc = FormatMessageW(msgFlags,
-									NULL,
-									error, /* The error code from above */
+				rc = FormatMessageW(msgFlags, NULL, error,					   /* The error code from above */
 									MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* Default language */
-									(LPWSTR) &errorString,
-									0,
-									NULL);
+									(LPWSTR)&errorString, 0, NULL);
 
 				if ((0 != rc) && (NULL != errorString)) {
 					port_convertToUTF8(portLibrary, errorString, errBuf, sizeof(errBuf) - 1);
@@ -134,10 +126,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 			}
 
 			if (useNlsMessage || platformErrorFailed) {
-				errorMessage = portLibrary->nls_lookup_message(portLibrary,
-							   J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-							   J9NLS_PORT_SL_EXECUTABLE_OPEN_ERROR,
-							   NULL);
+				errorMessage = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+															   J9NLS_PORT_SL_EXECUTABLE_OPEN_ERROR, NULL);
 				portLibrary->str_printf(portLibrary, errBuf, sizeof(errBuf), errorMessage, error);
 				errBuf[sizeof(errBuf) - 1] = '\0';
 			}
@@ -226,10 +216,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 		dllHandle = LoadLibraryExW(unicodeName, NULL, DONT_RESOLVE_DLL_REFERENCES | LOAD_WITH_ALTERED_SEARCH_PATH);
 		if ((HINSTANCE)0 != dllHandle) {
 			if (0 != sizeof(errBuf)) {
-				errorMessage = portLibrary->nls_lookup_message(portLibrary,
-							   J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-							   J9NLS_PORT_SL_UNABLE_TO_RESOLVE_REFERENCES,
-							   NULL);
+				errorMessage = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+															   J9NLS_PORT_SL_UNABLE_TO_RESOLVE_REFERENCES, NULL);
 				strncpy(errBuf, errorMessage, sizeof(errBuf));
 				errBuf[sizeof(errBuf) - 1] = '\0';
 				Trc_PRT_sl_open_shared_library_Event2(errBuf);
@@ -267,25 +255,21 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 
 		unicodeName = port_convertFromUTF8(portLibrary, openName, unicodeBuffer, UNICODE_BUFFER_SIZE);
 		if (NULL == unicodeName) {
-			errorMessage = portLibrary->nls_lookup_message(portLibrary,
-						   J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-						   J9NLS_PORT_SL_INTERNAL_ERROR,
-						   NULL);
+			errorMessage = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+														   J9NLS_PORT_SL_INTERNAL_ERROR, NULL);
 			portLibrary->str_printf(portLibrary, errBuf, sizeof(errBuf), errorMessage, error);
 			errBuf[sizeof(errBuf) - 1] = '\0';
 			SetErrorMode(prevMode);
-			Trc_PRT_sl_open_shared_library_Exit3(nameSize * 2 + 2, notFound ? OMRPORT_SL_NOT_FOUND : OMRPORT_SL_INVALID);
-			return portLibrary->error_set_last_error_with_message(portLibrary, notFound ? OMRPORT_SL_NOT_FOUND : OMRPORT_SL_INVALID, errBuf);
+			Trc_PRT_sl_open_shared_library_Exit3(nameSize * 2 + 2,
+												 notFound ? OMRPORT_SL_NOT_FOUND : OMRPORT_SL_INVALID);
+			return portLibrary->error_set_last_error_with_message(
+				portLibrary, notFound ? OMRPORT_SL_NOT_FOUND : OMRPORT_SL_INVALID, errBuf);
 		}
 
-		FormatMessageW(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY | FORMAT_MESSAGE_MAX_WIDTH_MASK,
-			NULL,
-			error,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* Default language */
-			(LPWSTR) &message,
-			0,
-			(va_list *)&unicodeName);
+		FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY
+						   | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+					   NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* Default language */
+					   (LPWSTR)&message, 0, (va_list *)&unicodeName);
 
 		if (unicodeBuffer != unicodeName) {
 			portLibrary->mem_free_memory(portLibrary, unicodeName);
@@ -295,10 +279,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 			port_convertToUTF8(portLibrary, message, errBuf, sizeof(errBuf) - 1);
 			LocalFree(message);
 		} else {
-			errorMessage = portLibrary->nls_lookup_message(portLibrary,
-						   J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-						   J9NLS_PORT_SL_INTERNAL_ERROR,
-						   NULL);
+			errorMessage = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+														   J9NLS_PORT_SL_INTERNAL_ERROR, NULL);
 			portLibrary->str_printf(portLibrary, errBuf, sizeof(errBuf), errorMessage, error);
 		}
 		errBuf[sizeof(errBuf) - 1] = '\0';
@@ -307,7 +289,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 
 	SetErrorMode(prevMode);
 	Trc_PRT_sl_open_shared_library_Exit2(notFound ? OMRPORT_SL_NOT_FOUND : OMRPORT_SL_INVALID);
-	return portLibrary->error_set_last_error_with_message(portLibrary, notFound ? OMRPORT_SL_NOT_FOUND : OMRPORT_SL_INVALID, errBuf);
+	return portLibrary->error_set_last_error_with_message(portLibrary,
+														  notFound ? OMRPORT_SL_NOT_FOUND : OMRPORT_SL_INVALID, errBuf);
 }
 
 /**
@@ -367,7 +350,8 @@ omrsl_close_shared_library(struct OMRPortLibrary *portLibrary, uintptr_t descrip
  * @note contents of func are undefined on failure.
  */
 uintptr_t
-omrsl_lookup_name(struct OMRPortLibrary *portLibrary, uintptr_t descriptor, char *name, uintptr_t *func, const char *argSignature)
+omrsl_lookup_name(struct OMRPortLibrary *portLibrary, uintptr_t descriptor, char *name, uintptr_t *func,
+				  const char *argSignature)
 {
 	uintptr_t result;
 

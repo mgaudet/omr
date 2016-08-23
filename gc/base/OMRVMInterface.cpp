@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 
 #include "OMRVMInterface.hpp"
@@ -42,9 +41,9 @@ extern "C" {
  * Actions required prior to walking the heap.
  */
 void
-hookWalkHeapStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData)
+hookWalkHeapStart(J9HookInterface **hook, uintptr_t eventNum, void *eventData, void *userData)
 {
-	MM_WalkHeapStartEvent* event = (MM_WalkHeapStartEvent*)eventData;
+	MM_WalkHeapStartEvent *event = (MM_WalkHeapStartEvent *)eventData;
 	GC_OMRVMInterface::flushCachesForWalk(event->omrVM);
 }
 
@@ -52,7 +51,7 @@ hookWalkHeapStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData, v
  * Actions required after to walking the heap.
  */
 void
-hookWalkHeapEnd(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData)
+hookWalkHeapEnd(J9HookInterface **hook, uintptr_t eventNum, void *eventData, void *userData)
 {
 	/* Nothing to do right now */
 }
@@ -65,7 +64,7 @@ hookWalkHeapEnd(J9HookInterface** hook, uintptr_t eventNum, void* eventData, voi
 void
 GC_OMRVMInterface::initializeExtensions(MM_GCExtensionsBase *extensions)
 {
-	J9HookInterface** mmPrivateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
+	J9HookInterface **mmPrivateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
 
 	(*mmPrivateHooks)->J9HookRegister(mmPrivateHooks, J9HOOK_MM_PRIVATE_WALK_HEAP_START, hookWalkHeapStart, NULL);
 	(*mmPrivateHooks)->J9HookRegister(mmPrivateHooks, J9HOOK_MM_PRIVATE_WALK_HEAP_END, hookWalkHeapEnd, NULL);
@@ -74,7 +73,7 @@ GC_OMRVMInterface::initializeExtensions(MM_GCExtensionsBase *extensions)
 /**
  * Return the OMR hook interface for the Memory Manager
  */
-J9HookInterface**
+J9HookInterface **
 GC_OMRVMInterface::getOmrHookInterface(MM_GCExtensionsBase *extensions)
 {
 	return J9_HOOK_INTERFACE(extensions->omrHookInterface);
@@ -84,7 +83,7 @@ GC_OMRVMInterface::getOmrHookInterface(MM_GCExtensionsBase *extensions)
  * Flush Cache for walk.
  */
 void
-GC_OMRVMInterface::flushCachesForWalk(OMR_VM* omrVM)
+GC_OMRVMInterface::flushCachesForWalk(OMR_VM *omrVM)
 {
 	/*
 	 * Environment at this point might be fake, so we can not get this thread info
@@ -96,7 +95,7 @@ GC_OMRVMInterface::flushCachesForWalk(OMR_VM* omrVM)
 
 	GC_OMRVMThreadListIterator threadListIterator(omrVM);
 
-	while((omrVMThread = threadListIterator.nextOMRVMThread()) != NULL) {
+	while ((omrVMThread = threadListIterator.nextOMRVMThread()) != NULL) {
 		MM_EnvironmentBase *envToFlush = MM_EnvironmentBase::getEnvironment(omrVMThread);
 		GC_OMRVMThreadInterface::flushCachesForWalk(envToFlush);
 	}
@@ -115,13 +114,13 @@ GC_OMRVMInterface::flushCachesForGC(MM_EnvironmentBase *env)
 
 	GC_OMRVMThreadListIterator threadListIterator(env->getOmrVM());
 
-	while((omrVMThread = threadListIterator.nextOMRVMThread()) != NULL) {
+	while ((omrVMThread = threadListIterator.nextOMRVMThread()) != NULL) {
 		/* Grab allocation bytes stats per-thread before they're cleared */
-		MM_EnvironmentBase* threadEnv = MM_EnvironmentBase::getEnvironment(omrVMThread);
-		MM_AllocationStats * stats= threadEnv->_objectAllocationInterface->getAllocationStats();
+		MM_EnvironmentBase *threadEnv = MM_EnvironmentBase::getEnvironment(omrVMThread);
+		MM_AllocationStats *stats = threadEnv->_objectAllocationInterface->getAllocationStats();
 		UDATA allocatedBytes = stats->bytesAllocated();
 
-		if(allocatedBytes >= allocatedBytesMax){
+		if (allocatedBytes >= allocatedBytesMax) {
 			allocatedBytesMax = allocatedBytes;
 			vmThreadMax = omrVMThread;
 		}
@@ -142,7 +141,7 @@ GC_OMRVMInterface::flushNonAllocationCaches(MM_EnvironmentBase *env)
 
 	GC_OMRVMThreadListIterator threadListIterator(env->getOmrVM());
 
-	while((omrVMThread = threadListIterator.nextOMRVMThread()) != NULL) {
+	while ((omrVMThread = threadListIterator.nextOMRVMThread()) != NULL) {
 		GC_OMRVMThreadInterface::flushNonAllocationCaches(MM_EnvironmentBase::getEnvironment(omrVMThread));
 	}
 }

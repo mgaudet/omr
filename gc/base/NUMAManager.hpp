@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base_Core
@@ -37,15 +36,22 @@ class MM_NUMAManager
 public:
 protected:
 private:
-	bool _physicalNumaEnabled;	/**< True if physical (as opposed to logical-only as is the case of simulated NUMA) NUMA support is enabled in the receiver */
-	uintptr_t _simulatedNodeCount;	/**< The number of nodes being logically simulated by an fvtest option (changes affinity leaders, not physical nodes, and only honoured if NUMA is disabled) */
-	uintptr_t _maximumNodeNumber;	/**< The highest j9NodeNumber of all elements in the _activeNodes array or 0 if NUMA isn't available or being simulated */
-	J9MemoryNodeDetail *_activeNodes;	/**< The array of node details for the active (having either usable memory or CPUs) NUMA nodes on the system (might be simulated) */
-	uintptr_t _activeNodeCount;	/**< The number of nodes available (used for both affinity leaders and physical nodes - only non-zero if NUMA is enabled or being simulated) */
-	J9MemoryNodeDetail *_affinityLeaders;	/**< A subset of the nodes in _activeNodes which represent the nodes which are offering both physical memory and CPU */
-	uintptr_t _affinityLeaderCount;	/**< The number of elements in the _affinityLeaders array */
-	J9MemoryNodeDetail *_freeProcessorPoolNodes;	/**< A subset of the nodes in _activeNodes which represent the nodes which are offering ONLY CPU */
-	uintptr_t _freeProcessorPoolNodeCount;	/**< The number of elements in the _freeProcessorPoolNodes array */
+	bool
+		_physicalNumaEnabled; /**< True if physical (as opposed to logical-only as is the case of simulated NUMA) NUMA support is enabled in the receiver */
+	uintptr_t
+		_simulatedNodeCount; /**< The number of nodes being logically simulated by an fvtest option (changes affinity leaders, not physical nodes, and only honoured if NUMA is disabled) */
+	uintptr_t
+		_maximumNodeNumber; /**< The highest j9NodeNumber of all elements in the _activeNodes array or 0 if NUMA isn't available or being simulated */
+	J9MemoryNodeDetail *
+		_activeNodes; /**< The array of node details for the active (having either usable memory or CPUs) NUMA nodes on the system (might be simulated) */
+	uintptr_t
+		_activeNodeCount; /**< The number of nodes available (used for both affinity leaders and physical nodes - only non-zero if NUMA is enabled or being simulated) */
+	J9MemoryNodeDetail *
+		_affinityLeaders; /**< A subset of the nodes in _activeNodes which represent the nodes which are offering both physical memory and CPU */
+	uintptr_t _affinityLeaderCount; /**< The number of elements in the _affinityLeaders array */
+	J9MemoryNodeDetail *
+		_freeProcessorPoolNodes; /**< A subset of the nodes in _activeNodes which represent the nodes which are offering ONLY CPU */
+	uintptr_t _freeProcessorPoolNodeCount; /**< The number of elements in the _freeProcessorPoolNodes array */
 
 	/* Member Functions */
 private:
@@ -58,14 +64,20 @@ public:
 	 */
 	void shouldEnablePhysicalNUMA(bool numaEnabled);
 
-	bool isPhysicalNUMAEnabled() const { return _physicalNumaEnabled; }
+	bool
+	isPhysicalNUMAEnabled() const
+	{
+		return _physicalNumaEnabled;
+	}
 
 	/**
 	 * Get low-level NUMA node number from logical node ID.
 	 * @param numaNodeID starting from 1
 	 * If NUMA is explicitly disabled, or not available return 0.
 	 */
-	uintptr_t getJ9NodeNumber(uintptr_t numaNodeID) {
+	uintptr_t
+	getJ9NodeNumber(uintptr_t numaNodeID)
+	{
 		uintptr_t j9NodeNumber = 0;
 
 		if (_physicalNumaEnabled && (numaNodeID > 0)) {
@@ -141,17 +153,11 @@ public:
 	 * Create NUMAManager object.
 	 */
 	MM_NUMAManager()
-		: _physicalNumaEnabled(false)
-		, _simulatedNodeCount(0)
-		, _maximumNodeNumber(0)
-		, _activeNodes(NULL)
-		, _activeNodeCount(0)
-		, _affinityLeaders(NULL)
-		, _affinityLeaderCount(0)
-		, _freeProcessorPoolNodes(NULL)
-		, _freeProcessorPoolNodeCount(0)
-	{}
+		: _physicalNumaEnabled(false), _simulatedNodeCount(0), _maximumNodeNumber(0), _activeNodes(NULL),
+		  _activeNodeCount(0), _affinityLeaders(NULL), _affinityLeaderCount(0), _freeProcessorPoolNodes(NULL),
+		  _freeProcessorPoolNodeCount(0)
+	{
+	}
 };
 
 #endif /* OMR_GC_VLHGC */
-

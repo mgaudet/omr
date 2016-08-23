@@ -21,7 +21,7 @@
 
 #include "omrcfg.h"
 
-#if defined (OMR_GC_HEAP_CARD_TABLE)
+#if defined(OMR_GC_HEAP_CARD_TABLE)
 
 #include "CardCleaner.hpp"
 #include "CollectorLanguageInterface.hpp"
@@ -40,6 +40,7 @@ public:
 protected:
 private:
 	MM_MarkingScheme *_markingScheme;
+
 public:
 protected:
 	/**
@@ -50,7 +51,8 @@ protected:
 	 * @param[in] lowAddress low address of the range to be cleaned
 	 * @param[in] highAddress high address of the range to be cleaned
 	 */
-	virtual void clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
+	virtual void
+	clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
 	{
 		MM_EnvironmentStandard *env = MM_EnvironmentStandard::getEnvironment(envModron);
 		MM_GCExtensionsBase *extensions = env->getExtensions();
@@ -60,7 +62,8 @@ protected:
 		/* previous line value MUST be physically written to memory (relevant for concurrent cleaning) - force such write if necessary */
 		MM_AtomicOperations::sync();
 
-		MM_HeapMapIterator markedObjectIterator(extensions, _markingScheme->getMarkMap(), (uintptr_t *)lowAddress, (uintptr_t *)highAddress);
+		MM_HeapMapIterator markedObjectIterator(extensions, _markingScheme->getMarkMap(), (uintptr_t *)lowAddress,
+												(uintptr_t *)highAddress);
 		omrobjectptr_t object = NULL;
 		while (NULL != (object = markedObjectIterator.nextObject())) {
 			_markingScheme->scanObject(env, object, MM_CollectorLanguageInterface::SCAN_REASON_OVERFLOWED_OBJECT);
@@ -70,16 +73,17 @@ protected:
 	/**
 	 * @see MM_CardCleaner::getVMStateID()
 	 */
-	virtual uintptr_t getVMStateID() { return J9VMSTATE_GC_CARD_CLEANER_FOR_MARKING; }
-	
-public:
+	virtual uintptr_t
+	getVMStateID()
+	{
+		return J9VMSTATE_GC_CARD_CLEANER_FOR_MARKING;
+	}
 
+public:
 	/**
 	 * Create a CardCleaner object specific for Incremental-Update style of marking
 	 */
-	MM_CardCleanerForMarking(MM_MarkingScheme *markingScheme)
-		: MM_CardCleaner()
-		, _markingScheme(markingScheme)
+	MM_CardCleanerForMarking(MM_MarkingScheme *markingScheme) : MM_CardCleaner(), _markingScheme(markingScheme)
 	{
 		_typeId = __FUNCTION__;
 	}

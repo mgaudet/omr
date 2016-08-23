@@ -38,7 +38,7 @@
 extern "C" {
 
 int
-testMain(int argc, char ** argv, char **envp)
+testMain(int argc, char **argv, char **envp)
 {
 	/* Start up */
 	OMR_VM_Example exampleVM;
@@ -56,18 +56,18 @@ testMain(int argc, char ** argv, char **envp)
 	 * than non-recursive. If performing a sequence of function calls that are likely to attach & detach internally,
 	 * it is more efficient to call omrthread_attach() before the entire block.
 	 */
-	int j9rc = (int) omrthread_attach_ex(&self, J9THREAD_ATTR_DEFAULT);
+	int j9rc = (int)omrthread_attach_ex(&self, J9THREAD_ATTR_DEFAULT);
 	Assert_MM_true(0 == j9rc);
 
 	/* Initialize root table */
-	exampleVM.rootTable = hashTableNew(
-			exampleVM._omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(RootEntry), 0, 0, OMRMEM_CATEGORY_MM,
-			rootTableHashFn, rootTableHashEqualFn, NULL, NULL);
+	exampleVM.rootTable =
+		hashTableNew(exampleVM._omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(RootEntry), 0, 0,
+					 OMRMEM_CATEGORY_MM, rootTableHashFn, rootTableHashEqualFn, NULL, NULL);
 
 	/* Initialize root table */
-	exampleVM.objectTable = hashTableNew(
-			exampleVM._omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(ObjectEntry), 0, 0, OMRMEM_CATEGORY_MM,
-			objectTableHashFn, objectTableHashEqualFn, NULL, NULL);
+	exampleVM.objectTable =
+		hashTableNew(exampleVM._omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(ObjectEntry), 0, 0,
+					 OMRMEM_CATEGORY_MM, objectTableHashFn, objectTableHashEqualFn, NULL, NULL);
 
 	/* Initialize heap and collector */
 	{
@@ -84,7 +84,7 @@ testMain(int argc, char ** argv, char **envp)
 	/* Kick off the dispatcher therads */
 	rc = OMR_GC_InitializeDispatcherThreads(omrVMThread);
 	Assert_MM_true(OMR_ERROR_NONE == rc);
-	
+
 	OMRPORT_ACCESS_FROM_OMRVM(exampleVM._omrVM);
 	omrtty_printf("VM/GC INITIALIZED\n");
 
@@ -95,7 +95,8 @@ testMain(int argc, char ** argv, char **envp)
 	MM_GCExtensionsBase *extensions = env->getExtensions();
 
 	omrtty_printf("configuration is %s\n", extensions->configuration->getBaseVirtualTypeId());
-	omrtty_printf("collector interface is %s\n", env->getExtensions()->collectorLanguageInterface->getBaseVirtualTypeId());
+	omrtty_printf("collector interface is %s\n",
+				  env->getExtensions()->collectorLanguageInterface->getBaseVirtualTypeId());
 	omrtty_printf("garbage collector is %s\n", env->getExtensions()->getGlobalCollector()->getBaseVirtualTypeId());
 	omrtty_printf("allocation interface is %s\n", allocationInterface->getBaseVirtualTypeId());
 
@@ -105,7 +106,8 @@ testMain(int argc, char ** argv, char **envp)
 	MM_AllocateDescription mm_allocdescription(size, allocatedFlags, true, true);
 	uintptr_t allocatedCount = 0;
 	while (true) {
-		omrobjectptr_t obj = (omrobjectptr_t)allocationInterface->allocateObject(env, &mm_allocdescription, env->getMemorySpace(), false);
+		omrobjectptr_t obj = (omrobjectptr_t)allocationInterface->allocateObject(env, &mm_allocdescription,
+																				 env->getMemorySpace(), false);
 		if (NULL != obj) {
 			extensions->objectModel.setObjectSize(obj, mm_allocdescription.getBytesRequested());
 			RootEntry rEntry = {"root1", obj};
@@ -124,13 +126,14 @@ testMain(int argc, char ** argv, char **envp)
 	/* Print/verify thread allocation stats before GC */
 	MM_AllocationStats *allocationStats = allocationInterface->getAllocationStats();
 	omrtty_printf("thread allocated %d tlh bytes, %d non-tlh bytes, from %d allocations before NULL\n",
-		allocationStats->tlhBytesAllocated(), allocationStats->nontlhBytesAllocated(), allocatedCount);
+				  allocationStats->tlhBytesAllocated(), allocationStats->nontlhBytesAllocated(), allocatedCount);
 	uintptr_t allocationTotalBytes = allocationStats->tlhBytesAllocated() + allocationStats->nontlhBytesAllocated();
 	uintptr_t allocatedTotalBytes = size * allocatedCount;
 	Assert_MM_true(allocatedTotalBytes == allocationTotalBytes);
 
 	/* Force GC to print verbose system allocation stats -- should match thread allocation stats from before GC */
-	omrobjectptr_t obj = (omrobjectptr_t)allocationInterface->allocateObject(env, &mm_allocdescription, env->getMemorySpace(), true);
+	omrobjectptr_t obj =
+		(omrobjectptr_t)allocationInterface->allocateObject(env, &mm_allocdescription, env->getMemorySpace(), true);
 	env->unwindExclusiveVMAccessForGC();
 	Assert_MM_false(NULL == obj);
 	extensions->objectModel.setObjectSize(obj, mm_allocdescription.getBytesRequested());
@@ -179,5 +182,4 @@ testMain(int argc, char ** argv, char **envp)
 
 	return rc;
 }
-
 }

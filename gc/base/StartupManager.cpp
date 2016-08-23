@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include <string.h>
 
 #include "StartupManager.hpp"
@@ -70,7 +69,7 @@ MM_StartupManager::getUDATAValue(char *option, uintptr_t *outputValue)
 	}
 	buffer[count] = '\0';
 
-	*outputValue = (uintptr_t) atoi(buffer);
+	*outputValue = (uintptr_t)atoi(buffer);
 
 	return count;
 }
@@ -155,7 +154,7 @@ MM_StartupManager::parseGcOptions(MM_GCExtensionsBase *extensions)
 			}
 			strncpy(option, options, end);
 			option[end] = '\0';
-			if(!handleOption(extensions, option)) {
+			if (!handleOption(extensions, option)) {
 				omrtty_printf("Error parsing OMR GC options: '%s'\n", gcOptions);
 				result = false;
 				break;
@@ -262,14 +261,14 @@ MM_StartupManager::handleOption(MM_GCExtensionsBase *extensions, char *option)
 	}
 #endif /* OMR_GC_MODRON_COMPACTION */
 	else if (0 == strncmp(option, OMR_XVERBOSEGCLOG, OMR_XVERBOSEGCLOG_LENGTH)) {
-		verboseFileName = (char *) omrmem_allocate_memory(strlen(option+OMR_XVERBOSEGCLOG_LENGTH)+1, OMRMEM_CATEGORY_MM);
+		verboseFileName =
+			(char *)omrmem_allocate_memory(strlen(option + OMR_XVERBOSEGCLOG_LENGTH) + 1, OMRMEM_CATEGORY_MM);
 		if (NULL == verboseFileName) {
 			result = false;
 		} else {
 			strcpy(verboseFileName, option + OMR_XVERBOSEGCLOG_LENGTH);
 		}
-	}
-	else if (0 == strncmp(option, OMR_XGCBUFFERED_LOGGING, OMR_XGCBUFFERED_LOGGING_LENGTH)) {
+	} else if (0 == strncmp(option, OMR_XGCBUFFERED_LOGGING, OMR_XGCBUFFERED_LOGGING_LENGTH)) {
 		extensions->bufferedLogging = true;
 	}
 #if defined(OMR_GC_MORDON_SCAVENGER)

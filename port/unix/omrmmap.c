@@ -30,7 +30,6 @@
  * still be available, but will simply read the file into allocated memory.
  */
 
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -49,7 +48,7 @@
 #if defined(AIXPPC)
 #include <sys/shm.h>
 #include <sys/vminfo.h>
-#endif/*AIXPPC*/
+#endif /*AIXPPC*/
 
 /**
  * Map a part of file into memory.
@@ -73,7 +72,8 @@
  * @return                       A J9MmapHandle struct or NULL is an error has occurred
  */
 J9MmapHandle *
-omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t offset, uintptr_t size, const char *mappingName, uint32_t flags, uint32_t categoryCode)
+omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t offset, uintptr_t size,
+				 const char *mappingName, uint32_t flags, uint32_t categoryCode)
 {
 	int mmapProt = 0;
 	int mmapFlags = 0;
@@ -113,19 +113,15 @@ omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t off
 	}
 	if (1 != rwCount) {
 		Trc_PRT_mmap_map_file_unix_invalidFlags();
-		errMsg = portLibrary->nls_lookup_message(portLibrary,
-				 J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-				 J9NLS_PORT_MMAP_INVALID_MEMORY_PROTECTION,
-				 NULL);
+		errMsg = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+												 J9NLS_PORT_MMAP_INVALID_MEMORY_PROTECTION, NULL);
 		portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_ERROR_MMAP_MAP_FILE_INVALIDFLAGS, errMsg);
 		return NULL;
 	}
 	if (spCount > 1) {
 		Trc_PRT_mmap_map_file_unix_invalidFlags();
-		errMsg = portLibrary->nls_lookup_message(portLibrary,
-				 J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-				 J9NLS_PORT_MMAP_INVALID_FLAG,
-				 NULL);
+		errMsg = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+												 J9NLS_PORT_MMAP_INVALID_FLAG, NULL);
 		portLibrary->error_set_last_error_with_message(portLibrary, OMRPORT_ERROR_MMAP_MAP_FILE_INVALIDFLAGS, errMsg);
 		return NULL;
 	}
@@ -143,7 +139,8 @@ omrmmap_map_file(struct OMRPortLibrary *portLibrary, intptr_t file, uint64_t off
 		size = buf.st_size;
 	}
 
-	if (!(returnVal = (J9MmapHandle *)portLibrary->mem_allocate_memory(portLibrary, sizeof(J9MmapHandle), OMR_GET_CALLSITE(), categoryCode))) {
+	if (!(returnVal = (J9MmapHandle *)portLibrary->mem_allocate_memory(portLibrary, sizeof(J9MmapHandle),
+																	   OMR_GET_CALLSITE(), categoryCode))) {
 		Trc_PRT_mmap_map_file_cannotallocatehandle();
 		return NULL;
 	}
@@ -291,21 +288,14 @@ omrmmap_startup(struct OMRPortLibrary *portLibrary)
 int32_t
 omrmmap_capabilities(struct OMRPortLibrary *portLibrary)
 {
-	return (OMRPORT_MMAP_CAPABILITY_COPYONWRITE
-			| OMRPORT_MMAP_CAPABILITY_READ
-			| OMRPORT_MMAP_CAPABILITY_PROTECT
-			/* If JSE platforms include WRITE and MSYNC - ZOS included, but currently has own omrmmap.c */
-#if ((defined(LINUX) && defined(J9X86)) \
-  || (defined(LINUXPPC)) \
-  || (defined(LINUX) && defined(S390)) \
-  || (defined(LINUX) && defined(J9HAMMER)) \
-  || (defined(LINUX) && defined(ARM)) \
-  || (defined(AIXPPC)) \
-  || (defined(OSX)))
-			| OMRPORT_MMAP_CAPABILITY_WRITE
-			| OMRPORT_MMAP_CAPABILITY_MSYNC
+	return (OMRPORT_MMAP_CAPABILITY_COPYONWRITE | OMRPORT_MMAP_CAPABILITY_READ | OMRPORT_MMAP_CAPABILITY_PROTECT
+/* If JSE platforms include WRITE and MSYNC - ZOS included, but currently has own omrmmap.c */
+#if ((defined(LINUX) && defined(J9X86)) || (defined(LINUXPPC)) || (defined(LINUX) && defined(S390))                    \
+	 || (defined(LINUX) && defined(J9HAMMER)) || (defined(LINUX) && defined(ARM)) || (defined(AIXPPC))                 \
+	 || (defined(OSX)))
+			| OMRPORT_MMAP_CAPABILITY_WRITE | OMRPORT_MMAP_CAPABILITY_MSYNC
 #endif
-		   );
+			);
 }
 
 intptr_t
@@ -333,7 +323,7 @@ omrmmap_dont_need(struct OMRPortLibrary *portLibrary, const void *startAddress, 
 
 	if (pageSize > 0 && length >= pageSize) {
 		uintptr_t const *endAddress = startAddress + length;
-		uintptr_t const *roundedStart = (uintptr_t const *) ROUND_UP_TO_POWEROF2((uintptr_t) startAddress, pageSize);
+		uintptr_t const *roundedStart = (uintptr_t const *)ROUND_UP_TO_POWEROF2((uintptr_t)startAddress, pageSize);
 		size_t roundedLength = ROUND_DOWN_TO_POWEROF2(endAddress - roundedStart, pageSize);
 		if (roundedLength >= pageSize) {
 

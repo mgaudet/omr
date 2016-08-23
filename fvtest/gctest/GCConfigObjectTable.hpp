@@ -18,8 +18,8 @@
 
 #include "gcTestHelpers.hpp"
 
-class GCConfigObjectTable {
+class GCConfigObjectTable
+{
 private:
-
 public:
 };

@@ -29,9 +29,10 @@
 #define J9BITS_BITS_IN_SLOT 32
 #endif
 
-class MM_Bits {
+class MM_Bits
+{
 private:
-	/** The number of bits to shift by when converting to/from bytes/slots and bytes/ObjectFieldslots */
+/** The number of bits to shift by when converting to/from bytes/slots and bytes/ObjectFieldslots */
 #if defined(OMR_ENV_DATA64)
 	enum {
 		conversionBitShift = 3,
@@ -40,28 +41,33 @@ private:
 #else
 		conversionObjectFieldBitShift = 3
 #endif
-		};
+	};
 #else
-	enum {
-		conversionBitShift = 2,
-		conversionObjectFieldBitShift = 2
-		};
+	enum { conversionBitShift = 2, conversionObjectFieldBitShift = 2 };
 #endif
 
 public:
-	static MMINLINE uintptr_t convertBytesToSlots(uintptr_t x) {
+	static MMINLINE uintptr_t
+	convertBytesToSlots(uintptr_t x)
+	{
 		return x >> conversionBitShift;
 	}
 
-	static MMINLINE uintptr_t convertSlotsToBytes(uintptr_t x) {
+	static MMINLINE uintptr_t
+	convertSlotsToBytes(uintptr_t x)
+	{
 		return x << conversionBitShift;
 	}
 
-	static MMINLINE uintptr_t convertBytesToU32Slots(uintptr_t x) {
+	static MMINLINE uintptr_t
+	convertBytesToU32Slots(uintptr_t x)
+	{
 		return x >> conversionBitShift;
 	}
-	
-	static MMINLINE uintptr_t convertBytesToObjectFieldSlots(uintptr_t x) {
+
+	static MMINLINE uintptr_t
+	convertBytesToObjectFieldSlots(uintptr_t x)
+	{
 		return x >> conversionObjectFieldBitShift;
 	}
 
@@ -70,7 +76,9 @@ public:
 	 * @param[in] object The uintptr_t to check
 	 * @return true if the last bit is set, false otherwise.
 	 */
-	static MMINLINE bool isLowTagged(uintptr_t object) {
+	static MMINLINE bool
+	isLowTagged(uintptr_t object)
+	{
 		return (object & 1) == 1;
 	}
 
@@ -79,7 +87,9 @@ public:
 	 * @param[in] object The uintptr_t whose bits you want to unset.
 	 * @return The same uintptr_t, with the last 2 bits unset.
 	 */
-	static MMINLINE uintptr_t untag(uintptr_t object) {
+	static MMINLINE uintptr_t
+	untag(uintptr_t object)
+	{
 		return object & ~((uintptr_t)3);
 	}
 
@@ -87,12 +97,13 @@ public:
 	 * Calculate the number of bits set to 1 in the input word.
 	 * @return Number of bits set to 1.
 	 */
-	MMINLINE static uintptr_t populationCount(uintptr_t input)
+	MMINLINE static uintptr_t
+	populationCount(uintptr_t input)
 	{
 		uintptr_t work, temp;
 
 		work = input;
-		if(0 == work) {
+		if (0 == work) {
 			return 0;
 		}
 
@@ -117,34 +128,36 @@ public:
 	}
 
 #if defined(WIN32) && !defined(OMR_ENV_DATA64)
-	/**
+/**
 	 * Return the number of bits set to 0 before the first bit set to one starting at the lowest
 	 * significant bit.
 	 * @note If the input is 0, the result is undefined.
 	 * @return Number of non-zero bits starting at the lowest significant bit.
 	 */
 #if defined(WIN32)
-	/* Implicit return in eax, not seen by compiler.  Disable compile warning C4035: no return value */
-#pragma warning(disable:4035)
-	MMINLINE static uintptr_t leadingZeroes(uintptr_t input)
+/* Implicit return in eax, not seen by compiler.  Disable compile warning C4035: no return value */
+#pragma warning(disable : 4035)
+	MMINLINE static uintptr_t
+	leadingZeroes(uintptr_t input)
 	{
 		_asm {
 			bsf eax, input
 		}
 	}
-#pragma warning(default:4035) /* re-enable warning */
-#endif /* WIN32 */
+#pragma warning(default : 4035) /* re-enable warning */
+#endif							/* WIN32 */
 
-	/**
+/**
 	 * Return the number of bits set to 0 before the first bit set to one starting at the highest
 	 * significant bit.
 	 * @note If the input is 0, the result is undefined.
 	 * @return Number of non-zero bits starting at the highest significant bit.
 	 */
 #if defined(WIN32)
-	/* Implicit return in eax, not seen by compiler.  Disable compile warning C4035: no return value */
-#pragma warning(disable:4035)
-	MMINLINE static uintptr_t trailingZeroes(uintptr_t input)
+/* Implicit return in eax, not seen by compiler.  Disable compile warning C4035: no return value */
+#pragma warning(disable : 4035)
+	MMINLINE static uintptr_t
+	trailingZeroes(uintptr_t input)
 	{
 		_asm {
 			bsr eax, input
@@ -152,8 +165,8 @@ public:
 			add eax, J9BITS_BITS_IN_SLOT - 1
 		}
 	}
-#pragma warning(default:4035) /* re-enable warning */
-#endif /* WIN32 */
+#pragma warning(default : 4035) /* re-enable warning */
+#endif							/* WIN32 */
 
 #elif defined(LINUX) && defined(J9HAMMER)
 	/**
@@ -162,10 +175,11 @@ public:
 	 * @note If the input is 0, the result is undefined.
 	 * @return Number of non-zero bits starting at the lowest significant bit.
 	 */
-	MMINLINE static uintptr_t leadingZeroes(uintptr_t input)
+	MMINLINE static uintptr_t
+	leadingZeroes(uintptr_t input)
 	{
 		uintptr_t result;
-		asm volatile(" bsfq %1, %0": "=r"(result): "rm"(input) );
+		asm volatile(" bsfq %1, %0" : "=r"(result) : "rm"(input));
 		return result;
 	}
 
@@ -175,20 +189,20 @@ public:
 	 * @note If the input is 0, the result is undefined.
 	 * @return Number of non-zero bits starting at the highest significant bit.
 	 */
-	MMINLINE static uintptr_t trailingZeroes(uintptr_t input)
+	MMINLINE static uintptr_t
+	trailingZeroes(uintptr_t input)
 	{
 		uintptr_t result;
 		asm volatile(
-				" bsrq %1, %0;"
-				" neg %0;"
-				" add %2, %0;"
-				: "=r"(result)
-				: "rm"(input), "g"(J9BITS_BITS_IN_SLOT - 1) );
+			" bsrq %1, %0;"
+			" neg %0;"
+			" add %2, %0;"
+			: "=r"(result)
+			: "rm"(input), "g"(J9BITS_BITS_IN_SLOT - 1));
 		return result;
 	}
 
 #else /* defined(LINUX) && defined(J9HAMMER) */
-
 
 	/**
 	 * Return the number of bits set to 0 before the first bit set to one starting at the lowest
@@ -196,7 +210,8 @@ public:
 	 * @note If the input is 0, the result is undefined.
 	 * @return Number of non-zero bits starting at the lowest significant bit.
 	 */
-	MMINLINE static uintptr_t leadingZeroes(uintptr_t input)
+	MMINLINE static uintptr_t
+	leadingZeroes(uintptr_t input)
 	{
 		return populationCount(~(input | (0 - input)));
 	}
@@ -210,7 +225,8 @@ public:
 	 * @note If the input is 0, the result is undefined.
 	 * @return Number of non-zero bits starting at the highest significant bit.
 	 */
-	MMINLINE static uintptr_t trailingZeroes(uintptr_t input)
+	MMINLINE static uintptr_t
+	trailingZeroes(uintptr_t input)
 	{
 		uintptr_t work, carry, result;
 		work = input;

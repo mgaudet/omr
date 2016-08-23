@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef CUDA_TESTS_HPP_INCLUDED
 #define CUDA_TESTS_HPP_INCLUDED
 
@@ -26,8 +25,7 @@
 
 #define ASSERT_NOT_NULL(pointer) ASSERT_NE((const void *)0, (pointer))
 
-template <typename Element>
-struct CudaTestArray {
+template <typename Element> struct CudaTestArray {
 	size_t length;
 	Element *data;
 };
@@ -46,14 +44,11 @@ protected:
 		return portTestEnv->getPortLibrary();
 	}
 
-	static bool
-	fillVerify(const void *buffer, uintptr_t size, const void *fill, uintptr_t fillSize);
+	static bool fillVerify(const void *buffer, uintptr_t size, const void *fill, uintptr_t fillSize);
 
-	static void
-	patternFill(void *buffer, uintptr_t size, uint32_t seed);
+	static void patternFill(void *buffer, uintptr_t size, uint32_t seed);
 
-	static bool
-	patternVerify(const void *buffer, uintptr_t size, uint32_t seed);
+	static bool patternVerify(const void *buffer, uintptr_t size, uint32_t seed);
 
 	/**
 	 * Normalize an API version number encoded as (1000 * major + 10 * minor)
@@ -67,7 +62,7 @@ protected:
 	normalizeVersion(uint32_t apiVersion)
 	{
 		uint32_t major = (apiVersion / 1000);
-		uint32_t minor = (apiVersion /   10) % 10;
+		uint32_t minor = (apiVersion / 10) % 10;
 
 		return (major * 10) + minor;
 	}
@@ -86,8 +81,7 @@ protected:
 
 	uint32_t deviceCount;
 
-	virtual void
-	SetUp();
+	virtual void SetUp();
 
 	/**
 	 * Is a message for the given error code required when
@@ -109,17 +103,12 @@ protected:
 		return false;
 	}
 
-	static void
-	testFunction(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function);
+	static void testFunction(OMRPortLibrary *portLibrary, uint32_t deviceId, J9CudaFunction function);
 
-	static void
-	testPeerTransfer(OMRPortLibrary *portLibrary, uint32_t deviceId, uint32_t peerDeviceId);
+	static void testPeerTransfer(OMRPortLibrary *portLibrary, uint32_t deviceId, uint32_t peerDeviceId);
 
 public:
-	CudaDeviceTest()
-		: deviceCount(0)
-	{
-	}
+	CudaDeviceTest() : deviceCount(0) {}
 };
 
 #endif /* CUDA_TESTS_HPP_INCLUDED */

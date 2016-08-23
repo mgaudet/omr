@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef OMREXAMPLEVM_HPP_
 #define OMREXAMPLEVM_HPP_
 

@@ -42,19 +42,19 @@ class MM_WorkPackets;
  */
 class MM_ConcurrentOverflow : public MM_WorkPacketOverflow
 {
-/* Data members */
+	/* Data members */
 public:
 protected:
 private:
 	MM_GCExtensionsBase *_extensions;
 #if defined(OMR_GC_MODRON_SCAVENGER)
-	omrthread_monitor_t _cardsClearingMonitor;	/**< monitor for safe initial Cards clearing in WP Overflow handler */
-	bool _cardsForNewSpaceCleared;	/**< cards must be cleared at first overflow in Concurrent cycle */
-#endif /*  OMR_GC_MODRON_SCAVENGER */
-	
-/* Methods */
+	omrthread_monitor_t _cardsClearingMonitor; /**< monitor for safe initial Cards clearing in WP Overflow handler */
+	bool _cardsForNewSpaceCleared;			   /**< cards must be cleared at first overflow in Concurrent cycle */
+#endif										   /*  OMR_GC_MODRON_SCAVENGER */
+
+	/* Methods */
 public:
-	static MM_ConcurrentOverflow *newInstance(MM_EnvironmentBase *env, MM_WorkPackets *workPackets); 
+	static MM_ConcurrentOverflow *newInstance(MM_EnvironmentBase *env, MM_WorkPackets *workPackets);
 
 	virtual void reset(MM_EnvironmentBase *env);
 	virtual bool isEmpty();
@@ -73,7 +73,8 @@ public:
 	virtual void fillFromOverflow(MM_EnvironmentBase *env, MM_Packet *packet);
 
 #if defined(OMR_GC_MODRON_SCAVENGER)
-	MMINLINE void setCardsForNewSpaceNotCleared()
+	MMINLINE void
+	setCardsForNewSpaceNotCleared()
 	{
 		_cardsForNewSpaceCleared = false;
 	}
@@ -87,23 +88,22 @@ public:
 
 	/**
 	 * Create a ConcurrentOverflow object.
-	 */	
-	MM_ConcurrentOverflow(MM_EnvironmentBase *env,MM_WorkPackets *workPackets) :
-		MM_WorkPacketOverflow(env,workPackets)
-		,_extensions(env->getExtensions())
+	 */
+	MM_ConcurrentOverflow(MM_EnvironmentBase *env, MM_WorkPackets *workPackets)
+		: MM_WorkPacketOverflow(env, workPackets), _extensions(env->getExtensions())
 #if defined(OMR_GC_MODRON_SCAVENGER)
-		,_cardsClearingMonitor(NULL)
-		,_cardsForNewSpaceCleared(false)
+		  ,
+		  _cardsClearingMonitor(NULL), _cardsForNewSpaceCleared(false)
 #endif /*  OMR_GC_MODRON_SCAVENGER */
 	{
 		_typeId = __FUNCTION__;
 	};
-	
+
 protected:
 	bool initialize(MM_EnvironmentBase *env);
 	void tearDown(MM_EnvironmentBase *env);
-private:
 
+private:
 	/**
 	 * Overflow an item
 	 *
@@ -124,7 +124,6 @@ private:
 	 */
 	void clearCardsForNewSpace(MM_EnvironmentStandard *env, MM_ConcurrentGC *collector);
 #endif /*  OMR_GC_MODRON_SCAVENGER */
-
 };
 
 #endif /* CONCURRENTOVERFLOW_HPP_ */

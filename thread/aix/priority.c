@@ -74,7 +74,6 @@ set_priority_spread(void)
 	return -1;
 }
 
-
 intptr_t
 set_pthread_priority(pthread_t handle, omrthread_prio_t j9ThreadPriority)
 {
@@ -120,15 +119,13 @@ initialize_thread_priority(omrthread_t thread)
 		return;
 	}
 
-
 #ifndef J9OS_I5 /* explicitly disabled by iSeries team */
 	/* on some platforms (i.e. Solaris) we get out of range values (e.g. 0) for threads with no explicitly set priority */
-	if (sched_param.sched_priority < sched_get_priority_min(policy) || sched_param.sched_priority > sched_get_priority_max(policy)) {
+	if (sched_param.sched_priority < sched_get_priority_min(policy)
+		|| sched_param.sched_priority > sched_get_priority_max(policy)) {
 		return;
 	}
 #endif
 
 	thread->priority = omrthread_map_native_priority(sched_param.sched_priority);
 }
-
-

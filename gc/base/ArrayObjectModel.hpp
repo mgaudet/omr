@@ -28,7 +28,7 @@
 #if defined(OMR_GC_ARRAYLETS)
 #include "ArrayletObjectModel.hpp"
 typedef GC_ArrayletObjectModel GC_ArrayObjectModel; /**< object model for arrays (arraylet configuration) */
-#else /* OMR_GC_ARRAYLETS */
+#else												/* OMR_GC_ARRAYLETS */
 #error "Non-arraylet indexable object model is not implemented"
 #endif /* OMR_GC_ARRAYLETS */
 

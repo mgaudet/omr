@@ -23,13 +23,7 @@
 #include "config.hpp"
 #include "TypedefUDT.hpp"
 
-Field::Field()
-	: _fieldType(NULL),
-	  _sizeOf(0),
-	  _bitField(0),
-	  _isStatic(false)
-{
-}
+Field::Field() : _fieldType(NULL), _sizeOf(0), _bitField(0), _isStatic(false) {}
 
 string
 Field::getTypeName()

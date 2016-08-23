@@ -16,25 +16,24 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "threadTestLib.hpp"
 
 CMonitor::CMonitor(uintptr_t flags, const char *pName)
 {
-	if (omrthread_monitor_init_with_name(&m_monitor, flags, (char *) pName)) {
+	if (omrthread_monitor_init_with_name(&m_monitor, flags, (char *)pName)) {
 	}
 }
 
 CMonitor::CMonitor(const char *pName)
 {
-	if (omrthread_monitor_init_with_name(&m_monitor, 0, (char *) pName)) {
+	if (omrthread_monitor_init_with_name(&m_monitor, 0, (char *)pName)) {
 	}
 }
 
 char const *
 CMonitor::GetName(void) const
 {
-	return ((J9ThreadMonitor *) m_monitor)->name;
+	return ((J9ThreadMonitor *)m_monitor)->name;
 }
 
 intptr_t
@@ -44,7 +43,7 @@ CMonitor::Enter(void)
 }
 
 intptr_t
-CMonitor::EnterUsingThreadId(CThread& self)
+CMonitor::EnterUsingThreadId(CThread &self)
 {
 	return omrthread_monitor_enter_using_threadId(m_monitor, self.GetId());
 }
@@ -56,7 +55,7 @@ CMonitor::TryEnter(void)
 }
 
 intptr_t
-CMonitor::TryEnterUsingThreadId(CThread& self)
+CMonitor::TryEnterUsingThreadId(CThread &self)
 {
 	return omrthread_monitor_try_enter_using_threadId(m_monitor, self.GetId());
 }
@@ -68,7 +67,7 @@ CMonitor::Exit(void)
 }
 
 intptr_t
-CMonitor::ExitUsingThreadId(CThread& self)
+CMonitor::ExitUsingThreadId(CThread &self)
 {
 	return omrthread_monitor_exit_using_threadId(m_monitor, self.GetId());
 }
@@ -127,10 +126,7 @@ CMonitor::GetMonitor(void) const
 	return m_monitor;
 }
 
-CMonitor::~CMonitor(void)
-{
-	omrthread_monitor_destroy(m_monitor);
-}
+CMonitor::~CMonitor(void) { omrthread_monitor_destroy(m_monitor); }
 
 #if defined(OMR_THR_THREE_TIER_LOCKING)
 /*
@@ -140,7 +136,7 @@ CMonitor::~CMonitor(void)
 unsigned int
 CMonitor::numBlocking(void)
 {
-	J9ThreadMonitor *mon = (J9ThreadMonitor *) m_monitor;
+	J9ThreadMonitor *mon = (J9ThreadMonitor *)m_monitor;
 	unsigned int count = 0;
 
 	MONITOR_LOCK(m_monitor, 0);
@@ -154,11 +150,11 @@ CMonitor::numBlocking(void)
 }
 
 bool
-CMonitor::isThreadBlocking(CThread& thread)
+CMonitor::isThreadBlocking(CThread &thread)
 {
 	bool found = false;
 	const omrthread_t jthread = thread.getThread();
-	J9ThreadMonitor *mon = (J9ThreadMonitor *) m_monitor;
+	J9ThreadMonitor *mon = (J9ThreadMonitor *)m_monitor;
 
 	MONITOR_LOCK(m_monitor, 0);
 	omrthread_t q = mon->blocking;
@@ -205,7 +201,4 @@ CRWMutex::ExitWrite(void)
 	omrthread_rwmutex_exit_write(m_monitor);
 }
 
-CRWMutex::~CRWMutex(void)
-{
-	omrthread_rwmutex_destroy(m_monitor);
-}
+CRWMutex::~CRWMutex(void) { omrthread_rwmutex_destroy(m_monitor); }

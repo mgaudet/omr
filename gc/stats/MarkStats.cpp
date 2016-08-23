@@ -27,7 +27,7 @@ void
 MM_MarkStats::clear()
 {
 	_scanTime = 0;
-	
+
 	_objectsMarked = 0;
 	_objectsScanned = 0;
 	_bytesScanned = 0;

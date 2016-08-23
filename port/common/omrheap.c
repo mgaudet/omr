@@ -29,21 +29,21 @@
 #include <string.h>
 
 struct J9Heap {
-	uintptr_t heapSize; /* total size of the heap in number of slots */
-	uintptr_t firstFreeBlock; /* slot number of the first free block within the heap */
-	uintptr_t lastAllocSlot; /* slot number for the last allocation */
+	uintptr_t heapSize;				   /* total size of the heap in number of slots */
+	uintptr_t firstFreeBlock;		   /* slot number of the first free block within the heap */
+	uintptr_t lastAllocSlot;		   /* slot number for the last allocation */
 	uintptr_t largestAllocSizeVisited; /* largest free list entry visited while performing the last allocation */
 };
 
-#define ALIGNMENT_ROUND_DOWN(value) (((uintptr_t) value) & (~(sizeof(uint64_t) - 1)))
-#define ALIGNMENT_ROUND_UP(value) ((((uintptr_t) value) + (sizeof(uint64_t) - 1)) & (~(sizeof(uint64_t) - 1)))
+#define ALIGNMENT_ROUND_DOWN(value) (((uintptr_t)value) & (~(sizeof(uint64_t) - 1)))
+#define ALIGNMENT_ROUND_UP(value) ((((uintptr_t)value) + (sizeof(uint64_t) - 1)) & (~(sizeof(uint64_t) - 1)))
 
-#define GET_SLOT_NUMBER_FROM(heapBase,heapSlot) ((((uintptr_t)heapSlot)-((uintptr_t)heapBase))/sizeof(uint64_t))
+#define GET_SLOT_NUMBER_FROM(heapBase, heapSlot) ((((uintptr_t)heapSlot) - ((uintptr_t)heapBase)) / sizeof(uint64_t))
 
 /* Amount of metadata used for heap management in bytes. A velid heap size should be at least larger than this.
  * We account for the header size plus 2 padding slots for the initial block in the heap.
  */
-#define HEAP_MANAGEMENT_OVERHEAD (sizeof(J9Heap)+2*sizeof(uint64_t))
+#define HEAP_MANAGEMENT_OVERHEAD (sizeof(J9Heap) + 2 * sizeof(uint64_t))
 
 /**
 * Initialize a contiguous region of memory at heapBase as a heap. The size of the heap is bounded by heapSize.
@@ -555,13 +555,12 @@ omrheap_query_size(struct OMRPortLibrary *portLibrary, struct J9Heap *heap, void
 	/*assertion to check we have an occupied block*/
 	Assert_PRT_true(thisBlockTopPadding[0] < 0);
 
-	toReturn = (uintptr_t) - thisBlockTopPadding[0] * sizeof(int64_t);
+	toReturn = (uintptr_t)-thisBlockTopPadding[0] * sizeof(int64_t);
 
 	Trc_PRT_heap_port_omrheap_query_size_Exit(toReturn);
 
 	return toReturn;
 }
-
 
 /**
 * Increase the bounds of the heap by Suballocate byteAmount bytes from the initialized heap.

@@ -21,7 +21,7 @@
 #include "threaddef.h"
 #include "thread_internal.h"
 
-#undef  ASSERT
+#undef ASSERT
 #define ASSERT(x) /**/
 
 typedef struct RWMutex {
@@ -30,13 +30,13 @@ typedef struct RWMutex {
 	omrthread_t writer;
 } RWMutex;
 
-#define ASSERT_RWMUTEX(m)\
-    ASSERT((m));\
-    ASSERT((m)->syncMon);
+#define ASSERT_RWMUTEX(m)                                                                                              \
+	ASSERT((m));                                                                                                       \
+	ASSERT((m)->syncMon);
 
-#define RWMUTEX_STATUS_IDLE(m)     ((m)->status == 0)
-#define RWMUTEX_STATUS_READING(m)  ((m)->status > 0)
-#define RWMUTEX_STATUS_WRITING(m)  ((m)->status < 0)
+#define RWMUTEX_STATUS_IDLE(m) ((m)->status == 0)
+#define RWMUTEX_STATUS_READING(m) ((m)->status > 0)
+#define RWMUTEX_STATUS_WRITING(m) ((m)->status < 0)
 
 /**
  * Acquire and initialize a new read/write mutex from the threading library.
@@ -59,7 +59,7 @@ omrthread_rwmutex_init(omrthread_rwmutex_t *handle, uintptr_t flags, const char 
 	GLOBAL_LOCK_SIMPLE(lib);
 	mutex = (RWMutex *)pool_newElement(lib->rwmutexPool);
 	GLOBAL_UNLOCK_SIMPLE(lib);
-#else /* defined(OMR_THR_FORK_SUPPORT) */
+#else  /* defined(OMR_THR_FORK_SUPPORT) */
 	mutex = (RWMutex *)omrthread_allocate_memory(lib, sizeof(RWMutex), OMRMEM_CATEGORY_THREADS);
 #endif /* defined(OMR_THR_FORK_SUPPORT) */
 	if (NULL == mutex) {
@@ -104,7 +104,7 @@ omrthread_rwmutex_destroy(omrthread_rwmutex_t mutex)
 	GLOBAL_LOCK_SIMPLE(lib);
 	pool_removeElement(lib->rwmutexPool, mutex);
 	GLOBAL_UNLOCK_SIMPLE(lib);
-#else /* defined(OMR_THR_FORK_SUPPORT) */
+#else  /* defined(OMR_THR_FORK_SUPPORT) */
 	omrthread_free_memory(lib, mutex);
 #endif /* defined(OMR_THR_FORK_SUPPORT) */
 	return J9THREAD_RWMUTEX_OK;
@@ -343,8 +343,8 @@ omrthread_rwmutex_reset(omrthread_rwmutex_t rwmutex, omrthread_t self)
 J9Pool *
 omrthread_rwmutex_init_pool(omrthread_library_t library)
 {
-	return pool_new(sizeof(RWMutex), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_THREADS, omrthread_mallocWrapper, omrthread_freeWrapper, library);
+	return pool_new(sizeof(RWMutex), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_THREADS, omrthread_mallocWrapper,
+					omrthread_freeWrapper, library);
 }
 
 #endif /* defined(OMR_THR_FORK_SUPPORT) */
-

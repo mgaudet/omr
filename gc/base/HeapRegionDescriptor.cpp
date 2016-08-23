@@ -25,15 +25,9 @@
 #include "MemorySubSpace.hpp"
 
 MM_HeapRegionDescriptor::MM_HeapRegionDescriptor(MM_EnvironmentBase *env, void *lowAddress, void *highAddress)
-	: _regionsInSpan(0)
-	, _lowAddress(lowAddress)
-	, _highAddress(highAddress)
-	, _previousRegion(NULL)
-	, _nextRegion(NULL)
-	, _memorySubSpace(NULL)
-	, _regionType(MM_HeapRegionDescriptor::RESERVED)
-	, _numaNode(0)
-	, _regionProperties(MM_HeapRegionDescriptor::MANAGED)
+	: _regionsInSpan(0), _lowAddress(lowAddress), _highAddress(highAddress), _previousRegion(NULL), _nextRegion(NULL),
+	  _memorySubSpace(NULL), _regionType(MM_HeapRegionDescriptor::RESERVED), _numaNode(0),
+	  _regionProperties(MM_HeapRegionDescriptor::MANAGED)
 {
 	_typeId = __FUNCTION__;
 	_headOfSpan = this;
@@ -57,16 +51,15 @@ MM_HeapRegionDescriptor::disassociateWithSubSpace()
 	}
 }
 
-bool 
+bool
 MM_HeapRegionDescriptor::initialize(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager)
 {
 	return true;
 }
 
-void 
+void
 MM_HeapRegionDescriptor::tearDown(MM_EnvironmentBase *env)
 {
-	
 }
 
 void
@@ -76,15 +69,17 @@ MM_HeapRegionDescriptor::reinitialize(MM_EnvironmentBase *env, void *lowAddress,
 	_highAddress = highAddress;
 }
 
-bool 
-MM_HeapRegionDescriptor::initializer(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor, void *lowAddress, void *highAddress)
+bool
+MM_HeapRegionDescriptor::initializer(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager,
+									 MM_HeapRegionDescriptor *descriptor, void *lowAddress, void *highAddress)
 {
-	new(descriptor) MM_HeapRegionDescriptor(env, lowAddress, highAddress);
+	new (descriptor) MM_HeapRegionDescriptor(env, lowAddress, highAddress);
 	return descriptor->initialize(env, regionManager);
 }
 
-void 
-MM_HeapRegionDescriptor::destructor(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor)
+void
+MM_HeapRegionDescriptor::destructor(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager,
+									MM_HeapRegionDescriptor *descriptor)
 {
 	descriptor->tearDown(env);
 }

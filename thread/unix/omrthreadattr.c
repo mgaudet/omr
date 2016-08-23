@@ -23,10 +23,10 @@
  */
 #include <stdlib.h>
 #include <pthread.h>
-#include <limits.h>	/* for PTHREAD_STACK_MIN */
+#include <limits.h> /* for PTHREAD_STACK_MIN */
 #if defined(LINUX) || defined(OSX)
 #include <unistd.h> /* required for the _SC_PAGESIZE  constant */
-#endif /* defined(LINUX) || defined(OSX) */
+#endif				/* defined(LINUX) || defined(OSX) */
 #include "omrcfg.h"
 #include "omrcomp.h"
 #include "omrthread.h"
@@ -77,7 +77,7 @@ omrthread_attr_init(omrthread_attr_t *attr)
 		return J9THREAD_ERR_NOMEMORY;
 	}
 
-#if defined (RS6000)
+#if defined(RS6000)
 	/* this is for AIXPPC */
 	/* Solaris, by default, seems to use a fixed priority scheduling mechanism for its multiplexed threads which causes
 	 * a running thread to never give up the CPU once it has started executing. By setting the PTHREAD_SCOPE_SYSTEM flag,
@@ -89,7 +89,7 @@ omrthread_attr_init(omrthread_attr_t *attr)
 	if (rc != 0) {
 		goto destroy_attr;
 	}
-	/* Note: AIX 6.1 will default to system scope */
+/* Note: AIX 6.1 will default to system scope */
 #endif
 
 	if (failedToSetAttr(omrthread_attr_set_name((omrthread_attr_t *)&newAttr, NULL))) {
@@ -456,7 +456,7 @@ setPriority(pthread_attr_t *pattr, omrthread_prio_t priority)
 static intptr_t
 setStacksize(pthread_attr_t *pattr, uintptr_t stacksize)
 {
-	/* stacksize may be adjusted to satisfy platform-specific quirks */
+/* stacksize may be adjusted to satisfy platform-specific quirks */
 
 #if defined(LINUX) || defined(OSX)
 	/* Linux allocates 2MB if you ask for a stack smaller than STACK_MIN */
@@ -471,7 +471,6 @@ setStacksize(pthread_attr_t *pattr, uintptr_t stacksize)
 		}
 	}
 #endif /* defined(LINUX) || defined(OSX) */
-
 
 	if (DEBUG_SYSCALL(pthread_attr_setstacksize(pattr, stacksize)) != 0) {
 		return J9THREAD_ERR_INVALID_VALUE;

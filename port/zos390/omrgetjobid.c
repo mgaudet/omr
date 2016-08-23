@@ -29,7 +29,7 @@ omrget_jobid(struct OMRPortLibrary *portLibrary, char *jobid, uintptr_t length)
 	/* See JSAB control block definition in z/OS MVS Data Areas Volume 4 */
 	struct jsab {
 		char _padding[20]; /* hex 0x14 */
-		char jsabjbid[8]; /* job ID */
+		char jsabjbid[8];  /* job ID */
 	} * __ptr32 jsab_ptr;
 	/* See ASSB control block definition in z/OS MVS Data Areas Volume 1 */
 	struct assb {
@@ -64,12 +64,12 @@ omrget_jobid(struct OMRPortLibrary *portLibrary, char *jobid, uintptr_t length)
 
 			if (NULL != jsab_ptr) {
 				/* Job ID is JSABJBID field in JSAB control block. Convert from EBCDIC to internal UTF8 */
-				result = omrstr_convert(portLibrary, J9STR_CODE_PLATFORM_RAW, J9STR_CODE_MUTF8,
-									   jsab_ptr->jsabjbid, sizeof(jsab_ptr->jsabjbid), jobid, length);
+				result = omrstr_convert(portLibrary, J9STR_CODE_PLATFORM_RAW, J9STR_CODE_MUTF8, jsab_ptr->jsabjbid,
+										sizeof(jsab_ptr->jsabjbid), jobid, length);
 				if (OMRPORT_ERROR_STRING_BUFFER_TOO_SMALL == result) {
 					/* return the number of bytes required to hold the converted text */
-					return omrstr_convert(portLibrary, J9STR_CODE_PLATFORM_RAW, J9STR_CODE_MUTF8,
-										 jsab_ptr->jsabjbid, sizeof(jsab_ptr->jsabjbid), NULL, 0);
+					return omrstr_convert(portLibrary, J9STR_CODE_PLATFORM_RAW, J9STR_CODE_MUTF8, jsab_ptr->jsabjbid,
+										  sizeof(jsab_ptr->jsabjbid), NULL, 0);
 				}
 			}
 		}

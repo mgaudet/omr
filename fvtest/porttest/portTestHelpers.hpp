@@ -26,25 +26,24 @@
 #include "omrTestHelpers.h"
 #include "testEnvironment.hpp"
 
-#define APPEND_ERRORINFO  "\tlastErrorNumber: " << omrerror_last_error_number() << "\n\tLastErrorMessage: " << (char *)omrerror_last_error_message() << "\n"
+#define APPEND_ERRORINFO                                                                                               \
+	"\tlastErrorNumber: " << omrerror_last_error_number()                                                              \
+						  << "\n\tLastErrorMessage: " << (char *)omrerror_last_error_message() << "\n"
 
 /*Nonfatal assertion macros*/
-#define OMRTEST_EXPECT_NOT_NULL(funcPointer)	EXPECT_FALSE(NULL == funcPointer) << APPEND_ERRORINFO
-#define OMRTEST_EXPECT_FAILURE(info)	ADD_FAILURE() << info << APPEND_ERRORINFO
+#define OMRTEST_EXPECT_NOT_NULL(funcPointer) EXPECT_FALSE(NULL == funcPointer) << APPEND_ERRORINFO
+#define OMRTEST_EXPECT_FAILURE(info) ADD_FAILURE() << info << APPEND_ERRORINFO
 
 /*Fatal assertion macros*/
-#define OMRTEST_ASSERT_TRUE(condition, info)	ASSERT_TRUE(condition) << info << APPEND_ERRORINFO
+#define OMRTEST_ASSERT_TRUE(condition, info) ASSERT_TRUE(condition) << info << APPEND_ERRORINFO
 
-class PortTestEnvironment: public PortEnvironment
+class PortTestEnvironment : public PortEnvironment
 {
 public:
 	char *hypervisor;
 	BOOLEAN negative;
 
-	PortTestEnvironment(int argc, char **argv)
-		: PortEnvironment(argc, argv)
-		, hypervisor(NULL)
-		, negative(FALSE)
+	PortTestEnvironment(int argc, char **argv) : PortEnvironment(argc, argv), hypervisor(NULL), negative(FALSE)
 	{
 		for (int i = 1; i < argc; i++) {
 			if (strStartsWith(argv[i], "-hypervisor:")) {
@@ -58,12 +57,14 @@ public:
 		}
 	}
 
-	void initPort()
+	void
+	initPort()
 	{
 		SetUp();
 	}
 
-	void shutdownPort()
+	void
+	shutdownPort()
 	{
 		TearDown();
 	}

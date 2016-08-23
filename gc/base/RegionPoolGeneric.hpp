@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base_Core
@@ -38,22 +37,17 @@ class MM_RegionPoolGeneric : public MM_RegionPool
 {
 private:
 protected:
-public:	
-	
-private:	
+public:
+private:
 protected:
 public:
 	virtual bool initialize(MM_EnvironmentBase *env);
 	virtual void tearDown(MM_EnvironmentBase *env);
-	
+
 	/**
 	 * Create a RegionPoolGeneric object.
 	 */
-	MM_RegionPoolGeneric(MM_EnvironmentBase *env) :
-		MM_RegionPool(env)
-	{
-		_typeId = __FUNCTION__;
-	};
+	MM_RegionPoolGeneric(MM_EnvironmentBase *env) : MM_RegionPool(env) { _typeId = __FUNCTION__; };
 };
 
 #endif /* REGIONPOOLGENERIC_HPP_ */

@@ -44,7 +44,6 @@
 
 static omrthread_library_t get_default_library(void);
 
-
 /**
  * Initialise a omrthread_monitor_walk_state_t structure used to walk the monitor pools.
  *
@@ -185,7 +184,6 @@ omrthread_get_priority(omrthread_t thread)
 	return READU(thread->priority);
 }
 
-
 /**
  * Return a thread's flags.
  *
@@ -261,7 +259,6 @@ omrthread_get_osId(omrthread_t thread)
 	return READU(thread->tid);
 }
 
-
 /**
  * Return a monitor's name.
  *
@@ -310,7 +307,7 @@ omrthread_get_stack_range(omrthread_t thread, void **stackStart, void **stackEnd
 		return (J9THREAD_ERR_GETATTR_NP | J9THREAD_ERR_OS_ERRNO_SET);
 	}
 
-	/* Retrieve base stack address and stack size from pthread_attr_t */
+/* Retrieve base stack address and stack size from pthread_attr_t */
 #if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
 	if ((rc = pthread_attr_getstack(&attr, stackStart, &stackSize)) != 0) {
 		thread->os_errno = rc;
@@ -341,7 +338,7 @@ omrthread_get_stack_range(omrthread_t thread, void **stackStart, void **stackEnd
 	stackSize = pthread_get_stacksize_np(osTid);
 	*stackEnd = (void *)((uintptr_t)*stackStart + stackSize);
 	return J9THREAD_SUCCESS;
-#else /* defined(OSX) */
+#else  /* defined(OSX) */
 	return J9THREAD_ERR_UNSUPPORTED_PLAT;
 #endif /* defined(LINUX) */
 }
@@ -364,7 +361,6 @@ omrthread_monitor_get_tracing(omrthread_monitor_t monitor)
 
 #endif /* OMR_THR_JLM */
 
-
 /**
  * Return the default threading library.
  *
@@ -374,7 +370,7 @@ omrthread_monitor_get_tracing(omrthread_monitor_t monitor)
 static omrthread_library_t
 get_default_library(void)
 {
-#if defined (J9VM_OUT_OF_PROCESS)
+#if defined(J9VM_OUT_OF_PROCESS)
 	return dbgGetThreadLibrary();
 #else
 	return GLOBAL_DATA(default_library);

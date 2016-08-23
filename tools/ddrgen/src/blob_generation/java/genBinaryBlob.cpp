@@ -43,7 +43,7 @@ JavaBlobGenerator::BuildBlobInfo::initBlobHeader()
 	memset(&header, 0, sizeof(header));
 
 	header.version = 1;
-	header.sizeofBool = sizeof(bool); /* TODO what if cross-compiled? */
+	header.sizeofBool = sizeof(bool);   /* TODO what if cross-compiled? */
 	header.sizeofUDATA = sizeof(UDATA); /* TODO what if cross-compiled? */
 	initializeBitfieldFormat(&header.bitfieldFormat);
 	header.structDataSize = 0;
@@ -61,15 +61,15 @@ JavaBlobGenerator::BuildBlobInfo::initializeBitfieldFormat(uint8_t *bitfieldForm
 
 	memset(&bf, 0, sizeof(bf));
 
-	bf.x1 = 1;			/* 1 */
-	bf.x2 = 31768;		/* 111110000011000 */
-	bf.x3 = 3;			/* 000011 */
-	bf.x4 = 777;		/* 1100001001 */
+	bf.x1 = 1;	 /* 1 */
+	bf.x2 = 31768; /* 111110000011000 */
+	bf.x3 = 3;	 /* 000011 */
+	bf.x4 = 777;   /* 1100001001 */
 
-	bf.x5 = 43;			/* 0101011 */
-	bf.x6 = 298;		/* 100101010 */
-	bf.x7 = 12;			/* 1100 */
-	bf.x8 = 1654;		/* 011001110110 */
+	bf.x5 = 43;   /* 0101011 */
+	bf.x6 = 298;  /* 100101010 */
+	bf.x7 = 12;   /* 1100 */
+	bf.x8 = 1654; /* 011001110110 */
 
 	slot0 = ((uint32_t *)&bf)[0];
 	slot1 = ((uint32_t *)&bf)[1];
@@ -139,7 +139,7 @@ JavaBlobGenerator::copyStringTable()
 		entry = (StringTableEntry *)hashTableNextDo(&state);
 	}
 
-	/* TODO need to pad file length to 32-bits? */
+/* TODO need to pad file length to 32-bits? */
 #if 0
 	/* Update cursor (stringDataSize is U_32 aligned already) */
 	data->cursor = stringData + data->coreFileData->stringDataSize;
@@ -147,7 +147,8 @@ JavaBlobGenerator::copyStringTable()
 }
 
 DDR_RC
-JavaBlobGenerator::stringTableOffset(BlobHeader *blobHeader, J9HashTable *stringTable, const char *cString, uint32_t *offset)
+JavaBlobGenerator::stringTableOffset(BlobHeader *blobHeader, J9HashTable *stringTable, const char *cString,
+									 uint32_t *offset)
 {
 	DDR_RC rc = DDR_RC_OK;
 	StringTableEntry exemplar;
@@ -234,21 +235,24 @@ JavaBlobGenerator::genBinaryBlob(OMRPortLibrary *portLibrary, Symbol_IR *ir, con
 			amountWritten += wb;
 
 			/* write fields */
-			wb = omrfile_write(fd, &_buildInfo.blobFields[f_ix], sizeof(BlobField) * _buildInfo.blobStructs[s_ix].fieldCount);
+			wb = omrfile_write(fd, &_buildInfo.blobFields[f_ix],
+							   sizeof(BlobField) * _buildInfo.blobStructs[s_ix].fieldCount);
 			amountWritten += wb;
 			f_ix += _buildInfo.blobStructs[s_ix].fieldCount;
 
 			/* write constants */
-			wb = omrfile_write(fd, &_buildInfo.blobConsts[c_ix], sizeof(BlobConstant) * _buildInfo.blobStructs[s_ix].constantCount);
+			wb = omrfile_write(fd, &_buildInfo.blobConsts[c_ix],
+							   sizeof(BlobConstant) * _buildInfo.blobStructs[s_ix].constantCount);
 			amountWritten += wb;
 			c_ix += _buildInfo.blobStructs[s_ix].constantCount;
 		}
 
 		if ((unsigned long)amountWritten != _buildInfo.header.structDataSize) {
 			ERRMSG("Written: %d fields, %d constants, %d structs.\nCounted: %d fields, %d constants, %d structures.\n",
-				   f_ix, c_ix, (int)(_buildInfo.curBlobStruct - _buildInfo.blobStructs),
-				   _buildInfo.fieldCount, _buildInfo.constCount, _buildInfo.header.structureCount);
-			ERRMSG("Expected %d to be written, but %d was written.\n", (int)_buildInfo.header.structDataSize, (int)amountWritten);
+				   f_ix, c_ix, (int)(_buildInfo.curBlobStruct - _buildInfo.blobStructs), _buildInfo.fieldCount,
+				   _buildInfo.constCount, _buildInfo.header.structureCount);
+			ERRMSG("Expected %d to be written, but %d was written.\n", (int)_buildInfo.header.structDataSize,
+				   (int)amountWritten);
 		}
 		/* write string data */
 		wb = omrfile_write(fd, _buildInfo.stringBuffer, _buildInfo.header.stringDataSize);
@@ -267,21 +271,11 @@ JavaBlobGenerator::genBinaryBlob(OMRPortLibrary *portLibrary, Symbol_IR *ir, con
 }
 
 pair<string, unsigned long long> JavaBlobGenerator::cLimits[] = {
-		make_pair("CHAR_MAX", CHAR_MAX),
-		make_pair("CHAR_MIN", CHAR_MIN),
-		make_pair("INT_MAX", INT_MAX),
-		make_pair("INT_MIN", INT_MIN),
-		make_pair("LONG_MAX", LONG_MAX),
-		make_pair("LONG_MIN", LONG_MIN),
-		make_pair("SCHAR_MAX", SCHAR_MAX),
-		make_pair("SCHAR_MIN", SCHAR_MIN),
-		make_pair("SHRT_MAX", SHRT_MAX),
-		make_pair("SHRT_MIN", SHRT_MIN),
-		make_pair("UCHAR_MAX", UCHAR_MAX),
-		make_pair("UINT_MAX", UINT_MAX),
-		make_pair("ULONG_MAX", ULONG_MAX),
-		make_pair("USHRT_MAX", USHRT_MAX)
-};
+	make_pair("CHAR_MAX", CHAR_MAX),   make_pair("CHAR_MIN", CHAR_MIN),   make_pair("INT_MAX", INT_MAX),
+	make_pair("INT_MIN", INT_MIN),	 make_pair("LONG_MAX", LONG_MAX),   make_pair("LONG_MIN", LONG_MIN),
+	make_pair("SCHAR_MAX", SCHAR_MAX), make_pair("SCHAR_MIN", SCHAR_MIN), make_pair("SHRT_MAX", SHRT_MAX),
+	make_pair("SHRT_MIN", SHRT_MIN),   make_pair("UCHAR_MAX", UCHAR_MAX), make_pair("UINT_MAX", UINT_MAX),
+	make_pair("ULONG_MAX", ULONG_MAX), make_pair("USHRT_MAX", USHRT_MAX)};
 
 DDR_RC
 JavaBlobGenerator::enumerateCLimits()
@@ -347,10 +341,8 @@ JavaBlobGenerator::buildBlobData(OMRPortLibrary *portLibrary, Symbol_IR *const i
 {
 	DDR_RC rc = DDR_RC_OK;
 	/* allocate hashtable */
-	_buildInfo.stringHash =
-		hashTableNew(portLibrary, OMR_GET_CALLSITE(), 0,
-					 sizeof(StringTableEntry), 0, 0, OMRMEM_CATEGORY_UNKNOWN,
-					 stringTableHash, stringTableEquals, NULL, NULL);
+	_buildInfo.stringHash = hashTableNew(portLibrary, OMR_GET_CALLSITE(), 0, sizeof(StringTableEntry), 0, 0,
+										 OMRMEM_CATEGORY_UNKNOWN, stringTableHash, stringTableEquals, NULL, NULL);
 
 	/* allocate class, field, and const structures */
 	_buildInfo.blobStructs = (BlobStruct *)malloc(_buildInfo.header.structureCount * sizeof(BlobStruct));
@@ -678,7 +670,8 @@ JavaBlobGenerator::addBlobStruct(string name, string superName, uint32_t constCo
 		_buildInfo.curBlobStruct->constantCount += constCount;
 		_buildInfo.curBlobStruct->fieldCount += fieldCount;
 		_buildInfo.curBlobStruct->structSize = size;
-		if ((uintptr_t)(_buildInfo.curBlobStruct - _buildInfo.blobStructs) < (uintptr_t)(_buildInfo.header.structureCount - 1)) {
+		if ((uintptr_t)(_buildInfo.curBlobStruct - _buildInfo.blobStructs)
+			< (uintptr_t)(_buildInfo.header.structureCount - 1)) {
 			_buildInfo.curBlobStruct += 1;
 			_buildInfo.curBlobStruct->constantCount = 0;
 			_buildInfo.curBlobStruct->fieldCount = 0;
@@ -698,7 +691,7 @@ JavaBlobGenerator::formatFieldType(Field *f, string *fieldType)
 		ERRMSG("Unhandled field modifer flags: %d", f->_modifiers._modifierFlags);
 		rc = DDR_RC_ERROR;
 	} else {
-		*fieldType =  f->_modifiers.getModifierNames();
+		*fieldType = f->_modifiers.getModifierNames();
 	}
 
 	SymbolType st;

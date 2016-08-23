@@ -33,5 +33,5 @@ MM_ConcurrentPrepareCardTableTask::run(MM_EnvironmentBase *envBase)
 	_cardTable->prepareCardTableChunk(env, _firstCard, _lastCard, _action);
 }
 
-#endif /* OMR_GC_MODRON_CONCURRENT_MARK */ 
+#endif /* OMR_GC_MODRON_CONCURRENT_MARK */
 #endif /* AIXPPC || LINUXPPC */

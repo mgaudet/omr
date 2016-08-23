@@ -33,7 +33,7 @@
 #include "CycleState.hpp"
 #include "GCExtensionsBase.hpp"
 #include "MasterGCThread.hpp"
- 
+
 struct J9HookInterface;
 class GC_ObjectScanner;
 class MM_AllocateDescription;
@@ -60,22 +60,22 @@ class MM_Scavenger : public MM_Collector
 	 * Data members
 	 */
 private:
-	const uintptr_t _objectAlignmentInBytes;	/**< Run-time objects alignment in bytes */
+	const uintptr_t _objectAlignmentInBytes;	   /**< Run-time objects alignment in bytes */
 	bool _isRememberedSetInOverflowAtTheBeginning; /**< Cached RS Overflow flag at the beginning of the scavenge */
 
 	MM_GCExtensionsBase *_extensions;
-	
+
 	MM_Dispatcher *_dispatcher;
 
 	volatile uintptr_t _doneIndex; /**< sequence ID of completeScan loop, which we may have a few during one GC cycle */
 
 	MM_MemorySubSpaceSemiSpace *_activeSubSpace; /**< top level new subspace subject to GC */
-	MM_MemorySubSpace *_evacuateMemorySubSpace; /**< cached pointer to evacuate subspace within active subspace */
-	MM_MemorySubSpace *_survivorMemorySubSpace; /**< cached pointer to survivor subspace within active subspace */
+	MM_MemorySubSpace *_evacuateMemorySubSpace;  /**< cached pointer to evacuate subspace within active subspace */
+	MM_MemorySubSpace *_survivorMemorySubSpace;  /**< cached pointer to survivor subspace within active subspace */
 	MM_MemorySubSpace *_tenureMemorySubSpace;
 
-	void *_evacuateSpaceBase, *_evacuateSpaceTop;	/**< cached base and top heap pointers within evacuate subspace */
-	void *_survivorSpaceBase, *_survivorSpaceTop;	/**< cached base and top heap pointers within survivor subspace */
+	void *_evacuateSpaceBase, *_evacuateSpaceTop; /**< cached base and top heap pointers within evacuate subspace */
+	void *_survivorSpaceBase, *_survivorSpaceTop; /**< cached base and top heap pointers within survivor subspace */
 
 	uintptr_t _tenureMask; /**< A bit mask indicating which generations should be tenured on scavenge. */
 	bool _expandFailed;
@@ -88,30 +88,35 @@ private:
 	uintptr_t _minTenureFailureSize;
 	uintptr_t _minSemiSpaceFailureSize;
 
-	MM_CycleState _cycleState;  /**< Embedded cycle state to be used as the master cycle state for GC activity */
-	MM_CollectionStatisticsStandard _collectionStatistics;  /** Common collect stats (memory, time etc.) */
+	MM_CycleState _cycleState; /**< Embedded cycle state to be used as the master cycle state for GC activity */
+	MM_CollectionStatisticsStandard _collectionStatistics; /** Common collect stats (memory, time etc.) */
 
 	MM_CopyScanCacheList _scavengeCacheFreeList; /**< pool of unused copy-scan caches */
 	MM_CopyScanCacheList _scavengeCacheScanList; /**< scan lists */
-	volatile uintptr_t _cachedEntryCount; /**< non-empty scanCacheList count (not the total count of caches in the lists) */
+	volatile uintptr_t
+		_cachedEntryCount;		/**< non-empty scanCacheList count (not the total count of caches in the lists) */
 	uintptr_t _cachesPerThread; /**< maximum number of copy and scan caches required per thread at any one time */
 	omrthread_monitor_t _scanCacheMonitor; /**< monitor to synchronize threads on scan lists */
 	omrthread_monitor_t _freeCacheMonitor; /**< monitor to synchronize threads on free list */
-	volatile uintptr_t _waitingCount; /**< count of threads waiting  on scan cache queues (blocked via _scanCacheMonitor); threads never wait on _freeCacheMonitor */
-	uintptr_t _cacheLineAlignment; /**< The number of bytes per cache line which is used to determine which boundaries in memory represent the beginning of a cache line */
+	volatile uintptr_t
+		_waitingCount; /**< count of threads waiting  on scan cache queues (blocked via _scanCacheMonitor); threads never wait on _freeCacheMonitor */
+	uintptr_t
+		_cacheLineAlignment; /**< The number of bytes per cache line which is used to determine which boundaries in memory represent the beginning of a cache line */
 #if !defined(OMR_GC_CONCURRENT_SCAVENGER)
-	volatile bool _rescanThreadsForRememberedObjects; /**< Indicates that thread-referenced objects were tenured and threads must be rescanned */
-#endif	
-	bool _backOutFlag; /**< set to true if a thread is unable to copy an object due to lack of free space in both Survivor and Tenure */
+	volatile bool
+		_rescanThreadsForRememberedObjects; /**< Indicates that thread-referenced objects were tenured and threads must be rescanned */
+#endif
+	bool
+		_backOutFlag; /**< set to true if a thread is unable to copy an object due to lack of free space in both Survivor and Tenure */
 	uintptr_t _backOutDoneIndex; /**< snapshot of _doneIndex, when backOut was detected */
 
-	void *_heapBase;  /**< Cached base pointer of heap */
+	void *_heapBase; /**< Cached base pointer of heap */
 	void *_heapTop;  /**< Cached top pointer of heap */
 	MM_HeapRegionManager *_regionManager;
 
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 	MM_MasterGCThread _masterGCThread; /**< An object which manages the state of the master GC thread */
-	
+
 	enum ConcurrentState {
 		concurrent_state_idle,
 		concurrent_state_init,
@@ -119,17 +124,15 @@ private:
 		concurrent_state_scan,
 		concurrent_state_complete
 	} _concurrentState;
-	
-	/* TODO: put it parent Collector class and share with Balanced? */ 
+
+	/* TODO: put it parent Collector class and share with Balanced? */
 	volatile bool _forceConcurrentTermination;
 #endif
 
-
 protected:
-
 public:
 	OMR_VM *_omrVM;
-	
+
 	/*
 	 * Function members
 	 */
@@ -137,19 +140,20 @@ private:
 	/**
 	 * Hook callback. Called when a global collect has started
 	 */
-	static void hookGlobalCollectionStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
+	static void hookGlobalCollectionStart(J9HookInterface **hook, uintptr_t eventNum, void *eventData, void *userData);
 
 	/**
 	 * Hook callback. Called when a global collect has completed
 	 */
-	static void hookGlobalCollectionComplete(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
-	
+	static void hookGlobalCollectionComplete(J9HookInterface **hook, uintptr_t eventNum, void *eventData,
+											 void *userData);
+
 	/**
 	 *  This method is called on the start of a global GC.
 	 *  @param env the current thread.
 	 */
 	void globalCollectionStart(MM_EnvironmentBase *env);
-	
+
 	/**
 	 *  This method is called on the completion of a global GC.
 	 *  @param env the current thread.
@@ -157,8 +161,12 @@ private:
 	void globalCollectionComplete(MM_EnvironmentBase *env);
 
 	MMINLINE uintptr_t calculateOptimumCopyScanCacheSize(MM_EnvironmentStandard *env);
-	MMINLINE MM_CopyScanCacheStandard *reserveMemoryForAllocateInSemiSpace(MM_EnvironmentStandard *env, omrobjectptr_t objectToEvacuate, uintptr_t objectReserveSizeInBytes);
-	MM_CopyScanCacheStandard *reserveMemoryForAllocateInTenureSpace(MM_EnvironmentStandard *env, omrobjectptr_t objectToEvacuate, uintptr_t objectReserveSizeInBytes);
+	MMINLINE MM_CopyScanCacheStandard *reserveMemoryForAllocateInSemiSpace(MM_EnvironmentStandard *env,
+																		   omrobjectptr_t objectToEvacuate,
+																		   uintptr_t objectReserveSizeInBytes);
+	MM_CopyScanCacheStandard *reserveMemoryForAllocateInTenureSpace(MM_EnvironmentStandard *env,
+																	omrobjectptr_t objectToEvacuate,
+																	uintptr_t objectReserveSizeInBytes);
 
 	/**
 	 * Flush the threads reference and remembered set caches before waiting in getNextScanCache.
@@ -178,10 +186,11 @@ private:
 
 	MMINLINE bool copyAndForward(MM_EnvironmentStandard *env, volatile omrobjectptr_t *objectPtrIndirect);
 
-	MMINLINE omrobjectptr_t copy(MM_EnvironmentStandard *env, MM_ForwardedHeader* forwardedHeader);
+	MMINLINE omrobjectptr_t copy(MM_EnvironmentStandard *env, MM_ForwardedHeader *forwardedHeader);
 
-	MMINLINE void updateCopyScanCounts(MM_EnvironmentBase* env, uint64_t slotsScanned, uint64_t slotsCopied);
-	bool splitIndexableObjectScanner(MM_EnvironmentStandard *env, GC_ObjectScanner *objectScanner, uintptr_t startIndex, omrobjectptr_t *rememberedSetSlot);
+	MMINLINE void updateCopyScanCounts(MM_EnvironmentBase *env, uint64_t slotsScanned, uint64_t slotsCopied);
+	bool splitIndexableObjectScanner(MM_EnvironmentStandard *env, GC_ObjectScanner *objectScanner, uintptr_t startIndex,
+									 omrobjectptr_t *rememberedSetSlot);
 
 	/**
 	 * Scavenges the contents of an object.
@@ -191,8 +200,11 @@ private:
 	 * @param flags A bit map of GC_ObjectScanner::InstanceFlags.
 	 * @return Whether or not objectPtr should be remembered.
 	 */
-	MMINLINE bool scavengeObjectSlots(MM_EnvironmentStandard *env, MM_CopyScanCacheStandard *scanCache, omrobjectptr_t objectPtr, uintptr_t flags, omrobjectptr_t *rememberedSetSlot);
-	MMINLINE void incrementalScavengeObjectSlots(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr, MM_CopyScanCacheStandard* scanCache, MM_CopyScanCacheStandard **nextScanCache);
+	MMINLINE bool scavengeObjectSlots(MM_EnvironmentStandard *env, MM_CopyScanCacheStandard *scanCache,
+									  omrobjectptr_t objectPtr, uintptr_t flags, omrobjectptr_t *rememberedSetSlot);
+	MMINLINE void incrementalScavengeObjectSlots(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr,
+												 MM_CopyScanCacheStandard *scanCache,
+												 MM_CopyScanCacheStandard **nextScanCache);
 
 	MMINLINE bool scavengeRememberedObject(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr);
 	void scavengeRememberedSetList(MM_EnvironmentStandard *env);
@@ -222,28 +234,64 @@ private:
  	 * 
  	 * @return true if Global GC was executed, false if concurrent kickoff forced or Global GC is not possible 
  	 */
-	bool percolateGarbageCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription, PercolateReason percolateReason, uint32_t gcCode);
-	
+	bool percolateGarbageCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+								 MM_AllocateDescription *allocDescription, PercolateReason percolateReason,
+								 uint32_t gcCode);
+
 	void reportGCCycleStart(MM_EnvironmentStandard *env);
 	void reportGCCycleEnd(MM_EnvironmentStandard *env);
 	void reportGCCycleFinalIncrementEnding(MM_EnvironmentStandard *envModron);
 
-	MMINLINE void clearExpandFailedFlag() { _expandFailed = false; };
-	MMINLINE void setExpandFailedFlag() { _expandFailed = true; };
-	MMINLINE bool expandFailed() { return _expandFailed; };
+	MMINLINE void
+	clearExpandFailedFlag()
+	{
+		_expandFailed = false;
+	};
+	MMINLINE void
+	setExpandFailedFlag()
+	{
+		_expandFailed = true;
+	};
+	MMINLINE bool
+	expandFailed()
+	{
+		return _expandFailed;
+	};
 
-	MMINLINE void clearFailedTenureThresholdFlag() { _failedTenureThresholdReached = false; };
-	MMINLINE void setFailedTenureThresholdFlag() { _failedTenureThresholdReached = true; };
-	MMINLINE void setFailedTenureLargestObject(uintptr_t size) { _failedTenureLargestObject = size; };
-	MMINLINE uintptr_t getFailedTenureLargestObject() { return _failedTenureLargestObject; };
-	MMINLINE bool failedTenureThresholdReached() { return _failedTenureThresholdReached; };
+	MMINLINE void
+	clearFailedTenureThresholdFlag()
+	{
+		_failedTenureThresholdReached = false;
+	};
+	MMINLINE void
+	setFailedTenureThresholdFlag()
+	{
+		_failedTenureThresholdReached = true;
+	};
+	MMINLINE void
+	setFailedTenureLargestObject(uintptr_t size)
+	{
+		_failedTenureLargestObject = size;
+	};
+	MMINLINE uintptr_t
+	getFailedTenureLargestObject()
+	{
+		return _failedTenureLargestObject;
+	};
+	MMINLINE bool
+	failedTenureThresholdReached()
+	{
+		return _failedTenureThresholdReached;
+	};
 
 	void completeScanCache(MM_EnvironmentStandard *env);
 	void incrementalScanCacheBySlot(MM_EnvironmentStandard *env);
 
-	MMINLINE MM_CopyScanCacheStandard *aliasToCopyCache(MM_EnvironmentStandard *env, GC_SlotObject *scannedSlot, MM_CopyScanCacheStandard* scanCache, MM_CopyScanCacheStandard* copyCache);
-	MMINLINE uintptr_t scanCacheDistanceMetric(MM_CopyScanCacheStandard* cache, GC_SlotObject *scanSlot);
-	MMINLINE uintptr_t copyCacheDistanceMetric(MM_CopyScanCacheStandard* cache);
+	MMINLINE MM_CopyScanCacheStandard *aliasToCopyCache(MM_EnvironmentStandard *env, GC_SlotObject *scannedSlot,
+														MM_CopyScanCacheStandard *scanCache,
+														MM_CopyScanCacheStandard *copyCache);
+	MMINLINE uintptr_t scanCacheDistanceMetric(MM_CopyScanCacheStandard *cache, GC_SlotObject *scanSlot);
+	MMINLINE uintptr_t copyCacheDistanceMetric(MM_CopyScanCacheStandard *cache);
 
 	MMINLINE MM_CopyScanCacheStandard *getNextScanCacheFromList(MM_EnvironmentStandard *env);
 	MMINLINE MM_CopyScanCacheStandard *getSurvivorCopyCache(MM_EnvironmentStandard *env);
@@ -252,7 +300,8 @@ private:
 	void addCopyCachesToFreeList(MM_EnvironmentStandard *env);
 
 	MMINLINE bool isWorkAvailableInCache(MM_CopyScanCacheStandard *scanCache);
-	MMINLINE void addCacheEntryToScanListAndNotify(MM_EnvironmentStandard *env, MM_CopyScanCacheStandard *newCacheEntry);
+	MMINLINE void addCacheEntryToScanListAndNotify(MM_EnvironmentStandard *env,
+												   MM_CopyScanCacheStandard *newCacheEntry);
 
 	/**
 	 * reinitializes the cache with the given base and top addresses.
@@ -319,7 +368,11 @@ private:
 	void abandonTenureTLHRemainder(MM_EnvironmentStandard *env);
 
 	void setBackOutFlag(MM_EnvironmentBase *env, bool value);
-	MMINLINE bool backOutFlagRaised() { return _backOutFlag; }
+	MMINLINE bool
+	backOutFlagRaised()
+	{
+		return _backOutFlag;
+	}
 
 	void reportGCStart(MM_EnvironmentStandard *env);
 	void reportGCEnd(MM_EnvironmentStandard *env);
@@ -328,7 +381,11 @@ private:
 	void reportScavengeStart(MM_EnvironmentStandard *env);
 	void reportScavengeEnd(MM_EnvironmentStandard *env);
 
-	MMINLINE MM_ScavengerHotFieldStats *getHotFieldStats(MM_EnvironmentStandard *env) { return &(env->_hotFieldStats); }
+	MMINLINE MM_ScavengerHotFieldStats *
+	getHotFieldStats(MM_EnvironmentStandard *env)
+	{
+		return &(env->_hotFieldStats);
+	}
 	void masterClearHotFieldStats();
 	void masterReportHotFieldStats();
 	void clearHotFieldStats(MM_EnvironmentStandard *env);
@@ -353,9 +410,21 @@ private:
 
 	void clearRememberedSetLists(MM_EnvironmentStandard *env);
 
-	MMINLINE bool isRememberedSetInOverflowState() { return _extensions->isRememberedSetInOverflowState(); }
-	MMINLINE void setRememberedSetOverflowState() { _extensions->setRememberedSetOverflowState(); }
-	MMINLINE void clearRememberedSetOverflowState() { _extensions->clearRememberedSetOverflowState(); }
+	MMINLINE bool
+	isRememberedSetInOverflowState()
+	{
+		return _extensions->isRememberedSetInOverflowState();
+	}
+	MMINLINE void
+	setRememberedSetOverflowState()
+	{
+		_extensions->setRememberedSetOverflowState();
+	}
+	MMINLINE void
+	clearRememberedSetOverflowState()
+	{
+		_extensions->clearRememberedSetOverflowState();
+	}
 
 #if !defined(OMR_GC_CONCURRENT_SCAVENGER)
 	/* Auto-remember stack objects so JIT can omit generational barriers */
@@ -388,7 +457,8 @@ private:
 
 	void scavenge(MM_EnvironmentBase *env);
 	bool scavengeCompletedSuccessfully(MM_EnvironmentStandard *env);
-	virtual	void masterThreadGarbageCollect(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, bool initMarkMap = false, bool rebuildMarkBits = false);
+	virtual void masterThreadGarbageCollect(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription,
+											bool initMarkMap = false, bool rebuildMarkBits = false);
 
 	MMINLINE uintptr_t
 	isTiltedScavenge()
@@ -454,8 +524,10 @@ protected:
 	virtual bool initialize(MM_EnvironmentBase *env);
 	virtual void tearDown(MM_EnvironmentBase *env);
 
-	virtual bool internalGarbageCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription);
-	virtual void internalPreCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription, uint32_t gcCode);
+	virtual bool internalGarbageCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+										MM_AllocateDescription *allocDescription);
+	virtual void internalPreCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace,
+									MM_AllocateDescription *allocDescription, uint32_t gcCode);
 	virtual void internalPostCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace);
 
 	/**
@@ -473,14 +545,14 @@ protected:
 	 * @param env Master GC thread.
 	 */
 	virtual void processLargeAllocateStatsAfterGC(MM_EnvironmentBase *env);
-	
-public:
 
-	static MM_Scavenger *newInstance(MM_EnvironmentStandard *env, MM_CollectorLanguageInterface *cli, MM_HeapRegionManager *regionManager);
+public:
+	static MM_Scavenger *newInstance(MM_EnvironmentStandard *env, MM_CollectorLanguageInterface *cli,
+									 MM_HeapRegionManager *regionManager);
 	virtual void kill(MM_EnvironmentBase *env);
-	
-	virtual bool collectorStartup(MM_GCExtensionsBase* extensions);
-	virtual void collectorShutdown(MM_GCExtensionsBase* extensions);
+
+	virtual bool collectorStartup(MM_GCExtensionsBase *extensions);
+	virtual void collectorShutdown(MM_GCExtensionsBase *extensions);
 
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 	/* API for interaction with MasterGCTread */
@@ -490,12 +562,12 @@ public:
 	/* master thread */
 	uintptr_t scavengeConcurrent(MM_EnvironmentBase *env, UDATA totalBytesToScavenge, volatile bool *forceExit);
 	bool scavengeIncremental(MM_EnvironmentBase *env, I_64 scavengeIncrementEndTime);
-	
+
 	bool scavengeInit(MM_EnvironmentBase *env, int64_t timeThreshold);
 	bool scavengeRoots(MM_EnvironmentBase *env);
 	bool scavengeScan(MM_EnvironmentBase *env, int64_t timeThreshold);
 	bool scavengeComplete(MM_EnvironmentBase *env);
-	
+
 	/* mutator thread */
 	void mutatorFinalReleaseCopyCaches(MM_EnvironmentBase *env, MM_EnvironmentBase *threadEnvironment);
 	void mutatorSetupForGC(MM_EnvironmentBase *env);
@@ -505,15 +577,18 @@ public:
 	void workThreadScan(MM_EnvironmentStandard *env);
 	void workThreadComplete(MM_EnvironmentStandard *env);
 
-	
-	virtual void forceConcurrentFinish() {
+	virtual void
+	forceConcurrentFinish()
+	{
 		_forceConcurrentTermination = true;
 	}
-	bool isConcurrentInProgress() {
+	bool
+	isConcurrentInProgress()
+	{
 		return concurrent_state_idle != _concurrentState;
 	}
 
-#endif	
+#endif
 
 	/**
 	 * Determine whether the object pointer is found within the heap proper.
@@ -565,8 +640,8 @@ public:
 	 * @param[in/out] slotPtr Pointer to slot holding reference to object to be copied and forwarded
 	 */
 	bool copyObjectSlot(MM_EnvironmentStandard *env, volatile omrobjectptr_t *slotPtr);
-	bool copyObjectSlot(MM_EnvironmentStandard *env, GC_SlotObject* slotObject);
-	omrobjectptr_t copyObject(MM_EnvironmentStandard *env, MM_ForwardedHeader* forwardedHeader);
+	bool copyObjectSlot(MM_EnvironmentStandard *env, GC_SlotObject *slotObject);
+	omrobjectptr_t copyObject(MM_EnvironmentStandard *env, MM_ForwardedHeader *forwardedHeader);
 
 	/**
 	 * Update the given slot to point at the new location of the object, after copying
@@ -603,8 +678,10 @@ public:
 	virtual void *createSweepPoolState(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool);
 	virtual void deleteSweepPoolState(MM_EnvironmentBase *env, void *sweepPoolState);
 
-	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress);
-	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress);
+	virtual bool heapAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+							  void *highAddress);
+	virtual bool heapRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size, void *lowAddress,
+								 void *highAddress, void *lowValidAddress, void *highValidAddress);
 
 	virtual void collectorExpanded(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, uintptr_t expandSize);
 	virtual bool canCollectorExpand(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, uintptr_t expandSize);
@@ -612,50 +689,28 @@ public:
 
 	virtual void heapReconfigured(MM_EnvironmentBase *env);
 
-	MM_Scavenger(MM_EnvironmentBase *env, MM_CollectorLanguageInterface *cli, MM_HeapRegionManager *regionManager) :
-		MM_Collector(cli)
-		, _objectAlignmentInBytes(env->getObjectAlignmentInBytes())
-		, _isRememberedSetInOverflowAtTheBeginning(false)
-		, _extensions(env->getExtensions())
-		, _dispatcher(_extensions->dispatcher)
-		, _doneIndex(0)
-		, _activeSubSpace(NULL)
-		, _evacuateMemorySubSpace(NULL)
-		, _survivorMemorySubSpace(NULL)
-		, _tenureMemorySubSpace(NULL)
-		, _evacuateSpaceBase(NULL)
-		, _evacuateSpaceTop(NULL)
-		, _survivorSpaceBase(NULL)
-		, _survivorSpaceTop(NULL)
-		, _tenureMask(0)
-		, _expandFailed(false)
-		, _failedTenureThresholdReached(false)
-		, _countSinceForcingGlobalGC(0)
-		, _expandTenureOnFailedAllocate(true)
-		, _minTenureFailureSize(UDATA_MAX)
-		, _minSemiSpaceFailureSize(UDATA_MAX)
-		, _cycleState()
-		, _collectionStatistics()
-		, _cachedEntryCount(0)
-		, _cachesPerThread(0)
-		, _scanCacheMonitor(NULL)
-		, _freeCacheMonitor(NULL)
-		, _waitingCount(0)
-		, _cacheLineAlignment(0)
+	MM_Scavenger(MM_EnvironmentBase *env, MM_CollectorLanguageInterface *cli, MM_HeapRegionManager *regionManager)
+		: MM_Collector(cli), _objectAlignmentInBytes(env->getObjectAlignmentInBytes()),
+		  _isRememberedSetInOverflowAtTheBeginning(false), _extensions(env->getExtensions()),
+		  _dispatcher(_extensions->dispatcher), _doneIndex(0), _activeSubSpace(NULL), _evacuateMemorySubSpace(NULL),
+		  _survivorMemorySubSpace(NULL), _tenureMemorySubSpace(NULL), _evacuateSpaceBase(NULL), _evacuateSpaceTop(NULL),
+		  _survivorSpaceBase(NULL), _survivorSpaceTop(NULL), _tenureMask(0), _expandFailed(false),
+		  _failedTenureThresholdReached(false), _countSinceForcingGlobalGC(0), _expandTenureOnFailedAllocate(true),
+		  _minTenureFailureSize(UDATA_MAX), _minSemiSpaceFailureSize(UDATA_MAX), _cycleState(), _collectionStatistics(),
+		  _cachedEntryCount(0), _cachesPerThread(0), _scanCacheMonitor(NULL), _freeCacheMonitor(NULL), _waitingCount(0),
+		  _cacheLineAlignment(0)
 #if !defined(OMR_GC_CONCURRENT_SCAVENGER)
-		, _rescanThreadsForRememberedObjects(false)
+		  ,
+		  _rescanThreadsForRememberedObjects(false)
 #endif
-		, _backOutFlag(false)
-		, _backOutDoneIndex(0)
-		, _heapBase(NULL)
-		, _heapTop(NULL)
-		, _regionManager(regionManager)
+		  ,
+		  _backOutFlag(false), _backOutDoneIndex(0), _heapBase(NULL), _heapTop(NULL), _regionManager(regionManager)
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-		, _masterGCThread(env)
-		, _concurrentState(concurrent_state_idle)
-		, _forceConcurrentTermination(false)		
-#endif		
-		, _omrVM(env->getOmrVM())
+		  ,
+		  _masterGCThread(env), _concurrentState(concurrent_state_idle), _forceConcurrentTermination(false)
+#endif
+		  ,
+		  _omrVM(env->getOmrVM())
 	{
 		_typeId = __FUNCTION__;
 		_cycleType = OMR_GC_CYCLE_TYPE_SCAVENGE;

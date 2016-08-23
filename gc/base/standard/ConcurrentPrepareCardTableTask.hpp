@@ -46,16 +46,19 @@ private:
 	CardAction _action;
 
 public:
-	virtual UDATA getVMStateID() { return J9VMSTATE_GC_CONCURRENT_MARK_PREPARE_CARD_TABLE; }
-	
+	virtual UDATA
+	getVMStateID()
+	{
+		return J9VMSTATE_GC_CONCURRENT_MARK_PREPARE_CARD_TABLE;
+	}
+
 	virtual void run(MM_EnvironmentBase *env);
 
-	MM_ConcurrentPrepareCardTableTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_ConcurrentCardTableForWC *cardTable, Card *firstCard, Card *lastCard, CardAction action) :
-		MM_ParallelTask(env, dispatcher),
-		_cardTable(cardTable),
-		_firstCard(firstCard),
-		_lastCard(lastCard),
-		_action(action)
+	MM_ConcurrentPrepareCardTableTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher,
+									  MM_ConcurrentCardTableForWC *cardTable, Card *firstCard, Card *lastCard,
+									  CardAction action)
+		: MM_ParallelTask(env, dispatcher), _cardTable(cardTable), _firstCard(firstCard), _lastCard(lastCard),
+		  _action(action)
 	{
 		_typeId = __FUNCTION__;
 	}

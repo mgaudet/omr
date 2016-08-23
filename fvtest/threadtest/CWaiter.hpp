@@ -21,21 +21,16 @@
 
 #include "threadTestLib.hpp"
 
-class CWaiter: public CThread
+class CWaiter : public CThread
 {
 public:
-
-	CWaiter(CMonitor& monitor, bool interruptable) :
-		m_monitor(monitor),
-		m_interruptable(interruptable),
-		m_timeToWait(-1),
-		m_doneWaiting(false)
+	CWaiter(CMonitor &monitor, bool interruptable)
+		: m_monitor(monitor), m_interruptable(interruptable), m_timeToWait(-1), m_doneWaiting(false)
 	{
 	}
 
-	CWaiter(CMonitor& monitor, bool interruptable, int64_t timeToWait) :
-		m_monitor(monitor), m_interruptable(interruptable), m_timeToWait(
-			timeToWait), m_doneWaiting(false)
+	CWaiter(CMonitor &monitor, bool interruptable, int64_t timeToWait)
+		: m_monitor(monitor), m_interruptable(interruptable), m_timeToWait(timeToWait), m_doneWaiting(false)
 	{
 	}
 
@@ -87,7 +82,7 @@ public:
 	}
 
 protected:
-	virtual intptr_t 
+	virtual intptr_t
 	Run()
 	{
 		DbgMsg::verbosePrint("ENTERING");
@@ -95,14 +90,9 @@ protected:
 		DbgMsg::verbosePrint("ENTERED - WAITING");
 
 		if (m_timeToWait < 0) {
-			m_waitRetVal =
-				(m_interruptable) ?
-					m_monitor.WaitInterruptable() : m_monitor.Wait();
+			m_waitRetVal = (m_interruptable) ? m_monitor.WaitInterruptable() : m_monitor.Wait();
 		} else {
-			m_waitRetVal =
-				(m_interruptable) ?
-					m_monitor.WaitInterruptable(m_timeToWait) :
-					m_monitor.Wait(m_timeToWait);
+			m_waitRetVal = (m_interruptable) ? m_monitor.WaitInterruptable(m_timeToWait) : m_monitor.Wait(m_timeToWait);
 		}
 		m_doneWaiting = true;
 
@@ -112,7 +102,7 @@ protected:
 		return 0;
 	}
 
-	CMonitor& m_monitor;
+	CMonitor &m_monitor;
 	bool m_interruptable;
 	int64_t m_timeToWait;
 	intptr_t m_waitRetVal;

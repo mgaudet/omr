@@ -51,16 +51,14 @@ static RCType
 help(int argc, char *argv[])
 {
 	for (int i = 0; i < argc; i++) {
-		if (0 == strcmp(argv[i], "-help")
-			|| 0 == strcmp(argv[i], "--help")
-			|| 0 == strcmp(argv[i], "-h")
-			|| 0 == strcmp(argv[i], "--h")
-			|| 0 == strcmp(argv[i], "/h")
-			|| 0 == strcmp(argv[i], "/help")
-		) {
-			printf("%s [-threshold num] [-w2cd] [-generateCfiles] [-treatWarningAsError] [-root rootDir] [-force]\n", argv[0]);
+		if (0 == strcmp(argv[i], "-help") || 0 == strcmp(argv[i], "--help") || 0 == strcmp(argv[i], "-h")
+			|| 0 == strcmp(argv[i], "--h") || 0 == strcmp(argv[i], "/h") || 0 == strcmp(argv[i], "/help")) {
+			printf("%s [-threshold num] [-w2cd] [-generateCfiles] [-treatWarningAsError] [-root rootDir] [-force]\n",
+				   argv[0]);
 			printf("\t-threshold Ignore trace level below this threshold (default 1)\n");
-			printf("\t-w2cd Write generated .C and .H files to current directory (default: generate in the same directory as the TDF file)\n");
+			printf(
+				"\t-w2cd Write generated .C and .H files to current directory (default: generate in the same directory "
+				"as the TDF file)\n");
 			printf("\t-generateCfiles Generate C files (default false)\n");
 			printf("\t-treatWarningAsError Abort parsing at the first TDF error encountered (default false)\n");
 			printf("\t-root Comma-separated directories to start scanning for TDF files (default .)\n");
@@ -109,7 +107,8 @@ startTraceGen(int argc, char *argv[])
 	dir = options.rootDirectory;
 	while (NULL != dir) {
 		/* Recursively visit all directories under dirName, processing TDF files */
-		if (RC_OK != FileUtils::visitDirectory(&options, dir->path, TDF_FILE_EXT, &tracegen, TraceGen::generateCallBack)) {
+		if (RC_OK
+			!= FileUtils::visitDirectory(&options, dir->path, TDF_FILE_EXT, &tracegen, TraceGen::generateCallBack)) {
 			FileUtils::printError("Failed to generate trace files\n");
 			goto failed;
 		}
@@ -154,7 +153,7 @@ TraceGen::generate(J9TDFOptions *options, const char *currentTDFFile)
 		current = current->next;
 	}
 	if (NULL == current) {
-		Path *tmp = (Path *) Port::omrmem_calloc(1, sizeof(Path));
+		Path *tmp = (Path *)Port::omrmem_calloc(1, sizeof(Path));
 		tmp->path = realPath;
 		tmp->next = _visitedFile;
 		_visitedFile = tmp;
@@ -346,8 +345,6 @@ TraceGen::findGroupByName(J9TDFGroup *head, const char *groupName)
 	return result;
 }
 
-
-
 J9TDFGroup *
 TraceGen::newGroup(const char *groupName, unsigned int *groupCount)
 {
@@ -374,21 +371,9 @@ failed:
 J9TDFGroup *
 TraceGen::calculateGroups(J9TDFFile *tdf, unsigned int *groupCount)
 {
-	const char *EVENT_TYPES[] = {
-		"Event",
-		"Exception",
-		"Entry",
-		"Entry-Exception",
-		"Exit",
-		"Exit-Exception",
-		"Mem",
-		"MemException",
-		"Debug",
-		"Debug-Exception",
-		"Perf",
-		"Perf-Exception",
-		"Assertion"
-	};
+	const char *EVENT_TYPES[] = {"Event",	"Exception",	"Entry", "Entry-Exception", "Exit", "Exit-Exception",
+								 "Mem",		 "MemException", "Debug", "Debug-Exception", "Perf", "Perf-Exception",
+								 "Assertion"};
 
 	J9TDFTracepoint *tp = tdf->tracepoints;
 	*groupCount = 0;
@@ -398,7 +383,6 @@ TraceGen::calculateGroups(J9TDFFile *tdf, unsigned int *groupCount)
 	if (NULL == head) {
 		goto failed;
 	}
-
 
 	printf("Calculating groups for %s\n", tdf->header.executable);
 
@@ -486,11 +470,10 @@ TraceGen::freeGroups(J9TDFGroup *head)
 	return RC_OK;
 }
 
-
 RCType
 TraceGen::generateCallBack(void *targetObject, J9TDFOptions *options, const char *fileName)
 {
-	TraceGen *self = (TraceGen *) targetObject;
+	TraceGen *self = (TraceGen *)targetObject;
 
 	printf("TraceGen found tdf file %s\n", fileName);
 

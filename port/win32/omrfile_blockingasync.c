@@ -22,7 +22,6 @@
  * @brief file
  */
 
-
 #include <windows.h>
 #include "omrport.h"
 #include "omrportpriv.h"
@@ -39,7 +38,6 @@ omrfile_blockingasync_close(struct OMRPortLibrary *portLibrary, intptr_t fd)
 	return omrfile_close(portLibrary, fd);
 }
 
-
 intptr_t
 omrfile_blockingasync_open(struct OMRPortLibrary *portLibrary, const char *path, int32_t flags, int32_t mode)
 {
@@ -47,20 +45,18 @@ omrfile_blockingasync_open(struct OMRPortLibrary *portLibrary, const char *path,
 	return omrfile_open(portLibrary, path, flags, mode);
 }
 
-
 int32_t
-omrfile_blockingasync_lock_bytes(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset, uint64_t length)
+omrfile_blockingasync_lock_bytes(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset,
+								 uint64_t length)
 {
 	return omrfile_lock_bytes_helper(portLibrary, fd, lockFlags, offset, length, TRUE);
 }
-
 
 int32_t
 omrfile_blockingasync_unlock_bytes(struct OMRPortLibrary *portLibrary, intptr_t fd, uint64_t offset, uint64_t length)
 {
 	return omrfile_unlock_bytes_helper(portLibrary, fd, offset, length, TRUE);
 }
-
 
 intptr_t
 omrfile_blockingasync_read(struct OMRPortLibrary *portLibrary, intptr_t fd, void *buf, intptr_t nbytes)
@@ -104,7 +100,7 @@ omrfile_blockingasync_read(struct OMRPortLibrary *portLibrary, intptr_t fd, void
 		if (ERROR_IO_PENDING != GetLastError()) {
 			goto error;
 		}
-		result = GetOverlappedResult(fileHandle, &overlapped,  &bytesRead, TRUE);
+		result = GetOverlappedResult(fileHandle, &overlapped, &bytesRead, TRUE);
 		if (FALSE == result) {
 			goto error;
 		}
@@ -130,9 +126,7 @@ error:
 	errorCode = portLibrary->error_set_last_error(portLibrary, GetLastError(), findError(GetLastError()));
 	Trc_PRT_file_blockingasync_read_Exit(errorCode);
 	return -1;
-
 }
-
 
 intptr_t
 omrfile_blockingasync_write(struct OMRPortLibrary *portLibrary, intptr_t fd, void *buf, intptr_t nbytes)
@@ -174,7 +168,7 @@ omrfile_blockingasync_write(struct OMRPortLibrary *portLibrary, intptr_t fd, voi
 
 		if (FALSE == result) {
 			if (ERROR_IO_PENDING == GetLastError()) {
-				result = GetOverlappedResult(fileHandle, &overlapped,  &bytesWritten, TRUE);
+				result = GetOverlappedResult(fileHandle, &overlapped, &bytesWritten, TRUE);
 			}
 
 			if (FALSE == result) {
@@ -216,20 +210,17 @@ error:
 	return errorCode;
 }
 
-
 int32_t
 omrfile_blockingasync_set_length(struct OMRPortLibrary *portLibrary, intptr_t fd, int64_t newLength)
 {
 	return omrfile_set_length(portLibrary, fd, newLength);
 }
 
-
 int64_t
 omrfile_blockingasync_flength(struct OMRPortLibrary *portLibrary, intptr_t fd)
 {
 	return omrfile_flength(portLibrary, fd);
 }
-
 
 static void J9THREAD_PROC
 tls_blockingasync_finalizer(void *entry)
@@ -239,7 +230,6 @@ tls_blockingasync_finalizer(void *entry)
 		CloseHandle(overlappedHandle);
 	}
 }
-
 
 int32_t
 omrfile_blockingasync_startup(struct OMRPortLibrary *portLibrary)
@@ -256,7 +246,6 @@ omrfile_blockingasync_startup(struct OMRPortLibrary *portLibrary)
 	return 0;
 }
 
-
 void
 omrfile_blockingasync_shutdown(struct OMRPortLibrary *portLibrary)
 {
@@ -264,4 +253,3 @@ omrfile_blockingasync_shutdown(struct OMRPortLibrary *portLibrary)
 	omrthread_tls_free(tlsKeyOverlappedHandle);
 	Trc_PRT_file_blockingasync_shutdown_Exit();
 }
-

@@ -27,7 +27,8 @@
  * Stats collected during one GC interval (quantum)
  * @ingroup GC_Stats
  */
-class MM_MetronomeStats : public MM_Base {
+class MM_MetronomeStats : public MM_Base
+{
 public:
 	uintptr_t classLoaderUnloadedCount;
 	uintptr_t classesUnloadedCount;
@@ -36,20 +37,22 @@ public:
 	uintptr_t finalizableCount; /**< count of objects pushed for finalization during one quantum */
 
 	uintptr_t _workPacketOverflowCount; /**< count of work packets overflowed since the end of the last quantum */
-	uintptr_t _objectOverflowCount; /**< count of single objects that are overflowed since the last quantum */
+	uintptr_t _objectOverflowCount;		/**< count of single objects that are overflowed since the last quantum */
 
 	uintptr_t nonDeterministicSweepCount;
 	uintptr_t nonDeterministicSweepConsecutive;
 	uint64_t nonDeterministicSweepDelay;
 
-	uint64_t _microsToStopMutators; /**< The number of microseconds the master thread had to wait for the mutator threads to stop, at the beginning of this increment */
+	uint64_t
+		_microsToStopMutators; /**< The number of microseconds the master thread had to wait for the mutator threads to stop, at the beginning of this increment */
 protected:
 private:
 public:
 	/**
 	 * To be called at the begining of a GC interval (quantum).
 	 */
-	void clearStart()
+	void
+	clearStart()
 	{
 		classLoaderUnloadedCount = 0;
 		classesUnloadedCount = 0;
@@ -60,7 +63,8 @@ public:
 	/**
 	 * To be called at the end of a GC interval (quantum).
 	 */
-	void clearEnd()
+	void
+	clearEnd()
 	{
 		nonDeterministicSweepCount = 0;
 		nonDeterministicSweepConsecutive = 0;
@@ -70,43 +74,39 @@ public:
 		_microsToStopMutators = 0;
 	}
 
-	MMINLINE void incrementWorkPacketOverflowCount()
+	MMINLINE void
+	incrementWorkPacketOverflowCount()
 	{
 		MM_AtomicOperations::add(&_workPacketOverflowCount, 1);
 	}
 
-	MMINLINE void incrementObjectOverflowCount()
+	MMINLINE void
+	incrementObjectOverflowCount()
 	{
 		MM_AtomicOperations::add(&_objectOverflowCount, 1);
 	}
 
-	MMINLINE uintptr_t getWorkPacketOverflowCount()
+	MMINLINE uintptr_t
+	getWorkPacketOverflowCount()
 	{
 		return _workPacketOverflowCount;
 	}
 
-	MMINLINE uintptr_t getObjectOverflowCount()
+	MMINLINE uintptr_t
+	getObjectOverflowCount()
 	{
 		return _objectOverflowCount;
 	}
 
-	void merge(MM_MetronomeStats* statsToMerge);
+	void merge(MM_MetronomeStats *statsToMerge);
 
 	/**
 	 * Create a MetronomeStats object.
 	 */
 	MM_MetronomeStats()
-		: MM_Base()
-		, classLoaderUnloadedCount(0)
-		, classesUnloadedCount(0)
-		, anonymousClassesUnloadedCount(0)
-		, finalizableCount(0)
-		, _workPacketOverflowCount(0)
-		, _objectOverflowCount(0)
-		, nonDeterministicSweepCount(0)
-		, nonDeterministicSweepConsecutive(0)
-		, nonDeterministicSweepDelay(0)
-		, _microsToStopMutators(0)
+		: MM_Base(), classLoaderUnloadedCount(0), classesUnloadedCount(0), anonymousClassesUnloadedCount(0),
+		  finalizableCount(0), _workPacketOverflowCount(0), _objectOverflowCount(0), nonDeterministicSweepCount(0),
+		  nonDeterministicSweepConsecutive(0), nonDeterministicSweepDelay(0), _microsToStopMutators(0)
 	{
 	}
 

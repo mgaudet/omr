@@ -41,25 +41,29 @@ class MM_GCExtensionsBase;
  * must be reserved to hold flags and object age (4 bits age, 4 bits flags). The remaining bytes in this slot may
  * be used by the client language for other purposes and will not be altered by OMR.
  */
-#define OMR_OBJECT_METADATA_SLOT_OFFSET		0 /* fomrobject_t offset from object header address to metadata slot */
-#define OMR_OBJECT_METADATA_SLOT_EA(object)	((fomrobject_t*)(object) + OMR_OBJECT_METADATA_SLOT_OFFSET) /* fomrobject_t* pointer to metadata slot */
-#define OMR_OBJECT_METADATA_SIZE_SHIFT		((uintptr_t) 8)
-#define OMR_OBJECT_METADATA_FLAGS_MASK		((uintptr_t) 0xFF)
-#define OMR_OBJECT_METADATA_AGE_MASK		((uintptr_t) 0xF0)
-#define OMR_OBJECT_METADATA_AGE_SHIFT		((uintptr_t) 4)
-#define OMR_OBJECT_AGE(object)				((*(OMR_OBJECT_METADATA_SLOT_EA(object)) & OMR_OBJECT_METADATA_AGE_MASK) >> OMR_OBJECT_METADATA_AGE_SHIFT)
-#define OMR_OBJECT_FLAGS(object)			(*(OMR_OBJECT_METADATA_SLOT_EA(object)) & OMR_OBJECT_METADATA_FLAGS_MASK)
-#define OMR_OBJECT_SIZE(object)				(*(OMR_OBJECT_METADATA_SLOT_EA(object)) >> OMR_OBJECT_METADATA_SIZE_SHIFT)
+#define OMR_OBJECT_METADATA_SLOT_OFFSET 0 /* fomrobject_t offset from object header address to metadata slot */
+#define OMR_OBJECT_METADATA_SLOT_EA(object)                                                                            \
+	((fomrobject_t *)(object) + OMR_OBJECT_METADATA_SLOT_OFFSET) /* fomrobject_t* pointer to metadata slot */
+#define OMR_OBJECT_METADATA_SIZE_SHIFT ((uintptr_t)8)
+#define OMR_OBJECT_METADATA_FLAGS_MASK ((uintptr_t)0xFF)
+#define OMR_OBJECT_METADATA_AGE_MASK ((uintptr_t)0xF0)
+#define OMR_OBJECT_METADATA_AGE_SHIFT ((uintptr_t)4)
+#define OMR_OBJECT_AGE(object)                                                                                         \
+	((*(OMR_OBJECT_METADATA_SLOT_EA(object)) & OMR_OBJECT_METADATA_AGE_MASK) >> OMR_OBJECT_METADATA_AGE_SHIFT)
+#define OMR_OBJECT_FLAGS(object) (*(OMR_OBJECT_METADATA_SLOT_EA(object)) & OMR_OBJECT_METADATA_FLAGS_MASK)
+#define OMR_OBJECT_SIZE(object) (*(OMR_OBJECT_METADATA_SLOT_EA(object)) >> OMR_OBJECT_METADATA_SIZE_SHIFT)
 
-#define OMR_OBJECT_METADATA_REMEMBERED_BITS			OMR_OBJECT_METADATA_AGE_MASK
-#define OMR_OBJECT_METADATA_REMEMBERED_BITS_TO_SET	0x10 /* OBJECT_HEADER_LOWEST_REMEMBERED */
-#define OMR_OBJECT_METADATA_REMEMBERED_BITS_SHIFT	OMR_OBJECT_METADATA_AGE_SHIFT
+#define OMR_OBJECT_METADATA_REMEMBERED_BITS OMR_OBJECT_METADATA_AGE_MASK
+#define OMR_OBJECT_METADATA_REMEMBERED_BITS_TO_SET 0x10 /* OBJECT_HEADER_LOWEST_REMEMBERED */
+#define OMR_OBJECT_METADATA_REMEMBERED_BITS_SHIFT OMR_OBJECT_METADATA_AGE_SHIFT
 
-#define STATE_NOT_REMEMBERED  	0
-#define STATE_REMEMBERED		(OMR_OBJECT_METADATA_REMEMBERED_BITS_TO_SET & OMR_OBJECT_METADATA_REMEMBERED_BITS)
+#define STATE_NOT_REMEMBERED 0
+#define STATE_REMEMBERED (OMR_OBJECT_METADATA_REMEMBERED_BITS_TO_SET & OMR_OBJECT_METADATA_REMEMBERED_BITS)
 
-#define OMR_TENURED_STACK_OBJECT_RECENTLY_REFERENCED	(STATE_REMEMBERED + (1 << OMR_OBJECT_METADATA_REMEMBERED_BITS_SHIFT))
-#define OMR_TENURED_STACK_OBJECT_CURRENTLY_REFERENCED	(STATE_REMEMBERED + (2 << OMR_OBJECT_METADATA_REMEMBERED_BITS_SHIFT))
+#define OMR_TENURED_STACK_OBJECT_RECENTLY_REFERENCED                                                                   \
+	(STATE_REMEMBERED + (1 << OMR_OBJECT_METADATA_REMEMBERED_BITS_SHIFT))
+#define OMR_TENURED_STACK_OBJECT_CURRENTLY_REFERENCED                                                                  \
+	(STATE_REMEMBERED + (2 << OMR_OBJECT_METADATA_REMEMBERED_BITS_SHIFT))
 
 /**
  * Provides information for a given object.
@@ -67,17 +71,18 @@ class MM_GCExtensionsBase;
  */
 class GC_ObjectModel
 {
-/*
+	/*
  * Member data and types
  */
 private:
-	uintptr_t _objectAlignmentInBytes; /**< Cached copy of object alignment for getting object alignment for adjusting for alignment */
-	uintptr_t _objectAlignmentShift; /**< Cached copy of object alignment shift, must be log2(_objectAlignmentInBytes)  */
+	uintptr_t
+		_objectAlignmentInBytes; /**< Cached copy of object alignment for getting object alignment for adjusting for alignment */
+	uintptr_t
+		_objectAlignmentShift; /**< Cached copy of object alignment shift, must be log2(_objectAlignmentInBytes)  */
 
 protected:
 public:
-
-/*
+	/*
  * Member functions
  */
 private:
@@ -94,12 +99,15 @@ public:
 		return true;
 	}
 
-	void tearDown(MM_GCExtensionsBase *extensions) {}
+	void
+	tearDown(MM_GCExtensionsBase *extensions)
+	{
+	}
 
 	MMINLINE uintptr_t
 	adjustSizeInBytes(uintptr_t sizeInBytes)
 	{
-		sizeInBytes =  (sizeInBytes + (_objectAlignmentInBytes - 1)) & (uintptr_t)~(_objectAlignmentInBytes - 1);
+		sizeInBytes = (sizeInBytes + (_objectAlignmentInBytes - 1)) & (uintptr_t) ~(_objectAlignmentInBytes - 1);
 
 #if defined(OMR_GC_MINIMUM_OBJECT_SIZE)
 		if (sizeInBytes < J9_GC_MINIMUM_OBJECT_SIZE) {
@@ -131,7 +139,7 @@ public:
 	MMINLINE void
 	setFlags(omrobjectptr_t objectPtr, uintptr_t bitsToClear, uintptr_t bitsToSet)
 	{
-		fomrobject_t* flagsPtr = (fomrobject_t*)OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
+		fomrobject_t *flagsPtr = (fomrobject_t *)OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
 		fomrobject_t clear = (fomrobject_t)bitsToClear;
 		fomrobject_t set = (fomrobject_t)bitsToSet;
 
@@ -193,7 +201,7 @@ public:
 	MMINLINE uintptr_t
 	getSizeInBytesDeadObject(omrobjectptr_t objectPtr)
 	{
-		if(isSingleSlotDeadObject(objectPtr)) {
+		if (isSingleSlotDeadObject(objectPtr)) {
 			return getSizeInBytesSingleSlotDeadObject(objectPtr);
 		}
 		return getSizeInBytesMultiSlotDeadObject(objectPtr);
@@ -233,13 +241,13 @@ public:
 	}
 
 	MMINLINE void
-	preMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
+	preMove(OMR_VMThread *vmThread, omrobjectptr_t objectPtr)
 	{
 		/* do nothing */
 	}
 
 	MMINLINE void
-	postMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
+	postMove(OMR_VMThread *vmThread, omrobjectptr_t objectPtr)
 	{
 		/* do nothing */
 	}
@@ -288,14 +296,16 @@ public:
 	{
 		bool result = true;
 
-		volatile fomrobject_t* flagsPtr = (fomrobject_t*) OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
+		volatile fomrobject_t *flagsPtr = (fomrobject_t *)OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
 		fomrobject_t oldFlags;
 		fomrobject_t newFlags;
 
 		do {
 			oldFlags = *flagsPtr;
-			if ((oldFlags & OMR_OBJECT_METADATA_REMEMBERED_BITS) == (fomrobject_t)OMR_TENURED_STACK_OBJECT_RECENTLY_REFERENCED) {
-				newFlags = (oldFlags & ~OMR_OBJECT_METADATA_REMEMBERED_BITS) | (fomrobject_t)OMR_TENURED_STACK_OBJECT_CURRENTLY_REFERENCED;
+			if ((oldFlags & OMR_OBJECT_METADATA_REMEMBERED_BITS)
+				== (fomrobject_t)OMR_TENURED_STACK_OBJECT_RECENTLY_REFERENCED) {
+				newFlags = (oldFlags & ~OMR_OBJECT_METADATA_REMEMBERED_BITS)
+						   | (fomrobject_t)OMR_TENURED_STACK_OBJECT_CURRENTLY_REFERENCED;
 			} else {
 				result = false;
 				break;
@@ -303,8 +313,9 @@ public:
 		}
 #if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 		while (oldFlags != MM_AtomicOperations::lockCompareExchangeU32(flagsPtr, oldFlags, newFlags));
-#else /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
-		while (oldFlags != MM_AtomicOperations::lockCompareExchange(flagsPtr, (uintptr_t)oldFlags, (uintptr_t)newFlags));
+#else  /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
+		while (oldFlags
+			   != MM_AtomicOperations::lockCompareExchange(flagsPtr, (uintptr_t)oldFlags, (uintptr_t)newFlags));
 #endif /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
 
 		return result;
@@ -320,13 +331,14 @@ public:
 	{
 		bool result = true;
 
-		volatile fomrobject_t* flagsPtr = OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
+		volatile fomrobject_t *flagsPtr = OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
 		fomrobject_t oldFlags;
 		fomrobject_t newFlags;
 
 		do {
 			oldFlags = *flagsPtr;
-			newFlags = (oldFlags & ~OMR_OBJECT_METADATA_REMEMBERED_BITS) | OMR_TENURED_STACK_OBJECT_CURRENTLY_REFERENCED;
+			newFlags =
+				(oldFlags & ~OMR_OBJECT_METADATA_REMEMBERED_BITS) | OMR_TENURED_STACK_OBJECT_CURRENTLY_REFERENCED;
 
 			if (newFlags == oldFlags) {
 				result = false;
@@ -335,8 +347,9 @@ public:
 		}
 #if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 		while (oldFlags != MM_AtomicOperations::lockCompareExchangeU32(flagsPtr, oldFlags, newFlags));
-#else /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
-		while (oldFlags != MM_AtomicOperations::lockCompareExchange(flagsPtr, (uintptr_t)oldFlags, (uintptr_t)newFlags));
+#else  /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
+		while (oldFlags
+			   != MM_AtomicOperations::lockCompareExchange(flagsPtr, (uintptr_t)oldFlags, (uintptr_t)newFlags));
 #endif /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
 
 		if (result && ((oldFlags & OMR_OBJECT_METADATA_REMEMBERED_BITS) >= STATE_REMEMBERED)) {
@@ -357,13 +370,13 @@ public:
 	{
 		bool result = true;
 
-		volatile fomrobject_t* flagsPtr = (fomrobject_t*) OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
+		volatile fomrobject_t *flagsPtr = (fomrobject_t *)OMR_OBJECT_METADATA_SLOT_EA(objectPtr);
 		fomrobject_t oldFlags;
 		fomrobject_t newFlags;
 
 		do {
 			oldFlags = *flagsPtr;
-			if((oldFlags & OMR_OBJECT_METADATA_REMEMBERED_BITS) >= STATE_REMEMBERED) {
+			if ((oldFlags & OMR_OBJECT_METADATA_REMEMBERED_BITS) >= STATE_REMEMBERED) {
 				/* Remembered state in age was set by somebody else */
 				result = false;
 				break;
@@ -372,8 +385,9 @@ public:
 		}
 #if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 		while (oldFlags != MM_AtomicOperations::lockCompareExchangeU32(flagsPtr, oldFlags, newFlags));
-#else /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
-		while (oldFlags != MM_AtomicOperations::lockCompareExchange(flagsPtr, (uintptr_t)oldFlags, (uintptr_t)newFlags));
+#else  /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
+		while (oldFlags
+			   != MM_AtomicOperations::lockCompareExchange(flagsPtr, (uintptr_t)oldFlags, (uintptr_t)newFlags));
 #endif /* defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
 
 		return result;
@@ -406,7 +420,8 @@ public:
 	MMINLINE uintptr_t
 	getPreservedAge(MM_ForwardedHeader *forwardedHeader)
 	{
-		return ((uintptr_t)(forwardedHeader->getPreservedSlot()) & OMR_OBJECT_METADATA_AGE_MASK) >> OMR_OBJECT_METADATA_AGE_SHIFT;
+		return ((uintptr_t)(forwardedHeader->getPreservedSlot()) & OMR_OBJECT_METADATA_AGE_MASK)
+			   >> OMR_OBJECT_METADATA_AGE_SHIFT;
 	}
 
 	/**
@@ -533,7 +548,8 @@ public:
 	 * @return TRUE if an object's has been hashed bit set, FALSE otherwise
 	 */
 	MMINLINE void
-	calculateObjectDetailsForCopy(MM_ForwardedHeader *forwardedHeader, uintptr_t *objectCopySizeInBytes, uintptr_t *objectReserveSizeInBytes, uintptr_t *hotFieldAlignmentDescriptor)
+	calculateObjectDetailsForCopy(MM_ForwardedHeader *forwardedHeader, uintptr_t *objectCopySizeInBytes,
+								  uintptr_t *objectReserveSizeInBytes, uintptr_t *hotFieldAlignmentDescriptor)
 	{
 		*objectCopySizeInBytes = forwardedHeader->getPreservedSlot() >> OMR_OBJECT_METADATA_SIZE_SHIFT;
 		*objectReserveSizeInBytes = adjustSizeInBytes(*objectCopySizeInBytes);
@@ -571,7 +587,7 @@ public:
 			setObjectSize(originalObject, getSizeInBytesWithHeader(forwardedObject));
 			setFlags(originalObject, OMR_OBJECT_METADATA_FLAGS_MASK, OMR_OBJECT_FLAGS(forwardedObject));
 
-#if defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER)
+#if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
 			/* Restore destroyed overlapped slot in the original object. This slot might need to be reversed
 			 * as well or it may be already reversed - such fixup will be completed at in a later pass.
 			 */
@@ -582,7 +598,6 @@ public:
 		}
 		return false;
 	}
-
 
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */
 
@@ -629,7 +644,7 @@ public:
 		setRememberedBits(objectPtr, STATE_NOT_REMEMBERED);
 	}
 
- 	/**
+	/**
 	 * Set run-time Object Alignment in the heap value
 	 * Function exists because we can only determine it is way after ObjectModel is init
 	 */
@@ -639,7 +654,7 @@ public:
 		_objectAlignmentInBytes = objectAlignmentInBytes;
 	}
 
- 	/**
+	/**
 	 * Set run-time Object Alignment Shift value
 	 * Function exists because we can only determine it is way after ObjectModel is init
 	 */
@@ -649,7 +664,7 @@ public:
 		_objectAlignmentShift = objectAlignmentShift;
 	}
 
- 	/**
+	/**
 	 * Get run-time Object Alignment in the heap value
 	 */
 	MMINLINE uintptr_t
@@ -658,7 +673,7 @@ public:
 		return _objectAlignmentInBytes;
 	}
 
- 	/**
+	/**
 	 * Get run-time Object Alignment Shift value
 	 */
 	MMINLINE uintptr_t
@@ -666,6 +681,5 @@ public:
 	{
 		return _objectAlignmentShift;
 	}
-
 };
 #endif /* OBJECTMODEL_HPP_ */

@@ -27,17 +27,18 @@
 #include "CollectorLanguageInterface.hpp"
 #include "EnvironmentBase.hpp"
 
-MM_GCExtensionsBase*
-MM_GCExtensionsBase::newInstance(MM_EnvironmentBase* env)
+MM_GCExtensionsBase *
+MM_GCExtensionsBase::newInstance(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
-	MM_GCExtensionsBase* extensions;
+	MM_GCExtensionsBase *extensions;
 
 	/* Avoid using MM_Forge to allocate memory for the extension, since MM_Forge itself has not been created! */
-	extensions = static_cast<MM_GCExtensionsBase*>(omrmem_allocate_memory(sizeof(MM_GCExtensionsBase), OMRMEM_CATEGORY_MM));
+	extensions =
+		static_cast<MM_GCExtensionsBase *>(omrmem_allocate_memory(sizeof(MM_GCExtensionsBase), OMRMEM_CATEGORY_MM));
 	if (extensions) {
 		/* Initialize all the fields to zero */
-		memset((void*)extensions, 0, sizeof(*extensions));
+		memset((void *)extensions, 0, sizeof(*extensions));
 
 		new (extensions) MM_GCExtensionsBase();
 		if (!extensions->initialize(env)) {
@@ -49,7 +50,7 @@ MM_GCExtensionsBase::newInstance(MM_EnvironmentBase* env)
 }
 
 void
-MM_GCExtensionsBase::kill(MM_EnvironmentBase* env)
+MM_GCExtensionsBase::kill(MM_EnvironmentBase *env)
 {
 	/* Avoid using MM_Forge to free memory for the extension, since MM_Forge was not used to allocate the memory */
 	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
@@ -58,7 +59,7 @@ MM_GCExtensionsBase::kill(MM_EnvironmentBase* env)
 }
 
 bool
-MM_GCExtensionsBase::initialize(MM_EnvironmentBase* env)
+MM_GCExtensionsBase::initialize(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	uint64_t physicalMemory = 0;
@@ -73,7 +74,7 @@ MM_GCExtensionsBase::initialize(MM_EnvironmentBase* env)
 #if defined(OMR_GC_MODRON_STANDARD)
 #if defined(OMR_GC_MODRON_SCAVENGER)
 	configurationOptions._gcPolicy = gc_policy_gencon;
-#else /* OMR_GC_MODRON_SCAVENGER */
+#else  /* OMR_GC_MODRON_SCAVENGER */
 	configurationOptions._gcPolicy = gc_policy_optthruput;
 #endif /* OMR_GC_MODRON_SCAVENGER */
 
@@ -84,7 +85,6 @@ MM_GCExtensionsBase::initialize(MM_EnvironmentBase* env)
 #else
 #error Default GC policy cannot be determined
 #endif /* OMR_GC_MODRON_STANDARD */
-
 
 #if defined(OMR_GC_MODRON_SCAVENGER)
 	if (!rememberedSet.initialize(env, MM_AllocationCategory::REMEMBERED_SET)) {
@@ -126,7 +126,7 @@ MM_GCExtensionsBase::initialize(MM_EnvironmentBase* env)
 	/* we are going to try to request a slice of half the usable memory */
 	memoryToRequest = (usableMemory / 2);
 
-	/* TODO: Only cap HRT to 64M heap.  Should this be removed? */
+/* TODO: Only cap HRT to 64M heap.  Should this be removed? */
 #define J9_PHYSICAL_MEMORY_MAX (uint64_t)(512 * 1024 * 1024)
 #define J9_PHYSICAL_MEMORY_DEFAULT (16 * 1024 * 1024)
 
@@ -150,9 +150,9 @@ MM_GCExtensionsBase::initialize(MM_EnvironmentBase* env)
 	gcmetadataPageSize = pageSizes[0];
 	gcmetadataPageFlags = OMRPORT_VMEM_PAGE_FLAG_NOT_USED;
 
-#define SIXTY_FOUR_KB	((uintptr_t)64 * 1024)
-#define ONE_MB			((uintptr_t)1 * 1024 * 1024)
-#define TWO_MB			((uintptr_t)2 * 1024 * 1024)
+#define SIXTY_FOUR_KB ((uintptr_t)64 * 1024)
+#define ONE_MB ((uintptr_t)1 * 1024 * 1024)
+#define TWO_MB ((uintptr_t)2 * 1024 * 1024)
 
 #if defined(AIXPPC)
 	requestedPageSize = SIXTY_FOUR_KB; /* Use 64K pages for AIX-32 and AIX-64 */
@@ -175,7 +175,6 @@ MM_GCExtensionsBase::initialize(MM_EnvironmentBase* env)
 		gcmetadataPageFlags = pageFlags[0];
 	}
 
-
 	if (!_forge.initialize(env)) {
 		goto failed;
 	}
@@ -192,7 +191,8 @@ MM_GCExtensionsBase::initialize(MM_EnvironmentBase* env)
 		goto failed;
 	}
 
-	if (omrthread_monitor_init_with_name(&_lightweightNonReentrantLockPoolMutex, 0, "GCExtensions::_lightweightNonReentrantLockPoolMutex")) {
+	if (omrthread_monitor_init_with_name(&_lightweightNonReentrantLockPoolMutex, 0,
+										 "GCExtensions::_lightweightNonReentrantLockPoolMutex")) {
 		goto failed;
 	}
 
@@ -222,7 +222,8 @@ failed:
 }
 
 bool
-MM_GCExtensionsBase::validateDefaultPageParameters(uintptr_t pageSize, uintptr_t pageFlags, uintptr_t *pageSizesArray, uintptr_t *pageFlagsArray)
+MM_GCExtensionsBase::validateDefaultPageParameters(uintptr_t pageSize, uintptr_t pageFlags, uintptr_t *pageSizesArray,
+												   uintptr_t *pageFlagsArray)
 {
 	bool result = false;
 
@@ -238,7 +239,7 @@ MM_GCExtensionsBase::validateDefaultPageParameters(uintptr_t pageSize, uintptr_t
 }
 
 void
-MM_GCExtensionsBase::tearDown(MM_EnvironmentBase* env)
+MM_GCExtensionsBase::tearDown(MM_EnvironmentBase *env)
 {
 #if defined(OMR_GC_MODRON_SCAVENGER) || defined(OMR_GC_VLHGC)
 	scavengerHotFieldStats.tearDown(env);
@@ -260,23 +261,23 @@ MM_GCExtensionsBase::tearDown(MM_EnvironmentBase* env)
 
 	if (NULL != gcExclusiveAccessMutex) {
 		omrthread_monitor_destroy(gcExclusiveAccessMutex);
-		gcExclusiveAccessMutex = (omrthread_monitor_t) NULL;
+		gcExclusiveAccessMutex = (omrthread_monitor_t)NULL;
 	}
 
 	if (NULL != _lightweightNonReentrantLockPoolMutex) {
 		omrthread_monitor_destroy(_lightweightNonReentrantLockPoolMutex);
-		_lightweightNonReentrantLockPoolMutex = (omrthread_monitor_t) NULL;
+		_lightweightNonReentrantLockPoolMutex = (omrthread_monitor_t)NULL;
 	}
 
 	_forge.tearDown(env);
 
-	J9HookInterface** tmpHookInterface = getPrivateHookInterface();
+	J9HookInterface **tmpHookInterface = getPrivateHookInterface();
 	if ((NULL != tmpHookInterface) && (NULL != *tmpHookInterface)) {
 		(*tmpHookInterface)->J9HookShutdownInterface(tmpHookInterface);
 		*tmpHookInterface = NULL; /* avoid issues with double teardowns */
 	}
 
-	J9HookInterface** tmpOmrHookInterface = getOmrHookInterface();
+	J9HookInterface **tmpOmrHookInterface = getOmrHookInterface();
 	if ((NULL != tmpOmrHookInterface) && (NULL != *tmpOmrHookInterface)) {
 		(*tmpOmrHookInterface)->J9HookShutdownInterface(tmpOmrHookInterface);
 		*tmpOmrHookInterface = NULL; /* avoid issues with double teardowns */
@@ -284,13 +285,15 @@ MM_GCExtensionsBase::tearDown(MM_EnvironmentBase* env)
 }
 
 void
-MM_GCExtensionsBase::identityHashDataAddRange(MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, uintptr_t size, void* lowAddress, void* highAddress)
+MM_GCExtensionsBase::identityHashDataAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size,
+											  void *lowAddress, void *highAddress)
 {
 	/* empty */
 }
 
 void
-MM_GCExtensionsBase::identityHashDataRemoveRange(MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, uintptr_t size, void* lowAddress, void* highAddress)
+MM_GCExtensionsBase::identityHashDataRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, uintptr_t size,
+												 void *lowAddress, void *highAddress)
 {
 	/* empty */
 }

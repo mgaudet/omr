@@ -33,7 +33,7 @@
 #include <sys/time.h>
 #include <sys/utsname.h>
 
-#if !__GLIBC_PREREQ(2,4)
+#if !__GLIBC_PREREQ(2, 4)
 /* Compilation on RHEL 4 (for eventual 7.0 VM to Java 6.0 backport) */
 #include <asm/systemcfg.h>
 extern volatile struct systemcfg *systemcfgP_millis;
@@ -168,7 +168,8 @@ omrtime_hires_clock(struct OMRPortLibrary *portLibrary)
 	}
 
 	gettimeofday(&tp, NULL);
-	return ((int64_t)tp.tv_sec) * OMRTIME_HIRES_CLOCK_FREQUENCY + tp.tv_usec * (OMRTIME_HIRES_CLOCK_FREQUENCY / 1000000);
+	return ((int64_t)tp.tv_sec) * OMRTIME_HIRES_CLOCK_FREQUENCY
+		   + tp.tv_usec * (OMRTIME_HIRES_CLOCK_FREQUENCY / 1000000);
 }
 /**
  * Query OS for clock frequency
@@ -206,7 +207,8 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime,
+					uint64_t requiredResolution)
 {
 	uint64_t ticks;
 
@@ -284,7 +286,7 @@ omrtime_startup(struct OMRPortLibrary *portLibrary)
 	int32_t rc = 0;
 	struct timespec ts;
 
-#if !__GLIBC_PREREQ(2,4)
+#if !__GLIBC_PREREQ(2, 4)
 	systemcfgP_millis = systemcfg_init();
 #else
 	int procfd;

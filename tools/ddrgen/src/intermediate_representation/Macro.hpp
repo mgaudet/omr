@@ -31,9 +31,7 @@ private:
 public:
 	std::string _name;
 
-	Macro(std::string name, std::string value) : _value(value), _name(name)
-	{
-	}
+	Macro(std::string name, std::string value) : _value(value), _name(name) {}
 
 	std::string
 	getValue() const

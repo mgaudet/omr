@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /*
  * $RCSfile: omrerrorTest.c,v $
  * $Revision: 1.32 $
@@ -128,7 +127,8 @@ TEST(PortErrorTest, error_test1)
 	}
 	errorCode = omrerror_last_error_number();
 	if (200 != errorCode) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_number() returned %d expected %d\n", errorCode, 200);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_number() returned %d expected %d\n", errorCode,
+						   200);
 	}
 
 	/* Again with negative values */
@@ -138,7 +138,8 @@ TEST(PortErrorTest, error_test1)
 	}
 	errorCode = omrerror_last_error_number();
 	if (-200 != errorCode) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_number() returned %d expected %d\n", errorCode, 200);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_number() returned %d expected %d\n", errorCode,
+						   200);
 	}
 
 	/* Delete the ptBuffers, verify no error is stored */
@@ -180,36 +181,44 @@ TEST(PortErrorTest, error_test2)
 	 */
 	message = omrerror_last_error_message();
 	if (0 != strlen(message)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned message of length %d expected %d\n", strlen(message), 1);
+		outputErrorMessage(PORTTEST_ERROR_ARGS,
+						   "omrerror_last_error_message() returned message of length %d expected %d\n", strlen(message),
+						   1);
 	}
 
 	/* Set an error message, verify it is what we get back */
 	errorCode = omrerror_set_last_error_with_message(200, knownMessage);
 	message = omrerror_last_error_message();
 	if (200 != errorCode) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_set_last_error_with_message() returned %d expected %d\n", errorCode, 200);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_set_last_error_with_message() returned %d expected %d\n",
+						   errorCode, 200);
 	}
 	if (strlen(message) != strlen(knownMessage)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned length %d expected %d\n", strlen(message), strlen(knownMessage));
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned length %d expected %d\n",
+						   strlen(message), strlen(knownMessage));
 	}
 	if (0 != memcmp(message, knownMessage, strlen(knownMessage))) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned \"%s\" expected \"%s\"\n", message, knownMessage);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned \"%s\" expected \"%s\"\n",
+						   message, knownMessage);
 	}
 
 	/* Again, different message */
 	errorCode = omrerror_set_last_error_with_message(100, knownMessage2);
 	message = omrerror_last_error_message();
 	if (100 != errorCode) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_set_last_error_with_message() returned %d expected %d\n", errorCode, 100);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_set_last_error_with_message() returned %d expected %d\n",
+						   errorCode, 100);
 	}
 	if (strlen(message) != strlen(knownMessage2)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned length %d expected %d\n", strlen(message), strlen(knownMessage2));
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned length %d expected %d\n",
+						   strlen(message), strlen(knownMessage2));
 	}
 	if (0 != memcmp(message, knownMessage2, strlen(knownMessage2))) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned \"%s\" expected \"%s\"\n", message, knownMessage2);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned \"%s\" expected \"%s\"\n",
+						   message, knownMessage2);
 	}
 
-	/* A null message, valid test?*/
+/* A null message, valid test?*/
 #if 0
 	errorCode = omrerror_set_last_error_with_message(-100, NULL);
 	message = omrerror_last_error_message();
@@ -225,13 +234,16 @@ TEST(PortErrorTest, error_test2)
 	errorCode = omrerror_set_last_error_with_message(-300, knownMessage);
 	message = omrerror_last_error_message();
 	if (-300 != errorCode) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_number() returned %d expected %d\n", errorCode, -300);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_number() returned %d expected %d\n", errorCode,
+						   -300);
 	}
 	if (strlen(message) != strlen(knownMessage)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned length %d expected %d\n", strlen(message), strlen(knownMessage));
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned length %d expected %d\n",
+						   strlen(message), strlen(knownMessage));
 	}
 	if (0 != memcmp(message, knownMessage, strlen(knownMessage))) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned \"%s\" expected \"%s\"\n", message, knownMessage);
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "omrerror_last_error_message() returned \"%s\" expected \"%s\"\n",
+						   message, knownMessage);
 	}
 
 	/* Delete the ptBuffers, verify no error is stored */

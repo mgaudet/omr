@@ -46,6 +46,7 @@ public:
 protected:
 	MM_MemoryPoolSegregated *_memoryPool;
 	MM_MarkMap *_markMap;
+
 private:
 	bool _isFixHeapForWalk;
 	bool _clearMarkMapAfterSweep; /**< If a region should be unmarked after it is swept */
@@ -56,14 +57,23 @@ private:
 public:
 	static MM_SweepSchemeSegregated *newInstance(MM_EnvironmentBase *env, MM_MarkMap *markMap);
 	void kill(MM_EnvironmentBase *env);
-	
-	MM_MarkMap *getMarkMap(MM_EnvironmentBase * env);
+
+	MM_MarkMap *getMarkMap(MM_EnvironmentBase *env);
 
 	void sweep(MM_EnvironmentBase *env, MM_MemoryPoolSegregated *memoryPool, bool isFixHeapForWalk);
 	virtual void sweepRegion(MM_EnvironmentBase *env, MM_HeapRegionDescriptorSegregated *region);
 
-	bool isClearMarkMapAfterSweep() { return _clearMarkMapAfterSweep; }
-	void setClearMarkMapAfterSweep(bool clearMarkMapAfterSweep) { _clearMarkMapAfterSweep = clearMarkMapAfterSweep; }
+	bool
+	isClearMarkMapAfterSweep()
+	{
+		return _clearMarkMapAfterSweep;
+	}
+	void
+	setClearMarkMapAfterSweep(bool clearMarkMapAfterSweep)
+	{
+		_clearMarkMapAfterSweep = clearMarkMapAfterSweep;
+	}
+
 protected:
 	bool initialize(MM_EnvironmentBase *env);
 	void tearDown(MM_EnvironmentBase *env);
@@ -76,16 +86,13 @@ protected:
 	/**
 	 * Create a MM_SweepSchemeSegregated object
 	 */
-	MM_SweepSchemeSegregated(MM_EnvironmentBase *env, MM_MarkMap *markMap) :
-		MM_BaseVirtual()
-		,_memoryPool(NULL)
-		,_markMap(markMap)
-		,_isFixHeapForWalk(false)
-		,_clearMarkMapAfterSweep(true)
+	MM_SweepSchemeSegregated(MM_EnvironmentBase *env, MM_MarkMap *markMap)
+		: MM_BaseVirtual(), _memoryPool(NULL), _markMap(markMap), _isFixHeapForWalk(false),
+		  _clearMarkMapAfterSweep(true)
 	{
 		_typeId = __FUNCTION__;
 	};
-	
+
 private:
 	void unmarkRegion(MM_EnvironmentBase *env, MM_HeapRegionDescriptorSegregated *region);
 	void sweepSmallRegion(MM_EnvironmentBase *env, MM_HeapRegionDescriptorSegregated *region);
@@ -98,7 +105,9 @@ private:
 	void incrementalSweepLarge(MM_EnvironmentBase *env);
 	void incrementalCoalesceFreeRegions(MM_EnvironmentBase *env);
 
-	MMINLINE bool addFreeChunk(MM_MemoryPoolAggregatedCellList *memoryPoolACL, uintptr_t *freeChunk, uintptr_t freeChunkSize, uintptr_t minimumFreeEntrySize, uintptr_t freeChunkCellCount)
+	MMINLINE bool
+	addFreeChunk(MM_MemoryPoolAggregatedCellList *memoryPoolACL, uintptr_t *freeChunk, uintptr_t freeChunkSize,
+				 uintptr_t minimumFreeEntrySize, uintptr_t freeChunkCellCount)
 	{
 		bool result = false;
 		if (freeChunkSize >= minimumFreeEntrySize) {

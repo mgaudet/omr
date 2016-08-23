@@ -47,7 +47,7 @@ static void childSiblingWriteChild(testdata_rw_t *, int[2]);
 static int childSiblingWriteMain(void *arg);
 static void parentWriteSiblingReadStart(int forkCount);
 static void parentWriteSiblingReadChild(testdata_rw_t *, int[2]);
-static int  parentWriteSiblingReadMain(void *arg);
+static int parentWriteSiblingReadMain(void *arg);
 
 static void
 childForkHelper(int forkCount)
@@ -63,10 +63,7 @@ childForkHelper(int forkCount)
 	}
 }
 
-TEST(ThreadForkResetTest, SiblingWriteLock)
-{
-	siblingWriteStart(1);
-}
+TEST(ThreadForkResetTest, SiblingWriteLock) { siblingWriteStart(1); }
 
 static void
 siblingWriteStart(int forkCount)
@@ -77,7 +74,7 @@ siblingWriteStart(int forkCount)
 
 	/* Pre-fork */
 	int pipeRC = pipe(pipedata);
-	EXPECT_TRUE(0 == pipeRC)  << "Failure occurred calling pipe";
+	EXPECT_TRUE(0 == pipeRC) << "Failure occurred calling pipe";
 
 	omrthread_monitor_init(&testdata.monitor, 0);
 	omrthread_rwmutex_init(&testdata.rwmutex, 0, "OMR_TEST SiblingWriteLock");
@@ -85,7 +82,7 @@ siblingWriteStart(int forkCount)
 	ASSERT_NO_FATAL_FAILURE(createJoinableThread(&t, siblingWriteMain, &testdata));
 
 	EXPECT_FALSE(J9THREAD_TIMED_OUT == omrthread_monitor_wait_timed(testdata.monitor, TIMEOUT, 0))
-			<< "Timed out waiting for sibling thread to enter monitor.";
+		<< "Timed out waiting for sibling thread to enter monitor.";
 
 	omrthread_lib_preFork();
 	if (0 >= forkCount || 0 == fork()) {
@@ -102,16 +99,14 @@ siblingWriteStart(int forkCount)
 	close(pipedata[0]);
 	close(pipedata[1]);
 	EXPECT_TRUE(0 == omrthread_monitor_notify(testdata.monitor))
-			<< "Notifying monitor failed after fork: parent thread does not own monitor.";
+		<< "Notifying monitor failed after fork: parent thread does not own monitor.";
 	EXPECT_TRUE(0 == omrthread_monitor_exit(testdata.monitor))
-			<< "Exiting monitor after fork failed: parent thread does not own monitor.";
+		<< "Exiting monitor after fork failed: parent thread does not own monitor.";
 
 	VERBOSE_JOIN(t, J9THREAD_SUCCESS);
 
-	EXPECT_TRUE(0 == omrthread_monitor_destroy(testdata.monitor))
-			<< "Destroying monitor failed: monitor still in use.";
-	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex))
-			<< "Destroying rwmutex failed: monitor still in use.";
+	EXPECT_TRUE(0 == omrthread_monitor_destroy(testdata.monitor)) << "Destroying monitor failed: monitor still in use.";
+	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex)) << "Destroying rwmutex failed: monitor still in use.";
 	EXPECT_TRUE(0 == testdata.rc) << "Failure occurred in sibling thread.";
 }
 
@@ -164,10 +159,7 @@ siblingWriteMain(void *arg)
 	return 0;
 }
 
-TEST(ThreadForkResetTest, ParentWriteLock)
-{
-	parentWriteStart(1);
-}
+TEST(ThreadForkResetTest, ParentWriteLock) { parentWriteStart(1); }
 
 static void
 parentWriteStart(int forkCount)
@@ -177,11 +169,10 @@ parentWriteStart(int forkCount)
 
 	/* Pre-fork */
 	int pipeRC = pipe(pipedata);
-	EXPECT_TRUE(0 == pipeRC)  << "Failure occurred calling pipe";
+	EXPECT_TRUE(0 == pipeRC) << "Failure occurred calling pipe";
 
 	testdata.rc = omrthread_rwmutex_init(&testdata.rwmutex, 0, "OMR_TEST ParentWriteLock");
-	EXPECT_TRUE(0 == omrthread_rwmutex_try_enter_write(testdata.rwmutex))
-			<< "Enter write rwmutex failed before fork.";
+	EXPECT_TRUE(0 == omrthread_rwmutex_try_enter_write(testdata.rwmutex)) << "Enter write rwmutex failed before fork.";
 
 	omrthread_lib_preFork();
 	if (0 >= forkCount || 0 == fork()) {
@@ -198,9 +189,8 @@ parentWriteStart(int forkCount)
 	close(pipedata[0]);
 	close(pipedata[1]);
 	EXPECT_TRUE(0 == omrthread_rwmutex_exit_write(testdata.rwmutex))
-			<< "Exit rwmutex failed after fork: monitor still in use.";
-	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex))
-			<< "Destroying monitor failed: monitor still in use.";
+		<< "Exit rwmutex failed after fork: monitor still in use.";
+	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex)) << "Destroying monitor failed: monitor still in use.";
 }
 
 static void
@@ -223,10 +213,7 @@ parentWriteChild(testdata_rw_t *testdata, int pipedata[2])
 	exit(0);
 }
 
-TEST(ThreadForkResetTest, ChildSiblingWriteLock)
-{
-	childSiblingWriteStart(1);
-}
+TEST(ThreadForkResetTest, ChildSiblingWriteLock) { childSiblingWriteStart(1); }
 
 static void
 childSiblingWriteStart(int forkCount)
@@ -236,11 +223,10 @@ childSiblingWriteStart(int forkCount)
 
 	/* Pre-fork */
 	int pipeRC = pipe(pipedata);
-	EXPECT_TRUE(0 == pipeRC)  << "Failure occurred calling pipe";
+	EXPECT_TRUE(0 == pipeRC) << "Failure occurred calling pipe";
 
 	testdata.rc = omrthread_rwmutex_init(&testdata.rwmutex, 0, "OMR_TEST ParentWriteLock");
-	EXPECT_TRUE(0 == omrthread_rwmutex_try_enter_write(testdata.rwmutex))
-			<< "Enter write rwmutex failed before fork.";
+	EXPECT_TRUE(0 == omrthread_rwmutex_try_enter_write(testdata.rwmutex)) << "Enter write rwmutex failed before fork.";
 
 	omrthread_lib_preFork();
 	if (0 >= forkCount || 0 == fork()) {
@@ -257,9 +243,8 @@ childSiblingWriteStart(int forkCount)
 	close(pipedata[0]);
 	close(pipedata[1]);
 	EXPECT_TRUE(0 == omrthread_rwmutex_exit_write(testdata.rwmutex))
-			<< "Exit rwmutex failed after fork: monitor still in use.";
-	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex))
-			<< "Destroying monitor failed: monitor still in use.";
+		<< "Exit rwmutex failed after fork: monitor still in use.";
+	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex)) << "Destroying monitor failed: monitor still in use.";
 }
 
 static void
@@ -271,7 +256,8 @@ childSiblingWriteChild(testdata_rw_t *testdata, int pipedata[2])
 	if (NULL != t) {
 		testdata->rc = omrthread_join(t);
 		if (testdata->rc & J9THREAD_ERR_OS_ERRNO_SET) {
-			printf("omrthread_join() returned 0x%08x and os_errno=%d\n", (int)testdata->rc, (int)omrthread_get_os_errno());
+			printf("omrthread_join() returned 0x%08x and os_errno=%d\n", (int)testdata->rc,
+				   (int)omrthread_get_os_errno());
 		}
 	}
 	if (0 == testdata->rc) {
@@ -306,10 +292,7 @@ childSiblingWriteMain(void *arg)
  * This test seems less than ideal with the sleeps involved.
  * Perhaps there is a better way..
  */
-TEST(ThreadForkResetTest, ParentWriteSiblingReadLock)
-{
-	parentWriteSiblingReadStart(1);
-}
+TEST(ThreadForkResetTest, ParentWriteSiblingReadLock) { parentWriteSiblingReadStart(1); }
 
 static void
 parentWriteSiblingReadStart(int forkCount)
@@ -320,7 +303,7 @@ parentWriteSiblingReadStart(int forkCount)
 
 	/* Pre-fork */
 	int pipeRC = pipe(pipedata);
-	EXPECT_TRUE(0 == pipeRC)  << "Failure occurred calling pipe";
+	EXPECT_TRUE(0 == pipeRC) << "Failure occurred calling pipe";
 
 	omrthread_monitor_init(&testdata.monitor, 0);
 	omrthread_rwmutex_init(&testdata.rwmutex, 0, "OMR_TEST ParentWriteSiblingReadLock");
@@ -329,11 +312,10 @@ parentWriteSiblingReadStart(int forkCount)
 	ASSERT_NO_FATAL_FAILURE(createJoinableThread(&t, parentWriteSiblingReadMain, &testdata));
 
 	EXPECT_FALSE(J9THREAD_TIMED_OUT == omrthread_monitor_wait_timed(testdata.monitor, TIMEOUT, 0))
-			<< "Timed out waiting for sibling thread to enter monitor.";
+		<< "Timed out waiting for sibling thread to enter monitor.";
 	EXPECT_TRUE(0 == omrthread_monitor_exit(testdata.monitor))
-			<< "Exiting monitor after fork failed: parent thread does not own monitor.";
-	EXPECT_TRUE(0 == omrthread_monitor_destroy(testdata.monitor))
-			<< "Destroying monitor failed: monitor still in use.";
+		<< "Exiting monitor after fork failed: parent thread does not own monitor.";
+	EXPECT_TRUE(0 == omrthread_monitor_destroy(testdata.monitor)) << "Destroying monitor failed: monitor still in use.";
 	omrthread_sleep(START_DELAY);
 
 	omrthread_lib_preFork();
@@ -350,13 +332,11 @@ parentWriteSiblingReadStart(int forkCount)
 	EXPECT_TRUE(0 == testdata.rc) << "Failure occurred in child process.";
 	close(pipedata[0]);
 	close(pipedata[1]);
-	EXPECT_TRUE(0 == omrthread_rwmutex_exit_write(testdata.rwmutex))
-			<< "Exit write failed after fork.";
+	EXPECT_TRUE(0 == omrthread_rwmutex_exit_write(testdata.rwmutex)) << "Exit write failed after fork.";
 
 	VERBOSE_JOIN(t, J9THREAD_SUCCESS);
 
-	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex))
-			<< "Destroying rwmutex failed: monitor still in use.";
+	EXPECT_TRUE(0 == omrthread_rwmutex_destroy(testdata.rwmutex)) << "Destroying rwmutex failed: monitor still in use.";
 	EXPECT_TRUE(0 == testdata.rc) << "Failure occurred in sibling thread.";
 }
 
@@ -433,7 +413,8 @@ createJoinableThreadNoMacros(omrthread_t *newThread, omrthread_entrypoint_t entr
 		rc = omrthread_create_ex(newThread, &attr, 0, entryProc, entryArg);
 		if (J9THREAD_SUCCESS != rc) {
 			if (rc & J9THREAD_ERR_OS_ERRNO_SET) {
-				printf("omrthread_create_ex() returned 0x%08x and os_errno=%d\n", (int)rc, (int)omrthread_get_os_errno());
+				printf("omrthread_create_ex() returned 0x%08x and os_errno=%d\n", (int)rc,
+					   (int)omrthread_get_os_errno());
 			}
 		}
 	}

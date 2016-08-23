@@ -18,7 +18,6 @@
 
 #include "omrportptb.h"
 
-
 /**
  * @internal
  * @brief  Per Thread Buffer Support
@@ -45,4 +44,3 @@ omrport_free_ptBuffer(struct OMRPortLibrary *portLibrary, PortlibPTBuffers_t ptB
 		portLibrary->mem_free_memory(portLibrary, ptBuffer);
 	}
 }
-

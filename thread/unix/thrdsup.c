@@ -40,7 +40,8 @@
  * If the initialization fails, we revert to the default.
  */
 clockid_t timeoutClock = CLOCK_REALTIME; /**< the clock used to derive absolute time from relative wait time */
-pthread_condattr_t *defaultCondAttr = NULL; /**< attribute passed to pthread_cond_init(). NULL means the system default. */
+pthread_condattr_t *defaultCondAttr =
+	NULL; /**< attribute passed to pthread_cond_init(). NULL means the system default. */
 static pthread_condattr_t defaultCondAttr_s; /* do not use directly */
 static intptr_t initCondAttr(void);
 #endif /* J9THREAD_USE_MONOTONIC_COND_CLOCK */
@@ -62,7 +63,6 @@ intptr_t sem_destroy_zos(j9sem_t s);
 intptr_t sem_wait_zos(j9sem_t s);
 intptr_t sem_trywait_zos(j9sem_t s);
 intptr_t sem_post_zos(j9sem_t s);
-
 
 void omrthread_init(struct J9ThreadLibrary *lib);
 void omrthread_shutdown(void);
@@ -118,8 +118,8 @@ set_pthread_name(pthread_t self, pthread_t thread, const char *name)
 #define PR_SET_NAME 15
 #endif
 	prctl(PR_SET_NAME, name);
-	/* we ignore the return value of prctl, since naming is not supported on some older linux distributions */
-#else /* defined(LINUX) */
+/* we ignore the return value of prctl, since naming is not supported on some older linux distributions */
+#else  /* defined(LINUX) */
 	pthread_setname_np(name);
 #endif /* defined(LINUX) */
 	return 0;
@@ -136,7 +136,7 @@ osthread_join(omrthread_t self, omrthread_t threadToJoin)
 		j9thrRc = J9THREAD_ERR | J9THREAD_ERR_OS_ERRNO_SET;
 	}
 	return j9thrRc;
-#else /* defined(J9ZOS390) */
+#else  /* defined(J9ZOS390) */
 	intptr_t j9thrRc = J9THREAD_SUCCESS;
 	int rc = pthread_join(threadToJoin->handle, NULL);
 	if (0 != rc) {
@@ -171,7 +171,7 @@ intptr_t
 sem_init_zos(j9sem_t s, int pShared, int initValue)
 {
 	intptr_t rval;
-	zos_sem_t *zs = (zos_sem_t *) s;
+	zos_sem_t *zs = (zos_sem_t *)s;
 
 	zs->count = initValue;
 	rval = omrthread_monitor_init_with_name(&zs->monitor, 0, "&zs->monitor");
@@ -182,7 +182,7 @@ intptr_t
 sem_destroy_zos(j9sem_t s)
 {
 	intptr_t rval = 0;
-	zos_sem_t *zs = (zos_sem_t *) s;
+	zos_sem_t *zs = (zos_sem_t *)s;
 	if (zs->monitor) {
 		rval = omrthread_monitor_destroy(zs->monitor);
 	}
@@ -192,7 +192,7 @@ sem_destroy_zos(j9sem_t s)
 intptr_t
 sem_wait_zos(j9sem_t s)
 {
-	zos_sem_t *zs = (zos_sem_t *) s;
+	zos_sem_t *zs = (zos_sem_t *)s;
 
 	omrthread_monitor_enter(zs->monitor);
 	while (zs->count == 0) {
@@ -207,7 +207,7 @@ sem_wait_zos(j9sem_t s)
 intptr_t
 sem_post_zos(j9sem_t s)
 {
-	zos_sem_t *zs = (zos_sem_t *) s;
+	zos_sem_t *zs = (zos_sem_t *)s;
 
 	omrthread_monitor_enter(zs->monitor);
 	zs->count++;
@@ -217,13 +217,12 @@ sem_post_zos(j9sem_t s)
 	return 0;
 }
 
-
 intptr_t
 sem_getvalue_zos(j9sem_t s)
 {
 	uintptr_t rval;
-	zos_sem_t *zs = (zos_sem_t *) s;
-	rval =  zs->count;
+	zos_sem_t *zs = (zos_sem_t *)s;
+	rval = zs->count;
 	return rval;
 }
 
@@ -231,18 +230,17 @@ intptr_t
 sem_trywait_zos(j9sem_t s)
 {
 	uintptr_t rval = -1;
-	zos_sem_t *zs = (zos_sem_t *) s;
+	zos_sem_t *zs = (zos_sem_t *)s;
 
 	omrthread_monitor_enter(zs->monitor);
 	if (zs->count > 0) {
-		-- zs->count;
-		rval =  zs->count;
+		--zs->count;
+		rval = zs->count;
 	}
 	omrthread_monitor_exit(zs->monitor);
 
 	return rval;
 }
-
 
 #endif
 
@@ -304,7 +302,7 @@ initCondAttr(void)
 static intptr_t
 zos_init_yielding(void)
 {
-	/* Suspend conversion of strings to ascii, and ensure we use the OS's setenv and getenv functions */
+/* Suspend conversion of strings to ascii, and ensure we use the OS's setenv and getenv functions */
 #pragma convlit(suspend)
 #undef setenv
 #undef getenv

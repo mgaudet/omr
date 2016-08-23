@@ -39,9 +39,8 @@ class MM_RegionPool : public MM_BaseVirtual
 {
 private:
 protected:
-public:	
-	
-private:	
+public:
+private:
 protected:
 public:
 	virtual bool initialize(MM_EnvironmentBase *env);
@@ -51,11 +50,7 @@ public:
 	/**
 	 * Create a RegionPool object.
 	 */
-	MM_RegionPool(MM_EnvironmentBase *env) :
-		MM_BaseVirtual()
-	{
-		_typeId = __FUNCTION__;
-	};
+	MM_RegionPool(MM_EnvironmentBase *env) : MM_BaseVirtual() { _typeId = __FUNCTION__; };
 };
 
 #endif /* REGIONPOOL_HPP_ */

@@ -25,12 +25,10 @@ UDT::UDT(SymbolType symbolType, size_t size, unsigned int lineNumber)
 {
 }
 
-UDT::~UDT()
-{
-}
+UDT::~UDT() {}
 
 bool
-UDT::equal(Type const& type, set<Type const*> *checked) const
+UDT::equal(Type const &type, set<Type const *> *checked) const
 {
 	bool ret = false;
 	if (checked->find(this) != checked->end()) {
@@ -44,9 +42,8 @@ UDT::equal(Type const& type, set<Type const*> *checked) const
 			/* Do not check if the outer UDT is equal when comparing sub UDTs,
 			 * otherwise an infinite loop will be created.
 			 */
-			ret = (Type::equal(type, checked))
-				&& ((_outerUDT == udt->_outerUDT) || (*_outerUDT == *udt->_outerUDT))
-				&& (_lineNumber == udt->_lineNumber);
+			ret = (Type::equal(type, checked)) && ((_outerUDT == udt->_outerUDT) || (*_outerUDT == *udt->_outerUDT))
+				  && (_lineNumber == udt->_lineNumber);
 		}
 	}
 	return ret;

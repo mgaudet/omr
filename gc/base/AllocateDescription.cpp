@@ -23,7 +23,7 @@
 #include "ModronAssertions.h"
 
 void
-MM_AllocateDescription::saveObjects(MM_EnvironmentBase* env)
+MM_AllocateDescription::saveObjects(MM_EnvironmentBase *env)
 {
 	if (NULL != _spine) {
 		bool result = env->_envLanguageInterface->saveObjects((omrobjectptr_t)_spine);
@@ -34,9 +34,9 @@ MM_AllocateDescription::saveObjects(MM_EnvironmentBase* env)
 }
 
 void
-MM_AllocateDescription::restoreObjects(MM_EnvironmentBase* env)
+MM_AllocateDescription::restoreObjects(MM_EnvironmentBase *env)
 {
 	if (NULL != _spine) {
-		env->_envLanguageInterface->restoreObjects((omrobjectptr_t*)&_spine);
+		env->_envLanguageInterface->restoreObjects((omrobjectptr_t *)&_spine);
 	}
 }

@@ -16,10 +16,8 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /* Test function for sl tests. */
 void
 sl_test1_function(void)
 {
 }
-

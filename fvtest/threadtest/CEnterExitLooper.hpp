@@ -16,17 +16,16 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef CENTEREXITLOOPER_HPP_INCLUDED
 #define CENTEREXITLOOPER_HPP_INCLUDED
 
 #include "threadTestLib.hpp"
 
-class CEnterExitLooper: public CThread
+class CEnterExitLooper : public CThread
 {
 public:
-	CEnterExitLooper(CMonitor& monitor, int sleep) :
-		m_keepRunning(true), m_loopCount(0), m_monitor(monitor), m_sleep(sleep)
+	CEnterExitLooper(CMonitor &monitor, int sleep)
+		: m_keepRunning(true), m_loopCount(0), m_monitor(monitor), m_sleep(sleep)
 	{
 	}
 
@@ -70,8 +69,7 @@ protected:
 	virtual intptr_t
 	Run(void)
 	{
-		DbgMsg::verbosePrint("thread %p running, sleep = %d\n", m_self,
-			m_sleep);
+		DbgMsg::verbosePrint("thread %p running, sleep = %d\n", m_self, m_sleep);
 		while (m_keepRunning) {
 			m_monitor.Enter();
 			if (m_sleep > 0) {
@@ -86,7 +84,7 @@ protected:
 
 	volatile bool m_keepRunning;
 	volatile unsigned long m_loopCount;
-	CMonitor& m_monitor;
+	CMonitor &m_monitor;
 	int m_sleep;
 };
 

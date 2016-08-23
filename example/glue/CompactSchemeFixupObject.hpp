@@ -15,7 +15,7 @@
  * Contributors:
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
- 
+
 #ifndef COMPACTSCHEMEOBJECTFIXUP_HPP_
 #define COMPACTSCHEMEOBJECTFIXUP_HPP_
 
@@ -27,7 +27,8 @@
 
 #if defined(OMR_GC_MODRON_COMPACTION)
 
-class MM_CompactSchemeFixupObject {
+class MM_CompactSchemeFixupObject
+{
 public:
 protected:
 private:
@@ -37,7 +38,6 @@ private:
 	MM_CompactScheme *_compactScheme;
 	*/
 public:
-
 	/**
 	 * Perform fixup for a single object
 	 * @param env[in] the current thread
@@ -47,12 +47,13 @@ public:
 
 	static void verifyForwardingPtr(omrobjectptr_t objectPtr, omrobjectptr_t forwardingPtr);
 
-	MM_CompactSchemeFixupObject(MM_EnvironmentBase* env, MM_CompactScheme *compactScheme)
-/*	:
+	MM_CompactSchemeFixupObject(MM_EnvironmentBase *env, MM_CompactScheme *compactScheme)
+	/*	:
 		_omrVM(env->getOmrVM()),
 		_extensions(env->getExtensions()),
 		_compactScheme(compactScheme)*/
-	{}
+	{
+	}
 
 protected:
 private:

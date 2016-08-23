@@ -26,7 +26,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include <stdlib.h>     /* For exit() */
+#include <stdlib.h> /* For exit() */
 #include <string.h>
 #include <functional>
 #include <utility>
@@ -40,10 +40,7 @@
 #include "Symbol_IR.hpp"
 #include "UnionUDT.hpp"
 
-DwarfScanner::DwarfScanner()
-	: _fileNameCount(0), _fileNamesTable(NULL), _ir(NULL), _debug(NULL)
-{
-}
+DwarfScanner::DwarfScanner() : _fileNameCount(0), _fileNamesTable(NULL), _ir(NULL), _debug(NULL) {}
 
 DDR_RC
 DwarfScanner::getBlacklist(Dwarf_Die die)
@@ -320,7 +317,8 @@ Done:
 
 /* Get modifier, array, pointer, and type information for a Die. */
 DDR_RC
-DwarfScanner::getTypeInfo(Dwarf_Die die, Dwarf_Die *dieOut, string *typeName, Modifiers *modifiers, size_t *typeSize, size_t *bitField)
+DwarfScanner::getTypeInfo(Dwarf_Die die, Dwarf_Die *dieOut, string *typeName, Modifiers *modifiers, size_t *typeSize,
+						  size_t *bitField)
 {
 	Dwarf_Error err = NULL;
 	Dwarf_Half tag = 0;
@@ -472,11 +470,8 @@ DwarfScanner::getTypeTag(Dwarf_Die die, Dwarf_Die *typeDie, Dwarf_Half *tag)
 			ERRMSG("Getting attr form: %s\n", dwarf_errmsg(err));
 			dwarf_dealloc(_debug, attr, DW_DLA_ATTR);
 			goto getTypeDone;
-		} else if ((DW_FORM_ref1 != form)
-				&& (DW_FORM_ref2 != form)
-				&& (DW_FORM_ref4 != form)
-				&& (DW_FORM_ref8 != form)
-		) {
+		} else if ((DW_FORM_ref1 != form) && (DW_FORM_ref2 != form) && (DW_FORM_ref4 != form)
+				   && (DW_FORM_ref8 != form)) {
 			ERRMSG("Unexpected dwarf form %d\n", form);
 			dwarf_dealloc(_debug, attr, DW_DLA_ATTR);
 			goto getTypeDone;
@@ -595,7 +590,7 @@ DwarfScanner::addType(Dwarf_Die die, Dwarf_Half tag, bool ignoreFilter, bool isS
 
 	rc = getType(die, tag, &newType, isSubUDT, &typeNum);
 
-	if(DDR_RC_OK == rc) {
+	if (DDR_RC_OK == rc) {
 		if (2 == typeNum) {
 			if (isSubUDT) {
 				UDT *udt = dynamic_cast<UDT *>(newType);
@@ -611,13 +606,8 @@ DwarfScanner::addType(Dwarf_Die die, Dwarf_Half tag, bool ignoreFilter, bool isS
 			rc = DDR_RC_OK;
 		} else if ((0 == typeNum) || (1 == typeNum) || (3 == typeNum)) {
 			/* Entry is for a type that has not already been found. */
-			if ((DW_TAG_class_type == tag)
-					|| (DW_TAG_structure_type == tag)
-					|| (DW_TAG_union_type == tag)
-					|| (DW_TAG_namespace == tag)
-					|| (DW_TAG_enumeration_type == tag)
-					|| (DW_TAG_typedef == tag)
-			) {
+			if ((DW_TAG_class_type == tag) || (DW_TAG_structure_type == tag) || (DW_TAG_union_type == tag)
+				|| (DW_TAG_namespace == tag) || (DW_TAG_enumeration_type == tag) || (DW_TAG_typedef == tag)) {
 				/* If the type was added as a stub with an outer type, such as is the case
 				 * for types defined within namespaces, do not add it to the main list of types.
 				 */
@@ -702,8 +692,7 @@ DwarfScanner::getType(Dwarf_Die die, Dwarf_Half tag, Type **const newType, bool 
 				/* If the Type is not in the stub map either, or as a stub which has already
 				 * been promoted to the map for types with declarations, create a new Type for this Die. */
 				if ((_typeStubMap.find(stubKey) == _typeStubMap.end())
-						|| ((DW_TAG_base_type != tag) && (0 != ((UDT *)_typeStubMap[stubKey])->_lineNumber))
-				) {
+					|| ((DW_TAG_base_type != tag) && (0 != ((UDT *)_typeStubMap[stubKey])->_lineNumber))) {
 					if (DDR_RC_OK == createType(die, tag, dieName, lineNumber, newType)) {
 						_typeMap[key] = *newType;
 
@@ -767,7 +756,7 @@ DwarfScanner::getType(Dwarf_Die die, Dwarf_Half tag, Type **const newType, bool 
 		}
 	}
 
-	if(-1 == *typeNum) {
+	if (-1 == *typeNum) {
 		rc = DDR_RC_ERROR;
 	}
 
@@ -970,11 +959,8 @@ DwarfScanner::dispatchScanChildInfo(NamespaceUDT *newClass, void *data)
 			if (DW_TAG_subprogram == childTag) {
 				/* Skip class functions. */
 				continue;
-			} else if ((DW_TAG_class_type == childTag)
-					|| (DW_TAG_union_type == childTag)
-					|| (DW_TAG_structure_type == childTag)
-					|| (DW_TAG_enumeration_type == childTag)
-			) {
+			} else if ((DW_TAG_class_type == childTag) || (DW_TAG_union_type == childTag)
+					   || (DW_TAG_structure_type == childTag) || (DW_TAG_enumeration_type == childTag)) {
 				/* The child is an inner type. */
 				UDT *innerUDT = NULL;
 				if (DDR_RC_OK != addType(childDie, childTag, true, (NULL != newClass), (Type **)&innerUDT)) {
@@ -1011,7 +997,8 @@ DwarfScanner::dispatchScanChildInfo(NamespaceUDT *newClass, void *data)
 					EnumUDT *enumUDT = dynamic_cast<EnumUDT *>(*it);
 					if ((NULL != enumUDT) && (*it)->isAnonymousType()) {
 						bool usedAsField = false;
-						for (vector<Field *>::iterator fit = ct->_fieldMembers.begin(); fit != ct->_fieldMembers.end(); fit += 1) {
+						for (vector<Field *>::iterator fit = ct->_fieldMembers.begin(); fit != ct->_fieldMembers.end();
+							 fit += 1) {
 							if ((*fit)->_fieldType == (*it)) {
 								usedAsField = true;
 								break;
@@ -1019,9 +1006,10 @@ DwarfScanner::dispatchScanChildInfo(NamespaceUDT *newClass, void *data)
 						}
 						if (!usedAsField) {
 							EnumUDT *eu = dynamic_cast<EnumUDT *>(*it);
-							ct->_enumMembers.insert(ct->_enumMembers.end(), eu->_enumMembers.begin(), eu->_enumMembers.end());
+							ct->_enumMembers.insert(ct->_enumMembers.end(), eu->_enumMembers.begin(),
+													eu->_enumMembers.end());
 							eu->_enumMembers.clear();
-							delete(*it);
+							delete (*it);
 							it = ct->_subUDTs.erase(it);
 						} else {
 							it += 1;
@@ -1140,7 +1128,7 @@ AddUDTFieldDone:
 		dwarf_dealloc(_debug, error, DW_DLA_ERROR);
 	}
 	if (DDR_RC_OK != rc) {
-		delete(newField);
+		delete (newField);
 	}
 	return rc;
 }
@@ -1180,7 +1168,8 @@ DwarfScanner::traverse_cu_in_debug_section(Symbol_IR *const ir)
 
 	/* Go over each cu header. */
 	while (DDR_RC_OK == rc) {
-		int ret = dwarf_next_cu_header(_debug, &cuHeaderLength, &versionStamp, &abbrevOffset, &addressSize, &nextCUheader, &error);
+		int ret = dwarf_next_cu_header(_debug, &cuHeaderLength, &versionStamp, &abbrevOffset, &addressSize,
+									   &nextCUheader, &error);
 		if (DW_DLV_ERROR == ret) {
 			ERRMSG("Failed to get next dwarf CU header.");
 			rc = DDR_RC_ERROR;
@@ -1226,13 +1215,8 @@ DwarfScanner::traverse_cu_in_debug_section(Symbol_IR *const ir)
 				break;
 			}
 
-			if ((tag == DW_TAG_structure_type)
-				|| (tag == DW_TAG_class_type)
-				|| (tag == DW_TAG_enumeration_type)
-				|| (tag == DW_TAG_union_type)
-				|| (tag == DW_TAG_namespace)
-				|| (tag == DW_TAG_typedef)
-			) {
+			if ((tag == DW_TAG_structure_type) || (tag == DW_TAG_class_type) || (tag == DW_TAG_enumeration_type)
+				|| (tag == DW_TAG_union_type) || (tag == DW_TAG_namespace) || (tag == DW_TAG_typedef)) {
 				if (DDR_RC_OK != addType(childDie, tag, false, false, NULL)) {
 					ERRMSG("Failed to add type.\n");
 					rc = DDR_RC_ERROR;
@@ -1431,17 +1415,13 @@ Done:
 }
 
 bool
-TypeKey::operator==(const TypeKey& other) const
+TypeKey::operator==(const TypeKey &other) const
 {
-	return (0 == strcmp(fileName, other.fileName))
-		   && (typeName == other.typeName)
-		   && (lineNumber == other.lineNumber);
+	return (0 == strcmp(fileName, other.fileName)) && (typeName == other.typeName) && (lineNumber == other.lineNumber);
 }
 
 size_t
-KeyHasher::operator()(const TypeKey& key) const
+KeyHasher::operator()(const TypeKey &key) const
 {
-	return ((hash<string>()(key.fileName) << 5)
-			^ (hash<string>()(key.typeName) << 3)
-			^ (hash<int>()(key.lineNumber)));
+	return ((hash<string>()(key.fileName) << 5) ^ (hash<string>()(key.typeName) << 3) ^ (hash<int>()(key.lineNumber)));
 }

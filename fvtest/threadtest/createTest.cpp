@@ -16,14 +16,13 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #if defined(J9ZOS390) || defined(LINUX) || defined(AIXPPC) || defined(OSX)
 #include <pthread.h>
-#include <limits.h>	/* for PTHREAD_STACK_MIN */
+#include <limits.h> /* for PTHREAD_STACK_MIN */
 #if defined(LINUX) || defined(OSX)
 #include <unistd.h> /* required for the _SC_PAGESIZE  constant */
-#endif /* defined(LINUX) || defined(OSX) */
-#endif /* defined(J9ZOS390) || defined(LINUX) || defined(AIXPPC) || defined(OSX) */
+#endif				/* defined(LINUX) || defined(OSX) */
+#endif				/* defined(J9ZOS390) || defined(LINUX) || defined(AIXPPC) || defined(OSX) */
 #include "createTestHelper.h"
 #include "common/omrthreadattr.h"
 #if defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(OSX)
@@ -34,18 +33,20 @@
 #include "omrTest.h"
 #include "testHelper.hpp"
 
-#define END_IF_FAILED(status) \
-	do { if (status != 0) goto endtest; } while(0)
+#define END_IF_FAILED(status)                                                                                          \
+	do {                                                                                                               \
+		if (status != 0)                                                                                               \
+			goto endtest;                                                                                              \
+	} while (0)
 
-#define INVALID_VALUE(rc) \
-	(((rc) & ~J9THREAD_ERR_OS_ERRNO_SET) == J9THREAD_ERR_INVALID_VALUE)
+#define INVALID_VALUE(rc) (((rc) & ~J9THREAD_ERR_OS_ERRNO_SET) == J9THREAD_ERR_INVALID_VALUE)
 
 extern ThreadTestEnvironment *omrTestEnv;
 extern "C" {
-	OMRPortLibrary *portLib;
+OMRPortLibrary *portLib;
 }
 
-class ThreadCreateTest: public ::testing::Test
+class ThreadCreateTest : public ::testing::Test
 {
 protected:
 	static void
@@ -205,7 +206,7 @@ canCreateThread(const create_attr_t *expected, const omrthread_attr_t attr)
 	data.status = 0;
 	getCurrentOsSched(&data.curPriority, &data.curPolicy);
 
-	rc = J9THREAD_VERBOSE(omrthread_create_ex(&handle, (attr? &attr : J9THREAD_ATTR_DEFAULT), 1, threadmain, &data));
+	rc = J9THREAD_VERBOSE(omrthread_create_ex(&handle, (attr ? &attr : J9THREAD_ATTR_DEFAULT), 1, threadmain, &data));
 	if (J9THREAD_SUCCESS == rc) {
 		OSTHREAD tid = handle->handle;
 
@@ -222,7 +223,7 @@ canCreateThread(const create_attr_t *expected, const omrthread_attr_t attr)
 			return status;
 		}
 #endif /* defined(LINUX) */
-		/* this may fail because omrthreads detach themselves upon exiting */
+	   /* this may fail because omrthreads detach themselves upon exiting */
 
 #if defined(OSX)
 		/* OSX TODO: Why do the tests segfault in child thread when accessing &data on OSX without a 1ms sleep? */
@@ -235,7 +236,7 @@ canCreateThread(const create_attr_t *expected, const omrthread_attr_t attr)
 		WaitForSingleObject(tid, INFINITE);
 		status |= data.status;
 #else
-		/* In this case,
+/* In this case,
 		 * threadmain() doesn't access the expected data, so it's ok to continue without
 		 * waiting for the child thread to complete.
 		 */
@@ -317,8 +318,7 @@ isAttrOk(const create_attr_t *expected, const omrthread_attr_t actual)
 				printMismatchS("os schedpolicy", mapOSPolicy(OS_SCHED_OTHER), mapOSPolicy(osPolicy));
 				status |= WRONG_OS_SCHEDPOLICY;
 			}
-		}
-		else
+		} else
 #endif /* (defined(AIXPPC) || defined(LINUX) || defined(OSX)) */
 		{
 			if (osPolicy != expected->osPolicy) {
@@ -878,7 +878,8 @@ endtest:
 	ASSERT_EQ((uintptr_t)0, status) << "Failed with Code: " << std::hex << status;
 }
 
-static int numaSetAffinityThreadMain(void *arg)
+static int
+numaSetAffinityThreadMain(void *arg)
 {
 	uintptr_t status = 0;
 	intptr_t result = 0;
@@ -898,7 +899,7 @@ static int numaSetAffinityThreadMain(void *arg)
 			goto endthread;
 		}
 
-		/* We used to check that a child thread inherits its parent's affinity. This is Linux behaviour, but not
+/* We used to check that a child thread inherits its parent's affinity. This is Linux behaviour, but not
 		 * AIX or Windows behaviour. We don't rely on, specify or document this behaviour, so don't test it.
 		 */
 #if 0
@@ -961,7 +962,8 @@ static int numaSetAffinityThreadMain(void *arg)
 		}
 
 		if (expectedNodeForNoAffinity != currentAffinity) {
-			PRINTF("Affinity is incorrectly set. Expected:%zu Actual:%zu\n", expectedNodeForNoAffinity, currentAffinity);
+			PRINTF("Affinity is incorrectly set. Expected:%zu Actual:%zu\n", expectedNodeForNoAffinity,
+				   currentAffinity);
 			status |= EXPECTED_VALID;
 			goto endthread;
 		}
@@ -1040,7 +1042,8 @@ TEST_F(ThreadCreateTest, NumaSetAffinity)
 		goto endtest;
 	}
 
-	if (J9THREAD_SUCCESS != J9THREAD_VERBOSE(omrthread_create_ex(&thread, J9THREAD_ATTR_DEFAULT, 0, numaSetAffinityThreadMain, &data))) {
+	if (J9THREAD_SUCCESS
+		!= J9THREAD_VERBOSE(omrthread_create_ex(&thread, J9THREAD_ATTR_DEFAULT, 0, numaSetAffinityThreadMain, &data))) {
 		PRINTF("Failed to create the thread\n");
 		status |= CREATE_FAILED;
 		goto endtest;
@@ -1104,7 +1107,8 @@ TEST_F(ThreadCreateTest, NumaSetAffinitySuspended)
 	if (numaMaxNode > 0) {
 		uintptr_t nodeCount = 1;
 		/* first, see if we can even run this test */
-		intptr_t affinityResultCode = omrthread_numa_get_node_affinity(omrthread_self(), &data.expectedAffinity, &nodeCount);
+		intptr_t affinityResultCode =
+			omrthread_numa_get_node_affinity(omrthread_self(), &data.expectedAffinity, &nodeCount);
 		data.monitor = monitor;
 		data.status = 0;
 
@@ -1114,7 +1118,8 @@ TEST_F(ThreadCreateTest, NumaSetAffinitySuspended)
 			goto endtest;
 		}
 		/* Create the thread suspended */
-		if (J9THREAD_SUCCESS != J9THREAD_VERBOSE(omrthread_create_ex(&thread, J9THREAD_ATTR_DEFAULT, 1, numaSetAffinitySuspendedThreadMain, &data))) {
+		if (J9THREAD_SUCCESS != J9THREAD_VERBOSE(omrthread_create_ex(&thread, J9THREAD_ATTR_DEFAULT, 1,
+																	 numaSetAffinitySuspendedThreadMain, &data))) {
 			status |= CREATE_FAILED;
 			goto endtest;
 		}
@@ -1146,7 +1151,8 @@ TEST_F(ThreadCreateTest, NumaSetAffinitySuspended)
 		}
 
 		if (expectedAffinityBeforeStart != data.expectedAffinity) {
-			PRINTF("Suspended thread's deferred affinity is not what it should be. Expected:%zu Actual:%zu\n", data.expectedAffinity, expectedAffinityBeforeStart);
+			PRINTF("Suspended thread's deferred affinity is not what it should be. Expected:%zu Actual:%zu\n",
+				   data.expectedAffinity, expectedAffinityBeforeStart);
 			status |= EXPECTED_VALID;
 			goto endtest;
 		}

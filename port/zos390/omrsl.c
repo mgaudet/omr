@@ -22,7 +22,6 @@
  * @brief shared library
  */
 
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -33,8 +32,7 @@
 #include "portnls.h"
 #include "ut_omrport.h"
 
-#define DMESSAGE(x)				/* printf x; */
-
+#define DMESSAGE(x) /* printf x; */
 
 static void getDLError(struct OMRPortLibrary *portLibrary, char *errBuf, uintptr_t bufLen);
 
@@ -56,7 +54,8 @@ omrsl_open_shared_library(struct OMRPortLibrary *portLibrary, char *name, uintpt
 		char *p = strrchr(name, '/');
 		if (p) {
 			/* the names specifies a path */
-			pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%.*slib%s.so", (uintptr_t)p + 1 - (uintptr_t)name, name, p + 1);
+			pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "%.*slib%s.so",
+												 (uintptr_t)p + 1 - (uintptr_t)name, name, p + 1);
 		} else {
 			pathLength = portLibrary->str_printf(portLibrary, mangledName, (EsMaxPath + 1), "lib%s.so", name);
 		}
@@ -148,7 +147,8 @@ omrsl_close_shared_library(struct OMRPortLibrary *portLibrary, uintptr_t descrip
  * @note contents of func are undefined on failure.
  */
 uintptr_t
-omrsl_lookup_name(struct OMRPortLibrary *portLibrary, uintptr_t descriptor, char *name, uintptr_t *func, const char *argSignature)
+omrsl_lookup_name(struct OMRPortLibrary *portLibrary, uintptr_t descriptor, char *name, uintptr_t *func,
+				  const char *argSignature)
 {
 	void *address;
 	dllhandle *handle;
@@ -210,14 +210,10 @@ getDLError(struct OMRPortLibrary *portLibrary, char *errBuf, uintptr_t bufLen)
 	error = strerror(errno);
 	if (error == NULL || error[0] == '\0') {
 		/* just in case another thread consumed our error message */
-		error = portLibrary->nls_lookup_message(portLibrary,
-												J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-												J9NLS_PORT_SL_UNKOWN_ERROR,
-												NULL);
+		error = portLibrary->nls_lookup_message(portLibrary, J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
+												J9NLS_PORT_SL_UNKOWN_ERROR, NULL);
 	}
 
 	strncpy(errBuf, error, bufLen);
 	errBuf[bufLen - 1] = '\0';
 }
-
-

@@ -37,11 +37,7 @@ static void ex_omr_sampleStack(OMR_VMThread *omrVMThread, const void *context);
 
 #define EX_METHOD_PROPERTY_COUNT 3
 
-static const char *methodPropertyNames[EX_METHOD_PROPERTY_COUNT] = {
-		"methodName",
-		"fileName",
-		"lineNumber"
-};
+static const char *methodPropertyNames[EX_METHOD_PROPERTY_COUNT] = {"methodName", "fileName", "lineNumber"};
 
 typedef struct EX_OMR_MethodDictionaryEntry {
 	const void *key;
@@ -54,7 +50,7 @@ OMR_Glue_GetMethodDictionaryPropertyNum(void)
 	return EX_METHOD_PROPERTY_COUNT;
 }
 
-const char * const *
+const char *const *
 OMR_Glue_GetMethodDictionaryPropertyNames(void)
 {
 	return methodPropertyNames;

@@ -127,21 +127,17 @@ main(int argc, char *argv[])
 	 * values.
 	 */
 
-	printf("Blob Header:\n"
-		   " coreVersion: %u\n"
-		   " sizeofBool: %u\n"
-		   " sizeofUDATA: %u\n"
-		   " bitfieldFormat: %u\n" /* see initializeBitfieldEncoding in j9ddr.c */
-		   " structDataSize: %u\n"
-		   " stringTableDataSize: %u\n"
-		   " structureCount: %u\n",
-		   blobHdrV1.coreVersion,
-		   blobHdrV1.sizeofBool,
-		   blobHdrV1.sizeofUDATA,
-		   blobHdrV1.bitfieldFormat,
-		   blobHdrV1.structDataSize,
-		   blobHdrV1.stringTableDataSize,
-		   blobHdrV1.structureCount);
+	printf(
+		"Blob Header:\n"
+		" coreVersion: %u\n"
+		" sizeofBool: %u\n"
+		" sizeofUDATA: %u\n"
+		" bitfieldFormat: %u\n" /* see initializeBitfieldEncoding in j9ddr.c */
+		" structDataSize: %u\n"
+		" stringTableDataSize: %u\n"
+		" structureCount: %u\n",
+		blobHdrV1.coreVersion, blobHdrV1.sizeofBool, blobHdrV1.sizeofUDATA, blobHdrV1.bitfieldFormat,
+		blobHdrV1.structDataSize, blobHdrV1.stringTableDataSize, blobHdrV1.structureCount);
 
 	/* Copy the file into memory */
 	size_t blobLength = sizeof(blobHdrV1) + blobHdrV1.structDataSize + blobHdrV1.stringTableDataSize;
@@ -158,7 +154,6 @@ main(int argc, char *argv[])
 		return -1;
 	}
 	fclose(fd);
-
 
 	/* Read strings */
 	{
@@ -178,7 +173,8 @@ main(int argc, char *argv[])
 			/* The format of the printed list is:
 			 * [#]: <offset in string data> [<string length>] <string data>
 			 */
-			printf("%5u: %8lx [%u] %.*s\n", stringNum, (long unsigned int)(currentString - stringDataStart), blobString->length, blobString->length, blobString->data);
+			printf("%5u: %8lx [%u] %.*s\n", stringNum, (long unsigned int)(currentString - stringDataStart),
+				   blobString->length, blobString->length, blobString->data);
 
 			/* NOTE stringTableDataSize includes the space for the lengths */
 			currentString += blobString->length + sizeof(blobString->length) + padding;
@@ -193,8 +189,7 @@ main(int argc, char *argv[])
 	/* Read structs */
 	{
 		const uint8_t *const stringDataStart = blobBuffer + sizeof(blobHdrV1) + blobHdrV1.structDataSize;
-#define BLOBSTRING_AT(offset) \
-		((BlobString *)(stringDataStart + (offset)))
+#define BLOBSTRING_AT(offset) ((BlobString *)(stringDataStart + (offset)))
 
 		/* set offset to start of struct data */
 		const uint8_t *currentStruct = blobBuffer + sizeof(blobHdrV1);
@@ -257,33 +252,25 @@ main(int argc, char *argv[])
 		printf("\n== STRUCTS ==\n");
 		for (size_t i = 0; i < structs.size(); i += 1) {
 			Structure *builtStruct = structs[i];
-			printf("\nStruct name: %.*s\n",
-				   builtStruct->nameLength,
-				   builtStruct->name);
+			printf("\nStruct name: %.*s\n", builtStruct->nameLength, builtStruct->name);
 			if (NULL == builtStruct->superName) {
 				printf(" no superName\n");
 			} else {
-				printf(" superName: %.*s\n",
-					   builtStruct->superNameLength,
-					   builtStruct->superName);
+				printf(" superName: %.*s\n", builtStruct->superNameLength, builtStruct->superName);
 			}
-			printf(" sizeOf: %u\n"
-				   " fieldCount: %lu\n"
-				   " constCount: %lu\n",
-				   builtStruct->size,
-				   (unsigned long int)builtStruct->fields.size(),
-				   (unsigned long int)builtStruct->constants.size());
+			printf(
+				" sizeOf: %u\n"
+				" fieldCount: %lu\n"
+				" constCount: %lu\n",
+				builtStruct->size, (unsigned long int)builtStruct->fields.size(),
+				(unsigned long int)builtStruct->constants.size());
 
 			/* Print fields in the struct */
 			for (size_t j = 0; j < builtStruct->fields.size(); j += 1) {
 				Field *field = builtStruct->fields[j];
 
-				printf(" Field declaredName: %.*s\n",
-					   field->nameLength,
-					   field->name);
-				printf("  declaredType: %.*s\n",
-					   field->typeLength,
-					   field->type);
+				printf(" Field declaredName: %.*s\n", field->nameLength, field->name);
+				printf("  declaredType: %.*s\n", field->typeLength, field->type);
 				printf("  offset: %u\n", field->offset);
 				free(field);
 			}
@@ -292,9 +279,7 @@ main(int argc, char *argv[])
 			for (size_t j = 0; j < builtStruct->constants.size(); j += 1) {
 				Constant *constant = builtStruct->constants[j];
 
-				printf(" Constant name: %.*s\n",
-					   constant->nameLength,
-					   constant->name);
+				printf(" Constant name: %.*s\n", constant->nameLength, constant->name);
 				printf("  value: %lld\n", (long long unsigned int)constant->value);
 				free(constant);
 			}

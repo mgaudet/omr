@@ -32,4 +32,3 @@ MM_ConcurrentClearNewMarkBitsTask::run(MM_EnvironmentBase *envBase)
 }
 
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
- 

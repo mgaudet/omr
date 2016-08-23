@@ -208,7 +208,6 @@ omrtty_err_vprintf(struct OMRPortLibrary *portLibrary, const char *format, va_li
 	portLibrary->file_vprintf(portLibrary, OMRPORT_TTY_ERR, format, args);
 }
 
-
 /**
  * This method allows the caller to "daemonize" the current process by closing handles
  * used by the port library
@@ -221,4 +220,3 @@ omrtty_daemonize(struct OMRPortLibrary *portLibrary)
 {
 	/* no special handling of file handles, nothing to do */
 }
-

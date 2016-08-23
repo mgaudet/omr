@@ -29,22 +29,32 @@
 #include "pool_internal.h"
 #include "ut_pool.h"
 
-#define ROUND_TO(granularity, number) ( (((number) % (granularity)) ? ((number) + (granularity) - ((number) % (granularity))) : (number)))
-#define NEXT_FREE_SLOT(slot) SRP_PTR_GET((uintptr_t *)slot, uintptr_t*)
+#define ROUND_TO(granularity, number)                                                                                  \
+	((((number) % (granularity)) ? ((number) + (granularity) - ((number) % (granularity))) : (number)))
+#define NEXT_FREE_SLOT(slot) SRP_PTR_GET((uintptr_t *)slot, uintptr_t *)
 #define LINK_TO_FREE_LIST(prev, toAdd) SRP_PTR_SET((uintptr_t *)prev, toAdd)
 #define LINK_TO_NULL(prev) SRP_PTR_SET_TO_NULL(prev)
 
-#define PUDDLE_BITS(puddle) ((uint32_t *) ((J9PoolPuddle *) (puddle) + 1))
-#define POOL_PUDDLE_BITS_LEN(pool) (((pool)->elementsPerPuddle+31) / 32)
-#define PUDDLE_SLOT_FREE(puddle, sindex) (*(PUDDLE_BITS(puddle) + (((uint32_t)(sindex)) >> 5)) & (1 << (31 - (((uint32_t)(sindex)) & 31))))
-#define MARK_SLOT_FREE(puddle, sindex) do { *(PUDDLE_BITS(puddle) + (((uint32_t)(sindex)) >> 5)) |=  (1 << (31 - (((uint32_t)(sindex)) & 31))); } while (0)
-#define MARK_SLOT_USED(puddle, sindex) do { *(PUDDLE_BITS(puddle) + (((uint32_t)(sindex)) >> 5)) &= ~(1 << (31 - (((uint32_t)(sindex)) & 31))); } while (0)
+#define PUDDLE_BITS(puddle) ((uint32_t *)((J9PoolPuddle *)(puddle) + 1))
+#define POOL_PUDDLE_BITS_LEN(pool) (((pool)->elementsPerPuddle + 31) / 32)
+#define PUDDLE_SLOT_FREE(puddle, sindex)                                                                               \
+	(*(PUDDLE_BITS(puddle) + (((uint32_t)(sindex)) >> 5)) & (1 << (31 - (((uint32_t)(sindex)) & 31))))
+#define MARK_SLOT_FREE(puddle, sindex)                                                                                 \
+	do {                                                                                                               \
+		*(PUDDLE_BITS(puddle) + (((uint32_t)(sindex)) >> 5)) |= (1 << (31 - (((uint32_t)(sindex)) & 31)));             \
+	} while (0)
+#define MARK_SLOT_USED(puddle, sindex)                                                                                 \
+	do {                                                                                                               \
+		*(PUDDLE_BITS(puddle) + (((uint32_t)(sindex)) >> 5)) &= ~(1 << (31 - (((uint32_t)(sindex)) & 31)));            \
+	} while (0)
 
-#define COMPUTE_FIRST_ELEMENT(align, puddle, bitlength) (ROUND_TO((align), ((uintptr_t) (puddle)) + sizeof(J9PoolPuddle) + ((bitlength)*sizeof(uint32_t))))
+#define COMPUTE_FIRST_ELEMENT(align, puddle, bitlength)                                                                \
+	(ROUND_TO((align), ((uintptr_t)(puddle)) + sizeof(J9PoolPuddle) + ((bitlength) * sizeof(uint32_t))))
 
 /* HOLE_FREQUENCY defines how often a hole appears - there is a hole every HOLE_FREQUENCY elements. Must be power of two. */
-#define HOLE_FREQUENCY	16
-#define ELEMENT_IS_HOLE(pool, element) (((pool)->flags & POOL_USES_HOLES) && ((uintptr_t) (element) % ((pool)->elementSize*HOLE_FREQUENCY) == 0))
+#define HOLE_FREQUENCY 16
+#define ELEMENT_IS_HOLE(pool, element)                                                                                 \
+	(((pool)->flags & POOL_USES_HOLES) && ((uintptr_t)(element) % ((pool)->elementSize * HOLE_FREQUENCY) == 0))
 
 /**
  * Get a pointer to the SRP to the puddle, given a puddle element.
@@ -61,9 +71,9 @@ pool_getElementPuddleSRP(J9Pool *pool, void *element)
 
 	if (pool->flags & POOL_USES_HOLES) {
 		/* (pool->elementSize*HOLE_FREQUENCY - 1) evaluates to the bits that must be masked off. */
-		puddleSRP = (J9SRP *)((uintptr_t) element & ~(pool->elementSize * HOLE_FREQUENCY - 1));
+		puddleSRP = (J9SRP *)((uintptr_t)element & ~(pool->elementSize * HOLE_FREQUENCY - 1));
 	} else {
-		puddleSRP = (J9SRP *)((uintptr_t) element + pool->elementSize - sizeof(J9SRP));
+		puddleSRP = (J9SRP *)((uintptr_t)element + pool->elementSize - sizeof(J9SRP));
 	}
 
 	return puddleSRP;
@@ -83,14 +93,14 @@ static int32_t
 pool_getElementPuddleSlot(J9Pool *pool, J9PoolPuddle *puddle, void *element)
 {
 	int32_t returnValue = -1;
-	uintptr_t firstElementAddress = (uintptr_t) J9POOLPUDDLE_FIRSTELEMENTADDRESS(puddle);
-	uintptr_t diff = ((uintptr_t) element - firstElementAddress);
+	uintptr_t firstElementAddress = (uintptr_t)J9POOLPUDDLE_FIRSTELEMENTADDRESS(puddle);
+	uintptr_t diff = ((uintptr_t)element - firstElementAddress);
 
 	if ((diff % pool->elementSize) == 0) {
 		uintptr_t slot = diff / pool->elementSize;
 
-		if ((slot < pool->elementsPerPuddle) && ((int32_t) slot >= 0)) {
-			returnValue = (int32_t) slot;
+		if ((slot < pool->elementsPerPuddle) && ((int32_t)slot >= 0)) {
+			returnValue = (int32_t)slot;
 		}
 	}
 
@@ -135,7 +145,7 @@ poolPuddle_init(J9Pool *pool, J9PoolPuddle *puddle)
 	if (pool->flags & POOL_USES_HOLES) {
 		freeLocation = (uintptr_t *)((uintptr_t)J9POOLPUDDLE_FIRSTELEMENTADDRESS(puddle) + pool->elementSize);
 	} else {
-		freeLocation = (uintptr_t *) J9POOLPUDDLE_FIRSTELEMENTADDRESS(puddle);
+		freeLocation = (uintptr_t *)J9POOLPUDDLE_FIRSTELEMENTADDRESS(puddle);
 	}
 	NNSRP_SET(puddle->firstFreeSlot, freeLocation);
 	nextLocation = freeLocation;
@@ -167,7 +177,8 @@ poolPuddle_new(J9Pool *pool)
 
 	Trc_poolPuddle_new_Entry(pool);
 
-	puddle = pool->memAlloc(pool->userData, (uint32_t)pool->puddleAllocSize, pool->poolCreatorCallsite, pool->memoryCategory, POOL_ALLOC_TYPE_PUDDLE, &doInit);
+	puddle = pool->memAlloc(pool->userData, (uint32_t)pool->puddleAllocSize, pool->poolCreatorCallsite,
+							pool->memoryCategory, POOL_ALLOC_TYPE_PUDDLE, &doInit);
 
 	if (NULL != puddle) {
 
@@ -241,7 +252,6 @@ poolPuddle_delete(J9Pool *pool, J9PoolPuddle *puddle)
 		/* And free the memory. */
 		pool->memFree(pool->userData, puddle, POOL_ALLOC_TYPE_PUDDLE);
 	}
-
 }
 
 /**
@@ -262,15 +272,9 @@ poolPuddle_delete(J9Pool *pool, J9PoolPuddle *puddle)
  *
  */
 J9Pool *
-pool_new(uintptr_t structSizeArg,
-		 uintptr_t numberElementsArg,
-		 uintptr_t elementAlignmentArg,
-		 uintptr_t poolFlags,
-		 const char *poolCreatorCallsite,
-		 uint32_t memoryCategory,
-		 omrmemAlloc_fptr_t memAlloc,
-		 omrmemFree_fptr_t memFree,
-		 void *userData)
+pool_new(uintptr_t structSizeArg, uintptr_t numberElementsArg, uintptr_t elementAlignmentArg, uintptr_t poolFlags,
+		 const char *poolCreatorCallsite, uint32_t memoryCategory, omrmemAlloc_fptr_t memAlloc,
+		 omrmemFree_fptr_t memFree, void *userData)
 {
 	uint32_t doInit;
 	uint64_t tempAllocSize, puddleAllocSize;
@@ -284,7 +288,8 @@ pool_new(uintptr_t structSizeArg,
 
 	Trc_pool_new_Entry(structSize, numberElements, elementAlignment, poolFlags, memAlloc, memFree, userData);
 
-	if (((uintptr_t)structSize != structSizeArg) || ((uintptr_t)numberElements != numberElementsArg) || ((uintptr_t)elementAlignment != elementAlignmentArg)) {
+	if (((uintptr_t)structSize != structSizeArg) || ((uintptr_t)numberElements != numberElementsArg)
+		|| ((uintptr_t)elementAlignment != elementAlignmentArg)) {
 		/* one of the uintptr_t arguments is too large to fit in a uint32_t. Don't even try to allocate this pool. */
 		Trc_pool_new_ArgumentTooLargeExit(structSizeArg, numberElementsArg, elementAlignmentArg);
 		return NULL;
@@ -314,9 +319,7 @@ pool_new(uintptr_t structSizeArg,
 		 *  2. rounded element size doesn't give us space for a J9SRP "for free"
 		 *  3. element alignment is divisible by MIN_GRANULARITY (which is a power of 2)
 		 */
-		if ((roundedStructSize - structSize) < sizeof(J9SRP) &&
-			(elementAlignment % MIN_GRANULARITY) == 0
-		) {
+		if ((roundedStructSize - structSize) < sizeof(J9SRP) && (elementAlignment % MIN_GRANULARITY) == 0) {
 			poolFlags |= POOL_USES_HOLES;
 		}
 		break;
@@ -346,18 +349,21 @@ pool_new(uintptr_t structSizeArg,
 	newPuddleBitsSize = ((minNumberElements + 31) >> 3);
 	do {
 		puddleBitsSize = newPuddleBitsSize;
-		puddleHeaderAllocSize = ROUND_TO(elementAlignment, sizeof(J9PoolPuddle) + puddleBitsSize) + (firstElementAlignment - MALLOC_ALIGNMENT);
+		puddleHeaderAllocSize = ROUND_TO(elementAlignment, sizeof(J9PoolPuddle) + puddleBitsSize)
+								+ (firstElementAlignment - MALLOC_ALIGNMENT);
 		if (poolFlags & POOL_USES_HOLES) {
 			/* Every sector has HOLE_FREQUENCY (16) slots (one of which is the "hole"). */
 			uint32_t sectorSize = roundedStructSize * HOLE_FREQUENCY;
 			uint32_t numberOfSectors = (minNumberElements + HOLE_FREQUENCY - 2) / (HOLE_FREQUENCY - 1);
 			tempAllocSize = sectorSize * numberOfSectors + puddleHeaderAllocSize;
-			puddleAllocSize = (poolFlags & POOL_ROUND_TO_PAGE_SIZE) ? ROUND_TO(OS_PAGE_SIZE, tempAllocSize) : tempAllocSize;
+			puddleAllocSize =
+				(poolFlags & POOL_ROUND_TO_PAGE_SIZE) ? ROUND_TO(OS_PAGE_SIZE, tempAllocSize) : tempAllocSize;
 			numberOfSectors += (uint32_t)((puddleAllocSize - tempAllocSize) / sectorSize);
 			finalNumberOfElements = numberOfSectors * HOLE_FREQUENCY;
 		} else {
 			tempAllocSize = roundedStructSize * minNumberElements + puddleHeaderAllocSize;
-			puddleAllocSize = (poolFlags & POOL_ROUND_TO_PAGE_SIZE) ? ROUND_TO(OS_PAGE_SIZE, tempAllocSize) : tempAllocSize;
+			puddleAllocSize =
+				(poolFlags & POOL_ROUND_TO_PAGE_SIZE) ? ROUND_TO(OS_PAGE_SIZE, tempAllocSize) : tempAllocSize;
 			finalNumberOfElements = minNumberElements;
 			finalNumberOfElements += (uint32_t)((puddleAllocSize - tempAllocSize) / roundedStructSize);
 		}
@@ -379,7 +385,7 @@ pool_new(uintptr_t structSizeArg,
 		J9PoolPuddleList *puddleList;
 
 		pool->elementSize = (uintptr_t)roundedStructSize;
-		pool->alignment = (uint16_t)elementAlignment;	/* we assume no alignment is > 64k */
+		pool->alignment = (uint16_t)elementAlignment; /* we assume no alignment is > 64k */
 		pool->puddleAllocSize = (uintptr_t)puddleAllocSize;
 		pool->flags = (uint16_t)poolFlags;
 		pool->poolCreatorCallsite = poolCreatorCallsite;
@@ -390,7 +396,8 @@ pool_new(uintptr_t structSizeArg,
 		pool->memoryCategory = memoryCategory;
 
 		doInit = 1;
-		puddleList = memAlloc(userData, sizeof(J9PoolPuddleList), poolCreatorCallsite, memoryCategory, POOL_ALLOC_TYPE_PUDDLE_LIST, &doInit);
+		puddleList = memAlloc(userData, sizeof(J9PoolPuddleList), poolCreatorCallsite, memoryCategory,
+							  POOL_ALLOC_TYPE_PUDDLE_LIST, &doInit);
 
 		if (NULL != puddleList) {
 			NNWSRP_SET(pool->puddleList, puddleList);
@@ -416,7 +423,6 @@ pool_new(uintptr_t structSizeArg,
 	Trc_pool_new_Exit(pool);
 	return pool;
 }
-
 
 /**
  *	Deallocates all memory associated with a pool.
@@ -584,19 +590,19 @@ pool_removeElement(J9Pool *pool, void *anElement)
 	if (slot < 0) {
 		Trc_pool_removeElement_NotFound(anElement, J9POOLPUDDLELIST_NEXTPUDDLE(puddleList));
 		Trc_pool_removeElement_Exit();
-		return;		/* this is an error...  we were passed a bogus data pointer. */
+		return; /* this is an error...  we were passed a bogus data pointer. */
 	}
 
 	if (PUDDLE_SLOT_FREE(puddle, slot)) {
 		Trc_pool_removeElement_NotFound(anElement, puddle);
 		Trc_pool_removeElement_Exit();
-		return;		/* this is an error... the slot was already free. */
+		return; /* this is an error... the slot was already free. */
 	}
 
 	MARK_SLOT_FREE(puddle, slot);
 	puddle->usedElements--;
 	puddleList->numElements--;
-	freeLocation = (void *) J9POOLPUDDLE_FIRSTFREESLOT(puddle);
+	freeLocation = (void *)J9POOLPUDDLE_FIRSTFREESLOT(puddle);
 	SRP_SET(puddle->firstFreeSlot, anElement);
 	LINK_TO_FREE_LIST(anElement, freeLocation);
 
@@ -703,12 +709,12 @@ poolPuddle_startDo(J9Pool *pool, J9PoolPuddle *currentPuddle, pool_state *state,
 		return NULL;
 	}
 
-	if (0 == currentPuddle->usedElements) {	/* this puddle is empty */
+	if (0 == currentPuddle->usedElements) { /* this puddle is empty */
 		Trc_poolPuddle_startDo_EmptyExit();
 		if ((currentPuddle->nextPuddle != 0) && (followNextPointers != 0)) {
 			return poolPuddle_startDo(pool, J9POOLPUDDLE_NEXTPUDDLE(currentPuddle), state, followNextPointers);
 		} else {
-			return NULL;		/* totally empty */
+			return NULL; /* totally empty */
 		}
 	}
 
@@ -716,7 +722,7 @@ poolPuddle_startDo(J9Pool *pool, J9PoolPuddle *currentPuddle, pool_state *state,
 	while (PUDDLE_SLOT_FREE(currentPuddle, slot)) {
 		slot++;
 	}
-	currAddr = (uintptr_t *)((uintptr_t) J9POOLPUDDLE_FIRSTELEMENTADDRESS(currentPuddle) + pool->elementSize * slot);
+	currAddr = (uintptr_t *)((uintptr_t)J9POOLPUDDLE_FIRSTELEMENTADDRESS(currentPuddle) + pool->elementSize * slot);
 
 	state->thePool = pool;
 	state->currentPuddle = currentPuddle;
@@ -740,7 +746,7 @@ poolPuddle_startDo(J9Pool *pool, J9PoolPuddle *currentPuddle, pool_state *state,
 
 	Trc_poolPuddle_startDo_Exit(currAddr);
 
-	return (void *) currAddr;
+	return (void *)currAddr;
 }
 
 /**
@@ -794,9 +800,9 @@ pool_nextDo(pool_state *state)
 
 	Trc_pool_nextDo_Entry(state);
 
-	if (state->leftToDo == 0) {		/* no more used elements, stop this pool. */
+	if (state->leftToDo == 0) { /* no more used elements, stop this pool. */
 		/* if leftToDo is 0, then currentPuddle will already have been advanced to point to the next puddle */
-		if (state->currentPuddle) {		/* check the next one. */
+		if (state->currentPuddle) { /* check the next one. */
 			Trc_pool_nextDo_NextPuddle();
 			return poolPuddle_startDo(state->thePool, state->currentPuddle, state, TRUE);
 		} else {
@@ -811,7 +817,7 @@ pool_nextDo(pool_state *state)
 	while (PUDDLE_SLOT_FREE(state->currentPuddle, slot)) {
 		slot++;
 	}
-	currAddr = (uintptr_t *)((uintptr_t) J9POOLPUDDLE_FIRSTELEMENTADDRESS(state->currentPuddle)
+	currAddr = (uintptr_t *)((uintptr_t)J9POOLPUDDLE_FIRSTELEMENTADDRESS(state->currentPuddle)
 							 + state->thePool->elementSize * slot);
 	state->lastSlot = slot;
 	state->leftToDo--;
@@ -830,7 +836,7 @@ pool_nextDo(pool_state *state)
 
 	Trc_pool_nextDo_Exit(currAddr);
 
-	return (void *) currAddr;
+	return (void *)currAddr;
 }
 
 /**

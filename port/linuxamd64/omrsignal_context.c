@@ -21,7 +21,6 @@
 #include <sys/ucontext.h>
 #include "omrsignal_context.h"
 
-
 void
 fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, struct J9UnixSignalInfo *j9Info)
 {
@@ -30,7 +29,8 @@ fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, stru
 }
 
 uint32_t
-infoForSignal(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForSignal(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	*name = "";
 
@@ -100,29 +100,13 @@ infoForFPR(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t i
 		return OMRPORT_SIG_VALUE_UNDEFINED;
 	}
 
-	const char *n_xmm[NXMMREGS] = {	"xmm0",
-									"xmm1",
-									"xmm2",
-									"xmm3",
-									"xmm4",
-									"xmm5",
-									"xmm6",
-									"xmm7",
-									"xmm8",
-									"xmm9",
-									"xmm10",
-									"xmm11",
-									"xmm12",
-									"xmm13",
-									"xmm14",
-									"xmm15"
-								  };
-
+	const char *n_xmm[NXMMREGS] = {"xmm0", "xmm1", "xmm2",  "xmm3",  "xmm4",  "xmm5",  "xmm6",  "xmm7",
+								   "xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"};
 
 	if ((index >= 0) && (index < NXMMREGS)) {
 		*name = n_xmm[index];
 		xmmRegStructElement64 = ((uint64_t *)&(context->fpstate->_xmm[index].element[0]));
-		*value = (void *) xmmRegStructElement64;
+		*value = (void *)xmmRegStructElement64;
 		return OMRPORT_SIG_VALUE_FLOAT_64;
 	} else {
 		return OMRPORT_SIG_VALUE_UNDEFINED;
@@ -212,7 +196,8 @@ infoForGPR(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t i
 }
 
 uint32_t
-infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			   void **value)
 {
 	struct sigcontext *context = (struct sigcontext *)&info->platformSignalInfo.context->uc_mcontext;
 	*name = "";
@@ -271,7 +256,8 @@ infoForControl(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32
 }
 
 uint32_t
-infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name, void **value)
+infoForModule(struct OMRPortLibrary *portLibrary, J9UnixSignalInfo *info, int32_t index, const char **name,
+			  void **value)
 {
 	Dl_info *dl_info = &(info->platformSignalInfo.dl_info);
 	struct sigcontext *context = (struct sigcontext *)&info->platformSignalInfo.context->uc_mcontext;

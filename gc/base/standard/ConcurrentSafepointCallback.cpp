@@ -21,16 +21,17 @@
 #include "EnvironmentStandard.hpp"
 #include "ModronAssertions.h"
 
-#if defined (OMR_GC_MODRON_CONCURRENT_MARK)
+#if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 
 MM_ConcurrentSafepointCallback *
 MM_ConcurrentSafepointCallback::newInstance(MM_EnvironmentBase *env)
 {
 	MM_ConcurrentSafepointCallback *callback;
 
-	callback = (MM_ConcurrentSafepointCallback *)env->getForge()->allocate(sizeof(MM_ConcurrentSafepointCallback), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+	callback = (MM_ConcurrentSafepointCallback *)env->getForge()->allocate(
+		sizeof(MM_ConcurrentSafepointCallback), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
 	if (NULL != callback) {
-		new(callback) MM_ConcurrentSafepointCallback(env);
+		new (callback) MM_ConcurrentSafepointCallback(env);
 	}
 	return callback;
 }
@@ -43,9 +44,11 @@ MM_ConcurrentSafepointCallback::kill(MM_EnvironmentBase *env)
 
 void
 #if defined(AIXPPC) || defined(LINUXPPC)
-MM_ConcurrentSafepointCallback::registerCallback(MM_EnvironmentBase *env, SafepointCallbackHandler handler, void *userData, bool cancelAfterGC)
+MM_ConcurrentSafepointCallback::registerCallback(MM_EnvironmentBase *env, SafepointCallbackHandler handler,
+												 void *userData, bool cancelAfterGC)
 #else
-MM_ConcurrentSafepointCallback::registerCallback(MM_EnvironmentBase *env, SafepointCallbackHandler handler, void *userData)
+MM_ConcurrentSafepointCallback::registerCallback(MM_EnvironmentBase *env, SafepointCallbackHandler handler,
+												 void *userData)
 #endif /* defined(AIXPPC) || defined(LINUXPPC) */
 {
 	/* To facilitate simple Card Table logic treat registerCallback as a no-op */
@@ -57,7 +60,6 @@ MM_ConcurrentSafepointCallback::requestCallback(MM_EnvironmentStandard *env)
 	/* In the case of languages without safepoints, registerCallback should never be called because we're always at a safepoint */
 	Assert_MM_unreachable();
 }
-
 
 void
 MM_ConcurrentSafepointCallback::cancelCallback(MM_EnvironmentStandard *env)

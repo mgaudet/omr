@@ -16,15 +16,14 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrTest.h"
 #include "omrutilbase.h"
 #include "thread_api.h"
 #include "thrdsup.h"
 #include "threadExtendedTestHelpers.hpp"
 
-#define NUM_ITERATIONS		12
-#define FIVE_SEC_IN_MSEC	5000 /**< 5 sec in ms */
+#define NUM_ITERATIONS 12
+#define FIVE_SEC_IN_MSEC 5000 /**< 5 sec in ms */
 
 /**
  * Generate CPU Load for 5 seconds

@@ -1,0 +1,56 @@
+# An attempt to, within reason, reify the OMR Coding Standard into a usable clang-format configuration file. This file
+# has been developed with clang-format-3.8, which will be made available somewhere for developers to reformat their
+# code, should they wish to.
+#
+# One shortcoming of clang-format is that it cannot insert code. As such an addition pass with the clang-tidy tool
+# can enforce additional OMR Coding Standard guidelines. The following is a list of clang-tidy checks that could be
+# useful:
+#
+# readability-identifier-naming
+# readability-function-size
+# readability-braces-around-statements
+---
+# Organizing C++ classes section.
+AccessModifierOffset: '-4'
+
+AlignOperands: 'true'
+
+# All if, for, while, do and other control statements must be written with braces.
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
+
+AlwaysBreakAfterReturnType: AllDefinitions
+AlwaysBreakBeforeMultilineStrings: 'true'
+BreakBeforeBinaryOperators: NonAssignment
+
+# Closest to OMR standard without defining our own.
+BreakBeforeBraces: Linux
+
+# The width of a line is never explicitly defined by the OMR Coding Standard so this is a reasonable choice.
+ColumnLimit: '120'
+
+# Inferred from the code snippet examples.
+DerivePointerAlignment: 'false'
+PointerAlignment: Right
+
+# Switch labels (case or default) are indented to the same level as the switch keyword.
+IndentCaseLabels: 'false'
+
+# Indent code using TABS (not spaces) section.
+IndentWidth: '4'
+TabWidth: '4'
+UseTab: Always
+
+Language: Cpp
+
+# Comments have natural alignments that we don't want to break. 
+ReflowComments: 'false'
+
+# This cannot be enabled for Testarossa, because we do some funky things with include ordering.
+SortIncludes: 'false'
+
+# When initializing a variable, always include spaces on both sides of the '=' assignment operator.
+SpaceBeforeAssignmentOperators: 'true'
+
+# Do not include spaces between function names and parameter lists.
+SpaceBeforeParens: ControlStatements

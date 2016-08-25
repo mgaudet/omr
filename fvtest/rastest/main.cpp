@@ -20,19 +20,20 @@
 #include "rasTestHelpers.hpp"
 
 extern "C" {
-int testMain(int argc, char **argv, char **envp);
+int testMain(int argc, char** argv, char** envp);
 }
 
-PortEnvironment *rasTestEnv;
+PortEnvironment* rasTestEnv;
 
 int
-testMain(int argc, char **argv, char **envp)
+testMain(int argc, char** argv, char** envp)
 {
-	::testing::InitGoogleTest(&argc, argv);
+  ::testing::InitGoogleTest(&argc, argv);
 
-	ATTACH_J9THREAD();
-	rasTestEnv = (PortEnvironment *)testing::AddGlobalTestEnvironment(new PortEnvironment(argc, argv));
-	int result = RUN_ALL_TESTS();
-	DETACH_J9THREAD();
-	return result;
+  ATTACH_J9THREAD();
+  rasTestEnv = (PortEnvironment*)testing::AddGlobalTestEnvironment(
+    new PortEnvironment(argc, argv));
+  int result = RUN_ALL_TESTS();
+  DETACH_J9THREAD();
+  return result;
 }

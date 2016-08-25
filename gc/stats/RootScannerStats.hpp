@@ -32,31 +32,38 @@
 
 class MM_RootScannerStats : public MM_Base
 {
-/* Data Members */
+  /* Data Members */
 public:
-	uint64_t _entityScanTime[RootScannerEntity_Count]; /**< Time spent scanning each root scanner entity per thread.  Values of 0 indicate no time (regardless of clock resolution) spent scanning. */
-	
-/* Function Members */
+  uint64_t
+    _entityScanTime[RootScannerEntity_Count]; /**< Time spent scanning each root
+                                                 scanner entity per thread.
+                                                 Values of 0 indicate no time
+                                                 (regardless of clock
+                                                 resolution) spent scanning. */
+
+  /* Function Members */
 public:
-	/**
-	 * Reset the root scanner statistics to their initial state.  Statistics should
-	 * be reset each for each local or global GC.
-	 */
-	void clear();
-	
-	/**
-	 * Merges the results from the input MM_RootScannerStats with the statistics contained within
-	 * the instance.
-	 * 
-	 * @param[in] statsToMerge	Root scanner statistics
-	 */
-	void merge(MM_RootScannerStats *statsToMerge);
-	
-	MM_RootScannerStats() :
-		MM_Base()
-	{
-		clear();
-	};
+  /**
+   * Reset the root scanner statistics to their initial state.  Statistics
+   * should
+   * be reset each for each local or global GC.
+   */
+  void clear();
+
+  /**
+   * Merges the results from the input MM_RootScannerStats with the statistics
+   * contained within
+   * the instance.
+   *
+   * @param[in] statsToMerge	Root scanner statistics
+   */
+  void merge(MM_RootScannerStats* statsToMerge);
+
+  MM_RootScannerStats()
+    : MM_Base()
+  {
+    clear();
+  };
 };
 
 #endif /* !ROOTSCANNERSTATS_HPP_ */

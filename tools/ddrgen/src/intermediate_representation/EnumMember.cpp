@@ -20,7 +20,7 @@
 
 EnumMember::EnumMember()
 {
-	_value = 0;
+  _value = 0;
 }
 
 EnumMember::~EnumMember()

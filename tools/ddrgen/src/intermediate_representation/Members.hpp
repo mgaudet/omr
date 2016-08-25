@@ -24,9 +24,9 @@
 class Members
 {
 public:
-	std::string _name;
+  std::string _name;
 
-	virtual ~Members();
+  virtual ~Members();
 };
 
 #endif /* MEMBERS_HPP */

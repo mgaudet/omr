@@ -45,38 +45,38 @@
 #define snprintf _snprintf
 #define PATH_SEP "\\"
 #define dirstat struct _stat
-#define PORT_INVALID_FIND_FILE_HANDLE ((intptr_t) INVALID_HANDLE_VALUE)
-#define EsMaxPath 	MAX_PATH
+#define PORT_INVALID_FIND_FILE_HANDLE ((intptr_t)INVALID_HANDLE_VALUE)
+#define EsMaxPath MAX_PATH
 #define OS_ENCODING_CODE_PAGE CP_UTF8
 #define OS_ENCODING_MB_FLAGS 0
 #define OS_ENCODING_WC_FLAGS 0
 #define UNICODE_BUFFER_SIZE EsMaxPath
 #else /* defined(WIN32) */
-#define PATH_SEP  "/"
+#define PATH_SEP "/"
 #define dirstat struct stat
-#define PORT_INVALID_FIND_FILE_HANDLE ((intptr_t) 0)
+#define PORT_INVALID_FIND_FILE_HANDLE ((intptr_t)0)
 #if defined(PATH_MAX)
-#define EsMaxPath 	PATH_MAX
+#define EsMaxPath PATH_MAX
 #else /* defined(PATH_MAX) */
 /* EsMaxPath was chosen from unix MAXPATHLEN. */
-#define EsMaxPath 	1024
+#define EsMaxPath 1024
 #endif /* defined(PATH_MAX) */
 #endif /* defined(WIN32) */
 
 typedef enum RCType {
-	RC_OK 		= 0,
-	RC_FAILED	= -1,
-	RCType_EnsureWideEnum = 0x1000000 /* force 4-byte enum */
+    RC_OK = 0,
+    RC_FAILED = -1,
+    RCType_EnsureWideEnum = 0x1000000 /* force 4-byte enum */
 } RCType;
 
 typedef struct J9Permission {
-	unsigned int isUserWriteable : 1;
-	unsigned int isUserReadable : 1;
-	unsigned int isGroupWriteable : 1;
-	unsigned int isGroupReadable : 1;
-	unsigned int isOtherWriteable : 1;
-	unsigned int isOtherReadable : 1;
-	unsigned int : 26; /* future use */
+    unsigned int isUserWriteable : 1;
+    unsigned int isUserReadable : 1;
+    unsigned int isGroupWriteable : 1;
+    unsigned int isGroupReadable : 1;
+    unsigned int isOtherWriteable : 1;
+    unsigned int isOtherReadable : 1;
+    unsigned int : 26; /* future use */
 } J9Permission;
 
 /**
@@ -85,35 +85,32 @@ typedef struct J9Permission {
  * Note that the ownerUid and ownerGid fields are 0 on Windows.
  */
 typedef struct J9FileStat {
-	unsigned int isFile : 1;
-	unsigned int isDir : 1;
-	unsigned int isFixed : 1;
-	unsigned int isRemote : 1;
-	unsigned int isRemovable : 1;
-	unsigned int : 27; /* future use */
-	J9Permission perm;
-	int ownerUid;
-	int ownerGid;
+    unsigned int isFile : 1;
+    unsigned int isDir : 1;
+    unsigned int isFixed : 1;
+    unsigned int isRemote : 1;
+    unsigned int isRemovable : 1;
+    unsigned int : 27; /* future use */
+    J9Permission perm;
+    int ownerUid;
+    int ownerGid;
 } J9FileStat;
 
-class Port
-{
-	/*
+class Port {
+    /*
 	 * Data members
 	 */
 private:
 protected:
 public:
-
-	/*
+    /*
 	 * Function members
 	 */
 private:
 protected:
 public:
-
 #if defined(WIN32)
-	/**
+    /**
 	 * Uses convertFromUTF8 and if the resulting unicode path is longer than the Windows defined MAX_PATH,
 	 * the path is converted to an absolute path and prepended with //?/
 	 *
@@ -128,9 +125,9 @@ public:
 	 * 					If the return value is not the same as @ref unicodeBuffer, file_get_unicode_path had to allocate memory to hold the
 	 * 					unicode path - the caller is responsible for freeing this memory by calling @ref omrmem_free on the returned value.
 	 */
-	static wchar_t *file_get_unicode_path(const char *utf8Path, wchar_t *unicodeBuffer, unsigned int unicodeBufferSize);
+    static wchar_t* file_get_unicode_path(const char* utf8Path, wchar_t* unicodeBuffer, unsigned int unicodeBufferSize);
 
-	/**
+    /**
 	 * @internal
 	 * Converts the UTF8 encoded string to Unicode. Use the provided buffer if possible
 	 * or allocate memory as necessary. Return the new string.
@@ -145,9 +142,9 @@ public:
 	 * If the returned buffer is not the same as @ref unicodeBuffer, the returned buffer needs to be freed
 	 * 	using @ref omrmem_free_memory
 	 */
-	static wchar_t *convertFromUTF8(const char *string, wchar_t *unicodeBuffer, unsigned int unicodeBufferSize);
+    static wchar_t* convertFromUTF8(const char* string, wchar_t* unicodeBuffer, unsigned int unicodeBufferSize);
 
-	/**
+    /**
 	 * @internal
 	 * Converts the Unicode string to UTF8 encoded data.
 	 *
@@ -160,12 +157,12 @@ public:
 	 * - in case of failure buffer is NULL'ed.
 	 * @return RC_OK on success, RC_FAILED on failure.
 	 */
-	static RCType convertToUTF8(const wchar_t *unicodeString, char **utf8Buffer);
+    static RCType convertToUTF8(const wchar_t* unicodeString, char** utf8Buffer);
 #endif /* #if defined(WIN32) */
 
-	static RCType omrfile_findfirst(const char *path, char **resultbuf, intptr_t *handle);
+    static RCType omrfile_findfirst(const char* path, char** resultbuf, intptr_t* handle);
 
-	/**
+    /**
 	 * Find the next filename and path matching a given handle.
 	 *
 	 * @param[in] portLibrary The port library
@@ -175,32 +172,32 @@ public:
 	 * @return RC_OK on success, RC_FAILED on failure or if no matching entries.
 	 * @internal @todo return negative portable return code on failure.
 	 */
-	static RCType omrfile_findnext(intptr_t findhandle, char **resultbuf);
+    static RCType omrfile_findnext(intptr_t findhandle, char** resultbuf);
 
-	/**
+    /**
 	 * Close the handle returned from @ref omrfile_findfirst.
 	 *
 	 * @param[in] portLibrary The port library
 	 * @param[in] findhandle  Handle returned from @ref omrfile_findfirst.
 	 */
-	static RCType omrfile_findclose(intptr_t findhandle);
+    static RCType omrfile_findclose(intptr_t findhandle);
 
-	static FILE *fopen(const char *path, const char *mode);
-	static RCType omrfile_stat(const char *path, unsigned int flags, struct J9FileStat *buf);
+    static FILE* fopen(const char* path, const char* mode);
+    static RCType omrfile_stat(const char* path, unsigned int flags, struct J9FileStat* buf);
 
-	static RCType stat(const char *path, dirstat *statbuf);
+    static RCType stat(const char* path, dirstat* statbuf);
 
-	static char *omrfile_getcwd();
-	static RCType omrfile_move(const char *pathExist, const char *pathNew);
+    static char* omrfile_getcwd();
+    static RCType omrfile_move(const char* pathExist, const char* pathNew);
 
-	/**
+    /**
 	 * Resolve full path to the file. The caller should deallocate this buffer using omrmem_free.
 	 * @param path NUL terminated path
 	 * @return Canonical absolute path
 	 */
-	static char *omrfile_realpath(const char *path);
+    static char* omrfile_realpath(const char* path);
 
-	/**
+    /**
 	 * compare two strings ignoring case
 	 * @param s1 null terminated string
 	 * @param s2 null terminated string
@@ -208,25 +205,25 @@ public:
 	 * @see strncasecmp
 	 * @return negative value, zero or positive value if s1 is less then, equal to or greater than s2.
 	 */
-	static int strncasecmp(const char *s1, const char *s2, size_t n);
+    static int strncasecmp(const char* s1, const char* s2, size_t n);
 
-	static inline void *omrmem_malloc(size_t size)
-	{
-		return malloc(size);
-	}
+    static inline void* omrmem_malloc(size_t size)
+    {
+        return malloc(size);
+    }
 
-	static inline void *omrmem_calloc(size_t nmemb, size_t size)
-	{
-		return calloc(nmemb, size);
-	}
+    static inline void* omrmem_calloc(size_t nmemb, size_t size)
+    {
+        return calloc(nmemb, size);
+    }
 
-	static inline void omrmem_free(void **ptr)
-	{
-		if (NULL != ptr && NULL != *ptr) {
-			free(*ptr);
-			*ptr = NULL;
-		}
-	}
+    static inline void omrmem_free(void** ptr)
+    {
+        if (NULL != ptr && NULL != *ptr) {
+            free(*ptr);
+            *ptr = NULL;
+        }
+    }
 };
 
 #endif /* PORT_HPP_ */

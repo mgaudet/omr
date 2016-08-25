@@ -13,7 +13,8 @@
  *      http://www.opensource.org/licenses/apache2.0.php
  *
  * Contributors:
- *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
+ *    Multiple authors (IBM Corp.) - initial API and implementation and/or
+ *initial documentation
  *******************************************************************************/
 
 /**
@@ -29,16 +30,16 @@
 #define JOBID_STRING_LENGTH sizeof(JOBID_STRING)
 
 /* Generic version of omrgetjobid() */
-uintptr_t
-omrget_jobid(struct OMRPortLibrary *portLibrary, char *jobid, uintptr_t length)
-{
-	/* Check that caller provided enough space for the string */
-	if ((NULL == jobid) || (length < JOBID_STRING_LENGTH)) {
-		return JOBID_STRING_LENGTH;
-	}
+uintptr_t omrget_jobid(struct OMRPortLibrary *portLibrary, char *jobid,
+                       uintptr_t length) {
+  /* Check that caller provided enough space for the string */
+  if ((NULL == jobid) || (length < JOBID_STRING_LENGTH)) {
+    return JOBID_STRING_LENGTH;
+  }
 
-	/* Default behaviour for platforms other than zOS, simply return the job ID string token */
-	strcpy(jobid, JOBID_STRING);
+  /* Default behaviour for platforms other than zOS, simply return the job ID
+   * string token */
+  strcpy(jobid, JOBID_STRING);
 
-	return 0;
+  return 0;
 }

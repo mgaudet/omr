@@ -13,15 +13,13 @@
  *      http://www.opensource.org/licenses/apache2.0.php
  *
  * Contributors:
- *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
+ *    Multiple authors (IBM Corp.) - initial API and implementation and/or
+ *initial documentation
  *******************************************************************************/
 
 #ifndef omrnlshelpers_h
 #define omrnlshelpers_h
 
-void nls_determine_locale(struct OMRPortLibrary *portLibrary);
-
+void nls_determine_locale(struct OMRPortLibrary* portLibrary);
 
 #endif /* omrnlshelpers_h */
-
-

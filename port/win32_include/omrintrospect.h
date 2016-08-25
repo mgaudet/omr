@@ -13,7 +13,8 @@
  *      http://www.opensource.org/licenses/apache2.0.php
  *
  * Contributors:
- *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
+ *    Multiple authors (IBM Corp.) - initial API and implementation and/or
+ *initial documentation
  *******************************************************************************/
 
 /**
@@ -26,8 +27,8 @@
 
 #include "omrintrospect_common.h"
 
-extern int32_t load_dbg_functions(struct OMRPortLibrary *portLibrary);
-extern int32_t load_dbg_symbols(struct OMRPortLibrary *portLibrary);
-extern void free_dbg_symbols(struct OMRPortLibrary *portLibrary);
+extern int32_t load_dbg_functions(struct OMRPortLibrary* portLibrary);
+extern int32_t load_dbg_symbols(struct OMRPortLibrary* portLibrary);
+extern void free_dbg_symbols(struct OMRPortLibrary* portLibrary);
 
 #endif

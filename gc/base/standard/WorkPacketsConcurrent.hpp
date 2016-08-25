@@ -19,7 +19,6 @@
 #if !defined(WORKPACKETSCONCURRENT_HPP_)
 #define WORKPACKETSCONCURRENT_HPP_
 
-
 #include "EnvironmentStandard.hpp"
 #include "WorkPacketsStandard.hpp"
 
@@ -31,31 +30,27 @@ class MM_CardTable;
 class MM_WorkPacketsConcurrent : public MM_WorkPacketsStandard
 {
 private:
-
 protected:
-
 public:
-
 private:
-
 protected:
-	virtual MM_WorkPacketOverflow *createOverflowHandler(MM_EnvironmentBase *env, MM_WorkPackets *workPackets);
+  virtual MM_WorkPacketOverflow* createOverflowHandler(
+    MM_EnvironmentBase* env, MM_WorkPackets* workPackets);
 
 public:
-	static MM_WorkPacketsConcurrent  *newInstance(MM_EnvironmentBase *env);
+  static MM_WorkPacketsConcurrent* newInstance(MM_EnvironmentBase* env);
 
-	void resetWorkPacketsOverflow();
+  void resetWorkPacketsOverflow();
 
-	/**
-	 * Create a WorkPackets object.
-	 * @ingroup GC_Modron_Standard methodGroup
-	 */
-	MM_WorkPacketsConcurrent(MM_EnvironmentBase *env) :
-		MM_WorkPacketsStandard(env)
-	{
-		_typeId = __FUNCTION__;
-	};
+  /**
+   * Create a WorkPackets object.
+   * @ingroup GC_Modron_Standard methodGroup
+   */
+  MM_WorkPacketsConcurrent(MM_EnvironmentBase* env)
+    : MM_WorkPacketsStandard(env)
+  {
+    _typeId = __FUNCTION__;
+  };
 };
 
 #endif /* WORKPACKETSCONCURRENT_HPP_ */
-

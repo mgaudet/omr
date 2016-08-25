@@ -40,25 +40,32 @@ class MM_EnvironmentBase;
 class MM_ConcurrentPrepareCardTableTask : public MM_ParallelTask
 {
 private:
-	MM_ConcurrentCardTableForWC *_cardTable;
-	Card *_firstCard;
-	Card *_lastCard;
-	CardAction _action;
+  MM_ConcurrentCardTableForWC* _cardTable;
+  Card* _firstCard;
+  Card* _lastCard;
+  CardAction _action;
 
 public:
-	virtual UDATA getVMStateID() { return J9VMSTATE_GC_CONCURRENT_MARK_PREPARE_CARD_TABLE; }
-	
-	virtual void run(MM_EnvironmentBase *env);
+  virtual UDATA getVMStateID()
+  {
+    return J9VMSTATE_GC_CONCURRENT_MARK_PREPARE_CARD_TABLE;
+  }
 
-	MM_ConcurrentPrepareCardTableTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_ConcurrentCardTableForWC *cardTable, Card *firstCard, Card *lastCard, CardAction action) :
-		MM_ParallelTask(env, dispatcher),
-		_cardTable(cardTable),
-		_firstCard(firstCard),
-		_lastCard(lastCard),
-		_action(action)
-	{
-		_typeId = __FUNCTION__;
-	}
+  virtual void run(MM_EnvironmentBase* env);
+
+  MM_ConcurrentPrepareCardTableTask(MM_EnvironmentBase* env,
+                                    MM_Dispatcher* dispatcher,
+                                    MM_ConcurrentCardTableForWC* cardTable,
+                                    Card* firstCard, Card* lastCard,
+                                    CardAction action)
+    : MM_ParallelTask(env, dispatcher)
+    , _cardTable(cardTable)
+    , _firstCard(firstCard)
+    , _lastCard(lastCard)
+    , _action(action)
+  {
+    _typeId = __FUNCTION__;
+  }
 };
 
 #endif /* CONCURRENTPREPARECARDTABLETASK_HPP_ */

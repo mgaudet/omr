@@ -19,7 +19,6 @@
 #ifndef omrgetjobname_h
 #define omrgetjobname_h
 
-void
-omrget_jobname(struct OMRPortLibrary *portLibrary, char *jobname, uintptr_t length);
+void omrget_jobname(struct OMRPortLibrary* portLibrary, char* jobname, uintptr_t length);
 
-#endif     /* omrgetjobname_h */
+#endif /* omrgetjobname_h */

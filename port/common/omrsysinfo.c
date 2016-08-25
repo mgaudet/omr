@@ -24,19 +24,16 @@
 #include "omrport.h"
 #include <string.h>
 
-
-
 /**
  * Sets the number of entitled CPUs, which is specified by the user.
  *
  * @param[in] portLibrary The port library.
  * @param[in] number Number of entitled CPUs.
  */
-void
-omrsysinfo_set_number_entitled_CPUs(struct OMRPortLibrary *portLibrary, uintptr_t number)
+void omrsysinfo_set_number_entitled_CPUs(struct OMRPortLibrary* portLibrary, uintptr_t number)
 {
-	portLibrary->portGlobals->entitledCPUs = number;
-	return;
+    portLibrary->portGlobals->entitledCPUs = number;
+    return;
 }
 
 /**
@@ -49,9 +46,9 @@ omrsysinfo_set_number_entitled_CPUs(struct OMRPortLibrary *portLibrary, uintptr_
 *
 **/
 intptr_t
-omrsysinfo_process_exists(struct OMRPortLibrary *portLibrary, uintptr_t pid)
+omrsysinfo_process_exists(struct OMRPortLibrary* portLibrary, uintptr_t pid)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -64,27 +61,27 @@ omrsysinfo_process_exists(struct OMRPortLibrary *portLibrary, uintptr_t pid)
  * @note portLibrary is responsible for allocation/deallocation of returned buffer.
  * @note See http://www.tolstoy.com/samizdat/sysprops.html for good values to return.
  */
-const char *
-omrsysinfo_get_CPU_architecture(struct OMRPortLibrary *portLibrary)
+const char*
+omrsysinfo_get_CPU_architecture(struct OMRPortLibrary* portLibrary)
 {
-#if   defined(J9HAMMER)
-	return OMRPORT_ARCH_HAMMER;
+#if defined(J9HAMMER)
+    return OMRPORT_ARCH_HAMMER;
 #elif defined(PPC64)
 #ifdef OMR_ENV_LITTLE_ENDIAN
-	return OMRPORT_ARCH_PPC64LE;
+    return OMRPORT_ARCH_PPC64LE;
 #else /* OMR_ENV_LITTLE_ENDIAN */
-	return OMRPORT_ARCH_PPC64;
+    return OMRPORT_ARCH_PPC64;
 #endif /* OMR_ENV_LITTLE_ENDIAN */
 #elif defined(PPC)
-	return OMRPORT_ARCH_PPC;
+    return OMRPORT_ARCH_PPC;
 #elif defined(S39064)
-	return OMRPORT_ARCH_S390X;
+    return OMRPORT_ARCH_S390X;
 #elif defined(S390)
-	return OMRPORT_ARCH_S390;
+    return OMRPORT_ARCH_S390;
 #elif defined(X86)
-	return OMRPORT_ARCH_X86;
+    return OMRPORT_ARCH_X86;
 #else
-	return "unknown";
+    return "unknown";
 #endif
 }
 /**
@@ -104,9 +101,9 @@ omrsysinfo_get_CPU_architecture(struct OMRPortLibrary *portLibrary)
  * @note infoString is undefined on error or when supplied buffer was too small.
  */
 intptr_t
-omrsysinfo_get_env(struct OMRPortLibrary *portLibrary, const char *envVar, char *infoString, uintptr_t bufSize)
+omrsysinfo_get_env(struct OMRPortLibrary* portLibrary, const char* envVar, char* infoString, uintptr_t bufSize)
 {
-	return -1;
+    return -1;
 }
 /**
  * Determines an absolute pathname for the executable.
@@ -121,19 +118,19 @@ omrsysinfo_get_env(struct OMRPortLibrary *portLibrary, const char *envVar, char 
  * the executable name is system-owned (managed internally by the port library).
  */
 intptr_t
-omrsysinfo_get_executable_name(struct OMRPortLibrary *portLibrary, const char *argv0, char **result)
+omrsysinfo_get_executable_name(struct OMRPortLibrary* portLibrary, const char* argv0, char** result)
 {
-	if (NULL == argv0) {
-		return -1;
-	}
+    if (NULL == argv0) {
+        return -1;
+    }
 
-	*result = (portLibrary->mem_allocate_memory)(portLibrary, strlen(argv0) + 1, OMR_GET_CALLSITE());
-	if (NULL == *result) {
-		return -1;
-	}
+    *result = (portLibrary->mem_allocate_memory)(portLibrary, strlen(argv0) + 1, OMR_GET_CALLSITE());
+    if (NULL == *result) {
+        return -1;
+    }
 
-	strcpy(*result, argv0);
-	return 0;
+    strcpy(*result, argv0);
+    return 0;
 }
 /**
  * Determine the number of CPUs. Argument type is used to qualify the type of information:
@@ -154,33 +151,33 @@ omrsysinfo_get_executable_name(struct OMRPortLibrary *portLibrary, const char *a
  * 			 - For target if bound failed (error)
  */
 uintptr_t
-omrsysinfo_get_number_CPUs_by_type(struct OMRPortLibrary *portLibrary, uintptr_t type)
+omrsysinfo_get_number_CPUs_by_type(struct OMRPortLibrary* portLibrary, uintptr_t type)
 {
-	uintptr_t toReturn = 0;
+    uintptr_t toReturn = 0;
 
-	switch (type) {
-	case OMRPORT_CPU_PHYSICAL:
-		toReturn = 0;
-		break;
-	case OMRPORT_CPU_ONLINE:
-		toReturn = 0;
-		break;
-	case OMRPORT_CPU_BOUND:
-		toReturn = 0;
-		break;
-	case OMRPORT_CPU_ENTITLED:
-		toReturn = portLibrary->portGlobals->entitledCPUs;
-		break;
-	case OMRPORT_CPU_TARGET:
-		toReturn = 0;
-		break;
-	default:
-		/* Invalid argument */
-		toReturn = 0;
-		break;
-	}
+    switch (type) {
+    case OMRPORT_CPU_PHYSICAL:
+        toReturn = 0;
+        break;
+    case OMRPORT_CPU_ONLINE:
+        toReturn = 0;
+        break;
+    case OMRPORT_CPU_BOUND:
+        toReturn = 0;
+        break;
+    case OMRPORT_CPU_ENTITLED:
+        toReturn = portLibrary->portGlobals->entitledCPUs;
+        break;
+    case OMRPORT_CPU_TARGET:
+        toReturn = 0;
+        break;
+    default:
+        /* Invalid argument */
+        toReturn = 0;
+        break;
+    }
 
-	return toReturn;
+    return toReturn;
 }
 
 /**
@@ -192,10 +189,10 @@ omrsysinfo_get_number_CPUs_by_type(struct OMRPortLibrary *portLibrary, uintptr_t
  *
  * @note portLibrary is responsible for allocation/deallocation of returned buffer.
  */
-const char *
-omrsysinfo_get_OS_type(struct OMRPortLibrary *portLibrary)
+const char*
+omrsysinfo_get_OS_type(struct OMRPortLibrary* portLibrary)
 {
-	return "unknown";
+    return "unknown";
 }
 /**
  * Determine version information from the operating system.
@@ -207,10 +204,10 @@ omrsysinfo_get_OS_type(struct OMRPortLibrary *portLibrary)
  * @note portLibrary is responsible for allocation/deallocation of returned buffer.
  */
 
-const char *
-omrsysinfo_get_OS_version(struct OMRPortLibrary *portLibrary)
+const char*
+omrsysinfo_get_OS_version(struct OMRPortLibrary* portLibrary)
 {
-	return "unknown";
+    return "unknown";
 }
 
 /**
@@ -231,9 +228,9 @@ omrsysinfo_get_OS_version(struct OMRPortLibrary *portLibrary)
  * OMRPORT_MEMINFO_NOT_AVAILABLE.
  */
 int32_t
-omrsysinfo_get_memory_info(struct OMRPortLibrary *portLibrary, struct J9MemoryInfo *memInfo, ...)
+omrsysinfo_get_memory_info(struct OMRPortLibrary* portLibrary, struct J9MemoryInfo* memInfo, ...)
 {
-	return -1;
+    return -1;
 }
 /**
  * Determine the size of the total physical memory in the system, in bytes.
@@ -243,9 +240,9 @@ omrsysinfo_get_memory_info(struct OMRPortLibrary *portLibrary, struct J9MemoryIn
  * @return 0 if the information was unavailable, otherwise total physical memory in bytes.
  */
 uint64_t
-omrsysinfo_get_physical_memory(struct OMRPortLibrary *portLibrary)
+omrsysinfo_get_physical_memory(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 /**
  * Determine the process ID of the calling process.
@@ -255,9 +252,9 @@ omrsysinfo_get_physical_memory(struct OMRPortLibrary *portLibrary)
  * @return the PID.
  */
 uintptr_t
-omrsysinfo_get_pid(struct OMRPortLibrary *portLibrary)
+omrsysinfo_get_pid(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -270,9 +267,9 @@ omrsysinfo_get_pid(struct OMRPortLibrary *portLibrary)
  * @return the PPID.
  */
 uintptr_t
-omrsysinfo_get_ppid(struct OMRPortLibrary *portLibrary)
+omrsysinfo_get_ppid(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -286,9 +283,9 @@ omrsysinfo_get_ppid(struct OMRPortLibrary *portLibrary)
  */
 
 uintptr_t
-omrsysinfo_get_egid(struct OMRPortLibrary *portLibrary)
+omrsysinfo_get_egid(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -302,9 +299,9 @@ omrsysinfo_get_egid(struct OMRPortLibrary *portLibrary)
  */
 
 uintptr_t
-omrsysinfo_get_euid(struct OMRPortLibrary *portLibrary)
+omrsysinfo_get_euid(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -321,9 +318,9 @@ omrsysinfo_get_euid(struct OMRPortLibrary *portLibrary)
  * @return On success returns number of supplementary group IDs in the array pointed by *gidList, on error returns -1
  */
 intptr_t
-omrsysinfo_get_groups(struct OMRPortLibrary *portLibrary, uint32_t **gidList, uint32_t categoryCode)
+omrsysinfo_get_groups(struct OMRPortLibrary* portLibrary, uint32_t** gidList, uint32_t categoryCode)
 {
-	return -1;
+    return -1;
 }
 
 /**
@@ -336,8 +333,7 @@ omrsysinfo_get_groups(struct OMRPortLibrary *portLibrary, uint32_t **gidList, ui
  *
  * @note Most implementations will be empty.
  */
-void
-omrsysinfo_shutdown(struct OMRPortLibrary *portLibrary)
+void omrsysinfo_shutdown(struct OMRPortLibrary* portLibrary)
 {
 }
 /**
@@ -355,9 +351,9 @@ omrsysinfo_shutdown(struct OMRPortLibrary *portLibrary)
  * @note Most implementations will simply return success.
  */
 int32_t
-omrsysinfo_startup(struct OMRPortLibrary *portLibrary)
+omrsysinfo_startup(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -376,9 +372,9 @@ omrsysinfo_startup(struct OMRPortLibrary *portLibrary)
 * @note buffer is undefined on error or when supplied buffer was too small.
 */
 intptr_t
-omrsysinfo_get_username(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length)
+omrsysinfo_get_username(struct OMRPortLibrary* portLibrary, char* buffer, uintptr_t length)
 {
-	return -1;
+    return -1;
 }
 /**
  * Query the operating system for the name of the group associate with the current thread
@@ -396,9 +392,9 @@ omrsysinfo_get_username(struct OMRPortLibrary *portLibrary, char *buffer, uintpt
 * @note buffer is undefined on error or when supplied buffer was too small.
 */
 intptr_t
-omrsysinfo_get_groupname(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length)
+omrsysinfo_get_groupname(struct OMRPortLibrary* portLibrary, char* buffer, uintptr_t length)
 {
-	return -1;
+    return -1;
 }
 
 /**
@@ -435,10 +431,10 @@ omrsysinfo_get_groupname(struct OMRPortLibrary *portLibrary, char *buffer, uintp
  *  \arg OMRPORT_LIMIT_LIMITED (limit is set to actual limit)
  */
 uint32_t
-omrsysinfo_get_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, uint64_t *limit)
+omrsysinfo_get_limit(struct OMRPortLibrary* portLibrary, uint32_t resourceID, uint64_t* limit)
 {
-	*limit = OMRPORT_LIMIT_UNKNOWN_VALUE;
-	return OMRPORT_LIMIT_UNKNOWN;
+    *limit = OMRPORT_LIMIT_UNKNOWN_VALUE;
+    return OMRPORT_LIMIT_UNKNOWN;
 }
 
 /**
@@ -470,9 +466,9 @@ omrsysinfo_get_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
  *  \arg negative on error
  */
 uint32_t
-omrsysinfo_set_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, uint64_t limit)
+omrsysinfo_set_limit(struct OMRPortLibrary* portLibrary, uint32_t resourceID, uint64_t limit)
 {
-	return OMRPORT_LIMIT_UNKNOWN;
+    return OMRPORT_LIMIT_UNKNOWN;
 }
 
 /**
@@ -489,9 +485,9 @@ omrsysinfo_set_limit(struct OMRPortLibrary *portLibrary, uint32_t resourceID, ui
  *
  */
 intptr_t
-omrsysinfo_get_load_average(struct OMRPortLibrary *portLibrary, struct J9PortSysInfoLoadData *loadAverageData)
+omrsysinfo_get_load_average(struct OMRPortLibrary* portLibrary, struct J9PortSysInfoLoadData* loadAverageData)
 {
-	return -1;
+    return -1;
 }
 
 /**
@@ -507,9 +503,9 @@ omrsysinfo_get_load_average(struct OMRPortLibrary *portLibrary, struct J9PortSys
  *
  */
 intptr_t
-omrsysinfo_get_CPU_utilization(struct OMRPortLibrary *portLibrary, struct J9SysinfoCPUTime *cpuTimeStats)
+omrsysinfo_get_CPU_utilization(struct OMRPortLibrary* portLibrary, struct J9SysinfoCPUTime* cpuTimeStats)
 {
-	return OMRPORT_ERROR_SYSINFO_NOT_SUPPORTED;
+    return OMRPORT_ERROR_SYSINFO_NOT_SUPPORTED;
 }
 
 /**
@@ -527,9 +523,9 @@ omrsysinfo_get_CPU_utilization(struct OMRPortLibrary *portLibrary, struct J9Sysi
  *				\arg OMRPORT_ERROR_SYSINFO_OPFAILED for any other failure
 */
 int32_t
-omrsysinfo_limit_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoLimitIteratorState *state)
+omrsysinfo_limit_iterator_init(struct OMRPortLibrary* portLibrary, J9SysinfoLimitIteratorState* state)
 {
-	return OMRPORT_ERROR_SYSINFO_OPFAILED;
+    return OMRPORT_ERROR_SYSINFO_OPFAILED;
 }
 
 /**
@@ -541,9 +537,9 @@ omrsysinfo_limit_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoLimi
  * @return TRUE if @ref omrsysinfo_limit_iterator_next() will return another limit element, FALSE otherwise.
 */
 BOOLEAN
-omrsysinfo_limit_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoLimitIteratorState *state)
+omrsysinfo_limit_iterator_hasNext(struct OMRPortLibrary* portLibrary, J9SysinfoLimitIteratorState* state)
 {
-	return FALSE;
+    return FALSE;
 }
 
 /**
@@ -561,9 +557,9 @@ omrsysinfo_limit_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoL
  * @note The caller must not modify the value returned by name, hardValue or softValue.
  */
 int32_t
-omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimitIteratorState *state, J9SysinfoUserLimitElement *limitElement)
+omrsysinfo_limit_iterator_next(struct OMRPortLibrary* portLibrary, J9SysinfoLimitIteratorState* state, J9SysinfoUserLimitElement* limitElement)
 {
-	return OMRPORT_ERROR_SYSINFO_OPFAILED;
+    return OMRPORT_ERROR_SYSINFO_OPFAILED;
 }
 
 /**
@@ -590,9 +586,9 @@ omrsysinfo_limit_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoLimi
  *			\arg OMRPORT_ERROR_NOT_SUPPORTED_ON_THIS_PLATFORM if the iterator is not supported on this platform
  */
 int32_t
-omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, void *buffer, uintptr_t bufferSizeBytes)
+omrsysinfo_env_iterator_init(struct OMRPortLibrary* portLibrary, J9SysinfoEnvIteratorState* state, void* buffer, uintptr_t bufferSizeBytes)
 {
-	return OMRPORT_ERROR_SYSINFO_OPFAILED;
+    return OMRPORT_ERROR_SYSINFO_OPFAILED;
 }
 
 /**
@@ -604,9 +600,9 @@ omrsysinfo_env_iterator_init(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIte
  * @return TRUE if @ref omrsysinfo_env_iterator_next() will return another limit element, FALSE otherwise.
 */
 BOOLEAN
-omrsysinfo_env_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state)
+omrsysinfo_env_iterator_hasNext(struct OMRPortLibrary* portLibrary, J9SysinfoEnvIteratorState* state)
 {
-	return FALSE;
+    return FALSE;
 }
 
 /**
@@ -624,9 +620,9 @@ omrsysinfo_env_iterator_hasNext(struct OMRPortLibrary *portLibrary, J9SysinfoEnv
  * @return 	0 if another element has been returned, otherwise portable error code.
  */
 int32_t
-omrsysinfo_env_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIteratorState *state, J9SysinfoEnvElement *envElement)
+omrsysinfo_env_iterator_next(struct OMRPortLibrary* portLibrary, J9SysinfoEnvIteratorState* state, J9SysinfoEnvElement* envElement)
 {
-	return OMRPORT_ERROR_SYSINFO_OPFAILED;
+    return OMRPORT_ERROR_SYSINFO_OPFAILED;
 }
 
 /**
@@ -653,9 +649,9 @@ omrsysinfo_env_iterator_next(struct OMRPortLibrary *portLibrary, J9SysinfoEnvIte
  * OMRPORT_PROCINFO_NOT_AVAILABLE.
  */
 int32_t
-omrsysinfo_get_processor_info(struct OMRPortLibrary *portLibrary, struct J9ProcessorInfos *procInfo)
+omrsysinfo_get_processor_info(struct OMRPortLibrary* portLibrary, struct J9ProcessorInfos* procInfo)
 {
-	return -1;
+    return -1;
 }
 
 /**
@@ -665,10 +661,9 @@ omrsysinfo_get_processor_info(struct OMRPortLibrary *portLibrary, struct J9Proce
  * @param[in] portLibrary The port library.
  * @param[in/out] procInfos the J9ProcessorInfos instance whose field procInfoArray is to be destroyed.
  */
-void
-omrsysinfo_destroy_processor_info(struct OMRPortLibrary *portLibrary, struct J9ProcessorInfos *procInfos)
+void omrsysinfo_destroy_processor_info(struct OMRPortLibrary* portLibrary, struct J9ProcessorInfos* procInfos)
 {
-	return;
+    return;
 }
 
 /**
@@ -689,11 +684,10 @@ omrsysinfo_destroy_processor_info(struct OMRPortLibrary *portLibrary, struct J9P
  *                  handler, as memory allocation is not typically signal-safe
  */
 intptr_t
-omrsysinfo_get_cwd(struct OMRPortLibrary *portLibrary, char *buf, uintptr_t bufLen)
+omrsysinfo_get_cwd(struct OMRPortLibrary* portLibrary, char* buf, uintptr_t bufLen)
 {
-	return -1;
+    return -1;
 }
-
 
 /**
  * Provides the path of the TMP directory of the process.
@@ -716,9 +710,9 @@ omrsysinfo_get_cwd(struct OMRPortLibrary *portLibrary, char *buf, uintptr_t bufL
  *                    permissions - this is a machine configuration issue.
  */
 intptr_t
-omrsysinfo_get_tmp(struct OMRPortLibrary *portLibrary, char *buf, uintptr_t bufLen, BOOLEAN ignoreEnvVariable)
+omrsysinfo_get_tmp(struct OMRPortLibrary* portLibrary, char* buf, uintptr_t bufLen, BOOLEAN ignoreEnvVariable)
 {
-	return -1;
+    return -1;
 }
 
 /**
@@ -733,8 +727,7 @@ omrsysinfo_get_tmp(struct OMRPortLibrary *portLibrary, char *buf, uintptr_t bufL
  * last error is not set, as it simply indicates unavailability of the API.
  */
 int32_t
-omrsysinfo_get_open_file_count(struct OMRPortLibrary *portLibrary, uint64_t *count)
+omrsysinfo_get_open_file_count(struct OMRPortLibrary* portLibrary, uint64_t* count)
 {
-	return OMRPORT_ERROR_SYSINFO_GET_OPEN_FILES_NOT_SUPPORTED;
+    return OMRPORT_ERROR_SYSINFO_GET_OPEN_FILES_NOT_SUPPORTED;
 }
-

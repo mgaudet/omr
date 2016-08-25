@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef THREADTESTLIB_HPP_INCLUDED
 #define THREADTESTLIB_HPP_INCLUDED
 
@@ -42,4 +41,3 @@ class CRWMutex;
 #include "CWaiter.hpp"
 
 #endif /* THREADTESTLIB_HPP_INCLUDED */
-

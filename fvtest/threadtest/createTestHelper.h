@@ -41,7 +41,8 @@ extern "C" {
 
 #if defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(OSX)
 #define SPEC_PTHREAD_API
-#endif /* defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(OSX) */
+#endif /* defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) ||            \
+          defined(OSX) */
 
 #ifndef ASSERT
 #define ASSERT(x) assert(x)

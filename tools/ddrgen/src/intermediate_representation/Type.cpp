@@ -19,7 +19,8 @@
 #include "Type.hpp"
 
 Type::Type(SymbolType symbolType, size_t size)
-	: _symbolType(symbolType), _sizeOf(size)
+    : _symbolType(symbolType)
+    , _sizeOf(size)
 {
 }
 
@@ -28,69 +29,65 @@ Type::~Type() {}
 SymbolType
 Type::getSymbolType()
 {
-	return _symbolType;
+    return _symbolType;
 }
 
-bool
-Type::isAnonymousType()
+bool Type::isAnonymousType()
 {
-	return false;
+    return false;
 }
 
-bool
-operator==(Type const& lhs, Type const& rhs)
+bool operator==(Type const& lhs, Type const& rhs)
 {
-	set <Type const*> checked;
-	return lhs.equal(rhs, &checked);
+    set<Type const*> checked;
+    return lhs.equal(rhs, &checked);
 }
 
-bool
-Type::equal(Type const& type, set<Type const*> *checked) const
+bool Type::equal(Type const& type, set<Type const*>* checked) const
 {
-	return checked->find(this) != checked->end()
-		|| ((_name == (type._name))
-		&& (_sizeOf == type._sizeOf)
-		&& (_symbolType == type._symbolType));
+    return checked->find(this) != checked->end()
+        || ((_name == (type._name))
+               && (_sizeOf == type._sizeOf)
+               && (_symbolType == type._symbolType));
 }
 
-void
-Type::replaceType(Type *typeToReplace, Type *replaceWith)
+void Type::replaceType(Type* typeToReplace, Type* replaceWith)
 {
-	/* Nothing to replace in base types. */
+    /* Nothing to replace in base types. */
 }
 
 string
 Type::getFullName()
 {
-	return _name;
+    return _name;
 }
 
 string
 Type::getSymbolTypeName()
 {
-	return "";
+    return "";
 }
 
 DDR_RC
-Type::scanChildInfo(Scanner *scanner, void *data)
+Type::scanChildInfo(Scanner* scanner, void* data)
 {
-	return scanner->dispatchScanChildInfo(this, data);
+    return scanner->dispatchScanChildInfo(this, data);
 }
 
 DDR_RC
-Type::enumerateType(BlobGenerator *blobGenerator, bool addFieldsOnly)
+Type::enumerateType(BlobGenerator* blobGenerator, bool addFieldsOnly)
 {
-	return blobGenerator->dispatchEnumerateType(this, addFieldsOnly);
+    return blobGenerator->dispatchEnumerateType(this, addFieldsOnly);
 }
 
 DDR_RC
-Type::buildBlob(BlobGenerator *blobGenerator, bool addFieldsOnly, string prefix)
+Type::buildBlob(BlobGenerator* blobGenerator, bool addFieldsOnly, string prefix)
 {
-	return blobGenerator->dispatchBuildBlob(this, addFieldsOnly, prefix);
+    return blobGenerator->dispatchBuildBlob(this, addFieldsOnly, prefix);
 }
 
 DDR_RC
-Type::printToSuperset(SupersetGenerator *supersetGenerator, bool addFieldsOnly, string prefix = "")
+Type::printToSuperset(SupersetGenerator* supersetGenerator, bool addFieldsOnly, string prefix = "")
 {
-	return supersetGenerator->dispatchPrintToSuperset(this, addFieldsOnly, prefix);
+    return supersetGenerator->dispatchPrintToSuperset(this, addFieldsOnly, prefix);
 }

@@ -13,7 +13,8 @@
  *      http://www.opensource.org/licenses/apache2.0.php
  *
  * Contributors:
- *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
+ *    Multiple authors (IBM Corp.) - initial API and implementation and/or
+ *initial documentation
  *******************************************************************************/
 
 /**
@@ -36,11 +37,12 @@
  *
  */
 void
-omrget_jobname(struct OMRPortLibrary *portLibrary, char *jobname, uintptr_t length)
+omrget_jobname(struct OMRPortLibrary* portLibrary, char* jobname,
+               uintptr_t length)
 {
-	if (jobname != NULL) {
-		if (length >= 5) {
-			strcpy(jobname, "%job");
-		}
-	}
+  if (jobname != NULL) {
+    if (length >= 5) {
+      strcpy(jobname, "%job");
+    }
+  }
 }

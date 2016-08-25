@@ -13,7 +13,8 @@
  *      http://www.opensource.org/licenses/apache2.0.php
  *
  * Contributors:
- *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
+ *    Multiple authors (IBM Corp.) - initial API and implementation and/or
+initial documentation
 /**
  * @file
  * @ingroup Port
@@ -25,16 +26,18 @@
  * Write a message to the system log.
  *
  * @param[in] portLibrary The port library
- * @param[in] flags - to indicate what type of message (e.g. ERROR) is to be output
+ * @param[in] flags - to indicate what type of message (e.g. ERROR) is to be
+ * output
  * @param[in] message - text of the message
  *
  * @return Boolean: true on success, false on failure
  */
 uintptr_t
-omrsyslog_write(struct OMRPortLibrary *portLibrary, uintptr_t flags, const char *message)
+omrsyslog_write(struct OMRPortLibrary* portLibrary, uintptr_t flags,
+                const char* message)
 {
-	/* noop */
-	return 0;
+  /* noop */
+  return 0;
 }
 
 /**
@@ -46,10 +49,10 @@ omrsyslog_write(struct OMRPortLibrary *portLibrary, uintptr_t flags, const char 
  * @return Boolean: true on success, false on failure
  */
 uintptr_t
-syslogOpen(struct OMRPortLibrary *portLibrary, uintptr_t flags)
+syslogOpen(struct OMRPortLibrary* portLibrary, uintptr_t flags)
 {
-	/* noop */
-	return 0;
+  /* noop */
+  return 0;
 }
 
 /**
@@ -60,10 +63,10 @@ syslogOpen(struct OMRPortLibrary *portLibrary, uintptr_t flags)
  * @return Boolean: true on success, false on failure
  */
 uintptr_t
-syslogClose(struct OMRPortLibrary *portLibrary)
+syslogClose(struct OMRPortLibrary* portLibrary)
 {
-	/* noop */
-	return 0;
+  /* noop */
+  return 0;
 }
 
 /**
@@ -74,10 +77,10 @@ syslogClose(struct OMRPortLibrary *portLibrary)
  * @return uintptr_t: the current logging options
  */
 uintptr_t
-omrsyslog_query(struct OMRPortLibrary *portLibrary)
+omrsyslog_query(struct OMRPortLibrary* portLibrary)
 {
-	/* noop */
-	return 0;
+  /* noop */
+  return 0;
 }
 
 /**
@@ -89,8 +92,7 @@ omrsyslog_query(struct OMRPortLibrary *portLibrary)
  * @return void
  */
 void
-omrsyslog_set(struct OMRPortLibrary *portLibrary, uintptr_t options)
+omrsyslog_set(struct OMRPortLibrary* portLibrary, uintptr_t options)
 {
-	/* noop */
+  /* noop */
 }
-

@@ -218,6 +218,18 @@ getSummaryData(OMRPortLibrary *portLibrary, J9CudaSummaryDescriptor *summaryData
  * A set of functions located in the CUDA driver and runtime libraries.
  */
 struct J9CudaFunctionTable {
+        // Clang formatting for this function table is disabled because
+        // clang-format doesn't handle the CUDAAPI annotation very well, as it
+        // causes clang-format to misunderstand that these are function
+        // pointers below, instead seeing many CUresult functions with trailing
+        // parentheticals. The result is that the space between the return type
+        // and the function pointer name is lost. 
+        //
+        // This probably should be reported to clang-format as a bug, and it's
+        // immensenly reproducible.
+        // clang-format off
+
+
 	/* The signatures of the following must match the driver API declared in cuda.h. */
 	CUresult (CUDAAPI *DeviceGet)(CUdevice *device, int ordinal);
 	CUresult (CUDAAPI *DeviceGetName)(char *nameOut, int nameSize, CUdevice device);
@@ -288,6 +300,7 @@ struct J9CudaFunctionTable {
 	cudaError_t (CUDARTAPI *StreamQuery)(cudaStream_t stream);
 	cudaError_t (CUDARTAPI *StreamSynchronize)(cudaStream_t stream);
 	cudaError_t (CUDARTAPI *StreamWaitEvent)(cudaStream_t stream, cudaEvent_t event, unsigned int flags);
+        // clang-format on
 };
 
 /**

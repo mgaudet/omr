@@ -27,7 +27,6 @@ extern int iconv_initialization(void);
 static int iconv_init_static_variable = iconv_initialization();
 #endif
 
-
 #if defined(J9ZOS390)
 /*  Gtest invokes xlocale, which has function definition for tolower and toupper.
  * This causes compilation issue since the a2e macros (tolower and toupper) automatically replace the function definitions.
@@ -39,8 +38,8 @@ static int iconv_init_static_variable = iconv_initialization();
 
 #include "gtest/gtest.h"
 
-#define toupper(c)     (islower(c) ? (c & _XUPPER_ASCII) : c)
-#define tolower(c)     (isupper(c) ? (c | _XLOWER_ASCII) : c)
+#define toupper(c) (islower(c) ? (c & _XUPPER_ASCII) : c)
+#define tolower(c) (isupper(c) ? (c | _XLOWER_ASCII) : c)
 
 #else
 #include "gtest/gtest.h"
@@ -50,11 +49,10 @@ static int iconv_init_static_variable = iconv_initialization();
 extern "C" {
 #endif
 
-int testMain(int argc, char **argv, char **envp);
+int testMain(int argc, char** argv, char** envp);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
-
 
 #endif

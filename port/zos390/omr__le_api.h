@@ -38,7 +38,7 @@
  *
  * &NAME.VR_VALID	EQU X'2'	Vector registers saved in MCH
  */
-#define J9MCH_FLAGS_VR_VALID	0x2
+#define J9MCH_FLAGS_VR_VALID 0x2
 
 /*
  * Derived from the assembler version, CEEMCH.COPY, as there is no C-mapping of the 31-bit (machine context)
@@ -51,26 +51,26 @@
  *
  */
 typedef struct j9_31bit_mch {
-	/*
+    /*
 	 * &NAME.EYEC       DC    CL4'CMCH'          Eye catcher
 	 * &NAME.SIZE       DC    H'0'               Size of area
 	 * &NAME.LEVEL      DC    H'1'               Version of MACRO generation
 	 */
-	uint32_t padding1[2];
+    uint32_t padding1[2];
 
-	/*
+    /*
 	 * &NAME.REG        DS   0CL(16*LEPTRLEN)    General regs 0-15        @G3C
 	 * &NAME.GPR        DC  16&FLEN.'00'         Each reg, 0-15           @G3C
 	 */
-	uint32_t gprs[16];			/* gprs 0-15 (low word of 64-bit gprs, see hgprs below for high word) */
+    uint32_t gprs[16]; /* gprs 0-15 (low word of 64-bit gprs, see hgprs below for high word) */
 
-	/*
+    /*
 	 * &NAME.PSW        DC    XL(2*LEPTRLEN)'00' PSW at time of interrupt @G3C
 	 */
-	uint32_t psw0;
-	uint32_t psw1;
+    uint32_t psw0;
+    uint32_t psw1;
 
-	/*
+    /*
 	 * &NAME.INTI       DS   0F                  Basic extension of PSW
 	 * &NAME.ILC        DC    H'0'                Instruction length code
 	 * &NAME.IC         DS   0H                   Interrupt code
@@ -79,9 +79,9 @@ typedef struct j9_31bit_mch {
 	 *                  DS    &PAD64             Padding in 64-bit mode   @G3A
 	 * &NAME.PFT        DC    &PLEN.(0)          Page fault address       @G3C
 	 */
-	uint32_t padding2[2];
+    uint32_t padding2[2];
 
-	/*
+    /*
 	 *	&NAME.FLT        DS   4D          Basic Floating point registers
 	 *	                 ORG   &NAME.FLT
 	 *	&NAME.FLT_0      DC    D'0'       FP reg 0
@@ -90,9 +90,9 @@ typedef struct j9_31bit_mch {
 	 *	&NAME.FLT_6      DC    D'0'       FP reg 6
 	 */
 
-	double fprs_0246[4];	/* fprs 0,2,4,6 */
+    double fprs_0246[4]; /* fprs 0,2,4,6 */
 
-	/*
+    /*
 	 *            Language Environment area
 	 *            -------------------------
 	 *
@@ -105,25 +105,25 @@ typedef struct j9_31bit_mch {
 	 *            		DC    XL11'00'   (reserved)                       @D5C
 	 */
 
-	uint32_t padding3[11];
-	uint32_t interrupt_stack_frame;
-	uint8_t padding3a[11];
-	uint8_t mch_flags;
-	uint32_t padding4[2];
-	uint32_t bea;				/* Breaking Event Address */
-	uint32_t padding4a[4];
+    uint32_t padding3[11];
+    uint32_t interrupt_stack_frame;
+    uint8_t padding3a[11];
+    uint8_t mch_flags;
+    uint32_t padding4[2];
+    uint32_t bea; /* Breaking Event Address */
+    uint32_t padding4a[4];
 
-	double fprs_1357[4];	/* fprs 1,3,5,7 */
-	double fprs_8_15[8];	/* fprs 8 - 15 */
-	uint32_t fpc;
+    double fprs_1357[4]; /* fprs 1,3,5,7 */
+    double fprs_8_15[8]; /* fprs 8 - 15 */
+    uint32_t fpc;
 
-	uint32_t padding5[3];
+    uint32_t padding5[3];
 
-	uint32_t hgprs[16];			/* high word of 64-bit gprs */
+    uint32_t hgprs[16]; /* high word of 64-bit gprs */
 
-	uint32_t padding6[32];
+    uint32_t padding6[32];
 
-	U_128 vr[32];
+    U_128 vr[32];
 } j9_31bit_mch;
 
 #endif /* omr__le_api_h */

@@ -29,7 +29,7 @@ typedef struct j9csrsi_t j9csrsi_t;
  *  @return NULL in case of an error. Otherwise, an opaque pointer to a valid
  *  j9csrsi session
  */
-const j9csrsi_t *j9csrsi_init(int32_t *ret);
+const j9csrsi_t* j9csrsi_init(int32_t* ret);
 
 /** If j9csrsi_init() fails, some of the error codes may indicate that hardware
  *  info could not be retrieved because this particular system does not satisfy
@@ -44,19 +44,19 @@ BOOLEAN j9csrsi_is_hw_info_available(int32_t ret);
 /** Shutdown a j9csrsi session
  *  @param[in] session Pointer to j9csrsi session
  */
-void j9csrsi_shutdown(const j9csrsi_t *session);
+void j9csrsi_shutdown(const j9csrsi_t* session);
 
 /** Shutdown a j9csrsi session
  *  @param[in] session Pointer to j9csrsi session
  *  @return TRUE if system is running on an LPAR. FALSE otherwise
  */
-BOOLEAN j9csrsi_is_lpar(const j9csrsi_t *session);
+BOOLEAN j9csrsi_is_lpar(const j9csrsi_t* session);
 
 /** Shutdown a j9csrsi session
  *  @param[in] session Pointer to j9csrsi session
  *  @return TRUE if system is running on a VM hypervisor. FALSE otherwise.
  */
-BOOLEAN j9csrsi_is_vmh(const j9csrsi_t *session);
+BOOLEAN j9csrsi_is_vmh(const j9csrsi_t* session);
 
 /** Get vmhpidentifier (i.e., name of L-3 Hypervisor)
  *  @param[in] session Pointer to j9csrsi session
@@ -68,8 +68,8 @@ BOOLEAN j9csrsi_is_vmh(const j9csrsi_t *session);
  *  @return A number greater than 0 in case of success. This is the number
  *  of chars written to buf. Any other return value indicates an error.
  */
-int32_t j9csrsi_get_vmhpidentifier(const j9csrsi_t *session, uint32_t position,
-								   char *buf, uint32_t len);
+int32_t j9csrsi_get_vmhpidentifier(const j9csrsi_t* session, uint32_t position,
+    char* buf, uint32_t len);
 
 /** Get cpctype (i.e., hw model number)
  *  @param[in] session Pointer to j9csrsi session
@@ -80,8 +80,7 @@ int32_t j9csrsi_get_vmhpidentifier(const j9csrsi_t *session, uint32_t position,
  *  @return A number greater than 0 in case of success. This is the number
  *  of chars written to buf. Any other return value indicates an error.
  */
-int32_t j9csrsi_get_cpctype(const j9csrsi_t *session, char *buf,
-							uint32_t len);
+int32_t j9csrsi_get_cpctype(const j9csrsi_t* session, char* buf,
+    uint32_t len);
 
 #endif /* OMRCSRSI_H_ */
-

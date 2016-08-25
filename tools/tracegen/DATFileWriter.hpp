@@ -24,24 +24,24 @@
 
 class DATFileWriter
 {
-	/*
-	 * Data members
-	 */
+  /*
+   * Data members
+   */
 private:
 protected:
 public:
-	/*
-	 * Function members
-	 */
+  /*
+   * Function members
+   */
 private:
 protected:
 public:
-	/**
-	 * Output trace DAT file.
-	 * @param options Command line options
-	 * @param tdf Parsed TDF file
-	 * @return RC_OK on success, RC_FAILED on failure
-	 */
-	RCType writeOutputFiles(J9TDFOptions *options, J9TDFFile *tdf);
+  /**
+   * Output trace DAT file.
+   * @param options Command line options
+   * @param tdf Parsed TDF file
+   * @return RC_OK on success, RC_FAILED on failure
+   */
+  RCType writeOutputFiles(J9TDFOptions* options, J9TDFFile* tdf);
 };
 #endif /* DATFILEWRITER_HPP_ */

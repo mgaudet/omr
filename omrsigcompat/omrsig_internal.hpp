@@ -15,13 +15,13 @@
  * Contributors:
  *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
  *******************************************************************************/
- 
+
 #include <signal.h>
 #if defined(WIN32)
 /* windows.h defined UDATA.  Ignore its definition */
 #define UDATA UDATA_win32_
 #include <windows.h>
-#undef UDATA	/* this is safe because our UDATA is a typedef, not a macro */
+#undef UDATA /* this is safe because our UDATA is a typedef, not a macro */
 #else /* defined(WIN32) */
 #include <pthread.h>
 #endif /* defined(WIN32) */
@@ -32,7 +32,7 @@
 #include "omrsig.h"
 
 struct sigaction {
-	sighandler_t sa_handler;
+    sighandler_t sa_handler;
 };
 
 #else /* defined(WIN32) */
@@ -42,7 +42,7 @@ struct sigaction {
  */
 #define POSIX_SIGNAL
 
-typedef void (*sigaction_t)(int sig, siginfo_t *siginfo, void *uc);
+typedef void (*sigaction_t)(int sig, siginfo_t* siginfo, void* uc);
 
 #if defined(J9ZOS390)
 /* On zos, when an alt signal stack is set, the second call to pthread_sigmask() or
@@ -56,67 +56,65 @@ typedef void (*sigaction_t)(int sig, siginfo_t *siginfo, void *uc);
 #endif /* defined(WIN32) */
 
 struct OMR_SigData {
-	struct sigaction primaryAction;
-	struct sigaction secondaryAction;
+    struct sigaction primaryAction;
+    struct sigaction secondaryAction;
 };
 
 #if defined(J9ZOS390)
 #define NSIG 65
 #endif /* defined(J9ZOS390) */
 
-
 #if defined(WIN32)
 
 #define LockMask
 #define SIGLOCK(sigMutex) \
-	sigMutex.lock();
+    sigMutex.lock();
 #define SIGUNLOCK(sigMutex) \
-	sigMutex.unlock();
+    sigMutex.unlock();
 
 #else /* defined(WIN32) */
 
-#define LockMask sigset_t *previousMask
-#define SIGLOCK(sigMutex) \
-	sigset_t previousMask; \
-	sigMutex.lock(&previousMask);
+#define LockMask sigset_t* previousMask
+#define SIGLOCK(sigMutex)  \
+    sigset_t previousMask; \
+    sigMutex.lock(&previousMask);
 #define SIGUNLOCK(sigMutex) \
-	sigMutex.unlock(&previousMask);
+    sigMutex.unlock(&previousMask);
 
 #endif /* defined(WIN32) */
 
-class SigMutex
-{
+class SigMutex {
 private:
-	volatile uintptr_t locked;
+    volatile uintptr_t locked;
 
 public:
-	SigMutex()
-	{
-		locked = 0;
-	}
+    SigMutex()
+    {
+        locked = 0;
+    }
 
-	void lock(LockMask)
-	{
+    void lock(LockMask)
+    {
 #if !defined(WIN32)
-		/* Receiving a signal while a thread is holding a lock would cause deadlock. */
-		sigset_t mask;
-		sigfillset(&mask);
-		pthread_sigmask(SIG_BLOCK, &mask, previousMask);
+        /* Receiving a signal while a thread is holding a lock would cause deadlock. */
+        sigset_t mask;
+        sigfillset(&mask);
+        pthread_sigmask(SIG_BLOCK, &mask, previousMask);
 #endif /* !defined(WIN32) */
-		uintptr_t oldLocked = 0;
-		do {
-			oldLocked = locked;
-		} while (0 != VM_AtomicSupport::lockCompareExchange(&locked, oldLocked, 1));
-		VM_AtomicSupport::readWriteBarrier();
-	}
+        uintptr_t oldLocked = 0;
+        do {
+            oldLocked = locked;
+        } while (0 != VM_AtomicSupport::lockCompareExchange(&locked, oldLocked, 1));
+        VM_AtomicSupport::readWriteBarrier();
+    }
 
-	void unlock(LockMask)
-	{
-		VM_AtomicSupport::readWriteBarrier();
-		locked = 0;
+    void unlock(LockMask)
+    {
+        VM_AtomicSupport::readWriteBarrier();
+        locked = 0;
 
 #if !defined(WIN32)
-		pthread_sigmask(SIG_SETMASK, previousMask, NULL);
+        pthread_sigmask(SIG_SETMASK, previousMask, NULL);
 #endif /* !defined(WIN32) */
-	}
+    }
 };

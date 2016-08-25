@@ -16,9 +16,7 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 void
 sl_AixDLLMissingDependency_function(void)
 {
 }
-

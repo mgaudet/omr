@@ -16,12 +16,10 @@
 
 #if defined(OMR_GC_MODRON_SCAVENGER) || defined(OMR_GC_VLHGC)
 
-bool
-MM_ScavengerHotFieldStats::initialize(MM_EnvironmentBase *env)
+bool MM_ScavengerHotFieldStats::initialize(MM_EnvironmentBase* env)
 {
-	_objectModel = &(env->getExtensions()->objectModel);
-	return true;
+    _objectModel = &(env->getExtensions()->objectModel);
+    return true;
 }
 
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) || defined(OMR_GC_VLHGC) */
-

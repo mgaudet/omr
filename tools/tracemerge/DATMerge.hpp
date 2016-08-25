@@ -21,37 +21,36 @@
 
 #include "TDFTypes.hpp"
 
-RCType startTraceMerge(int argc, char *argv[]);
+RCType startTraceMerge(int argc, char* argv[]);
 
-class DATMerge
-{
-	/*
+class DATMerge {
+    /*
 	 * Data members
 	 */
 private:
 protected:
 public:
-
-	/*
+    /*
 	 * Function members
 	 */
 private:
-	/**
+    /**
 	 * Merge partial DAT file into the target DAT
 	 * @param options command-line options
 	 * @param fromFileName Name of the partial DAT file
 	 * @return RC_OK on success.
 	 */
-	RCType merge(J9TDFOptions *options, const char *fromFileName);
+    RCType merge(J9TDFOptions* options, const char* fromFileName);
+
 protected:
 public:
-	/**
+    /**
 	 * Start merging process, visit all subdirectories and merge all partial DAT files.
 	 * @return RC_OK on success
 	 */
-	RCType start(J9TDFOptions *options);
+    RCType start(J9TDFOptions* options);
 
-	static RCType mergeCallback(void *targetObject, J9TDFOptions *options, const char *fromFileName);
+    static RCType mergeCallback(void* targetObject, J9TDFOptions* options, const char* fromFileName);
 };
 
 #endif /* DATMERGE_HPP_ */

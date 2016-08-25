@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef algorithm_test_internal_h
 #define algorithm_test_internal_h
 
@@ -46,7 +45,7 @@ extern "C" {
 * @return int32_t
 */
 int32_t
-verifyAVLTree(OMRPortLibrary *portLib, char *testListFile, uintptr_t *passCount, uintptr_t *failCount);
+verifyAVLTree(OMRPortLibrary* portLib, char* testListFile, uintptr_t* passCount, uintptr_t* failCount);
 
 /* ---------------- pooltest.c ---------------- */
 
@@ -58,7 +57,7 @@ verifyAVLTree(OMRPortLibrary *portLib, char *testListFile, uintptr_t *passCount,
 * @return int32_t
 */
 int32_t
-verifyPools(OMRPortLibrary *portLib, uintptr_t *passCount, uintptr_t *failCount);
+verifyPools(OMRPortLibrary* portLib, uintptr_t* passCount, uintptr_t* failCount);
 
 /* ---------------- hooktest.c ---------------- */
 
@@ -70,7 +69,7 @@ verifyPools(OMRPortLibrary *portLib, uintptr_t *passCount, uintptr_t *failCount)
 * @return int32_t
 */
 int32_t
-verifyHookable(OMRPortLibrary *portLib, uintptr_t *passCount, uintptr_t *failCount);
+verifyHookable(OMRPortLibrary* portLib, uintptr_t* passCount, uintptr_t* failCount);
 
 /* ---------------- hashtabletest.c ---------------- */
 
@@ -82,11 +81,10 @@ verifyHookable(OMRPortLibrary *portLib, uintptr_t *passCount, uintptr_t *failCou
 * @return int32_t
 */
 int32_t
-verifyHashtable(OMRPortLibrary *portLib, uintptr_t *passCount, uintptr_t *failCount);
+verifyHashtable(OMRPortLibrary* portLib, uintptr_t* passCount, uintptr_t* failCount);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* algorithm_test_internal_h */
-

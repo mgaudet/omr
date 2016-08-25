@@ -16,19 +16,17 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef DBGMSG_HPP_INCLUDED
 #define DBGMSG_HPP_INCLUDED
 
-namespace DbgMsg
-{
-void print(const char *pMsg, ...);
-void println(const char *pMsg, ...);
-void printRaw(const char *pMsg, ...);
+namespace DbgMsg {
+void print(const char* pMsg, ...);
+void println(const char* pMsg, ...);
+void printRaw(const char* pMsg, ...);
 void changeIndent(int delta);
 
 void setVerboseLevel(int level);
-void verbosePrint(const char *pMsg, ...);
+void verbosePrint(const char* pMsg, ...);
 };
 
 #endif /* DBGMSG_HPP_INCLUDED */

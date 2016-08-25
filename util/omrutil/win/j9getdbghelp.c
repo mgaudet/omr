@@ -28,7 +28,7 @@
 
 #define UNICODE_DBGHELPDLL_NAME L"dbghelp.dll"
 
-static uintptr_t getDbgHelpDLLLocation(wchar_t *dbghelpPath);
+static uintptr_t getDbgHelpDLLLocation(wchar_t* dbghelpPath);
 
 /**
  * Load the version of dbghelp.dll that shipped with the JRE.
@@ -41,35 +41,34 @@ uintptr_t
 j9getdbghelp_loadDLL(void)
 {
 
-	HINSTANCE dbghelpDLL = NULL;
-	wchar_t dbgHelpPath[EsMaxPath];
+    HINSTANCE dbghelpDLL = NULL;
+    wchar_t dbgHelpPath[EsMaxPath];
 
-	if (0 != getDbgHelpDLLLocation(dbgHelpPath)) {
-		return 0;
-	}
+    if (0 != getDbgHelpDLLLocation(dbgHelpPath)) {
+        return 0;
+    }
 
-	dbghelpDLL = LoadLibraryExW(dbgHelpPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-	if (dbghelpDLL != NULL) {
+    dbghelpDLL = LoadLibraryExW(dbgHelpPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+    if (dbghelpDLL != NULL) {
 #if defined(GDHL_DEBUG)
-		printf("\nloadDbgHelpDLL loaded shipped version");
+        printf("\nloadDbgHelpDLL loaded shipped version");
 #endif
-	} else {
-		/* see if the OS can find it for us anywhere */
-		dbghelpDLL = LoadLibraryW(UNICODE_DBGHELPDLL_NAME);
+    } else {
+        /* see if the OS can find it for us anywhere */
+        dbghelpDLL = LoadLibraryW(UNICODE_DBGHELPDLL_NAME);
 
-		if (dbghelpDLL != NULL) {
+        if (dbghelpDLL != NULL) {
 #if defined(GDHL_DEBUG)
-			printf("\nloadDbgHelpDLL could not find shipped version, but the OS found another");
+            printf("\nloadDbgHelpDLL could not find shipped version, but the OS found another");
 #endif
-		}
-	}
+        }
+    }
 
 #if defined(GDHL_DEBUG)
-	printf("\nloadDbgHelpDLL returning %p\n", dbghelpDLL);
+    printf("\nloadDbgHelpDLL returning %p\n", dbghelpDLL);
 #endif
 
-	return (uintptr_t) dbghelpDLL;
-
+    return (uintptr_t)dbghelpDLL;
 }
 
 /**
@@ -82,21 +81,20 @@ uintptr_t
 j9getdbghelp_getDLL(void)
 {
 
-	HINSTANCE dbghelpDLL = NULL;
-	wchar_t dbgHelpPath[EsMaxPath];
+    HINSTANCE dbghelpDLL = NULL;
+    wchar_t dbgHelpPath[EsMaxPath];
 
-	if (0 != getDbgHelpDLLLocation(dbgHelpPath)) {
-		return 0;
-	}
+    if (0 != getDbgHelpDLLLocation(dbgHelpPath)) {
+        return 0;
+    }
 
-	dbghelpDLL = GetModuleHandleW(dbgHelpPath);
+    dbghelpDLL = GetModuleHandleW(dbgHelpPath);
 
 #if defined(GDHL_DEBUG)
-	printf("\ngetDbgHelpDLL returning %p\n", dbghelpDLL);
+    printf("\ngetDbgHelpDLL returning %p\n", dbghelpDLL);
 #endif
 
-	return (uintptr_t) dbghelpDLL;
-
+    return (uintptr_t)dbghelpDLL;
 }
 
 /**
@@ -105,13 +103,12 @@ j9getdbghelp_getDLL(void)
  * @return 0 if the library was freed, non-zero otherwise
  *
  */
-void
-j9getdbghelp_freeDLL(uintptr_t dbgHelpDLL)
+void j9getdbghelp_freeDLL(uintptr_t dbgHelpDLL)
 {
-	if (NULL != (HMODULE)dbgHelpDLL) {
-		FreeLibrary((HMODULE) dbgHelpDLL);
-	}
-	return;
+    if (NULL != (HMODULE)dbgHelpDLL) {
+        FreeLibrary((HMODULE)dbgHelpDLL);
+    }
+    return;
 }
 
 /**
@@ -123,16 +120,16 @@ j9getdbghelp_freeDLL(uintptr_t dbgHelpDLL)
  *
  */
 static uintptr_t
-getDbgHelpDLLLocation(wchar_t *dbghelpPath)
+getDbgHelpDLLLocation(wchar_t* dbghelpPath)
 {
-	wchar_t *pathEnd = NULL;
-	if (OMR_ERROR_NONE == detectVMDirectory(dbghelpPath, EsMaxPath, &pathEnd)) {
-		size_t length = EsMaxPath - wcslen(dbghelpPath) - 2;
-		_snwprintf(pathEnd, length, L"\\%s", UNICODE_DBGHELPDLL_NAME);
-		dbghelpPath[EsMaxPath - 1] = L'\0';
-		return 0;
-	}
-	return 1;
+    wchar_t* pathEnd = NULL;
+    if (OMR_ERROR_NONE == detectVMDirectory(dbghelpPath, EsMaxPath, &pathEnd)) {
+        size_t length = EsMaxPath - wcslen(dbghelpPath) - 2;
+        _snwprintf(pathEnd, length, L"\\%s", UNICODE_DBGHELPDLL_NAME);
+        dbghelpPath[EsMaxPath - 1] = L'\0';
+        return 0;
+    }
+    return 1;
 }
 
 #endif /* !defined(WIN32_IBMC) */

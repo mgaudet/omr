@@ -16,7 +16,7 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-/** 
+/**
  * @file
  * @ingroup GC_Structs
  */
@@ -45,55 +45,66 @@ class GC_SublistSlotIterator;
  */
 class MM_SublistPuddle
 {
-/*
- * Data members
- */
+  /*
+   * Data members
+   */
 private:
-	MM_SublistPool *_parent;
-		
-	MM_SublistPuddle *_next;
-	uintptr_t *_listBase;
-	uintptr_t * volatile _listCurrent;
-	uintptr_t *_listTop;
+  MM_SublistPool* _parent;
 
-	uintptr_t _size;
+  MM_SublistPuddle* _next;
+  uintptr_t* _listBase;
+  uintptr_t* volatile _listCurrent;
+  uintptr_t* _listTop;
+
+  uintptr_t _size;
 
 protected:
 public:
-	
-/*
- * Function members
- */
+  /*
+   * Function members
+   */
 private:
-	bool initialize(MM_EnvironmentBase *env, uintptr_t size, MM_SublistPool *parent);
+  bool initialize(MM_EnvironmentBase* env, uintptr_t size,
+                  MM_SublistPool* parent);
 
 protected:
 public:
-	static MM_SublistPuddle *newInstance(MM_EnvironmentBase *env, uintptr_t size, MM_SublistPool *parent, MM_AllocationCategory::Enum category);
-	static void kill(MM_EnvironmentBase *env, MM_SublistPuddle *puddle);
-	void tearDown(MM_EnvironmentBase *env) {};
+  static MM_SublistPuddle* newInstance(MM_EnvironmentBase* env, uintptr_t size,
+                                       MM_SublistPool* parent,
+                                       MM_AllocationCategory::Enum category);
+  static void kill(MM_EnvironmentBase* env, MM_SublistPuddle* puddle);
+  void tearDown(MM_EnvironmentBase* env){};
 
-	bool allocate(MM_SublistFragment *fragment);
-	uintptr_t *allocateElementNoContention();
-	void reset();
+  bool allocate(MM_SublistFragment* fragment);
+  uintptr_t* allocateElementNoContention();
+  void reset();
 
-	MMINLINE bool isFull() { return _listCurrent == _listTop; }
-	MMINLINE bool isEmpty() { return _listCurrent == _listBase; }
-	MMINLINE uintptr_t consumedSize() { return ((uintptr_t)_listCurrent) - ((uintptr_t)_listBase); }
-	MMINLINE uintptr_t freeSize() { return ((uintptr_t)_listTop) - ((uintptr_t)_listCurrent); }
-	MMINLINE uintptr_t totalSize() { return ((uintptr_t)_listTop) - ((uintptr_t)_listBase); }
+  MMINLINE bool isFull() { return _listCurrent == _listTop; }
+  MMINLINE bool isEmpty() { return _listCurrent == _listBase; }
+  MMINLINE uintptr_t consumedSize()
+  {
+    return ((uintptr_t)_listCurrent) - ((uintptr_t)_listBase);
+  }
+  MMINLINE uintptr_t freeSize()
+  {
+    return ((uintptr_t)_listTop) - ((uintptr_t)_listCurrent);
+  }
+  MMINLINE uintptr_t totalSize()
+  {
+    return ((uintptr_t)_listTop) - ((uintptr_t)_listBase);
+  }
 
-	MMINLINE MM_SublistPool *getParent() {return _parent; }
+  MMINLINE MM_SublistPool* getParent() { return _parent; }
 
-	void merge(MM_SublistPuddle *sourcePuddle);
+  void merge(MM_SublistPuddle* sourcePuddle);
 
-	MMINLINE MM_SublistPuddle *getNext() { return _next; }
-	MMINLINE void setNext(MM_SublistPuddle *next) { _next = next; }
+  MMINLINE MM_SublistPuddle* getNext() { return _next; }
+  MMINLINE void setNext(MM_SublistPuddle* next) { _next = next; }
 
-	MM_SublistPuddle() {}
+  MM_SublistPuddle() {}
 
-	friend class GC_SublistIterator;
-	friend class GC_SublistSlotIterator;
+  friend class GC_SublistIterator;
+  friend class GC_SublistSlotIterator;
 };
 
 #endif /* SUBLISTPUDDLE_HPP_ */

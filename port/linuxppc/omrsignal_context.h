@@ -13,13 +13,13 @@
  *      http://www.opensource.org/licenses/apache2.0.php
  *
  * Contributors:
- *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
+ *    Multiple authors (IBM Corp.) - initial API and implementation and/or
+ *initial documentation
  *******************************************************************************/
 
 #include "omrport.h"
 
-
-#define MAX_UNIX_SIGNAL_TYPES  _NSIG
+#define MAX_UNIX_SIGNAL_TYPES _NSIG
 
 #define __USE_GNU 1
 #include <dlfcn.h>
@@ -31,8 +31,9 @@
  * sigcontext structure until the uc_link structure, which
  * follows the sigcontext structure.
  */
-typedef struct J9PlatformSignalInfo {
-	ucontext_t *context;
+typedef struct J9PlatformSignalInfo
+{
+  ucontext_t* context;
 #if 0
 	/* This neutered chunk of code is left here for reference for the underlying types accessed
 	 * via context->uc_mcontext.
@@ -43,23 +44,33 @@ typedef struct J9PlatformSignalInfo {
 	union uc_regs_ptr *ucmContext;
 #endif
 #endif
-	Dl_info dl_info;
+  Dl_info dl_info;
 
 } J9PlatformSignalInfo;
 
-typedef struct J9UnixSignalInfo {
-	struct J9PlatformSignalInfo platformSignalInfo;
-	uint32_t portLibrarySignalType;
-	void *handlerAddress;
-	void *handlerAddress2;
-	siginfo_t *sigInfo;
+typedef struct J9UnixSignalInfo
+{
+  struct J9PlatformSignalInfo platformSignalInfo;
+  uint32_t portLibrarySignalType;
+  void* handlerAddress;
+  void* handlerAddress2;
+  siginfo_t* sigInfo;
 } J9UnixSignalInfo;
 
-uint32_t infoForFPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForGPR(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForModule(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForControl(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-uint32_t infoForSignal(struct OMRPortLibrary *portLibrary, struct J9UnixSignalInfo *info, int32_t index, const char **name, void **value);
-void fillInUnixSignalInfo(struct OMRPortLibrary *portLibrary, void *contextInfo, struct J9UnixSignalInfo *j9Info);
-
-
+uint32_t infoForFPR(struct OMRPortLibrary* portLibrary,
+                    struct J9UnixSignalInfo* info, int32_t index,
+                    const char** name, void** value);
+uint32_t infoForGPR(struct OMRPortLibrary* portLibrary,
+                    struct J9UnixSignalInfo* info, int32_t index,
+                    const char** name, void** value);
+uint32_t infoForModule(struct OMRPortLibrary* portLibrary,
+                       struct J9UnixSignalInfo* info, int32_t index,
+                       const char** name, void** value);
+uint32_t infoForControl(struct OMRPortLibrary* portLibrary,
+                        struct J9UnixSignalInfo* info, int32_t index,
+                        const char** name, void** value);
+uint32_t infoForSignal(struct OMRPortLibrary* portLibrary,
+                       struct J9UnixSignalInfo* info, int32_t index,
+                       const char** name, void** value);
+void fillInUnixSignalInfo(struct OMRPortLibrary* portLibrary, void* contextInfo,
+                          struct J9UnixSignalInfo* j9Info);

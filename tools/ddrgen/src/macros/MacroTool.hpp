@@ -28,18 +28,17 @@
 using std::string;
 using std::vector;
 
-class MacroTool
-{
-private:
-	vector<MacroInfo> macroList;
+class MacroTool {
+ private:
+  vector<MacroInfo> macroList;
 
-	string getTypeName(string s);
-	pair<string, string> getMacroInfo(string s);
-	string getFileName(string s);
+  string getTypeName(string s);
+  pair<string, string> getMacroInfo(string s);
+  string getFileName(string s);
 
-public:
-	DDR_RC getMacros(string fname);
-	DDR_RC addMacrosToIR(Symbol_IR *ir);
+ public:
+  DDR_RC getMacros(string fname);
+  DDR_RC addMacrosToIR(Symbol_IR *ir);
 };
 
 #endif /* MACROTOOL_HPP */

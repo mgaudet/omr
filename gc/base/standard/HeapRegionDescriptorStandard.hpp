@@ -29,24 +29,31 @@ class MM_EnvironmentBase;
 class MM_GCExtensionsBase;
 
 class MM_HeapRegionDescriptorStandard : public MM_HeapRegionDescriptor {
+ public:
+  MM_HeapRegionDescriptorStandardExtension _heapRegionDescriptionExtension;
 
-public:
-	MM_HeapRegionDescriptorStandardExtension _heapRegionDescriptionExtension;
-protected:
-private:
+ protected:
+ private:
+ public:
+  MM_HeapRegionDescriptorStandard(MM_EnvironmentStandard* env,
+                                  void* lowAddress,
+                                  void* highAddress);
 
-public:
-	MM_HeapRegionDescriptorStandard(MM_EnvironmentStandard *env, void *lowAddress, void *highAddress);
-	
-	bool initialize(MM_EnvironmentBase *envBase, MM_HeapRegionManager *regionManager);
-	void tearDown(MM_EnvironmentBase *env);
-	
-	static bool initializer(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor, void *lowAddress, void *highAddress);
-	static void destructor(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor);
+  bool initialize(MM_EnvironmentBase* envBase,
+                  MM_HeapRegionManager* regionManager);
+  void tearDown(MM_EnvironmentBase* env);
 
-protected:
-private:
-	
+  static bool initializer(MM_EnvironmentBase* env,
+                          MM_HeapRegionManager* regionManager,
+                          MM_HeapRegionDescriptor* descriptor,
+                          void* lowAddress,
+                          void* highAddress);
+  static void destructor(MM_EnvironmentBase* env,
+                         MM_HeapRegionManager* regionManager,
+                         MM_HeapRegionDescriptor* descriptor);
+
+ protected:
+ private:
 };
 
 #endif /* HEAPREGIONDESCRIPTORSTANDARD_HPP */

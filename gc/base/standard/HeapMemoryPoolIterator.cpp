@@ -26,113 +26,106 @@
 /**
  * Initialize the iterator to the beginning of the memory subspace list.
  */
-void
-MM_HeapMemoryPoolIterator::reset()
-{
-	_memorySubSpace = _mssIterator.nextSubSpace();
-	_memoryPool = NULL;
-	_state = mm_heapmp_iterator_next_subspace;
+void MM_HeapMemoryPoolIterator::reset() {
+  _memorySubSpace = _mssIterator.nextSubSpace();
+  _memoryPool = NULL;
+  _state = mm_heapmp_iterator_next_subspace;
 }
-
 
 /**
  * Walk all memory pools for the given heap.
- * The list traversal is preorder, in that all parent nodes are visited before any of their children.
- * 
- * @return Next memory pool, or NULL if all pools have been processed.
- */
-MM_MemoryPool *
-MM_HeapMemoryPoolIterator::nextPool()
-{
-	MM_MemoryPool *nextPool;
-	
-	while(NULL != _memorySubSpace) { 
-		
-		switch(_state) {
-			
-		case mm_heapmp_iterator_next_subspace:
-						
-			if(NULL != _memorySubSpace->getMemoryPool()) {
-				_memoryPool = _memorySubSpace->getMemoryPool();
-		
-				/* Does this Memory pool have children ? */		
-				if(NULL != _memoryPool->getChildren()) {
-					/* Yes ..So we only return details of its children */
-					_memoryPool = _memoryPool->getChildren();
-				}
-				
-				_state = mm_heapmp_iterator_next_memory_pool;
-				break;
-			}
-			
-			_memorySubSpace = _mssIterator.nextSubSpace();
-			break;
-			
-		case mm_heapmp_iterator_next_memory_pool:
-			nextPool = _memoryPool;
-			_memoryPool= _memoryPool->getNext(); 
-			
-			/* Any more children ? */
-			if (NULL == _memoryPool) {
-				_memorySubSpace = _mssIterator.nextSubSpace();
-				_state = mm_heapmp_iterator_next_subspace;
-			}		 
-			
-			return nextPool;
-			break;
-		}	
-	}	
-	
-	return NULL;
-}
-
-/**
- * Walk all memory pools for the given subspace. Based on nextPool() - the only difference is that when we want to move to next _memorySubSpace we set it to NULL.
- * The list traversal is preorder, in that all parent nodes are visited before any of their children.
+ * The list traversal is preorder, in that all parent nodes are visited before
+ * any of their children.
  *
  * @return Next memory pool, or NULL if all pools have been processed.
  */
-MM_MemoryPool *
-MM_HeapMemoryPoolIterator::nextPoolInSubSpace()
-{
-	MM_MemoryPool *nextPool;
+MM_MemoryPool* MM_HeapMemoryPoolIterator::nextPool() {
+  MM_MemoryPool* nextPool;
 
-	while (NULL != _memorySubSpace) {
+  while (NULL != _memorySubSpace) {
+    switch (_state) {
+      case mm_heapmp_iterator_next_subspace:
 
-		switch(_state) {
+        if (NULL != _memorySubSpace->getMemoryPool()) {
+          _memoryPool = _memorySubSpace->getMemoryPool();
 
-		case mm_heapmp_iterator_next_subspace:
+          /* Does this Memory pool have children ? */
+          if (NULL != _memoryPool->getChildren()) {
+            /* Yes ..So we only return details of its children */
+            _memoryPool = _memoryPool->getChildren();
+          }
 
-			if(NULL != _memorySubSpace->getMemoryPool()) {
-				_memoryPool = _memorySubSpace->getMemoryPool();
+          _state = mm_heapmp_iterator_next_memory_pool;
+          break;
+        }
 
-				/* Does this Memory pool have children ? */
-				if(NULL != _memoryPool->getChildren()) {
-					/* Yes ..So we only return details of its children */
-					_memoryPool = _memoryPool->getChildren();
-				}
+        _memorySubSpace = _mssIterator.nextSubSpace();
+        break;
 
-				_state = mm_heapmp_iterator_next_memory_pool;
-				break;
-			}
+      case mm_heapmp_iterator_next_memory_pool:
+        nextPool = _memoryPool;
+        _memoryPool = _memoryPool->getNext();
 
-			_memorySubSpace = NULL;
-			break;
+        /* Any more children ? */
+        if (NULL == _memoryPool) {
+          _memorySubSpace = _mssIterator.nextSubSpace();
+          _state = mm_heapmp_iterator_next_subspace;
+        }
 
-		case mm_heapmp_iterator_next_memory_pool:
-			nextPool = _memoryPool;
-			_memoryPool= _memoryPool->getNext();
+        return nextPool;
+        break;
+    }
+  }
 
-			/* Any more children ? */
-			if (NULL == _memoryPool) {
-				_memorySubSpace = NULL;
-				_state = mm_heapmp_iterator_next_subspace;
-			}
+  return NULL;
+}
 
-			return nextPool;
-			break;
-		}
-	}
+/**
+ * Walk all memory pools for the given subspace. Based on nextPool() - the only
+ * difference is that when we want to move to next _memorySubSpace we set it to
+ * NULL.
+ * The list traversal is preorder, in that all parent nodes are visited before
+ * any of their children.
+ *
+ * @return Next memory pool, or NULL if all pools have been processed.
+ */
+MM_MemoryPool* MM_HeapMemoryPoolIterator::nextPoolInSubSpace() {
+  MM_MemoryPool* nextPool;
 
-	return NULL;
+  while (NULL != _memorySubSpace) {
+    switch (_state) {
+      case mm_heapmp_iterator_next_subspace:
+
+        if (NULL != _memorySubSpace->getMemoryPool()) {
+          _memoryPool = _memorySubSpace->getMemoryPool();
+
+          /* Does this Memory pool have children ? */
+          if (NULL != _memoryPool->getChildren()) {
+            /* Yes ..So we only return details of its children */
+            _memoryPool = _memoryPool->getChildren();
+          }
+
+          _state = mm_heapmp_iterator_next_memory_pool;
+          break;
+        }
+
+        _memorySubSpace = NULL;
+        break;
+
+      case mm_heapmp_iterator_next_memory_pool:
+        nextPool = _memoryPool;
+        _memoryPool = _memoryPool->getNext();
+
+        /* Any more children ? */
+        if (NULL == _memoryPool) {
+          _memorySubSpace = NULL;
+          _state = mm_heapmp_iterator_next_subspace;
+        }
+
+        return nextPool;
+        break;
+    }
+  }
+
+  return NULL;
 }

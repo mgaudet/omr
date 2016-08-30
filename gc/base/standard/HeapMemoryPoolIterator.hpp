@@ -36,52 +36,51 @@ class MM_EnvironmentBase;
 
 /**
  * Iterate through all visible memory pools in the system.
- * Provides a preordered walk of all memory subspaces to find all memory pools for a MM_Heap.
- * 
+ * Provides a preordered walk of all memory subspaces to find all memory pools
+ * for a MM_Heap.
+ *
  * @ingroup GC_Modron_Base
- */	
-class MM_HeapMemoryPoolIterator
-{
-private:
-	MM_HeapMemorySubSpaceIterator _mssIterator;  /**< Memory subspace iterator for the heap */
-	
-	MM_MemorySubSpace *_memorySubSpace;
-	MM_MemoryPool *_memoryPool;
-	
-	uintptr_t _state;
-	
-	void reset();
+ */
+class MM_HeapMemoryPoolIterator {
+ private:
+  MM_HeapMemorySubSpaceIterator
+      _mssIterator; /**< Memory subspace iterator for the heap */
 
-	/**
-	 * Iterator states to maintain preorder traversal.
-	 */
-	enum {
-		mm_heapmp_iterator_next_subspace,  	 /**< Get to next subspace	   */
-		mm_heapmp_iterator_next_memory_pool  /**< Get to next pool		   */
-	};
+  MM_MemorySubSpace* _memorySubSpace;
+  MM_MemoryPool* _memoryPool;
 
-protected:
-public:
-	MM_MemoryPool *nextPool();
-	MM_MemoryPool *nextPoolInSubSpace();
+  uintptr_t _state;
 
-	MM_HeapMemoryPoolIterator(MM_EnvironmentBase *env, MM_Heap *heap) :
-		_mssIterator(heap),
-		_memorySubSpace(NULL),
-		_memoryPool(NULL),
-		_state(0)
-	{
-		reset();
-	}
+  void reset();
 
-	MM_HeapMemoryPoolIterator(MM_EnvironmentBase *env, MM_Heap *heap, MM_MemorySubSpace *memorySubSpace) :
-		_mssIterator(heap),
-		_memorySubSpace(memorySubSpace),
-		_memoryPool(NULL),
-		_state(mm_heapmp_iterator_next_subspace)
-	{
-	}
-		
+  /**
+   * Iterator states to maintain preorder traversal.
+   */
+  enum {
+    mm_heapmp_iterator_next_subspace,   /**< Get to next subspace	   */
+    mm_heapmp_iterator_next_memory_pool /**< Get to next pool		   */
+  };
+
+ protected:
+ public:
+  MM_MemoryPool* nextPool();
+  MM_MemoryPool* nextPoolInSubSpace();
+
+  MM_HeapMemoryPoolIterator(MM_EnvironmentBase* env, MM_Heap* heap)
+      : _mssIterator(heap),
+        _memorySubSpace(NULL),
+        _memoryPool(NULL),
+        _state(0) {
+    reset();
+  }
+
+  MM_HeapMemoryPoolIterator(MM_EnvironmentBase* env,
+                            MM_Heap* heap,
+                            MM_MemorySubSpace* memorySubSpace)
+      : _mssIterator(heap),
+        _memorySubSpace(memorySubSpace),
+        _memoryPool(NULL),
+        _state(mm_heapmp_iterator_next_subspace) {}
 };
 
 #endif /* HEAPMEMORYPOOLITERATOR_HPP_ */

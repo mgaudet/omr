@@ -21,7 +21,7 @@
 
 #include "omrcfg.h"
 
-#if defined (OMR_GC_HEAP_CARD_TABLE)
+#if defined(OMR_GC_HEAP_CARD_TABLE)
 
 #include "CardCleaner.hpp"
 #include "CollectorLanguageInterface.hpp"
@@ -34,57 +34,66 @@
  * @ingroup GC_Modron_Standard
  */
 
-class MM_CardCleanerForMarking : public MM_CardCleaner
-{
-public:
-protected:
-private:
-	MM_MarkingScheme *_markingScheme;
-public:
-protected:
-	/**
-	 * Clean a range of addresses (typically within a span of a card)
-	 * The class specifically is used for Incremental-Update style of marking
-	 *
-	 * @param[in] env A thread (typically the thread initializing the GC)
-	 * @param[in] lowAddress low address of the range to be cleaned
-	 * @param[in] highAddress high address of the range to be cleaned
-	 */
-	virtual void clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
-	{
-		MM_EnvironmentStandard *env = MM_EnvironmentStandard::getEnvironment(envModron);
-		MM_GCExtensionsBase *extensions = env->getExtensions();
+class MM_CardCleanerForMarking : public MM_CardCleaner {
+ public:
+ protected:
+ private:
+  MM_MarkingScheme* _markingScheme;
 
-		/* card may be marked dirty in WP overflow, so it is important to mark it clean before any scan */
-		*cardToClean = CARD_CLEAN;
-		/* previous line value MUST be physically written to memory (relevant for concurrent cleaning) - force such write if necessary */
-		MM_AtomicOperations::sync();
+ public:
+ protected:
+  /**
+   * Clean a range of addresses (typically within a span of a card)
+   * The class specifically is used for Incremental-Update style of marking
+   *
+   * @param[in] env A thread (typically the thread initializing the GC)
+   * @param[in] lowAddress low address of the range to be cleaned
+   * @param[in] highAddress high address of the range to be cleaned
+   */
+  virtual void clean(MM_EnvironmentBase* envModron,
+                     void* lowAddress,
+                     void* highAddress,
+                     Card* cardToClean) {
+    MM_EnvironmentStandard* env =
+        MM_EnvironmentStandard::getEnvironment(envModron);
+    MM_GCExtensionsBase* extensions = env->getExtensions();
 
-		MM_HeapMapIterator markedObjectIterator(extensions, _markingScheme->getMarkMap(), (uintptr_t *)lowAddress, (uintptr_t *)highAddress);
-		omrobjectptr_t object = NULL;
-		while (NULL != (object = markedObjectIterator.nextObject())) {
-			_markingScheme->scanObject(env, object, MM_CollectorLanguageInterface::SCAN_REASON_OVERFLOWED_OBJECT);
-		}
-	}
+    /* card may be marked dirty in WP overflow, so it is important to mark it
+     * clean before any scan */
+    *cardToClean = CARD_CLEAN;
+    /* previous line value MUST be physically written to memory (relevant for
+     * concurrent cleaning) - force such write if necessary */
+    MM_AtomicOperations::sync();
 
-	/**
-	 * @see MM_CardCleaner::getVMStateID()
-	 */
-	virtual uintptr_t getVMStateID() { return J9VMSTATE_GC_CARD_CLEANER_FOR_MARKING; }
-	
-public:
+    MM_HeapMapIterator markedObjectIterator(
+        extensions, _markingScheme->getMarkMap(), (uintptr_t*)lowAddress,
+        (uintptr_t*)highAddress);
+    omrobjectptr_t object = NULL;
+    while (NULL != (object = markedObjectIterator.nextObject())) {
+      _markingScheme->scanObject(
+          env, object,
+          MM_CollectorLanguageInterface::SCAN_REASON_OVERFLOWED_OBJECT);
+    }
+  }
 
-	/**
-	 * Create a CardCleaner object specific for Incremental-Update style of marking
-	 */
-	MM_CardCleanerForMarking(MM_MarkingScheme *markingScheme)
-		: MM_CardCleaner()
-		, _markingScheme(markingScheme)
-	{
-		_typeId = __FUNCTION__;
-	}
+  /**
+   * @see MM_CardCleaner::getVMStateID()
+   */
+  virtual uintptr_t getVMStateID() {
+    return J9VMSTATE_GC_CARD_CLEANER_FOR_MARKING;
+  }
 
-private:
+ public:
+  /**
+   * Create a CardCleaner object specific for Incremental-Update style of
+   * marking
+   */
+  MM_CardCleanerForMarking(MM_MarkingScheme* markingScheme)
+      : MM_CardCleaner(), _markingScheme(markingScheme) {
+    _typeId = __FUNCTION__;
+  }
+
+ private:
 };
 
 #endif /* defined (OMR_GC_HEAP_CARD_TABLE)*/

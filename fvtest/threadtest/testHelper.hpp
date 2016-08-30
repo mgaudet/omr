@@ -23,35 +23,32 @@
 #include "omrTestHelpers.h"
 #include "testEnvironment.hpp"
 
-class ThreadTestEnvironment: public PortEnvironment
-{
-/*
- * Data members
- */
-private:
-protected:
-public:
-	bool realtime;
+class ThreadTestEnvironment : public PortEnvironment {
+  /*
+   * Data members
+   */
+ private:
+ protected:
+ public:
+  bool realtime;
 
-/*
-* Function members
-*/
-private:
-protected:
-public:
-	ThreadTestEnvironment(int argc, char **argv)
-		: PortEnvironment(argc, argv)
-		, realtime(false)
-	{
-		for (int i = 1; i < argc; i++) {
-			if (0 == strcmp(argv[i], "-realtime")) {
-				realtime = true;
-				break;
-			}
-		}
-	}
+  /*
+  * Function members
+  */
+ private:
+ protected:
+ public:
+  ThreadTestEnvironment(int argc, char** argv)
+      : PortEnvironment(argc, argv), realtime(false) {
+    for (int i = 1; i < argc; i++) {
+      if (0 == strcmp(argv[i], "-realtime")) {
+        realtime = true;
+        break;
+      }
+    }
+  }
 };
 
-extern ThreadTestEnvironment *omrTestEnv;
+extern ThreadTestEnvironment* omrTestEnv;
 
 #endif /* TESTHELPER_HPP_INCLUDED */

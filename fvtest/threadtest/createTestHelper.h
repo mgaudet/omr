@@ -41,7 +41,8 @@ extern "C" {
 
 #if defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(OSX)
 #define SPEC_PTHREAD_API
-#endif /* defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(OSX) */
+#endif /* defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || \
+          defined(OSX) */
 
 #ifndef ASSERT
 #define ASSERT(x) assert(x)
@@ -103,7 +104,7 @@ extern "C" {
 
 /* ospriority.c */
 extern void initPrioMap(void);
-extern char *mapOSPolicy(intptr_t policy);
+extern char* mapOSPolicy(intptr_t policy);
 #if defined(LINUX) || defined(OSX)
 extern void initRealtimePrioMap(void);
 #endif /* defined(LINUX) || defined(OSX) */
@@ -116,9 +117,9 @@ typedef int osprio_t;
 extern osprio_t getOsPriority(omrthread_prio_t priority);
 
 /* verbose.c */
-extern void port_printf(const char *str, ...);
-extern intptr_t omrthread_verboseCall(const char *func, intptr_t retVal);
-extern intptr_t pthread_verboseCall(const char *func, intptr_t retVal);
+extern void port_printf(const char* str, ...);
+extern intptr_t omrthread_verboseCall(const char* func, intptr_t retVal);
+extern intptr_t pthread_verboseCall(const char* func, intptr_t retVal);
 
 #ifdef __cplusplus
 }

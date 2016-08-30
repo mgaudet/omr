@@ -26,20 +26,19 @@
 #include "Modifiers.hpp"
 #include "Type.hpp"
 
-class Field : public Members
-{
-public:
-	Type *_fieldType;
-	size_t _sizeOf;
-	size_t _offset;
-	Modifiers _modifiers;
-	size_t _bitField;
-	bool _isStatic;
+class Field : public Members {
+ public:
+  Type* _fieldType;
+  size_t _sizeOf;
+  size_t _offset;
+  Modifiers _modifiers;
+  size_t _bitField;
+  bool _isStatic;
 
-	Field();
+  Field();
 
-	std::string getTypeName();
-	DDR_RC getBaseSymbolType(SymbolType *symbolType);
+  std::string getTypeName();
+  DDR_RC getBaseSymbolType(SymbolType* symbolType);
 };
 
 #endif /* FIELD_HPP */

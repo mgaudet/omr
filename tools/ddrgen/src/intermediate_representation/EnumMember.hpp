@@ -21,15 +21,13 @@
 
 #include "Members.hpp"
 
-class EnumMember: public Members
-{
-public:
-	int _value;
+class EnumMember : public Members {
+ public:
+  int _value;
 
-	EnumMember();
+  EnumMember();
 
-	virtual ~EnumMember();
-
+  virtual ~EnumMember();
 };
 
 #endif /* ENUMMEMBER_HPP */

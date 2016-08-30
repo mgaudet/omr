@@ -21,12 +21,11 @@
 
 #include <string>
 
-class Members
-{
-public:
-	std::string _name;
+class Members {
+ public:
+  std::string _name;
 
-	virtual ~Members();
+  virtual ~Members();
 };
 
 #endif /* MEMBERS_HPP */

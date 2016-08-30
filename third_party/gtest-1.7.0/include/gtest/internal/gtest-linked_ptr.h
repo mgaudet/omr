@@ -89,9 +89,7 @@ GTEST_API_ GTEST_DECLARE_STATIC_MUTEX_(g_linked_ptr_mutex);
 class linked_ptr_internal {
  public:
   // Create a new circle that includes only this instance.
-  void join_new() {
-    next_ = this;
-  }
+  void join_new() { next_ = this; }
 
   // Many linked_ptr operations may change p.link_ for some linked_ptr
   // variable p in the same circle as this object.  Therefore we need
@@ -110,20 +108,22 @@ class linked_ptr_internal {
     MutexLock lock(&g_linked_ptr_mutex);
 
     linked_ptr_internal const* p = ptr;
-    while (p->next_ != ptr) p = p->next_;
+    while (p->next_ != ptr)
+      p = p->next_;
     p->next_ = this;
     next_ = ptr;
   }
 
   // Leave whatever circle we're part of.  Returns true if we were the
   // last member of the circle.  Once this is done, you can join() another.
-  bool depart()
-      GTEST_LOCK_EXCLUDED_(g_linked_ptr_mutex) {
+  bool depart() GTEST_LOCK_EXCLUDED_(g_linked_ptr_mutex) {
     MutexLock lock(&g_linked_ptr_mutex);
 
-    if (next_ == this) return true;
+    if (next_ == this)
+      return true;
     linked_ptr_internal const* p = next_;
-    while (p->next_ != this) p = p->next_;
+    while (p->next_ != this)
+      p = p->next_;
     p->next_ = next_;
     return false;
   }
@@ -143,14 +143,18 @@ class linked_ptr {
   ~linked_ptr() { depart(); }
 
   // Copy an existing linked_ptr<>, adding ourselves to the list of references.
-  template <typename U> linked_ptr(linked_ptr<U> const& ptr) { copy(&ptr); }
+  template <typename U>
+  linked_ptr(linked_ptr<U> const& ptr) {
+    copy(&ptr);
+  }
   linked_ptr(linked_ptr const& ptr) {  // NOLINT
     assert(&ptr != this);
     copy(&ptr);
   }
 
   // Assignment releases the old value and acquires the new.
-  template <typename U> linked_ptr& operator=(linked_ptr<U> const& ptr) {
+  template <typename U>
+  linked_ptr& operator=(linked_ptr<U> const& ptr) {
     depart();
     copy(&ptr);
     return *this;
@@ -192,7 +196,8 @@ class linked_ptr {
   linked_ptr_internal link_;
 
   void depart() {
-    if (link_.depart()) delete value_;
+    if (link_.depart())
+      delete value_;
   }
 
   void capture(T* ptr) {
@@ -200,7 +205,8 @@ class linked_ptr {
     link_.join_new();
   }
 
-  template <typename U> void copy(linked_ptr<U> const* ptr) {
+  template <typename U>
+  void copy(linked_ptr<U> const* ptr) {
     value_ = ptr->get();
     if (value_)
       link_.join(&ptr->link_);
@@ -209,13 +215,13 @@ class linked_ptr {
   }
 };
 
-template<typename T> inline
-bool operator==(T* ptr, const linked_ptr<T>& x) {
+template <typename T>
+inline bool operator==(T* ptr, const linked_ptr<T>& x) {
   return ptr == x.get();
 }
 
-template<typename T> inline
-bool operator!=(T* ptr, const linked_ptr<T>& x) {
+template <typename T>
+inline bool operator!=(T* ptr, const linked_ptr<T>& x) {
   return ptr != x.get();
 }
 

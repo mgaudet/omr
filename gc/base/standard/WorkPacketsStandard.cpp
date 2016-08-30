@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omr.h"
 
 #include "WorkPacketsStandard.hpp"
@@ -27,26 +26,25 @@
  * @param mode type of packets (used for getting the right overflow handler)
  * @return pointer to the new object
  */
-MM_WorkPacketsStandard *
-MM_WorkPacketsStandard::newInstance(MM_EnvironmentBase *env)
-{
-	MM_WorkPacketsStandard *workPackets;
-	
-	workPackets = (MM_WorkPacketsStandard *)env->getForge()->allocate(sizeof(MM_WorkPacketsStandard), MM_AllocationCategory::WORK_PACKETS, OMR_GET_CALLSITE());
-	if (NULL != workPackets) {
-		new(workPackets) MM_WorkPacketsStandard(env);
-		if (!workPackets->initialize(env)) {
-			workPackets->kill(env);
-			workPackets = NULL;	
-		}
-	}
-	
-	return workPackets;
+MM_WorkPacketsStandard *MM_WorkPacketsStandard::newInstance(
+    MM_EnvironmentBase *env) {
+  MM_WorkPacketsStandard *workPackets;
+
+  workPackets = (MM_WorkPacketsStandard *)env->getForge()->allocate(
+      sizeof(MM_WorkPacketsStandard), MM_AllocationCategory::WORK_PACKETS,
+      OMR_GET_CALLSITE());
+  if (NULL != workPackets) {
+    new (workPackets) MM_WorkPacketsStandard(env);
+    if (!workPackets->initialize(env)) {
+      workPackets->kill(env);
+      workPackets = NULL;
+    }
+  }
+
+  return workPackets;
 }
 
-MM_WorkPacketOverflow *
-MM_WorkPacketsStandard::createOverflowHandler(MM_EnvironmentBase *env, MM_WorkPackets *workPackets)
-{
-	return MM_OverflowStandard::newInstance(env, this);
+MM_WorkPacketOverflow *MM_WorkPacketsStandard::createOverflowHandler(
+    MM_EnvironmentBase *env, MM_WorkPackets *workPackets) {
+  return MM_OverflowStandard::newInstance(env, this);
 }
-

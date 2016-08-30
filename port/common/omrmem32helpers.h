@@ -13,7 +13,8 @@
  *      http://www.opensource.org/licenses/apache2.0.php
  *
  * Contributors:
- *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
+ *    Multiple authors (IBM Corp.) - initial API and implementation and/or
+ *initial documentation
  *******************************************************************************/
 
 #ifndef omrmem32helpers_h
@@ -22,12 +23,13 @@
 #include "omrport.h"
 #include "omrportpriv.h"
 
-int32_t startup_memory32(struct OMRPortLibrary *portLibrary);
-void shutdown_memory32(struct OMRPortLibrary *portLibrary);
-void *allocate_memory32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount, const char *callSite);
-void free_memory32(struct OMRPortLibrary *portLibrary, void *memoryPointer);
-uintptr_t ensure_capacity32(struct OMRPortLibrary *portLibrary, uintptr_t byteAmount);
+int32_t startup_memory32(struct OMRPortLibrary* portLibrary);
+void shutdown_memory32(struct OMRPortLibrary* portLibrary);
+void* allocate_memory32(struct OMRPortLibrary* portLibrary,
+                        uintptr_t byteAmount,
+                        const char* callSite);
+void free_memory32(struct OMRPortLibrary* portLibrary, void* memoryPointer);
+uintptr_t ensure_capacity32(struct OMRPortLibrary* portLibrary,
+                            uintptr_t byteAmount);
 
 #endif /* omrmemhelpers_h */
-
-

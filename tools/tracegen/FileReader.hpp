@@ -23,59 +23,55 @@
 
 #include "Port.hpp"
 
-class FileReader
-{
-	/*
-	 * Data members
-	 */
-private:
-	FILE *_fd; /* current TDF file file descriptor */
-	char *_buffer; /* Current line */
-	int _strLen; /* Length of current line */
-protected:
-public:
-	const char *_fileName;
-	int _lineNumber;
+class FileReader {
+  /*
+   * Data members
+   */
+ private:
+  FILE* _fd;     /* current TDF file file descriptor */
+  char* _buffer; /* Current line */
+  int _strLen;   /* Length of current line */
+ protected:
+ public:
+  const char* _fileName;
+  int _lineNumber;
 
-	/*
-	 * Function members
-	 */
-private:
-	/**
-	 * Read next line into buffer
-	 * @param fd Input stream
-	 * @param buf Read buffer
-	 * @param buffSize Buffer size
-	 * @return Line size, RC_FAILED on failure or EOF
-	 */
-	RCType readline(FILE *fd, char *buf, unsigned int buffSize, int *byteRead);
-protected:
-public:
-	FileReader()
-		: _fd(NULL)
-		, _buffer(NULL)
-		, _strLen(-1) {
-	}
+  /*
+   * Function members
+   */
+ private:
+  /**
+   * Read next line into buffer
+   * @param fd Input stream
+   * @param buf Read buffer
+   * @param buffSize Buffer size
+   * @return Line size, RC_FAILED on failure or EOF
+   */
+  RCType readline(FILE* fd, char* buf, unsigned int buffSize, int* byteRead);
 
-	/**
-	 * Initialize file reader
-	 * @param fileName Name of the file to open for reading
-	 * @return RC_OK on success
-	 */
-	RCType init(const char *fileName);
+ protected:
+ public:
+  FileReader() : _fd(NULL), _buffer(NULL), _strLen(-1) {}
 
-	/**
-	 * Can we read next line from the file?
-	 * Will close the file input stream on EOF.
-	 * @return True if can read next line, false otherwise
-	 */
-	bool hasNext();
+  /**
+   * Initialize file reader
+   * @param fileName Name of the file to open for reading
+   * @return RC_OK on success
+   */
+  RCType init(const char* fileName);
 
-	/**
-	 * Read next line from the file.
-	 * @return Line from the file.
-	 */
-	const char *next();
+  /**
+   * Can we read next line from the file?
+   * Will close the file input stream on EOF.
+   * @return True if can read next line, false otherwise
+   */
+  bool hasNext();
+
+  /**
+   * Read next line from the file.
+   * @return Line from the file.
+   */
+  const char* next();
 };
 
 #endif /* FileReader_HPP_ */

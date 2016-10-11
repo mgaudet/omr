@@ -4,6 +4,30 @@
 // as follows: 
 // - ppcle build test 
 // - x86   build test 
+//
+// The intention is that this file be included in another that gets the 
+// sources and stashes them into a stash called 'sources' 
+//
+// For example: 
+//     
+//     
+//     node {
+//         
+//         stage('Get Sources') { 
+//           deleteDir()
+//           // Get some code from a GitHub repository
+//           checkout([$class: 'GitSCM', 
+//             branches: [[name: "*/${env.REPO_BRANCH}"]],  // So build can be parameterized. 
+//             doGenerateSubmoduleConfigurations: false,
+//             extensions: [],
+//             submoduleCfg: [],
+//             userRemoteConfigs: [[url: env.REPO_URL ]]])
+//           
+//           stash includes: '**', name: 'sources'
+//         }
+//         load 'Jenkinsfile'
+//     }
+
 
 
 stage('Build') 

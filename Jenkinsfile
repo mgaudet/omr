@@ -11,7 +11,7 @@ stage('Build')
 parallel(
    "ppcle-64_cmprssptrs" : { 
       node('build && ppcle') {
-         // checkout scm
+         unstash 'sources' 
          sh 'git clean -f -d -x' // Make sure clean!
          sh 'make -f run_configure.mk OMRGLUE=./example/glue SPEC=linux_ppc-64_cmprssptrs_le_gcc'
          sh 'make'
@@ -19,7 +19,7 @@ parallel(
    },
    "390-64" : { 
       node('build && s390x') {
-         // checkout scm
+         unstash 'sources' 
          sh 'git clean -f -d -x' // Make sure clean!
          sh 'make -f run_configure.mk OMRGLUE=./example/glue SPEC=linux_390-64'
          sh 'make'
@@ -27,7 +27,7 @@ parallel(
    },
    "x86-64" : { 
       node('build && x86') {
-         // checkout scm
+         unstash 'sources' 
          sh 'git clean -f -d -x' // Make sure clean!
          sh 'make -f run_configure.mk OMRGLUE=./example/glue SPEC=linux_x86-64'
          sh 'make'

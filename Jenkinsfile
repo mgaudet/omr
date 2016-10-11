@@ -13,7 +13,6 @@ parallel(
       node('build && ppcle') {
          deleteDir()
          unstash 'sources' 
-         sh 'git clean -f -d -x' // Make sure clean!
          sh 'make -f run_configure.mk OMRGLUE=./example/glue SPEC=linux_ppc-64_cmprssptrs_le_gcc'
          sh 'make'
       }
@@ -22,7 +21,6 @@ parallel(
       node('build && s390x') {
          deleteDir()
          unstash 'sources' 
-         sh 'git clean -f -d -x' // Make sure clean!
          sh 'make -f run_configure.mk OMRGLUE=./example/glue SPEC=linux_390-64'
          sh 'make'
       }
@@ -31,7 +29,6 @@ parallel(
       node('build && x86') {
          deleteDir()
          unstash 'sources' 
-         sh 'git clean -f -d -x' // Make sure clean!
          sh 'make -f run_configure.mk OMRGLUE=./example/glue SPEC=linux_x86-64'
          sh 'make'
       }

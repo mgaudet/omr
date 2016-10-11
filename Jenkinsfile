@@ -17,6 +17,14 @@ parallel(
          sh 'make'
       }
    },
+   "390-64" : { 
+      node('build && s390x') {
+         checkout scm
+         sh 'git clean -f -d -x' // Make sure clean!
+         sh 'make -f run_configure.mk OMRGLUE=./example/glue SPEC=linux_390-64'
+         sh 'make'
+      }
+   },
    "x86-64" : { 
       node('build && x86') {
          checkout scm
@@ -35,6 +43,12 @@ parallel(
          sh 'make test'
       }
    }, 
+   "linux_390-64" : { 
+      node('test && s390x') { 
+         env.GTEST_FILTER = '-*dump_test_create_dump_*'
+         sh 'make test'
+      }
+   },
    "x86-64" : { 
       node('test && x86') { 
          env.GTEST_FILTER = '-*dump_test_create_dump_*'

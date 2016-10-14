@@ -38,26 +38,24 @@
 #include "ilgen/MethodBuilder.hpp"
 #include "gtest/gtest.h"
 
-namespace TestCompiler
+namespace TestCompiler {
+void TestDriver::RunTest()
 {
-void
-TestDriver::RunTest()
-   {
-   allocateTestData();
-   compileTestMethods();
-   invokeTests();
-   deallocateTestData();
-   }
+    allocateTestData();
+    compileTestMethods();
+    invokeTests();
+    deallocateTestData();
+}
 
 int32_t
-TestDriver::compileMethodBuilder(TR::MethodBuilder *m, uint8_t ** entry)
-   {
-   TR::ResolvedMethod resolvedMethod(m);
-   TR::IlGeneratorMethodDetails details(&resolvedMethod);
+TestDriver::compileMethodBuilder(TR::MethodBuilder* m, uint8_t** entry)
+{
+    TR::ResolvedMethod resolvedMethod(m);
+    TR::IlGeneratorMethodDetails details(&resolvedMethod);
 
-   int32_t rc=0;
-   *entry = (uint8_t *) compileMethod(details, warm, rc);
-   return rc;
-   }
+    int32_t rc = 0;
+    *entry = (uint8_t*)compileMethod(details, warm, rc);
+    return rc;
+}
 
 } //namespace TestCompiler

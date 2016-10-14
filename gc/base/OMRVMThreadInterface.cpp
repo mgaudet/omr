@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 
 #include "CollectorLanguageInterface.hpp"
@@ -25,21 +24,18 @@
 
 #include "OMRVMThreadInterface.hpp"
 
-void
-GC_OMRVMThreadInterface::flushCachesForWalk(MM_EnvironmentBase *env)
+void GC_OMRVMThreadInterface::flushCachesForWalk(MM_EnvironmentBase* env)
 {
-	env->_objectAllocationInterface->flushCache(env);
+    env->_objectAllocationInterface->flushCache(env);
 }
 
-void
-GC_OMRVMThreadInterface::flushNonAllocationCaches(MM_EnvironmentBase *env)
+void GC_OMRVMThreadInterface::flushNonAllocationCaches(MM_EnvironmentBase* env)
 {
-	env->getExtensions()->collectorLanguageInterface->flushNonAllocationCaches(env);
+    env->getExtensions()->collectorLanguageInterface->flushNonAllocationCaches(env);
 }
 
-void
-GC_OMRVMThreadInterface::flushCachesForGC(MM_EnvironmentBase *env)
+void GC_OMRVMThreadInterface::flushCachesForGC(MM_EnvironmentBase* env)
 {
-	flushCachesForWalk(env);
-	flushNonAllocationCaches(env);
+    flushCachesForWalk(env);
+    flushNonAllocationCaches(env);
 }

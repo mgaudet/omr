@@ -21,7 +21,6 @@
  * @ingroup Thread
  */
 
-
 #include <windows.h>
 #include <stdlib.h>
 #include "omrcfg.h"
@@ -30,7 +29,7 @@
 #include "thrtypes.h"
 #include "thrdsup.h"
 
-extern void omrthread_init(J9ThreadLibrary *lib);
+extern void omrthread_init(J9ThreadLibrary* lib);
 extern void omrthread_shutdown(void);
 
 extern J9ThreadLibrary default_library;
@@ -46,22 +45,22 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
  * @return TRUE on success, FALSE on failure.
  */
 BOOL APIENTRY
-DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
 
-	switch (ul_reason_for_call) {
-	case DLL_PROCESS_ATTACH: {
-		omrthread_library_t lib;
+    switch (ul_reason_for_call) {
+    case DLL_PROCESS_ATTACH: {
+        omrthread_library_t lib;
 
-		/* Disable DLL_THREAD_ATTACH and DLL_THREAD_DETACH notifications for WIN32*/
-		DisableThreadLibraryCalls(hModule);
-		lib = GLOBAL_DATA(default_library);
-		omrthread_init(lib);
-		return lib->initStatus == 1;
-	}
-	case DLL_PROCESS_DETACH:
-		omrthread_shutdown();
-	}
+        /* Disable DLL_THREAD_ATTACH and DLL_THREAD_DETACH notifications for WIN32*/
+        DisableThreadLibraryCalls(hModule);
+        lib = GLOBAL_DATA(default_library);
+        omrthread_init(lib);
+        return lib->initStatus == 1;
+    }
+    case DLL_PROCESS_DETACH:
+        omrthread_shutdown();
+    }
 
-	return TRUE;
+    return TRUE;
 }

@@ -54,8 +54,8 @@ extern "C" {
  * @retval J9THREAD_ERR_OS_ERRNO_SET bit flag indicating that an os_errno is available.
  */
 intptr_t
-osthread_create(struct J9Thread *self, OSTHREAD *handle, const omrthread_attr_t attr, 
-		WRAPPER_FUNC entrypoint, WRAPPER_ARG entryarg);
+osthread_create(struct J9Thread* self, OSTHREAD* handle, const omrthread_attr_t attr,
+    WRAPPER_FUNC entrypoint, WRAPPER_ARG entryarg);
 
 /**
  * Platform-specific thread join.

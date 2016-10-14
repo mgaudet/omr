@@ -22,7 +22,6 @@
  * @brief Timer utilities
  */
 
-
 #include <time.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -38,9 +37,7 @@ static const clockid_t OMRTIME_NANO_CLOCK = CLOCK_MONOTONIC;
 
 extern int64_t maxprec();
 
-static void omrtime_calculate_hw_time_delta(struct OMRPortLibrary *portLibrary);
-
-
+static void omrtime_calculate_hw_time_delta(struct OMRPortLibrary* portLibrary);
 
 /**
  * Query OS for timestamp.
@@ -52,22 +49,21 @@ static void omrtime_calculate_hw_time_delta(struct OMRPortLibrary *portLibrary);
  * @deprecated Use @ref omrtime_hires_clock and @ref omrtime_hires_delta
  */
 uintptr_t
-omrtime_msec_clock(struct OMRPortLibrary *portLibrary)
+omrtime_msec_clock(struct OMRPortLibrary* portLibrary)
 {
-	int64_t msec;
-	int64_t usec = maxprec() / 8;
+    int64_t msec;
+    int64_t usec = maxprec() / 8;
 
-	msec = usec / 1000;
+    msec = usec / 1000;
 
-	if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
-	 || (usec < PPG_last_clock_delta_update)
-	) {
-		omrtime_calculate_hw_time_delta(portLibrary);
-	}
+    if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
+        || (usec < PPG_last_clock_delta_update)) {
+        omrtime_calculate_hw_time_delta(portLibrary);
+    }
 
-	msec += PPG_software_msec_clock_delta;
+    msec += PPG_software_msec_clock_delta;
 
-	return msec;
+    return msec;
 }
 
 /**
@@ -80,32 +76,31 @@ omrtime_msec_clock(struct OMRPortLibrary *portLibrary)
  * @deprecated Use @ref omrtime_hires_clock and @ref omrtime_hires_delta
  */
 uintptr_t
-omrtime_usec_clock(struct OMRPortLibrary *portLibrary)
+omrtime_usec_clock(struct OMRPortLibrary* portLibrary)
 {
-	int64_t usec = maxprec() / 8;
+    int64_t usec = maxprec() / 8;
 
-	if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
-	 || (usec < PPG_last_clock_delta_update)
-	) {
-		omrtime_calculate_hw_time_delta(portLibrary);
-	}
+    if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
+        || (usec < PPG_last_clock_delta_update)) {
+        omrtime_calculate_hw_time_delta(portLibrary);
+    }
 
-	usec += (PPG_software_msec_clock_delta * 1000);
+    usec += (PPG_software_msec_clock_delta * 1000);
 
-	return usec;
+    return usec;
 }
 
 uint64_t
-omrtime_current_time_nanos(struct OMRPortLibrary *portLibrary, uintptr_t *success)
+omrtime_current_time_nanos(struct OMRPortLibrary* portLibrary, uintptr_t* success)
 {
-	struct timespec ts;
-	uint64_t nsec = 0;
-	*success = 0;
-	if (0 == clock_gettime(CLOCK_REALTIME, &ts)) {
-		nsec = ((uint64_t)ts.tv_sec * OMRTIME_NANOSECONDS_PER_SECOND) + (uint64_t)ts.tv_nsec;
-		*success = 1;
-	}
-	return nsec;
+    struct timespec ts;
+    uint64_t nsec = 0;
+    *success = 0;
+    if (0 == clock_gettime(CLOCK_REALTIME, &ts)) {
+        nsec = ((uint64_t)ts.tv_sec * OMRTIME_NANOSECONDS_PER_SECOND) + (uint64_t)ts.tv_nsec;
+        *success = 1;
+    }
+    return nsec;
 }
 
 /**
@@ -118,12 +113,12 @@ omrtime_current_time_nanos(struct OMRPortLibrary *portLibrary, uintptr_t *succes
  * @return 0 on failure, time value in milliseconds on success.
  */
 int64_t
-omrtime_current_time_millis(struct OMRPortLibrary *portLibrary)
+omrtime_current_time_millis(struct OMRPortLibrary* portLibrary)
 {
-	int64_t msec;
-	int64_t usec = maxprec() / 8;
+    int64_t msec;
+    int64_t usec = maxprec() / 8;
 
-	/*
+    /*
 	 * Note that this function is called by JIT inlined code to not only
 	 * retrieve the time but also to perform the periodic delta update.
 	 * This is done in order to avoid a situation where all relevant code
@@ -146,28 +141,27 @@ omrtime_current_time_millis(struct OMRPortLibrary *portLibrary)
 	 * See Design 1183 for more details.
 	 */
 
-	if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
-	 || (usec < PPG_last_clock_delta_update)
-	) {
-		omrtime_calculate_hw_time_delta(portLibrary);
-	}
+    if ((usec - PPG_last_clock_delta_update > OMRTIME_CLOCK_DELTA_ADJUSTMENT_INTERVAL_USEC)
+        || (usec < PPG_last_clock_delta_update)) {
+        omrtime_calculate_hw_time_delta(portLibrary);
+    }
 
-	msec = (usec / 1000) + PPG_software_msec_clock_delta;
+    msec = (usec / 1000) + PPG_software_msec_clock_delta;
 
-	return msec;
+    return msec;
 }
 
 int64_t
-omrtime_nano_time(struct OMRPortLibrary *portLibrary)
+omrtime_nano_time(struct OMRPortLibrary* portLibrary)
 {
-	struct timespec ts;
-	int64_t hiresTime = 0;
+    struct timespec ts;
+    int64_t hiresTime = 0;
 
-	if (0 == clock_gettime(OMRTIME_NANO_CLOCK, &ts)) {
-		hiresTime = ((int64_t)ts.tv_sec * OMRTIME_NANOSECONDS_PER_SECOND) + (int64_t)ts.tv_nsec;
-	}
+    if (0 == clock_gettime(OMRTIME_NANO_CLOCK, &ts)) {
+        hiresTime = ((int64_t)ts.tv_sec * OMRTIME_NANOSECONDS_PER_SECOND) + (int64_t)ts.tv_nsec;
+    }
 
-	return hiresTime;
+    return hiresTime;
 }
 
 /**
@@ -179,10 +173,10 @@ omrtime_nano_time(struct OMRPortLibrary *portLibrary)
  * @return 0 on failure, time value on success.
  */
 uint64_t
-omrtime_hires_clock(struct OMRPortLibrary *portLibrary)
+omrtime_hires_clock(struct OMRPortLibrary* portLibrary)
 {
-	int64_t hires = maxprec();
-	return hires;
+    int64_t hires = maxprec();
+    return hires;
 }
 /**
  * Query OS for clock frequency
@@ -193,9 +187,9 @@ omrtime_hires_clock(struct OMRPortLibrary *portLibrary)
  * @return 0 on failure, number of ticks per second on success.
  */
 uint64_t
-omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
+omrtime_hires_frequency(struct OMRPortLibrary* portLibrary)
 {
-	return OMRTIME_HIRES_CLOCK_FREQUENCY;
+    return OMRTIME_HIRES_CLOCK_FREQUENCY;
 }
 /**
  * Calculate time difference between two hires clock timer values @ref omrtime_hires_clock.
@@ -220,21 +214,21 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary* portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
 {
-	uint64_t ticks;
+    uint64_t ticks;
 
-	/* modular arithmetic saves us, answer is always ...*/
-	ticks = endTime - startTime;
+    /* modular arithmetic saves us, answer is always ...*/
+    ticks = endTime - startTime;
 
-	if (OMRTIME_HIRES_CLOCK_FREQUENCY == requiredResolution) {
-		/* no conversion necessary */
-	} else if (OMRTIME_HIRES_CLOCK_FREQUENCY < requiredResolution) {
-		ticks = (uint64_t)((double)ticks * ((double)requiredResolution / (double)OMRTIME_HIRES_CLOCK_FREQUENCY));
-	} else {
-		ticks = (uint64_t)((double)ticks / ((double)OMRTIME_HIRES_CLOCK_FREQUENCY / (double)requiredResolution));
-	}
-	return ticks;
+    if (OMRTIME_HIRES_CLOCK_FREQUENCY == requiredResolution) {
+        /* no conversion necessary */
+    } else if (OMRTIME_HIRES_CLOCK_FREQUENCY < requiredResolution) {
+        ticks = (uint64_t)((double)ticks * ((double)requiredResolution / (double)OMRTIME_HIRES_CLOCK_FREQUENCY));
+    } else {
+        ticks = (uint64_t)((double)ticks / ((double)OMRTIME_HIRES_CLOCK_FREQUENCY / (double)requiredResolution));
+    }
+    return ticks;
 }
 
 /**
@@ -247,23 +241,23 @@ omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint
  *	subsequent msec, usec and current_time_milli calls.
  */
 static void
-omrtime_calculate_hw_time_delta(struct OMRPortLibrary *portLibrary)
+omrtime_calculate_hw_time_delta(struct OMRPortLibrary* portLibrary)
 {
-	int64_t currentHWTime, currentSWTime;
-	struct timeval tp;
+    int64_t currentHWTime, currentSWTime;
+    struct timeval tp;
 
-	/* Get hardware microsecond UTC clock */
-	currentHWTime = maxprec() / 8;
+    /* Get hardware microsecond UTC clock */
+    currentHWTime = maxprec() / 8;
 
-	/* Get OS microsecond UTC clock */
-	gettimeofday(&tp, NULL);
-	currentSWTime = ((uint64_t) tp.tv_sec * 1000000) + tp.tv_usec;
+    /* Get OS microsecond UTC clock */
+    gettimeofday(&tp, NULL);
+    currentSWTime = ((uint64_t)tp.tv_sec * 1000000) + tp.tv_usec;
 
-	/* Calculate the millisecond time delta between the software and hardware clocks */
-	PPG_software_msec_clock_delta = (currentSWTime - currentHWTime) / 1000;
+    /* Calculate the millisecond time delta between the software and hardware clocks */
+    PPG_software_msec_clock_delta = (currentSWTime - currentHWTime) / 1000;
 
-	/* Save the last time we've adjusted the time delta */
-	PPG_last_clock_delta_update = currentHWTime;
+    /* Save the last time we've adjusted the time delta */
+    PPG_last_clock_delta_update = currentHWTime;
 }
 
 /**
@@ -276,8 +270,7 @@ omrtime_calculate_hw_time_delta(struct OMRPortLibrary *portLibrary)
  *
  * @note Most implementations will be empty.
  */
-void
-omrtime_shutdown(struct OMRPortLibrary *portLibrary)
+void omrtime_shutdown(struct OMRPortLibrary* portLibrary)
 {
 }
 /**
@@ -295,18 +288,17 @@ omrtime_shutdown(struct OMRPortLibrary *portLibrary)
  * @note Most implementations will simply return success.
  */
 int32_t
-omrtime_startup(struct OMRPortLibrary *portLibrary)
+omrtime_startup(struct OMRPortLibrary* portLibrary)
 {
-	int32_t rc = 0;
-	struct timespec ts;
+    int32_t rc = 0;
+    struct timespec ts;
 
-	omrtime_calculate_hw_time_delta(portLibrary);
+    omrtime_calculate_hw_time_delta(portLibrary);
 
-	/* check if the clock is available */
-	if (0 != clock_getres(OMRTIME_NANO_CLOCK, &ts)) {
-		rc = OMRPORT_ERROR_STARTUP_TIME;
-	}
+    /* check if the clock is available */
+    if (0 != clock_getres(OMRTIME_NANO_CLOCK, &ts)) {
+        rc = OMRPORT_ERROR_STARTUP_TIME;
+    }
 
-	return rc;
+    return rc;
 }
-

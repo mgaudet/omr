@@ -20,43 +20,40 @@
 #include "AtomicSupport.hpp"
 
 uintptr_t
-compareAndSwapUDATA(uintptr_t *location, uintptr_t oldValue, uintptr_t newValue, uintptr_t *spinlock)
+compareAndSwapUDATA(uintptr_t* location, uintptr_t oldValue, uintptr_t newValue, uintptr_t* spinlock)
 {
-	return VM_AtomicSupport::lockCompareExchange(location, oldValue, newValue);
+    return VM_AtomicSupport::lockCompareExchange(location, oldValue, newValue);
 }
 
 uintptr_t
-compareAndSwapUDATANoSpinlock(uintptr_t *location, uintptr_t oldValue, uintptr_t newValue)
+compareAndSwapUDATANoSpinlock(uintptr_t* location, uintptr_t oldValue, uintptr_t newValue)
 {
-	return VM_AtomicSupport::lockCompareExchange(location, oldValue, newValue);
+    return VM_AtomicSupport::lockCompareExchange(location, oldValue, newValue);
 }
 
 uint32_t
-compareAndSwapU32(uint32_t *location, uint32_t oldValue, uint32_t newValue, uintptr_t *spinlock)
+compareAndSwapU32(uint32_t* location, uint32_t oldValue, uint32_t newValue, uintptr_t* spinlock)
 {
-	return VM_AtomicSupport::lockCompareExchangeU32(location, oldValue, newValue);
+    return VM_AtomicSupport::lockCompareExchangeU32(location, oldValue, newValue);
 }
 
 uint32_t
-compareAndSwapU32NoSpinlock(uint32_t *location, uint32_t oldValue, uint32_t newValue)
+compareAndSwapU32NoSpinlock(uint32_t* location, uint32_t oldValue, uint32_t newValue)
 {
-	return VM_AtomicSupport::lockCompareExchangeU32(location, oldValue, newValue);
+    return VM_AtomicSupport::lockCompareExchangeU32(location, oldValue, newValue);
 }
 
-void
-issueReadBarrier(void)
+void issueReadBarrier(void)
 {
-	VM_AtomicSupport::readBarrier();
+    VM_AtomicSupport::readBarrier();
 }
 
-void
-issueReadWriteBarrier(void)
+void issueReadWriteBarrier(void)
 {
-	VM_AtomicSupport::readWriteBarrier();
+    VM_AtomicSupport::readWriteBarrier();
 }
 
-void
-issueWriteBarrier(void)
+void issueWriteBarrier(void)
 {
-	VM_AtomicSupport::writeBarrier();
+    VM_AtomicSupport::writeBarrier();
 }

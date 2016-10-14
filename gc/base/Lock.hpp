@@ -40,30 +40,29 @@
  * 
  * @ingroup GC_Base_Core
  */
-class MM_Lock : public MM_BaseNonVirtual
-{
-	omrthread_monitor_t _monitor;
+class MM_Lock : public MM_BaseNonVirtual {
+    omrthread_monitor_t _monitor;
 
 public:
-	MM_Lock() :
-		MM_BaseNonVirtual()
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_Lock()
+        : MM_BaseNonVirtual()
+    {
+        _typeId = __FUNCTION__;
+    };
 
-	/**
+    /**
 	 * Initialize a new lock object.
 	 * A lock must be initialized before it may be used.
 	 * 
 	 * @param flags should be null, passed to thread library
 	 * @return 0 on success -1 on failure
 	 */
-	MMINLINE intptr_t initialize(uintptr_t flags, char *name) 
-	{ 
-		return omrthread_monitor_init_with_name(&_monitor, flags, name); 
-	};
+    MMINLINE intptr_t initialize(uintptr_t flags, char* name)
+    {
+        return omrthread_monitor_init_with_name(&_monitor, flags, name);
+    };
 
-	/**
+    /**
 	 * Enter the lock'ed region.
 	 * A thread may enter a lock it owns multiple times, but must
 	 * exit the lock the same number of times before other threads
@@ -71,36 +70,36 @@ public:
 	 * 
 	 * @return 0 on success
 	 */
-	MMINLINE intptr_t enter()
-	{
-		return omrthread_monitor_enter(_monitor);
-	};
+    MMINLINE intptr_t enter()
+    {
+        return omrthread_monitor_enter(_monitor);
+    };
 
-	/**
+    /**
 	 * Exit the lock'ed region. 
 	 * If the current thread is not the owner of the lock, the
 	 * mutex is unaffected, and an error is returned.
 	 * 
 	 * @return 0 on success
 	 */
-	MMINLINE intptr_t exit()
-	{
-		return omrthread_monitor_exit(_monitor);
-	};
+    MMINLINE intptr_t exit()
+    {
+        return omrthread_monitor_exit(_monitor);
+    };
 
-	/**
+    /**
 	 * Wait on the lock. 
 	 * Release the lock <i>n</i> times and waits for a signal.  Once a signal occurs or
 	 * the thread is interurpted, the lock is reobtained <i>n</i> times.
 	 * 
 	 * @return 0 on success
 	 */
-	MMINLINE intptr_t wait()
-	{
-		return omrthread_monitor_wait(_monitor);
-	};
+    MMINLINE intptr_t wait()
+    {
+        return omrthread_monitor_wait(_monitor);
+    };
 
-	/**
+    /**
 	 * Signal a thread waiting on the lock. 
 	 * If any threads are waiting on this lock, one of them is signaled
 	 * that the lock is now free.  A thread is considered to be waiting
@@ -109,12 +108,12 @@ public:
 	 * 
 	 * @return 0 once the thread has been signalled
 	 */
-	MMINLINE intptr_t notify()
-	{
-		return omrthread_monitor_notify(_monitor);
-	};
+    MMINLINE intptr_t notify()
+    {
+        return omrthread_monitor_notify(_monitor);
+    };
 
-	/**
+    /**
 	 * Signal all threads waiting on the lock.
 	 * If any threads are waiting on this lock, all of them are signaled
 	 * that the lock is now free.  A thread is considered to be waiting
@@ -123,12 +122,12 @@ public:
 	 * 
 	 * @return 0 once the threads have been signalled
 	 */
-	MMINLINE intptr_t notifyAll()
-	{
-		return omrthread_monitor_notify_all(_monitor);
-	};
+    MMINLINE intptr_t notifyAll()
+    {
+        return omrthread_monitor_notify_all(_monitor);
+    };
 
-	/**
+    /**
 	 * Discards a lock object.
 	 * A lock must be discarded to free the resources associated with it.
 	 * 
@@ -137,10 +136,10 @@ public:
 	 * 
 	 * @return 0 on success -1 on failure
 	 */
-	MMINLINE intptr_t tearDown()
-	{
-		return omrthread_monitor_destroy(_monitor);
-	};
+    MMINLINE intptr_t tearDown()
+    {
+        return omrthread_monitor_destroy(_monitor);
+    };
 };
 
 #endif /* LOCK_HPP_ */

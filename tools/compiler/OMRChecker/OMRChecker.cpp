@@ -23,4 +23,4 @@ using namespace clang;
 
 // Register OMRChecker checking action in a plugin registry.
 static FrontendPluginRegistry::Add<OMRChecker::CheckingAction>
-X("omr-checker", "OMR checker");
+    X("omr-checker", "OMR checker");

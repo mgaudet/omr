@@ -18,7 +18,6 @@
 
 #include "omrportptb.h"
 
-
 /**
  * @internal
  * @brief  Per Thread Buffer Support
@@ -29,20 +28,18 @@
  * @param[in] portLibrary The port library.
  * @param[in] ptBuffers pointer to the PortlibPTBuffers struct that contains the buffers
  */
-void
-omrport_free_ptBuffer(struct OMRPortLibrary *portLibrary, PortlibPTBuffers_t ptBuffer)
+void omrport_free_ptBuffer(struct OMRPortLibrary* portLibrary, PortlibPTBuffers_t ptBuffer)
 {
-	if (NULL != ptBuffer) {
-		if (NULL != ptBuffer->errorMessageBuffer) {
-			portLibrary->mem_free_memory(portLibrary, ptBuffer->errorMessageBuffer);
-			ptBuffer->errorMessageBufferSize = 0;
-		}
-		if (NULL != ptBuffer->reportedMessageBuffer) {
-			portLibrary->mem_free_memory(portLibrary, ptBuffer->reportedMessageBuffer);
-			ptBuffer->reportedMessageBufferSize = 0;
-		}
+    if (NULL != ptBuffer) {
+        if (NULL != ptBuffer->errorMessageBuffer) {
+            portLibrary->mem_free_memory(portLibrary, ptBuffer->errorMessageBuffer);
+            ptBuffer->errorMessageBufferSize = 0;
+        }
+        if (NULL != ptBuffer->reportedMessageBuffer) {
+            portLibrary->mem_free_memory(portLibrary, ptBuffer->reportedMessageBuffer);
+            ptBuffer->reportedMessageBufferSize = 0;
+        }
 
-		portLibrary->mem_free_memory(portLibrary, ptBuffer);
-	}
+        portLibrary->mem_free_memory(portLibrary, ptBuffer);
+    }
 }
-

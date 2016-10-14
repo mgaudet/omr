@@ -35,32 +35,30 @@ class MM_ConcurrentGCStats;
 
 class MM_Collector;
 
-class MM_EnvironmentLanguageInterface : public MM_BaseVirtual
-{
+class MM_EnvironmentLanguageInterface : public MM_BaseVirtual {
 private:
 protected:
-	OMR_VMThread *_omrThread;  /**< Associated OMR_VMThread */
-	OMR_VM *_omrVM;
-	OMRPortLibrary *_portLibrary;
-	MM_EnvironmentBase *_env;  /**< Associated Environment */
+    OMR_VMThread* _omrThread; /**< Associated OMR_VMThread */
+    OMR_VM* _omrVM;
+    OMRPortLibrary* _portLibrary;
+    MM_EnvironmentBase* _env; /**< Associated Environment */
 public:
-
 private:
 protected:
-	MM_EnvironmentLanguageInterface(MM_EnvironmentBase *env)
-		: MM_BaseVirtual()
-		,_omrThread(env->getOmrVMThread())
-		,_omrVM(env->getOmrVM())
-		,_portLibrary(env->getPortLibrary())
-		,_env(env)
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_EnvironmentLanguageInterface(MM_EnvironmentBase* env)
+        : MM_BaseVirtual()
+        , _omrThread(env->getOmrVMThread())
+        , _omrVM(env->getOmrVM())
+        , _portLibrary(env->getPortLibrary())
+        , _env(env)
+    {
+        _typeId = __FUNCTION__;
+    };
 
 public:
-	virtual void kill(MM_EnvironmentBase *env) = 0;
+    virtual void kill(MM_EnvironmentBase* env) = 0;
 
-	/***
+    /***
 	 * NOTE: The OMR VM access model grants exclusive VM access to one thread
 	 * only if no other thread has VM access. Conversely one of more threads may
 	 * be granted shared VM access only if no other thread holds exclusive
@@ -81,36 +79,36 @@ public:
 	 * VM access and suspend activities involving direct access to VM structures.
 	 */
 
-	/**
+    /**
 	 * Acquire shared VM access. Implementation must block calling thread as long
 	 * as any other thread has exclusive VM access.
 	 */
-	virtual void acquireVMAccess() = 0;
+    virtual void acquireVMAccess() = 0;
 
-	/**
+    /**
 	 * Release shared VM access.
 	 */
-	virtual void releaseVMAccess() = 0;
+    virtual void releaseVMAccess() = 0;
 
-	/**
+    /**
 	 * Acquire exclusive VM access. This must lock the VM thread list mutex (OMR_VM::_vmThreadListMutex).
 	 *
 	 * This method may be called by a thread that already holds exclusive VM access. In that case, the
 	 * OMR_VMThread::exclusiveCount counter is incremented (without reacquiring lock on VM thread list
 	 * mutex).
 	 */
-	virtual void
-	acquireExclusiveVMAccess()
-	{
-		/* NOTE: This implementation is for example only. */
-		Assert_MM_unreachable();
-		if (0 == _omrThread->exclusiveCount) {
-			omrthread_monitor_enter(_env->getOmrVM()->_vmThreadListMutex);
-		}
-		_omrThread->exclusiveCount += 1;
-	}
+    virtual void
+    acquireExclusiveVMAccess()
+    {
+        /* NOTE: This implementation is for example only. */
+        Assert_MM_unreachable();
+        if (0 == _omrThread->exclusiveCount) {
+            omrthread_monitor_enter(_env->getOmrVM()->_vmThreadListMutex);
+        }
+        _omrThread->exclusiveCount += 1;
+    }
 
-	/**
+    /**
 	 * Try and acquire exclusive access if no other thread is already requesting it.
 	 * Make an attempt at acquiring exclusive access if the current thread does not already have it.  The
 	 * attempt will abort if another thread is already going for exclusive, which means this
@@ -119,31 +117,31 @@ public:
 	 * @note call can release VM access.
 	 * @return true if exclusive access was acquired, false otherwise.
 	 */
-	virtual bool
-	tryAcquireExclusiveVMAccess()
-	{
-		/* NOTE: This implementation is for example only. */
-		Assert_MM_unreachable();
-		this->acquireExclusiveVMAccess();
-		return true;
-	}
+    virtual bool
+    tryAcquireExclusiveVMAccess()
+    {
+        /* NOTE: This implementation is for example only. */
+        Assert_MM_unreachable();
+        this->acquireExclusiveVMAccess();
+        return true;
+    }
 
-	/**
+    /**
 	 * Releases exclusive VM access.
 	 */
-	virtual void
-	releaseExclusiveVMAccess()
-	{
-		/* NOTE: This implementation is for example only. */
-		Assert_MM_unreachable();
-		Assert_MM_true(0 < _omrThread->exclusiveCount);
-		_omrThread->exclusiveCount -= 1;
-		if (0 == _omrThread->exclusiveCount) {
-			omrthread_monitor_exit(_env->getOmrVM()->_vmThreadListMutex);
-		}
-	}
+    virtual void
+    releaseExclusiveVMAccess()
+    {
+        /* NOTE: This implementation is for example only. */
+        Assert_MM_unreachable();
+        Assert_MM_true(0 < _omrThread->exclusiveCount);
+        _omrThread->exclusiveCount -= 1;
+        if (0 == _omrThread->exclusiveCount) {
+            omrthread_monitor_exit(_env->getOmrVM()->_vmThreadListMutex);
+        }
+    }
 
-	/**
+    /**
 	 * This method may be required if a concurrent GC strategy is employed. It will
 	 * be called by the concurrent GC if it is unable to immediately obtain exclusive
 	 * VM access (because a stop-the-world GC is in progress). If the concurrent GC
@@ -152,26 +150,28 @@ public:
 	 * in exclusiveAccessForGCObtainedAfterBeatenByOtherThread(), which will be called
 	 * when the stop-the-world GC completes and releases exclusive VM access.
 	 */
-	virtual void exclusiveAccessForGCBeatenByOtherThread() {}
+    virtual void exclusiveAccessForGCBeatenByOtherThread() {}
 
-	/**
+    /**
 	 * This method may be required if a concurrent GC strategy is employed. It will be
 	 * called when the stop-the-world GC completes and releases exclusive VM access if
 	 * the thread previously ran exclusiveAccessForGCObtainedAfterBeatenByOtherThread().
 	 * Any resources temporarily released in that method can be recovered here before
 	 * proceeding with exclusive VM access.
 	 */
-	virtual void exclusiveAccessForGCObtainedAfterBeatenByOtherThread() {}
+    virtual void exclusiveAccessForGCObtainedAfterBeatenByOtherThread() {}
 
-	virtual void releaseCriticalHeapAccess(uintptr_t *data) {}
+    virtual void releaseCriticalHeapAccess(uintptr_t* data) {}
 
-	virtual void reacquireCriticalHeapAccess(uintptr_t data) {}
-	
+    virtual void reacquireCriticalHeapAccess(uintptr_t data) {}
+
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-	virtual void forceOutOfLineVMAccess() {}
+    virtual void forceOutOfLineVMAccess()
+    {
+    }
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 
-	/**
+    /**
 	 * Give up exclusive access in preparation for transferring it to a collaborating thread
 	 * (i.e. main-to-master or master-to-main). This may involve nothing more than
 	 * transferring OMR_VMThread::exclusiveCount from the owning thread to the another
@@ -181,47 +181,46 @@ public:
 	 * @return the exclusive count of the current thread before relinquishing 
 	 * @see assumeExclusiveVMAccess(uintptr_t)
 	 */
-	virtual uintptr_t relinquishExclusiveVMAccess() = 0;
-	
-	/**
+    virtual uintptr_t relinquishExclusiveVMAccess() = 0;
+
+    /**
 	 * Assume exclusive access from a collaborating thread (i.e. main-to-master or master-to-main).
 	 * Implement if this kind of collaboration is required.
 	 *
 	 * @param exclusiveCount the exclusive count to be restored 
 	 * @see relinquishExclusiveVMAccess(uintptr_t)
 	 */
-	virtual void assumeExclusiveVMAccess(uintptr_t exclusiveCount) = 0;
+    virtual void assumeExclusiveVMAccess(uintptr_t exclusiveCount) = 0;
 
-	/**
+    /**
 	 * Checks to see if any thread has requested exclusive access
 	 * @return true if a thread is waiting on exclusive access, false if not.
 	 */
-	virtual bool isExclusiveAccessRequestWaiting() = 0;
+    virtual bool isExclusiveAccessRequestWaiting() = 0;
 
-#if defined (OMR_GC_THREAD_LOCAL_HEAP)
-	/**
+#if defined(OMR_GC_THREAD_LOCAL_HEAP)
+    /**
 	 * Disable inline TLH allocates by hiding the real heap allocation address from
 	 * JIT/Interpreter in realHeapAlloc and setting heapALloc == HeapTop so TLH
 	 * looks full.
 	 *
 	 */
-	virtual void disableInlineTLHAllocate() = 0;
+    virtual void disableInlineTLHAllocate() = 0;
 
-	/**
+    /**
 	 * Re-enable inline TLH allocate by restoring heapAlloc from realHeapAlloc
 	 */
-	virtual void enableInlineTLHAllocate() = 0;
+    virtual void enableInlineTLHAllocate() = 0;
 
-	/**
+    /**
 	 * Determine if inline TLH allocate is enabled; its enabled if realheapAlloc is NULL.
 	 * @return TRUE if inline TLH allocates currently enabled for this thread; FALSE otherwise
 	 */
-	virtual bool isInlineTLHAllocateEnabled() = 0;
+    virtual bool isInlineTLHAllocateEnabled() = 0;
 #endif /* OMR_GC_THREAD_LOCAL_HEAP */
 
-	virtual void parallelMarkTask_setup(MM_EnvironmentBase *env) = 0;
-	virtual void parallelMarkTask_cleanup(MM_EnvironmentBase *env) = 0;
-
+    virtual void parallelMarkTask_setup(MM_EnvironmentBase* env) = 0;
+    virtual void parallelMarkTask_cleanup(MM_EnvironmentBase* env) = 0;
 };
 
 #endif /* ENVIRONMENTLANGUAGEINTERFACE_HPP_ */

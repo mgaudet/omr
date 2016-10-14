@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-
 #ifndef omrfilehelpers_h
 #define omrfilehelpers_h
 
@@ -32,12 +31,12 @@ int32_t
 findError(int32_t errorCode);
 
 int32_t
-omrfile_lock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset, uint64_t length, BOOLEAN async);
+omrfile_lock_bytes_helper(struct OMRPortLibrary* portLibrary, intptr_t fd, int32_t lockFlags, uint64_t offset, uint64_t length, BOOLEAN async);
 
 int32_t
-omrfile_unlock_bytes_helper(struct OMRPortLibrary *portLibrary, intptr_t fd, uint64_t offset, uint64_t length, BOOLEAN async);
+omrfile_unlock_bytes_helper(struct OMRPortLibrary* portLibrary, intptr_t fd, uint64_t offset, uint64_t length, BOOLEAN async);
 
 HANDLE
-omrfile_get_overlapped_handle_helper(struct OMRPortLibrary *portLibrary);
+omrfile_get_overlapped_handle_helper(struct OMRPortLibrary* portLibrary);
 
-#endif     /* omrfilehelpers_h */
+#endif /* omrfilehelpers_h */

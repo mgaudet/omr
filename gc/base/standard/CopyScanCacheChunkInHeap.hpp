@@ -35,23 +35,18 @@ class MM_MemorySubSpace;
  * @todo Provide class documentation
  * @ingroup GC_Modron_Standard
  */
-class MM_CopyScanCacheChunkInHeap : public MM_CopyScanCacheChunk
-{
+class MM_CopyScanCacheChunkInHeap : public MM_CopyScanCacheChunk {
 private:
-	void *_addrBase;	/**< lowest address of allocated memory in heap */
-	void *_addrTop;		/**< highest address of allocated memory in heap */
-	MM_MemorySubSpace *_memorySubSpace;	/**< subspace memory is allocated with */
+    void* _addrBase; /**< lowest address of allocated memory in heap */
+    void* _addrTop; /**< highest address of allocated memory in heap */
+    MM_MemorySubSpace* _memorySubSpace; /**< subspace memory is allocated with */
 
 protected:
-
 public:
-
 private:
-
 protected:
-
 public:
-	/**
+    /**
 	 * Create new instance in heap allocated memory:
 	 * 1. Put MM_HeapLinkedFreeHeader first to keep heap walkable
 	 * 2. Put MM_CopyScanCacheChunkInHeap itself
@@ -66,23 +61,22 @@ public:
 	 * @param[out] entries number of scan cache entries created in this chunk
 	 * @return pointer to allocated chunk
 	 */
-	static MM_CopyScanCacheChunkInHeap *newInstance(MM_EnvironmentStandard *env, MM_CopyScanCacheChunk *nextChunk, MM_MemorySubSpace *memorySubSpace, MM_Collector *requestCollector,
-			MM_CopyScanCacheStandard **sublistTail, uintptr_t *entries);
+    static MM_CopyScanCacheChunkInHeap* newInstance(MM_EnvironmentStandard* env, MM_CopyScanCacheChunk* nextChunk, MM_MemorySubSpace* memorySubSpace, MM_Collector* requestCollector,
+        MM_CopyScanCacheStandard** sublistTail, uintptr_t* entries);
 
-	virtual void kill(MM_EnvironmentBase *env);
+    virtual void kill(MM_EnvironmentBase* env);
 
-	/**
+    /**
 	 * Create a CopyScanCacheChunk object.
 	 */
-	MM_CopyScanCacheChunkInHeap(void *addBase, void*addrTop, MM_MemorySubSpace *memorySubSpace)
-		: MM_CopyScanCacheChunk()
-		, _addrBase(addBase)
-		, _addrTop(addrTop)
-		, _memorySubSpace(memorySubSpace)
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_CopyScanCacheChunkInHeap(void* addBase, void* addrTop, MM_MemorySubSpace* memorySubSpace)
+        : MM_CopyScanCacheChunk()
+        , _addrBase(addBase)
+        , _addrTop(addrTop)
+        , _memorySubSpace(memorySubSpace)
+    {
+        _typeId = __FUNCTION__;
+    };
 };
 
 #endif /* COPYSCANCACHECHUNKINHEAP_HPP_ */
-

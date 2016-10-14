@@ -24,13 +24,13 @@
 #include "ObjectModel.hpp"
 
 omrobjectptr_t
-GC_ObjectModel::initializeAllocation(MM_EnvironmentBase *env, void *allocatedBytes, MM_AllocateInitialization *allocateInitialization)
+GC_ObjectModel::initializeAllocation(MM_EnvironmentBase* env, void* allocatedBytes, MM_AllocateInitialization* allocateInitialization)
 {
-	Assert_MM_true(OMR_EXAMPLE_ALLOCATION_CATEGORY == allocateInitialization->getAllocationCategory());
+    Assert_MM_true(OMR_EXAMPLE_ALLOCATION_CATEGORY == allocateInitialization->getAllocationCategory());
 
-	omrobjectptr_t objectPtr = (omrobjectptr_t)allocatedBytes;
-	if (NULL != objectPtr) {
-		setObjectSize(objectPtr, allocateInitialization->getAllocateDescription()->getBytesRequested(), false);
-	}
-	return objectPtr;
+    omrobjectptr_t objectPtr = (omrobjectptr_t)allocatedBytes;
+    if (NULL != objectPtr) {
+        setObjectSize(objectPtr, allocateInitialization->getAllocateDescription()->getBytesRequested(), false);
+    }
+    return objectPtr;
 }

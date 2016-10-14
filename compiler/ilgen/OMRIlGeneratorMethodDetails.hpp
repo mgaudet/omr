@@ -24,20 +24,25 @@
  */
 #ifndef OMR_ILGENERATORMETHODDETAILS_CONNECTOR
 #define OMR_ILGENERATORMETHODDETAILS_CONNECTOR
-namespace OMR { class IlGeneratorMethodDetails; }
-namespace OMR { typedef OMR::IlGeneratorMethodDetails IlGeneratorMethodDetailsConnector; }
+namespace OMR {
+class IlGeneratorMethodDetails;
+}
+namespace OMR {
+typedef OMR::IlGeneratorMethodDetails IlGeneratorMethodDetailsConnector;
+}
 #endif
 
-#include <stddef.h>               // for size_t
-#include "env/FilePointerDecl.hpp"  // for FILE
-#include "infra/Annotations.hpp"  // for OMR_EXTENSIBLE
+#include <stddef.h> // for size_t
+#include "env/FilePointerDecl.hpp" // for FILE
+#include "infra/Annotations.hpp" // for OMR_EXTENSIBLE
 
 class TR_FrontEnd;
 class TR_ResolvedMethod;
-namespace TR { class IlGeneratorMethodDetails; }
+namespace TR {
+class IlGeneratorMethodDetails;
+}
 
-namespace OMR
-{
+namespace OMR {
 
 /**
  * IlGeneratorMethodDetailsBase defines the IlGeneratorMethodDetails API that common code can count on.  A front
@@ -58,30 +63,26 @@ namespace OMR
  *   directly: all variable declarations should use the OMR::IlGeneratorMethodDetails type instead.
  */
 
-class OMR_EXTENSIBLE IlGeneratorMethodDetails
-   {
+class OMR_EXTENSIBLE IlGeneratorMethodDetails {
 
 public:
+    inline TR::IlGeneratorMethodDetails* self();
+    inline const TR::IlGeneratorMethodDetails* self() const;
 
-   inline TR::IlGeneratorMethodDetails *self();
-   inline const TR::IlGeneratorMethodDetails *self() const;
+    virtual bool isMethodInProgress() const { return false; }
+    bool supportsInvalidation() { return false; }
+    bool sameAs(TR::IlGeneratorMethodDetails& other) { return false; }
+    void print(TR_FrontEnd* fe, TR::FILE* file) {}
 
-   virtual bool isMethodInProgress() const { return false; }
-   bool supportsInvalidation() { return false; }
-   bool sameAs(TR::IlGeneratorMethodDetails & other) { return false; }
-   void print(TR_FrontEnd *fe, TR::FILE *file) { }
-
-   inline static TR::IlGeneratorMethodDetails & create(TR::IlGeneratorMethodDetails & target, TR_ResolvedMethod *method);
+    inline static TR::IlGeneratorMethodDetails& create(TR::IlGeneratorMethodDetails& target, TR_ResolvedMethod* method);
 
 protected:
-   IlGeneratorMethodDetails() { }
-   virtual ~IlGeneratorMethodDetails() {}
+    IlGeneratorMethodDetails() {}
+    virtual ~IlGeneratorMethodDetails() {}
 
-   void *operator new(size_t size, TR::IlGeneratorMethodDetails *p){ return (void*) p; }
-   void *operator new(size_t size, TR::IlGeneratorMethodDetails &p){ return (void*)&p; }
-
-   };
-
+    void* operator new(size_t size, TR::IlGeneratorMethodDetails* p) { return (void*)p; }
+    void* operator new(size_t size, TR::IlGeneratorMethodDetails& p) { return (void*)&p; }
+};
 }
 
 #endif

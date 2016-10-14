@@ -27,7 +27,6 @@
 #include "OMR_BaseNonVirtual.hpp"
 
 extern "C" {
-
 }
 
 #endif /* OMR_RUNTIMECONFIGURATION_HPP_ */

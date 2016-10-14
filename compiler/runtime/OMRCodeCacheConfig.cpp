@@ -16,11 +16,10 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "runtime/CodeCacheConfig.hpp"
 
-TR::CodeCacheConfig *
+TR::CodeCacheConfig*
 OMR::CodeCacheConfig::self()
-   {
-   return static_cast<TR::CodeCacheConfig *>(this);
-   }
+{
+    return static_cast<TR::CodeCacheConfig*>(this);
+}

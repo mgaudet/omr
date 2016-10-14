@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "PhysicalArena.hpp"
 
 #include "EnvironmentBase.hpp"
@@ -28,39 +27,35 @@
  * 
  * @return true if the expansion is allowed, false otherwise.
  */
-bool
-MM_PhysicalArena::canExpand(MM_EnvironmentBase *env, MM_PhysicalSubArena *expandArena)
+bool MM_PhysicalArena::canExpand(MM_EnvironmentBase* env, MM_PhysicalSubArena* expandArena)
 {
-	return true;
+    return true;
 }
 
 /**
  * Destroy and delete the instance.
  */
-void
-MM_PhysicalArena::kill(MM_EnvironmentBase *env)
+void MM_PhysicalArena::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
 /**
  * Initialize the receivers internal structures.
  * @return true on success, false otherwise.
  */
-bool
-MM_PhysicalArena::initialize(MM_EnvironmentBase *env)
+bool MM_PhysicalArena::initialize(MM_EnvironmentBase* env)
 {
-	return true;
+    return true;
 }
 
 /**
  * Cleanup internal structures of the receiver.
  */
-void
-MM_PhysicalArena::tearDown(MM_EnvironmentBase *env)
+void MM_PhysicalArena::tearDown(MM_EnvironmentBase* env)
 {
-	if(_attached) {
-		_heap->detachArena(env, this);
-	}
+    if (_attached) {
+        _heap->detachArena(env, this);
+    }
 }

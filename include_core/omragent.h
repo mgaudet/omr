@@ -41,10 +41,10 @@ typedef struct OMR_TI_MemoryCategory OMR_TI_MemoryCategory;
 typedef struct OMR_SampledMethodDescription OMR_SampledMethodDescription;
 
 typedef struct OMR_TI {
-	int32_t version;
-	void *internalData; /* AGENTS MUST NOT ACCESS THIS FIELD */
+    int32_t version;
+    void* internalData; /* AGENTS MUST NOT ACCESS THIS FIELD */
 
-	/**
+    /**
 	 * Bind the current thread to an OMR VM.
 	 * A thread can bind itself multiple times.
 	 * Binds must be paired with an equal number of Unbinds.
@@ -57,9 +57,9 @@ typedef struct OMR_TI {
 	 *	 OMR_ERROR_ILLEGAL_ARGUMENT - if vm is NULL
 	 *	 OMR_ERROR_ILLEGAL_ARGUMENT - if vmThread is NULL
 	 */
-	omr_error_t (*BindCurrentThread)(OMR_VM *vm, const char *threadName, OMR_VMThread **vmThread);
+    omr_error_t (*BindCurrentThread)(OMR_VM* vm, const char* threadName, OMR_VMThread** vmThread);
 
-	/**
+    /**
 	 * Unbind the current thread from its OMR VM.
 	 * Unbinds must be paired with an equal number of binds.
 	 * When the bind count of a thread reaches 0, the OMR VMThread
@@ -68,9 +68,9 @@ typedef struct OMR_TI {
 	 * @param[in,out] vmThread the current OMR VMThread
 	 * @return an OMR error code
 	 */
-	omr_error_t (*UnbindCurrentThread)(OMR_VMThread *vmThread);
+    omr_error_t (*UnbindCurrentThread)(OMR_VMThread* vmThread);
 
-	/**
+    /**
 	 * Create a trace record subscriber.
 	 *
 	 * The returned subscriptionID uniquely identifies the new subscriber.
@@ -103,10 +103,10 @@ typedef struct OMR_TI {
 	 * @retval OMR_ERROR_ILLEGAL_ARGUMENT description, subscriberFunc, or subscriptionID is NULL.
 	 * @retval OMR_ERROR_NOT_AVAILABLE The trace engine is not enabled.
 	 */
-	omr_error_t	(*RegisterRecordSubscriber)(OMR_VMThread *vmThread, char const *description,
-		utsSubscriberCallback subscriberFunc, utsSubscriberAlarmCallback alarmFunc, void *userData,	UtSubscription **subscriptionID);
+    omr_error_t (*RegisterRecordSubscriber)(OMR_VMThread* vmThread, char const* description,
+        utsSubscriberCallback subscriberFunc, utsSubscriberAlarmCallback alarmFunc, void* userData, UtSubscription** subscriptionID);
 
-	/**
+    /**
 	 * Shuts down the registered trace record subscriber.
 	 * Removes the specified subscriber callback, preventing it from being passed any more data.
 	 * This function may block indefinitely if the agent registers a subscription callback that does not terminate.
@@ -121,9 +121,9 @@ typedef struct OMR_TI {
 	 *	 OMR_ERROR_NOT_AVAILABLE - deregistration is unsuccessful
 	 *	 OMR_ERROR_ILLEGAL_ARGUMENT - unknown subscriber
 	 */
-	omr_error_t (*DeregisterRecordSubscriber)(OMR_VMThread *vmThread, UtSubscription *subscriptionID);
+    omr_error_t (*DeregisterRecordSubscriber)(OMR_VMThread* vmThread, UtSubscription* subscriptionID);
 
-	/**
+    /**
 	 * This function supplies the trace metadata for use with the trace formatter.
 	 * @param[in] vmThread the current VM thread
 	 * @param[out] data metadata in a form usable by the trace formatter
@@ -134,9 +134,9 @@ typedef struct OMR_TI {
 	 *   OMR_ERROR_NOT_AVAILABLE - No trace engine
 	 *   OMR_ERROR_INTERNAL - other error
 	 */
-	omr_error_t (*GetTraceMetadata)(OMR_VMThread *vmThread, void **data, int32_t *length);
+    omr_error_t (*GetTraceMetadata)(OMR_VMThread* vmThread, void** data, int32_t* length);
 
-	/**
+    /**
 	 * Set trace options at runtime.
 	 * @param[in] vmThread the current VM thread
 	 * @param[in] opts NULL-terminated array of option strings. The options must be provided in name / value pairs.
@@ -145,9 +145,9 @@ typedef struct OMR_TI {
 	 * 					e.g. { "print", NULL } is invalid
 	 * @return an OMR error code
 	 */
-	omr_error_t (*SetTraceOptions)(OMR_VMThread *vmThread, char const *opts[]);
+    omr_error_t (*SetTraceOptions)(OMR_VMThread* vmThread, char const* opts[]);
 
-	/**
+    /**
 	 * This function gets the system CPU load
 	 * @param[in] vmThread the current OMR VM thread
 	 * @param[out] systemCpuLoad the system CPU load between the observed time period, it cannot be NULL
@@ -158,9 +158,9 @@ typedef struct OMR_TI {
 	 * 								return OMR_ERROR_ILLEGAL_ARGUMENT if systemCpuLoad is NULL.
 	 * 								return OMR_THREAD_NOT_ATTACHED if vmThread is NULL.
 	 */
-	omr_error_t (*GetSystemCpuLoad)(OMR_VMThread *vmThread, double *systemCpuLoad);
+    omr_error_t (*GetSystemCpuLoad)(OMR_VMThread* vmThread, double* systemCpuLoad);
 
-	/**
+    /**
 	 * This function gets the process CPU load
 	 * @param[in] vmThread the current OMR VM thread
 	 * @param[out] processCpuLoad the process CPU load between the observed time period, it cannot be NULL.
@@ -171,9 +171,9 @@ typedef struct OMR_TI {
 	 * 							  	return OMR_ERROR_ILLEGAL_ARGUMENT if processCpuLoad is NULL.
 	 * 							  	return OMR_THREAD_NOT_ATTACHED if vmThread is NULL.
 	 */
-	omr_error_t (*GetProcessCpuLoad)(OMR_VMThread *vmThread, double *processCpuLoad);
+    omr_error_t (*GetProcessCpuLoad)(OMR_VMThread* vmThread, double* processCpuLoad);
 
-	/**
+    /**
 	  * Samples the values of the JVM memory categories and writes them into a buffer allocated by the user.
 	  *
 	  * @param[in] vmThread the current OMR VM thread
@@ -190,10 +190,10 @@ typedef struct OMR_TI {
 	  * OMR_THREAD_NOT_ATTACHED - The vmThread parameter was NULL
 	  *
 	  */
-	omr_error_t (*GetMemoryCategories)(OMR_VMThread *vmThread, int32_t max_categories, OMR_TI_MemoryCategory *categories_buffer,
-			int32_t *written_count_ptr, int32_t *total_categories_ptr);
+    omr_error_t (*GetMemoryCategories)(OMR_VMThread* vmThread, int32_t max_categories, OMR_TI_MemoryCategory* categories_buffer,
+        int32_t* written_count_ptr, int32_t* total_categories_ptr);
 
-	/**
+    /**
 	 * Adds all trace buffers containing data to the write queue, then prompts processing of the write
 	 * queue via the standard mechanism.
 	 *
@@ -204,41 +204,41 @@ typedef struct OMR_TI {
 	 * @retval OMR_THREAD_NOT_ATTACHED - The vmThread parameter was NULL
 	 * @retval OMR_ERROR_NOT_AVAILABLE - No trace engine
 	 */
-	omr_error_t (*FlushTraceData)(OMR_VMThread *vmThread);
+    omr_error_t (*FlushTraceData)(OMR_VMThread* vmThread);
 
-	/**
+    /**
 	 * This function gets the free physical memory size on the system in bytes
 	 * @param[in] vmThread the current OMR VM thread
 	 * @param[out] freePhysicalMemorySize the amount of available memory size in bytes
 	 * @return an OMR error code
 	 */
-	omr_error_t (*GetFreePhysicalMemorySize)(OMR_VMThread *vmThread, uint64_t *freePhysicalMemorySize);
+    omr_error_t (*GetFreePhysicalMemorySize)(OMR_VMThread* vmThread, uint64_t* freePhysicalMemorySize);
 
-	/**
+    /**
 	 * This function gets the process virtual memory size in bytes
 	 * @param[in] vmThread the current OMR VM thread
 	 * @param[out] processVirtualMemorySize the amount of process virtual memory in bytes
 	 * @return an OMR error code
 	 */
-	omr_error_t (*GetProcessVirtualMemorySize)(OMR_VMThread *vmThread, uint64_t *processVirtualMemorySize);
+    omr_error_t (*GetProcessVirtualMemorySize)(OMR_VMThread* vmThread, uint64_t* processVirtualMemorySize);
 
-	/**
+    /**
 	 * This function gets the process private memory size in bytes
 	 * @param[in] vmThread the current OMR VM thread
 	 * @param[out] processPrivateMemorySize the amount of process private memory in bytes
 	 * @return an OMR error code
 	 */
-	omr_error_t (*GetProcessPrivateMemorySize)(OMR_VMThread *vmThread, uint64_t *processPrivateMemorySize);
+    omr_error_t (*GetProcessPrivateMemorySize)(OMR_VMThread* vmThread, uint64_t* processPrivateMemorySize);
 
-	/**
+    /**
 	 * This function gets the process physical memory size in bytes
 	 * @param[in] vmThread the current OMR VM thread
 	 * @param[out] processPhysicalMemorySize the amount of process physical memory in bytes
 	 * @return an OMR error code
 	 */
-	omr_error_t (*GetProcessPhysicalMemorySize)(OMR_VMThread *vmThread, uint64_t *processPhysicalMemorySize);
+    omr_error_t (*GetProcessPhysicalMemorySize)(OMR_VMThread* vmThread, uint64_t* processPhysicalMemorySize);
 
-	/**
+    /**
 	 * Retrieve the descriptions of methods returned from callstack sampling tracepoints.
 	 *
 	 * Method descriptions are returned in the order they are specified in methodArray.
@@ -279,11 +279,11 @@ typedef struct OMR_TI {
 	 * @retval OMR_ERROR_INTERNAL An unexpected internal error occurred. firstRetryMethod indicates the
 	 * entry of methodArray where the error occurred.
 	 */
-	omr_error_t (*GetMethodDescriptions)(OMR_VMThread *vmThread, void **methodArray, size_t methodArrayCount,
-		OMR_SampledMethodDescription *methodDescriptions, char *nameBuffer, size_t nameBytes,
-		size_t *firstRetryMethod, size_t *nameBytesRemaining);
+    omr_error_t (*GetMethodDescriptions)(OMR_VMThread* vmThread, void** methodArray, size_t methodArrayCount,
+        OMR_SampledMethodDescription* methodDescriptions, char* nameBuffer, size_t nameBytes,
+        size_t* firstRetryMethod, size_t* nameBytesRemaining);
 
-	/**
+    /**
 	 * Retrieve the language-specific method properties.
 	 *
 	 * @param[in] vmThread The current OMR VM thread.
@@ -297,36 +297,36 @@ typedef struct OMR_TI {
 	 * @retval OMR_ERROR_NOT_AVAILABLE The method dictionary has not been enabled.
 	 * @retval OMR_ERROR_ILLEGAL_ARGUMENT A NULL pointer was passed in for an output parameter.
 	 */
-	omr_error_t (*GetMethodProperties)(OMR_VMThread *vmThread, size_t *numProperties, const char *const **propertyNames, size_t *sizeofSampledMethodDesc);
+    omr_error_t (*GetMethodProperties)(OMR_VMThread* vmThread, size_t* numProperties, const char* const** propertyNames, size_t* sizeofSampledMethodDesc);
 } OMR_TI;
 
 /*
  * Return data for the GetMemoryCategories API
  */
 struct OMR_TI_MemoryCategory {
-	/* Category name */
-	const char *name;
+    /* Category name */
+    const char* name;
 
-	/* Bytes allocated under this category */
-	int64_t liveBytesShallow;
+    /* Bytes allocated under this category */
+    int64_t liveBytesShallow;
 
-	/* Bytes allocated under this category and all child categories */
-	int64_t liveBytesDeep;
+    /* Bytes allocated under this category and all child categories */
+    int64_t liveBytesDeep;
 
-	/* Number of allocations under this category */
-	int64_t liveAllocationsShallow;
+    /* Number of allocations under this category */
+    int64_t liveAllocationsShallow;
 
-	/* Number of allocations under this category and all child categories */
-	int64_t liveAllocationsDeep;
+    /* Number of allocations under this category and all child categories */
+    int64_t liveAllocationsDeep;
 
-	/* Pointer to the first child category (NULL if this node has no children) */
-	struct OMR_TI_MemoryCategory *firstChild;
+    /* Pointer to the first child category (NULL if this node has no children) */
+    struct OMR_TI_MemoryCategory* firstChild;
 
-	/* Pointer to the next sibling category (NULL if this node has no next sibling)*/
-	struct OMR_TI_MemoryCategory *nextSibling;
+    /* Pointer to the next sibling category (NULL if this node has no next sibling)*/
+    struct OMR_TI_MemoryCategory* nextSibling;
 
-	/* Pointer to the parent category. (NULL if this node is a root) */
-	struct OMR_TI_MemoryCategory *parent;
+    /* Pointer to the parent category. (NULL if this node is a root) */
+    struct OMR_TI_MemoryCategory* parent;
 };
 
 /**
@@ -337,31 +337,31 @@ struct OMR_TI_MemoryCategory {
 #pragma warning(disable : 4200)
 #endif /* defined(_MSC_VER) */
 struct OMR_SampledMethodDescription {
-	/** See comments for GetMethodDescriptions(). */
-	omr_error_t reasonCode;
+    /** See comments for GetMethodDescriptions(). */
+    omr_error_t reasonCode;
 
-	/**
+    /**
 	 * In the output from GetMethodProperties(), the reasonCode will be followed by
 	 * a flexible array of property values, corresponding to the properties returned
 	 * by GetMethodProperties().
 	 * Some elements of propertyValues[] may be NULL.
 	 */
-	const char *propertyValues[];
+    const char* propertyValues[];
 };
 
 typedef struct OMR_AgentCallbacks {
-	uint32_t version; /* version counter, initially 0 */
-	omr_error_t (*onPreFork)(void);
-	omr_error_t (*onPostForkParent)(void);
-	omr_error_t (*onPostForkChild)(void);
+    uint32_t version; /* version counter, initially 0 */
+    omr_error_t (*onPreFork)(void);
+    omr_error_t (*onPostForkParent)(void);
+    omr_error_t (*onPostForkChild)(void);
 } OMR_AgentCallbacks;
 
 /*
  * Required agent entry points:
  */
 #if defined(_MSC_VER)
-omr_error_t __cdecl OMRAgent_OnLoad(OMR_TI const *ti, OMR_VM *vm, char const *options, OMR_AgentCallbacks *agentCallbacks, ...);
-omr_error_t __cdecl OMRAgent_OnUnload(OMR_TI const *ti, OMR_VM *vm);
+omr_error_t __cdecl OMRAgent_OnLoad(OMR_TI const* ti, OMR_VM* vm, char const* options, OMR_AgentCallbacks* agentCallbacks, ...);
+omr_error_t __cdecl OMRAgent_OnUnload(OMR_TI const* ti, OMR_VM* vm);
 #else
 /**
  * Invoked when an agent is loaded.
@@ -376,7 +376,7 @@ omr_error_t __cdecl OMRAgent_OnUnload(OMR_TI const *ti, OMR_VM *vm);
  *                The agent must not free agentCallbacks.
  * @return OMR_ERROR_NONE for success, an OMR error code otherwise.
  */
-omr_error_t OMRAgent_OnLoad(OMR_TI const *ti, OMR_VM *vm, char const *options, OMR_AgentCallbacks *agentCallbacks, ...);
+omr_error_t OMRAgent_OnLoad(OMR_TI const* ti, OMR_VM* vm, char const* options, OMR_AgentCallbacks* agentCallbacks, ...);
 
 /**
  * Invoked when an agent is unloaded.
@@ -391,7 +391,7 @@ omr_error_t OMRAgent_OnLoad(OMR_TI const *ti, OMR_VM *vm, char const *options, O
  *   OMR_ERROR_NONE - Success: it is safe to unload the agent lib
  *   Otherwise, any other return value indicates the VM cannot unload the agent lib
  */
-omr_error_t OMRAgent_OnUnload(OMR_TI const *ti, OMR_VM *vm);
+omr_error_t OMRAgent_OnUnload(OMR_TI const* ti, OMR_VM* vm);
 #endif
 
 #ifdef __cplusplus

@@ -39,38 +39,37 @@
 #include "portnls.h"
 #include "omrportptb.h"
 
-static const char *
-swapMessageBuffer(PortlibPTBuffers_t ptBuffers, const char *message)
+static const char*
+swapMessageBuffer(PortlibPTBuffers_t ptBuffers, const char* message)
 {
-	char *tempBuffer = ptBuffers->reportedMessageBuffer;
-	uint32_t tempBufferSize = ptBuffers->reportedMessageBufferSize;
+    char* tempBuffer = ptBuffers->reportedMessageBuffer;
+    uint32_t tempBufferSize = ptBuffers->reportedMessageBufferSize;
 
-	if (message == NULL) {
-		return "";
-	}
+    if (message == NULL) {
+        return "";
+    }
 
-	/* Can't swap unknown message buffer */
-	if (message != ptBuffers->errorMessageBuffer) {
-		return message;
-	}
+    /* Can't swap unknown message buffer */
+    if (message != ptBuffers->errorMessageBuffer) {
+        return message;
+    }
 
-	/* Save reported information */
-	ptBuffers->reportedErrorCode = ptBuffers->portableErrorCode;
-	ptBuffers->reportedMessageBuffer = ptBuffers->errorMessageBuffer;
-	ptBuffers->reportedMessageBufferSize = ptBuffers->errorMessageBufferSize;
+    /* Save reported information */
+    ptBuffers->reportedErrorCode = ptBuffers->portableErrorCode;
+    ptBuffers->reportedMessageBuffer = ptBuffers->errorMessageBuffer;
+    ptBuffers->reportedMessageBufferSize = ptBuffers->errorMessageBufferSize;
 
-	if (tempBufferSize > 0) {
-		tempBuffer[0] = '\0';
-	}
+    if (tempBufferSize > 0) {
+        tempBuffer[0] = '\0';
+    }
 
-	/* Clear pending fields ready for next error */
-	ptBuffers->portableErrorCode = 0;
-	ptBuffers->errorMessageBuffer = tempBuffer;
-	ptBuffers->errorMessageBufferSize = tempBufferSize;
+    /* Clear pending fields ready for next error */
+    ptBuffers->portableErrorCode = 0;
+    ptBuffers->errorMessageBuffer = tempBuffer;
+    ptBuffers->errorMessageBufferSize = tempBufferSize;
 
-	return ptBuffers->reportedMessageBuffer;
+    return ptBuffers->reportedMessageBuffer;
 }
-
 
 /**
  * PortLibrary startup.
@@ -87,9 +86,9 @@ swapMessageBuffer(PortlibPTBuffers_t ptBuffers, const char *message)
  * @note Most implementations will simply return success.
  */
 int32_t
-omrerror_startup(struct OMRPortLibrary *portLibrary)
+omrerror_startup(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 /**
  * PortLibrary shutdown.
@@ -101,8 +100,7 @@ omrerror_startup(struct OMRPortLibrary *portLibrary)
  *
  * @note Most implementations will be empty.
  */
-void
-omrerror_shutdown(struct OMRPortLibrary *portLibrary)
+void omrerror_shutdown(struct OMRPortLibrary* portLibrary)
 {
 }
 /**
@@ -115,46 +113,46 @@ omrerror_shutdown(struct OMRPortLibrary *portLibrary)
  *
  * @return The error message for the last OS failure, empty message on failure.
  */
-const char *
-omrerror_last_error_message(struct OMRPortLibrary *portLibrary)
+const char*
+omrerror_last_error_message(struct OMRPortLibrary* portLibrary)
 {
-	PortlibPTBuffers_t ptBuffers;
+    PortlibPTBuffers_t ptBuffers;
 
-	/* Was an error saved ? */
-	ptBuffers = omrport_tls_peek(portLibrary);
-	if (NULL == ptBuffers) {
-		return "";
-	}
+    /* Was an error saved ? */
+    ptBuffers = omrport_tls_peek(portLibrary);
+    if (NULL == ptBuffers) {
+        return "";
+    }
 
-	/* New error ? */
-	if (ptBuffers->portableErrorCode != 0) {
-		const char *message = NULL;
+    /* New error ? */
+    if (ptBuffers->portableErrorCode != 0) {
+        const char* message = NULL;
 
-		/* Customized message stored ? */
-		if (ptBuffers->errorMessageBufferSize > 0) {
-			if ('\0' != ptBuffers->errorMessageBuffer[0]) {
-				message = ptBuffers->errorMessageBuffer;
-			}
-		}
+        /* Customized message stored ? */
+        if (ptBuffers->errorMessageBufferSize > 0) {
+            if ('\0' != ptBuffers->errorMessageBuffer[0]) {
+                message = ptBuffers->errorMessageBuffer;
+            }
+        }
 
-		/* Call a helper to get the last message from the OS.  */
-		if (message == NULL) {
-			message = errorMessage(portLibrary,  ptBuffers->platformErrorCode);
-		}
+        /* Call a helper to get the last message from the OS.  */
+        if (message == NULL) {
+            message = errorMessage(portLibrary, ptBuffers->platformErrorCode);
+        }
 
-		/* Avoid overwrite by internal portlib errors */
-		return swapMessageBuffer(ptBuffers, message);
-	}
+        /* Avoid overwrite by internal portlib errors */
+        return swapMessageBuffer(ptBuffers, message);
+    }
 
-	/* Previous message stored ? */
-	if (ptBuffers->reportedMessageBufferSize > 0) {
-		if ('\0' != ptBuffers->reportedMessageBuffer[0]) {
-			return ptBuffers->reportedMessageBuffer;
-		}
-	}
+    /* Previous message stored ? */
+    if (ptBuffers->reportedMessageBufferSize > 0) {
+        if ('\0' != ptBuffers->reportedMessageBuffer[0]) {
+            return ptBuffers->reportedMessageBuffer;
+        }
+    }
 
-	/* No error.  */
-	return "";
+    /* No error.  */
+    return "";
 }
 
 /**
@@ -170,22 +168,22 @@ omrerror_last_error_message(struct OMRPortLibrary *portLibrary)
  * @note Does not clear the reason for the last failure.
  */
 int32_t
-omrerror_last_error_number(struct OMRPortLibrary *portLibrary)
+omrerror_last_error_number(struct OMRPortLibrary* portLibrary)
 {
-	PortlibPTBuffers_t ptBuffers;
+    PortlibPTBuffers_t ptBuffers;
 
-	/* get the buffers, return failure if not present */
-	ptBuffers = omrport_tls_peek(portLibrary);
-	if (NULL == ptBuffers) {
-		return 0;
-	}
+    /* get the buffers, return failure if not present */
+    ptBuffers = omrport_tls_peek(portLibrary);
+    if (NULL == ptBuffers) {
+        return 0;
+    }
 
-	/* New error ? */
-	if (ptBuffers->portableErrorCode != 0) {
-		return ptBuffers->portableErrorCode;
-	} else {
-		return ptBuffers->reportedErrorCode;
-	}
+    /* New error ? */
+    if (ptBuffers->portableErrorCode != 0) {
+        return ptBuffers->portableErrorCode;
+    } else {
+        return ptBuffers->reportedErrorCode;
+    }
 }
 
 /**
@@ -208,28 +206,28 @@ omrerror_last_error_number(struct OMRPortLibrary *portLibrary)
  * case an application will receive a generic message/errorCode when querying for the last stored values.
  */
 int32_t
-omrerror_set_last_error(struct OMRPortLibrary *portLibrary,  int32_t platformCode, int32_t portableCode)
+omrerror_set_last_error(struct OMRPortLibrary* portLibrary, int32_t platformCode, int32_t portableCode)
 {
-	PortlibPTBuffers_t ptBuffers;
+    PortlibPTBuffers_t ptBuffers;
 
-	/* get the buffers, allocate if necessary.
+    /* get the buffers, allocate if necessary.
 	 * Silently return if not present, what else would the caller do anyway?
 	 */
-	ptBuffers = omrport_tls_get(portLibrary);
-	if (NULL == ptBuffers) {
-		return portableCode;
-	}
+    ptBuffers = omrport_tls_get(portLibrary);
+    if (NULL == ptBuffers) {
+        return portableCode;
+    }
 
-	/* Save the last error */
-	ptBuffers->platformErrorCode = platformCode;
-	ptBuffers->portableErrorCode = portableCode;
+    /* Save the last error */
+    ptBuffers->platformErrorCode = platformCode;
+    ptBuffers->portableErrorCode = portableCode;
 
-	/* Overwrite any customized messages stored */
-	if (ptBuffers->errorMessageBufferSize > 0) {
-		ptBuffers->errorMessageBuffer[0] = '\0';
-	}
+    /* Overwrite any customized messages stored */
+    if (ptBuffers->errorMessageBufferSize > 0) {
+        ptBuffers->errorMessageBuffer[0] = '\0';
+    }
 
-	return portableCode;
+    return portableCode;
 }
 /**
  * @brief Error Handling
@@ -251,45 +249,44 @@ omrerror_set_last_error(struct OMRPortLibrary *portLibrary,  int32_t platformCod
  * case an application will receive a generic message/errorCode when querying for the last stored values.
  */
 int32_t
-omrerror_set_last_error_with_message(struct OMRPortLibrary *portLibrary, int32_t portableCode, const char *errorMessage)
+omrerror_set_last_error_with_message(struct OMRPortLibrary* portLibrary, int32_t portableCode, const char* errorMessage)
 {
-	PortlibPTBuffers_t ptBuffers;
-	uint32_t requiredSize;
+    PortlibPTBuffers_t ptBuffers;
+    uint32_t requiredSize;
 
-	/* get the buffers, allocate if necessary.
+    /* get the buffers, allocate if necessary.
 	 * Silently return if not present, what else would the caller do anyway?
 	 */
-	ptBuffers = omrport_tls_get(portLibrary);
-	if (NULL == ptBuffers) {
-		return portableCode;
-	}
+    ptBuffers = omrport_tls_get(portLibrary);
+    if (NULL == ptBuffers) {
+        return portableCode;
+    }
 
-	/* Save the last error */
-	ptBuffers->platformErrorCode = -1;
-	ptBuffers->portableErrorCode = portableCode;
+    /* Save the last error */
+    ptBuffers->platformErrorCode = -1;
+    ptBuffers->portableErrorCode = portableCode;
 
-	/* Store the message, allocate a bigger buffer if required.  Keep the old buffer around
+    /* Store the message, allocate a bigger buffer if required.  Keep the old buffer around
 	 * just in case memory can not be allocated
 	 */
-	requiredSize = (uint32_t)strlen(errorMessage) + 1;
-	requiredSize = requiredSize < J9ERROR_DEFAULT_BUFFER_SIZE ? J9ERROR_DEFAULT_BUFFER_SIZE : requiredSize;
-	if (requiredSize > ptBuffers->errorMessageBufferSize) {
-		char *newBuffer = portLibrary->mem_allocate_memory(portLibrary, requiredSize, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
-		if (NULL != newBuffer) {
-			if (ptBuffers->errorMessageBuffer != NULL) {
-				portLibrary->mem_free_memory(portLibrary, ptBuffers->errorMessageBuffer);
-			}
-			ptBuffers->errorMessageBuffer = newBuffer;
-			ptBuffers->errorMessageBufferSize = requiredSize;
-		}
-	}
+    requiredSize = (uint32_t)strlen(errorMessage) + 1;
+    requiredSize = requiredSize < J9ERROR_DEFAULT_BUFFER_SIZE ? J9ERROR_DEFAULT_BUFFER_SIZE : requiredSize;
+    if (requiredSize > ptBuffers->errorMessageBufferSize) {
+        char* newBuffer = portLibrary->mem_allocate_memory(portLibrary, requiredSize, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+        if (NULL != newBuffer) {
+            if (ptBuffers->errorMessageBuffer != NULL) {
+                portLibrary->mem_free_memory(portLibrary, ptBuffers->errorMessageBuffer);
+            }
+            ptBuffers->errorMessageBuffer = newBuffer;
+            ptBuffers->errorMessageBufferSize = requiredSize;
+        }
+    }
 
-	/* Save the message */
-	if (ptBuffers->errorMessageBufferSize > 0) {
-		portLibrary->str_printf(portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s", errorMessage);
-		ptBuffers->errorMessageBuffer[ptBuffers->errorMessageBufferSize - 1] = '\0';
-	}
+    /* Save the message */
+    if (ptBuffers->errorMessageBufferSize > 0) {
+        portLibrary->str_printf(portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s", errorMessage);
+        ptBuffers->errorMessageBuffer[ptBuffers->errorMessageBufferSize - 1] = '\0';
+    }
 
-	return portableCode;
+    return portableCode;
 }
-

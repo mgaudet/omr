@@ -24,17 +24,15 @@
 #undef round
 #undef fpclassify
 #include "env/TypedAllocator.hpp"
-#include "env/TRMemory.hpp"  // for TR_Memory, etc
-namespace TR
-   {
-   template <class T> class list : public std::list<T, TR::typed_allocator<T, TR::Allocator> >
-      {
-      public:
-         list(TR::typed_allocator<T, TR::Allocator> ta) :
-         std::list<T, TR::typed_allocator<T, TR::Allocator> > (ta)
-            {
-            }
-
-      };
-   }
+#include "env/TRMemory.hpp" // for TR_Memory, etc
+namespace TR {
+template <class T>
+class list : public std::list<T, TR::typed_allocator<T, TR::Allocator> > {
+public:
+    list(TR::typed_allocator<T, TR::Allocator> ta)
+        : std::list<T, TR::typed_allocator<T, TR::Allocator> >(ta)
+    {
+    }
+};
+}
 #endif

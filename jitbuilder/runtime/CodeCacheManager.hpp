@@ -24,14 +24,15 @@
 /*
  * These #ifndef's and classes must appear before including the OMR version of this file
  */
-namespace TR
-{
+namespace TR {
 
-   class CodeCacheManager : public JitBuilder::CodeCacheManager
-      {
-      public:
-      CodeCacheManager(TR_FrontEnd *fe) : JitBuilder::CodeCacheManager(fe) { }
-      };
+class CodeCacheManager : public JitBuilder::CodeCacheManager {
+public:
+    CodeCacheManager(TR_FrontEnd* fe)
+        : JitBuilder::CodeCacheManager(fe)
+    {
+    }
+};
 
 } // namespace TR
 

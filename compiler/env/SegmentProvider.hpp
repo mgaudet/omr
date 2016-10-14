@@ -28,26 +28,23 @@ namespace TR {
 
 class MemorySegment;
 
-class SegmentProvider
-   {
+class SegmentProvider {
 public:
-   virtual TR::MemorySegment& request(size_t requiredSize) = 0;
-   virtual void release(TR::MemorySegment& segment) throw() = 0;
-   size_t defaultSegmentSize() { return _defaultSegmentSize; }
-
+    virtual TR::MemorySegment& request(size_t requiredSize) = 0;
+    virtual void release(TR::MemorySegment& segment) throw() = 0;
+    size_t defaultSegmentSize() { return _defaultSegmentSize; }
 
 protected:
-   SegmentProvider(size_t defaultSegmentSize);
-   SegmentProvider(const SegmentProvider &other);
+    SegmentProvider(size_t defaultSegmentSize);
+    SegmentProvider(const SegmentProvider& other);
 
-   /*
+    /*
     * Require knowledge of the concrete class in order to destroy SegmentProviders
     */
-   virtual ~SegmentProvider() throw();
+    virtual ~SegmentProvider() throw();
 
-   size_t const _defaultSegmentSize;
-   };
-
+    size_t const _defaultSegmentSize;
+};
 }
 
 #endif // TR_SEGMENT_PROVIDER

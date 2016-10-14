@@ -22,20 +22,18 @@
 #include "Port.hpp"
 #include "TDFTypes.hpp"
 
-class CFileWriter
-{
-	/*
+class CFileWriter {
+    /*
 	 * Data members
 	 */
 private:
 protected:
 public:
-
-	/*
+    /*
 	 * Function members
 	 */
 private:
-	/**
+    /**
 	 * Output levels, groups and module info
 	 *
 	 * @param fd Output stream
@@ -44,9 +42,9 @@ private:
 	 * @param earlyAssertDefaults
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeActiveArray(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints, unsigned int earlyAssertDefaults[]);
+    RCType writeActiveArray(FILE* fd, J9TDFFile* tdf, unsigned int ntracepoints, unsigned int earlyAssertDefaults[]);
 
-	/**
+    /**
 	 * Output levels
 	 *
 	 * @param fd Output stream
@@ -55,9 +53,9 @@ private:
 	 * @param levels
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeLevels(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints, unsigned int levels[]);
+    RCType writeLevels(FILE* fd, J9TDFFile* tdf, unsigned int ntracepoints, unsigned int levels[]);
 
-	/**
+    /**
 	 * Output groups
 	 *
 	 * @param fd Output stream
@@ -66,9 +64,9 @@ private:
 	 * @param groupsCount
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeGroups(FILE *fd, J9TDFFile *tdf, J9TDFGroup *groups, unsigned int groupsCount);
+    RCType writeGroups(FILE* fd, J9TDFFile* tdf, J9TDFGroup* groups, unsigned int groupsCount);
 
-	/**
+    /**
 	 * Output module info
 	 *
 	 * @param fd Output stream
@@ -76,9 +74,9 @@ private:
 	 * @param ntracepoints number of tracepoints
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeModuleInfo(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints);
+    RCType writeModuleInfo(FILE* fd, J9TDFFile* tdf, unsigned int ntracepoints);
 
-	/**
+    /**
 	 * Output active arrays, level, group and module info
 	 *
 	 * @param fd Output stream
@@ -90,28 +88,28 @@ private:
 	 * @param groupsCount Trace group count
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeComponentDataOnStream(FILE *fd, J9TDFFile *tdf, unsigned int ntracepoints, unsigned int *levels, unsigned int *earlyAssertDefaults, J9TDFGroup *groups, unsigned int groupsCount);
+    RCType writeComponentDataOnStream(FILE* fd, J9TDFFile* tdf, unsigned int ntracepoints, unsigned int* levels, unsigned int* earlyAssertDefaults, J9TDFGroup* groups, unsigned int groupsCount);
 
-	/**
+    /**
 	 * @param fd Output stream
 	 * @param tdf Parsed TDF file
 	 * @param directRegistration
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeRegistrationFunctionsOnStream(FILE *fd, J9TDFFile *tdf, bool directRegistration);
+    RCType writeRegistrationFunctionsOnStream(FILE* fd, J9TDFFile* tdf, bool directRegistration);
 
-	/**
+    /**
 	 * Output registration functions
 	 *
 	 * @param fd Output stream
 	 * @param tdf Parsed TDF file
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeComponentDataForNonTraceEnabledBuildsOnStream(FILE *fd, J9TDFFile *tdf);
+    RCType writeComponentDataForNonTraceEnabledBuildsOnStream(FILE* fd, J9TDFFile* tdf);
+
 protected:
 public:
-
-	/**
+    /**
 	 * Output trace C file
 	 *
 	 * @param fd Output stream
@@ -120,6 +118,6 @@ public:
 	 * @param groupCount Trace group count
 	 * @return RC_OK on success, RC_FAILED on failure
 	 */
-	RCType writeOutputFiles(J9TDFOptions *options, J9TDFFile *tdf, J9TDFGroup *groups, unsigned int groupCount);
+    RCType writeOutputFiles(J9TDFOptions* options, J9TDFFile* tdf, J9TDFGroup* groups, unsigned int groupCount);
 };
 #endif /* CFILEWRITER_HPP_ */

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "omrcfg.h"
 #include "omrmodroncore.h"
 #include "omrport.h"
@@ -31,114 +30,106 @@
 #include "GlobalGCStats.hpp"
 #include "WorkStack.hpp"
 
-
 uintptr_t
 MM_ParallelMarkTask::getVMStateID()
 {
-	return J9VMSTATE_GC_MARK;
+    return J9VMSTATE_GC_MARK;
 }
 
-void
-MM_ParallelMarkTask::run(MM_EnvironmentBase *env)
+void MM_ParallelMarkTask::run(MM_EnvironmentBase* env)
 {
-	env->_workStack.prepareForWork(env, (MM_WorkPackets *)(_markingScheme->getWorkPackets()));
+    env->_workStack.prepareForWork(env, (MM_WorkPackets*)(_markingScheme->getWorkPackets()));
 
-	_markingScheme->markLiveObjectsInit(env, _initMarkMap);
-	_markingScheme->markLiveObjectsRoots(env);
-	_markingScheme->markLiveObjectsScan(env);
-	_markingScheme->markLiveObjectsComplete(env);
+    _markingScheme->markLiveObjectsInit(env, _initMarkMap);
+    _markingScheme->markLiveObjectsRoots(env);
+    _markingScheme->markLiveObjectsScan(env);
+    _markingScheme->markLiveObjectsComplete(env);
 
-	env->_workStack.flush(env);
+    env->_workStack.flush(env);
 }
 
-void
-MM_ParallelMarkTask::setup(MM_EnvironmentBase *env)
+void MM_ParallelMarkTask::setup(MM_EnvironmentBase* env)
 {
-	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
-	
-	env->_markStats.clear();
-	env->_workPacketStats.clear();
+    MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
 
-	env->_envLanguageInterface->parallelMarkTask_setup(env);
+    env->_markStats.clear();
+    env->_workPacketStats.clear();
 
-	/* record that this thread is participating in this cycle */
-	env->_markStats._gcCount = extensions->globalGCStats.gcCount;
-	env->_workPacketStats._gcCount = extensions->globalGCStats.gcCount;
+    env->_envLanguageInterface->parallelMarkTask_setup(env);
 
-	if(env->isMasterThread()) {
-		Assert_MM_true(_cycleState == env->_cycleState);
-	} else {
-		Assert_MM_true(NULL == env->_cycleState);
-		env->_cycleState = _cycleState;
-	}
+    /* record that this thread is participating in this cycle */
+    env->_markStats._gcCount = extensions->globalGCStats.gcCount;
+    env->_workPacketStats._gcCount = extensions->globalGCStats.gcCount;
+
+    if (env->isMasterThread()) {
+        Assert_MM_true(_cycleState == env->_cycleState);
+    } else {
+        Assert_MM_true(NULL == env->_cycleState);
+        env->_cycleState = _cycleState;
+    }
 }
 
-void
-MM_ParallelMarkTask::cleanup(MM_EnvironmentBase *env)
+void MM_ParallelMarkTask::cleanup(MM_EnvironmentBase* env)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
+    OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+    MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(env->getOmrVM());
 
-	env->_envLanguageInterface->parallelMarkTask_cleanup(env);
+    env->_envLanguageInterface->parallelMarkTask_cleanup(env);
 
-	extensions->globalGCStats.markStats.merge(&env->_markStats);
-	extensions->globalGCStats.workPacketStats.merge(&env->_workPacketStats);
-	if (env->isMasterThread()) {
-		Assert_MM_true(_cycleState == env->_cycleState);
-	} else {
-		env->_cycleState = NULL;
-	}
-	
-	/* record the thread-specific parallelism stats in the trace buffer. This partially duplicates info in -Xtgc:parallel */
-	Trc_MM_ParallelMarkTask_parallelStats(
-		env->getLanguageVMThread(),
-		(uint32_t)env->getSlaveID(),
-		(uint32_t)omrtime_hires_delta(0, env->_workPacketStats._workStallTime, OMRPORT_TIME_DELTA_IN_MILLISECONDS),
-		(uint32_t)omrtime_hires_delta(0, env->_workPacketStats._completeStallTime, OMRPORT_TIME_DELTA_IN_MILLISECONDS),
-		(uint32_t)omrtime_hires_delta(0, env->_markStats._syncStallTime, OMRPORT_TIME_DELTA_IN_MILLISECONDS),
-		(uint32_t)env->_workPacketStats._workStallCount,
-		(uint32_t)env->_workPacketStats._completeStallCount,
-		(uint32_t)env->_markStats._syncStallCount,
-		env->_workPacketStats.workPacketsAcquired,
-		env->_workPacketStats.workPacketsReleased,
-		env->_workPacketStats.workPacketsExchanged,
-		0/* TODO CRG figure out to get the array split size*/);
+    extensions->globalGCStats.markStats.merge(&env->_markStats);
+    extensions->globalGCStats.workPacketStats.merge(&env->_workPacketStats);
+    if (env->isMasterThread()) {
+        Assert_MM_true(_cycleState == env->_cycleState);
+    } else {
+        env->_cycleState = NULL;
+    }
+
+    /* record the thread-specific parallelism stats in the trace buffer. This partially duplicates info in -Xtgc:parallel */
+    Trc_MM_ParallelMarkTask_parallelStats(
+        env->getLanguageVMThread(),
+        (uint32_t)env->getSlaveID(),
+        (uint32_t)omrtime_hires_delta(0, env->_workPacketStats._workStallTime, OMRPORT_TIME_DELTA_IN_MILLISECONDS),
+        (uint32_t)omrtime_hires_delta(0, env->_workPacketStats._completeStallTime, OMRPORT_TIME_DELTA_IN_MILLISECONDS),
+        (uint32_t)omrtime_hires_delta(0, env->_markStats._syncStallTime, OMRPORT_TIME_DELTA_IN_MILLISECONDS),
+        (uint32_t)env->_workPacketStats._workStallCount,
+        (uint32_t)env->_workPacketStats._completeStallCount,
+        (uint32_t)env->_markStats._syncStallCount,
+        env->_workPacketStats.workPacketsAcquired,
+        env->_workPacketStats.workPacketsReleased,
+        env->_workPacketStats.workPacketsExchanged,
+        0 /* TODO CRG figure out to get the array split size*/);
 }
 
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
-void
-MM_ParallelMarkTask::synchronizeGCThreads(MM_EnvironmentBase *env, const char *id)
+void MM_ParallelMarkTask::synchronizeGCThreads(MM_EnvironmentBase* env, const char* id)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	uint64_t startTime = omrtime_hires_clock();
-	MM_ParallelTask::synchronizeGCThreads(env, id);
-	uint64_t endTime = omrtime_hires_clock();
-	env->_markStats.addToSyncStallTime(startTime, endTime);
+    OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+    uint64_t startTime = omrtime_hires_clock();
+    MM_ParallelTask::synchronizeGCThreads(env, id);
+    uint64_t endTime = omrtime_hires_clock();
+    env->_markStats.addToSyncStallTime(startTime, endTime);
 }
 
-bool
-MM_ParallelMarkTask::synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase *env, const char *id)
+bool MM_ParallelMarkTask::synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase* env, const char* id)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	uint64_t startTime = omrtime_hires_clock();
-	bool result = MM_ParallelTask::synchronizeGCThreadsAndReleaseMaster(env, id);
-	uint64_t endTime = omrtime_hires_clock();
-	env->_markStats.addToSyncStallTime(startTime, endTime);
-	
-	return result;	
+    OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+    uint64_t startTime = omrtime_hires_clock();
+    bool result = MM_ParallelTask::synchronizeGCThreadsAndReleaseMaster(env, id);
+    uint64_t endTime = omrtime_hires_clock();
+    env->_markStats.addToSyncStallTime(startTime, endTime);
+
+    return result;
 }
 
-bool
-MM_ParallelMarkTask::synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase *env, const char *id)
+bool MM_ParallelMarkTask::synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase* env, const char* id)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	uint64_t startTime = omrtime_hires_clock();
-	bool result = MM_ParallelTask::synchronizeGCThreadsAndReleaseSingleThread(env, id);
-	uint64_t endTime = omrtime_hires_clock();
-	env->_markStats.addToSyncStallTime(startTime, endTime);
+    OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+    uint64_t startTime = omrtime_hires_clock();
+    bool result = MM_ParallelTask::synchronizeGCThreadsAndReleaseSingleThread(env, id);
+    uint64_t endTime = omrtime_hires_clock();
+    env->_markStats.addToSyncStallTime(startTime, endTime);
 
-	return result;
+    return result;
 }
 
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
-

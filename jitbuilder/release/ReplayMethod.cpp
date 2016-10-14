@@ -27,33 +27,29 @@
 #include "ilgen/MethodBuilder.hpp"
 #include "ReplayMethod.hpp"
 
+int main(int argc, char* argv[])
+{
+    printf("Step 1: initialize JIT\n");
+    bool initialized = initializeJit();
+    if (!initialized) {
+        fprintf(stderr, "FAIL: could not initialize JIT\n");
+        exit(-1);
+    }
 
-int
-main(int argc, char *argv[])
-   {
-   printf("Step 1: initialize JIT\n");
-   bool initialized = initializeJit();
-   if (!initialized)
-      {
-      fprintf(stderr, "FAIL: could not initialize JIT\n");
-      exit(-1);
-      }
+    printf("Step 2: define type dictionary\n");
+    TR::TypeDictionary types;
 
-   printf("Step 2: define type dictionary\n");
-   TR::TypeDictionary types;
+    printf("Step 3: compile method builder\n");
+    ReplayMethod method(&types);
+    uint8_t* entry;
+    int32_t rc = compileMethodBuilder(&method, &entry);
+    if (rc != 0) {
+        fprintf(stderr, "FAIL: compilation error %d\n", rc);
+        exit(-2);
+    }
 
-   printf("Step 3: compile method builder\n");
-   ReplayMethod method(&types);
-   uint8_t *entry;
-   int32_t rc = compileMethodBuilder(&method, &entry);
-   if (rc != 0)
-      {
-      fprintf(stderr,"FAIL: compilation error %d\n", rc);
-      exit(-2);
-      }
+    printf("Step 4: shutdown JIT\n");
+    shutdownJit();
 
-   printf ("Step 4: shutdown JIT\n");
-   shutdownJit();
-
-   printf("PASS\n");
-   }
+    printf("PASS\n");
+}

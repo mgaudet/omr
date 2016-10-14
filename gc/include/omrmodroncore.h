@@ -35,8 +35,8 @@
 typedef U_8 Card;
 
 enum {
-	CARD_SIZE_SHIFT	= 9,	/* base2 log of CARD_SIZE, used to change division into shift */
-	CARD_SIZE = 512	/* size of a "card" of the heap - in a sense:  the granule of deferred mark map update */
+    CARD_SIZE_SHIFT = 9, /* base2 log of CARD_SIZE, used to change division into shift */
+    CARD_SIZE = 512 /* size of a "card" of the heap - in a sense:  the granule of deferred mark map update */
 };
 
 /*

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include <string.h>
 #include "omrExampleVM.hpp"
 
@@ -27,18 +26,18 @@
  * @param[in] userData Data that can be passed along, unused in this callback
  */
 uintptr_t
-rootTableHashFn(void *entry, void *userData)
+rootTableHashFn(void* entry, void* userData)
 {
-	const char *name = ((RootEntry *)entry)->name;
-	uintptr_t length = strlen(name);
-	uintptr_t hash = 0;
-	uintptr_t i;
+    const char* name = ((RootEntry*)entry)->name;
+    uintptr_t length = strlen(name);
+    uintptr_t hash = 0;
+    uintptr_t i;
 
-	for (i = 0; i < length; i++) {
-		hash = (hash << 5) - hash + name[i];
-	}
+    for (i = 0; i < length; i++) {
+        hash = (hash << 5) - hash + name[i];
+    }
 
-	return hash;
+    return hash;
 }
 
 /**
@@ -53,11 +52,11 @@ rootTableHashFn(void *entry, void *userData)
  *
  */
 uintptr_t
-rootTableHashEqualFn(void *leftEntry, void *rightEntry, void *userData)
+rootTableHashEqualFn(void* leftEntry, void* rightEntry, void* userData)
 {
-	RootEntry *loe = (RootEntry *)leftEntry;
-	RootEntry *roe = (RootEntry *)rightEntry;
-	return (0 == strcmp(loe->name, roe->name));
+    RootEntry* loe = (RootEntry*)leftEntry;
+    RootEntry* roe = (RootEntry*)rightEntry;
+    return (0 == strcmp(loe->name, roe->name));
 }
 
 /**
@@ -67,18 +66,18 @@ rootTableHashEqualFn(void *leftEntry, void *rightEntry, void *userData)
  * @param[in] userData Data that can be passed along, unused in this callback
  */
 uintptr_t
-objectTableHashFn(void *entry, void *userData)
+objectTableHashFn(void* entry, void* userData)
 {
-	const char *name = ((ObjectEntry *)entry)->name;
-	uintptr_t length = strlen(name);
-	uintptr_t hash = 0;
-	uintptr_t i;
+    const char* name = ((ObjectEntry*)entry)->name;
+    uintptr_t length = strlen(name);
+    uintptr_t hash = 0;
+    uintptr_t i;
 
-	for (i = 0; i < length; i++) {
-		hash = (hash << 5) - hash + name[i];
-	}
+    for (i = 0; i < length; i++) {
+        hash = (hash << 5) - hash + name[i];
+    }
 
-	return hash;
+    return hash;
 }
 
 /**
@@ -93,11 +92,11 @@ objectTableHashFn(void *entry, void *userData)
  *
  */
 uintptr_t
-objectTableHashEqualFn(void *leftEntry, void *rightEntry, void *userData)
+objectTableHashEqualFn(void* leftEntry, void* rightEntry, void* userData)
 {
-	ObjectEntry *loe = (ObjectEntry *)leftEntry;
-	ObjectEntry *roe = (ObjectEntry *)rightEntry;
-	return (0 == strcmp(loe->name, roe->name));
+    ObjectEntry* loe = (ObjectEntry*)leftEntry;
+    ObjectEntry* roe = (ObjectEntry*)rightEntry;
+    return (0 == strcmp(loe->name, roe->name));
 }
 
 /**
@@ -108,14 +107,14 @@ objectTableHashEqualFn(void *leftEntry, void *rightEntry, void *userData)
  * @param[in] userData Data that can be passed along, unused in this callback
  */
 uintptr_t
-objectTableFreeFn(void *entry, void *userData)
+objectTableFreeFn(void* entry, void* userData)
 {
-	OMR_VM_Example *exampleVM = (OMR_VM_Example *)userData;
-	OMRPORT_ACCESS_FROM_OMRVM(exampleVM->_omrVM);
-	ObjectEntry *objEntry = (ObjectEntry *)entry;
+    OMR_VM_Example* exampleVM = (OMR_VM_Example*)userData;
+    OMRPORT_ACCESS_FROM_OMRVM(exampleVM->_omrVM);
+    ObjectEntry* objEntry = (ObjectEntry*)entry;
 
-	omrmem_free_memory((void *)objEntry->name);
-	objEntry->name = NULL;
+    omrmem_free_memory((void*)objEntry->name);
+    objEntry->name = NULL;
 
-	return 0;
+    return 0;
 }

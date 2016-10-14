@@ -21,16 +21,15 @@
 
 #include "codegen/OMRAheadOfTimeCompile.hpp"
 
-namespace TR
-{
+namespace TR {
 
-class OMR_EXTENSIBLE AheadOfTimeCompile : public OMR::AheadOfTimeCompileConnector
+class OMR_EXTENSIBLE AheadOfTimeCompile : public OMR::AheadOfTimeCompileConnector {
+public:
+    AheadOfTimeCompile(uint32_t* headerSizeMap, TR::Compilation* c)
+        : OMR::AheadOfTimeCompileConnector(headerSizeMap, c)
     {
-    public:
-    AheadOfTimeCompile(uint32_t *headerSizeMap, TR::Compilation * c)
-       : OMR::AheadOfTimeCompileConnector(headerSizeMap, c) {}
-    };
-
+    }
+};
 }
 
 #endif

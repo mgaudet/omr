@@ -23,8 +23,6 @@
  */
 #include "omrport.h"
 
-
-
 /**
  * Query OS for timestamp.
  * Retrieve the current value of system clock and convert to milliseconds since
@@ -35,9 +33,9 @@
  * @return 0 on failure, time value in milliseconds on success.
  */
 int64_t
-omrtime_current_time_millis(struct OMRPortLibrary *portLibrary)
+omrtime_current_time_millis(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -49,9 +47,9 @@ omrtime_current_time_millis(struct OMRPortLibrary *portLibrary)
  * @return platform-dependent time value in nanoseconds. 0 or -ve numbers may be returned.
  */
 int64_t
-omrtime_nano_time(struct OMRPortLibrary *portLibrary)
+omrtime_nano_time(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 
 /**
@@ -63,9 +61,9 @@ omrtime_nano_time(struct OMRPortLibrary *portLibrary)
  * @return 0 on failure, time value on success.
  */
 uint64_t
-omrtime_hires_clock(struct OMRPortLibrary *portLibrary)
+omrtime_hires_clock(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 /**
  * Query OS for clock frequency
@@ -76,9 +74,9 @@ omrtime_hires_clock(struct OMRPortLibrary *portLibrary)
  * @return 0 on failure, number of ticks per second on success.
  */
 uint64_t
-omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
+omrtime_hires_frequency(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 /**
  * Calculate time difference between two hires clock timer values @ref omrtime_hires_clock.
@@ -103,9 +101,9 @@ omrtime_hires_frequency(struct OMRPortLibrary *portLibrary)
  *  \arg OMRPORT_TIME_DELTA_IN_NANOSECONDS return timer value in nanoseconds.
  */
 uint64_t
-omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
+omrtime_hires_delta(struct OMRPortLibrary* portLibrary, uint64_t startTime, uint64_t endTime, uint64_t requiredResolution)
 {
-	return 0;
+    return 0;
 }
 /**
  * Query OS for timestamp.
@@ -117,9 +115,9 @@ omrtime_hires_delta(struct OMRPortLibrary *portLibrary, uint64_t startTime, uint
  * @deprecated Use @ref omrtime_hires_clock and @ref omrtime_hires_delta
  */
 uintptr_t
-omrtime_msec_clock(struct OMRPortLibrary *portLibrary)
+omrtime_msec_clock(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 /**
  * Query OS for timestamp.
@@ -131,9 +129,9 @@ omrtime_msec_clock(struct OMRPortLibrary *portLibrary)
  * @deprecated Use @ref omrtime_hires_clock and @ref omrtime_hires_delta
  */
 uintptr_t
-omrtime_usec_clock(struct OMRPortLibrary *portLibrary)
+omrtime_usec_clock(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
 /**
  * Query OS for timestamp.
@@ -148,9 +146,9 @@ omrtime_usec_clock(struct OMRPortLibrary *portLibrary)
  *
  */
 uint64_t
-omrtime_current_time_nanos(struct OMRPortLibrary *portLibrary, uintptr_t *success)
+omrtime_current_time_nanos(struct OMRPortLibrary* portLibrary, uintptr_t* success)
 {
-	return 0;
+    return 0;
 }
 /**
  * PortLibrary shutdown.
@@ -162,8 +160,7 @@ omrtime_current_time_nanos(struct OMRPortLibrary *portLibrary, uintptr_t *succes
  *
  * @note Most implementations will be empty.
  */
-void
-omrtime_shutdown(struct OMRPortLibrary *portLibrary)
+void omrtime_shutdown(struct OMRPortLibrary* portLibrary)
 {
 }
 /**
@@ -181,9 +178,7 @@ omrtime_shutdown(struct OMRPortLibrary *portLibrary)
  * @note Most implementations will simply return success.
  */
 int32_t
-omrtime_startup(struct OMRPortLibrary *portLibrary)
+omrtime_startup(struct OMRPortLibrary* portLibrary)
 {
-	return 0;
+    return 0;
 }
-
-

@@ -26,10 +26,10 @@ extern "C" {
 #endif /* defined(__cplusplus) */
 
 /* ---------------- AtomicFunctions.cpp ---------------- */
-uintptr_t compareAndSwapUDATA(uintptr_t *location, uintptr_t oldValue, uintptr_t newValue, uintptr_t *spinlock);
-uintptr_t compareAndSwapUDATANoSpinlock(uintptr_t *location, uintptr_t oldValue, uintptr_t newValue);
-uint32_t compareAndSwapU32(uint32_t *location, uint32_t oldValue, uint32_t newValue, uintptr_t *spinlock);
-uint32_t compareAndSwapU32NoSpinlock(uint32_t *location, uint32_t oldValue, uint32_t newValue);
+uintptr_t compareAndSwapUDATA(uintptr_t* location, uintptr_t oldValue, uintptr_t newValue, uintptr_t* spinlock);
+uintptr_t compareAndSwapUDATANoSpinlock(uintptr_t* location, uintptr_t oldValue, uintptr_t newValue);
+uint32_t compareAndSwapU32(uint32_t* location, uint32_t oldValue, uint32_t newValue, uintptr_t* spinlock);
+uint32_t compareAndSwapU32NoSpinlock(uint32_t* location, uint32_t oldValue, uint32_t newValue);
 void issueReadBarrier(void);
 void issueReadWriteBarrier(void);
 void issueWriteBarrier(void);
@@ -47,10 +47,9 @@ void issueWriteBarrier(void);
  * @param[in] swapHi  High part of swap value
  * @return  The old value read from addr
  */
-uint64_t J9CAS8Helper(volatile uint64_t *addr, uint32_t compareLo, uint32_t compareHi, uint32_t swapLo, uint32_t swapHi);
+uint64_t J9CAS8Helper(volatile uint64_t* addr, uint32_t compareLo, uint32_t compareHi, uint32_t swapLo, uint32_t swapHi);
 
 #endif /* !OMR_ENV_DATA64 && (AIXPPC || LINUXPPC) */
-
 
 /* ---------------- gettimebase.c ---------------- */
 uint64_t getTimebase(void);

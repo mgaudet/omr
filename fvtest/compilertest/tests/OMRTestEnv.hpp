@@ -28,16 +28,14 @@
 
 class TR_Memory;
 
-class OMRTestEnv : public testing::Environment
-   {
-   public:
-   virtual void SetUp();
-   virtual void TearDown();
-   static TR_Memory *trMemory() { return _trMemory; }
+class OMRTestEnv : public testing::Environment {
+public:
+    virtual void SetUp();
+    virtual void TearDown();
+    static TR_Memory* trMemory() { return _trMemory; }
 
-   private:
-   static TR_Memory *_trMemory;
+private:
+    static TR_Memory* _trMemory;
 };
-
 
 #endif /* TEST_TESTS_OMRTESTENV_HPP_ */

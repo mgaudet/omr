@@ -26,18 +26,16 @@
 
 #include "RootScannerStats.hpp"
 
-void
-MM_RootScannerStats::clear()
+void MM_RootScannerStats::clear()
 {
-	for (uintptr_t i = 0; i < RootScannerEntity_Count; i++) {
-		_entityScanTime[i] = 0;
-	}
+    for (uintptr_t i = 0; i < RootScannerEntity_Count; i++) {
+        _entityScanTime[i] = 0;
+    }
 }
 
-void
-MM_RootScannerStats::merge(MM_RootScannerStats *statsToMerge)
+void MM_RootScannerStats::merge(MM_RootScannerStats* statsToMerge)
 {
-	for (uintptr_t i = 0; i < RootScannerEntity_Count; i++) {
-		_entityScanTime[i] += statsToMerge->_entityScanTime[i];
-	}
+    for (uintptr_t i = 0; i < RootScannerEntity_Count; i++) {
+        _entityScanTime[i] += statsToMerge->_entityScanTime[i];
+    }
 }

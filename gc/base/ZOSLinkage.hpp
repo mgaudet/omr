@@ -47,4 +47,3 @@ extern int j9zos390LinkTrickPhysicalSubArenaVirtualMemorySemiSpace;
 #endif /* J9ZOS390 */
 
 #endif /* ZOSLINKAGE_HPP_ */
-

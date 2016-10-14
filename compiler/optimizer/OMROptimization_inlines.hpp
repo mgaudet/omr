@@ -23,14 +23,13 @@
 
 TR::Optimization*
 OMR::Optimization::self()
-   {
-   return static_cast<TR::Optimization*>(this);
-   }
+{
+    return static_cast<TR::Optimization*>(this);
+}
 
-bool
-OMR::Optimization::trace()
-   {
-   return _manager->trace();
-   }
+bool OMR::Optimization::trace()
+{
+    return _manager->trace();
+}
 
 #endif

@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #include "PhysicalSubArenaVirtualMemory.hpp"
 
 class MM_EnvironmentBase;
@@ -30,14 +29,13 @@ class MM_EnvironmentBase;
 int j9zos390LinkTrickPhysicalSubArenaVirtualMemory;
 #endif /* J9ZOS390 */
 
-bool
-MM_PhysicalSubArenaVirtualMemory::initialize(MM_EnvironmentBase* env)
+bool MM_PhysicalSubArenaVirtualMemory::initialize(MM_EnvironmentBase* env)
 {
-	if (!MM_PhysicalSubArena::initialize(env)) {
-		return false;
-	}
+    if (!MM_PhysicalSubArena::initialize(env)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /**
@@ -46,14 +44,13 @@ MM_PhysicalSubArenaVirtualMemory::initialize(MM_EnvironmentBase* env)
  * address range.
  * @return the next highest valid range, or NULL if there is none.
  */
-void*
-MM_PhysicalSubArenaVirtualMemory::findAdjacentHighValidAddress(MM_EnvironmentBase* env)
+void* MM_PhysicalSubArenaVirtualMemory::findAdjacentHighValidAddress(MM_EnvironmentBase* env)
 {
-	/* Is there a valid higher address? */
-	if (NULL == _highArena) {
-		return NULL;
-	}
+    /* Is there a valid higher address? */
+    if (NULL == _highArena) {
+        return NULL;
+    }
 
-	/* There is - return its lowest address */
-	return _highArena->getLowAddress();
+    /* There is - return its lowest address */
+    return _highArena->getLowAddress();
 }

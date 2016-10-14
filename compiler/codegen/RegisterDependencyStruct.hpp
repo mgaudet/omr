@@ -21,6 +21,9 @@
 
 #include "codegen/OMRRegisterDependencyStruct.hpp"
 
-namespace TR { struct RegisterDependency : OMR::RegisterDependency {}; }
+namespace TR {
+struct RegisterDependency : OMR::RegisterDependency {
+};
+}
 
 #endif

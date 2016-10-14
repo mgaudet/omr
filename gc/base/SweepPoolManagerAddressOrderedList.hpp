@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base
@@ -34,24 +33,19 @@
 #include "MemoryPool.hpp"
 #include "SweepPoolManagerAddressOrderedListBase.hpp"
 
-class MM_SweepPoolManagerAddressOrderedList : public MM_SweepPoolManagerAddressOrderedListBase
-{
+class MM_SweepPoolManagerAddressOrderedList : public MM_SweepPoolManagerAddressOrderedListBase {
 private:
-
 protected:
-
 public:
+    static MM_SweepPoolManagerAddressOrderedList* newInstance(MM_EnvironmentBase* env);
 
-	static MM_SweepPoolManagerAddressOrderedList *newInstance(MM_EnvironmentBase *env);
-
-	/**
+    /**
 	 * Create a SweepPoolManager object.
 	 */
-	MM_SweepPoolManagerAddressOrderedList(MM_EnvironmentBase *env)
-		: MM_SweepPoolManagerAddressOrderedListBase(env)
-	{
-		_typeId = __FUNCTION__;
-	}
-
+    MM_SweepPoolManagerAddressOrderedList(MM_EnvironmentBase* env)
+        : MM_SweepPoolManagerAddressOrderedListBase(env)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 #endif /* SWEEPPOOLMANAGERADDRESSORDEREDLIST_HPP_ */

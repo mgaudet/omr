@@ -29,26 +29,27 @@
 
 typedef CS2::trace_allocator<> a;
 
-int main(int argc, char **argv) {
-  CS2::ArrayOf<uint32_t, a> A1( a(), 3);
-  CS2::ArrayOf<uint32_t, a> A2;
+int main(int argc, char** argv)
+{
+    CS2::ArrayOf<uint32_t, a> A1(a(), 3);
+    CS2::ArrayOf<uint32_t, a> A2;
 
-  CS2::PhaseTimingSummary<a> x("noname", a(), argc>1);
+    CS2::PhaseTimingSummary<a> x("noname", a(), argc > 1);
 
-  CS2::LexicalBlockTimer<a> t("whatever", x);
+    CS2::LexicalBlockTimer<a> t("whatever", x);
 
-  CS2::ABitVector<a> b,b2;
-  CS2::ASparseBitVector<a> sb,sb2;
+    CS2::ABitVector<a> b, b2;
+    CS2::ASparseBitVector<a> sb, sb2;
 
-  b[34]=0;
-  sb[34]=0;
+    b[34] = 0;
+    sb[34] = 0;
 
-  b2 = b;
-  sb2 = sb;
-  sb = b;
+    b2 = b;
+    sb2 = sb;
+    sb = b;
 
-  CS2::HashTable<uint32_t, bool, a> h;
+    CS2::HashTable<uint32_t, bool, a> h;
 
-  CS2::HashIndex hi;
-  bool f = h.Locate(10, hi);
+    CS2::HashIndex hi;
+    bool f = h.Locate(10, hi);
 }

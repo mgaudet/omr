@@ -20,221 +20,171 @@
 
 #include "codegen/CodeGenerator.hpp"
 #include "env/CompilerEnv.hpp"
-#include "il/Node.hpp"                                         // for Node
+#include "il/Node.hpp" // for Node
 #include "il/Node_inlines.hpp"
 
 uint32_t
 OMR::Z::InstOpCode::hasBypass()
-   {
-   switch(_mnemonic)
-      {
-      case L:
-      case LR:
-      case LGR:
-      case LG:
-      case LA:
-      case LM:
-      case LAY:
-      case LMG:
-      case LARL:
-      case BXH:
-      case BRXH:
-      case BRXHG:
-      case BRXLE:
-      case BXLEG:
-      case BRXLG:
-         return true;
-      }
-   return false;
-   }
+{
+    switch (_mnemonic) {
+    case L:
+    case LR:
+    case LGR:
+    case LG:
+    case LA:
+    case LM:
+    case LAY:
+    case LMG:
+    case LARL:
+    case BXH:
+    case BRXH:
+    case BRXHG:
+    case BRXLE:
+    case BXLEG:
+    case BRXLG:
+        return true;
+    }
+    return false;
+}
 
 uint32_t
 OMR::Z::InstOpCode::isAdmin()
-   {
-   return (_mnemonic == DIRECTIVE ||
-           _mnemonic == RET ||
-           _mnemonic == ASSOCREGS ||
-           _mnemonic == DEPEND ||
-           _mnemonic == FENCE ||
-           _mnemonic == SCHEDFENCE ||
-           _mnemonic == PROC ||
-           _mnemonic == DC ||
-           _mnemonic == DC2 ||
-           _mnemonic == LOCK ||
-           _mnemonic == UNLOCK ||
-           _mnemonic == ASM ||
-           _mnemonic == DS);
-   }
+{
+    return (_mnemonic == DIRECTIVE || _mnemonic == RET || _mnemonic == ASSOCREGS || _mnemonic == DEPEND || _mnemonic == FENCE || _mnemonic == SCHEDFENCE || _mnemonic == PROC || _mnemonic == DC || _mnemonic == DC2 || _mnemonic == LOCK || _mnemonic == UNLOCK || _mnemonic == ASM || _mnemonic == DS);
+}
 
 uint32_t
 OMR::Z::InstOpCode::isHighWordInstruction()
-   {
-   return (_mnemonic == AHHHR ||
-           _mnemonic == AHHLR ||
-           _mnemonic == AIH ||
-           _mnemonic == ALHHHR ||
-           _mnemonic == ALHHLR ||
-           _mnemonic == ALSIH ||
-           _mnemonic == ALSIHN ||
-           _mnemonic == BRCTH ||
-           _mnemonic == CHF ||
-           _mnemonic == CHHR ||
-           _mnemonic == CHLR ||
-           _mnemonic == CIH ||
-           _mnemonic == CLHF ||
-           _mnemonic == CLHHR ||
-           _mnemonic == CLHLR ||
-           _mnemonic == CLIH ||
-           _mnemonic == LBH ||
-           _mnemonic == LHH ||
-           _mnemonic == LFH ||
-           _mnemonic == LFHAT ||
-           _mnemonic == LLCH ||
-           _mnemonic == LLHH ||
-           _mnemonic == RISBHG ||
-           _mnemonic == RISBLG ||
-           _mnemonic == STCH ||
-           _mnemonic == STHH ||
-           _mnemonic == STFH ||
-           _mnemonic == SHHHR ||
-           _mnemonic == SHHLR ||
-           _mnemonic == SLHHHR ||
-           _mnemonic == SLHHLR);
-   }
-
+{
+    return (_mnemonic == AHHHR || _mnemonic == AHHLR || _mnemonic == AIH || _mnemonic == ALHHHR || _mnemonic == ALHHLR || _mnemonic == ALSIH || _mnemonic == ALSIHN || _mnemonic == BRCTH || _mnemonic == CHF || _mnemonic == CHHR || _mnemonic == CHLR || _mnemonic == CIH || _mnemonic == CLHF || _mnemonic == CLHHR || _mnemonic == CLHLR || _mnemonic == CLIH || _mnemonic == LBH || _mnemonic == LHH || _mnemonic == LFH || _mnemonic == LFHAT || _mnemonic == LLCH || _mnemonic == LLHH || _mnemonic == RISBHG || _mnemonic == RISBLG || _mnemonic == STCH || _mnemonic == STHH || _mnemonic == STFH || _mnemonic == SHHHR || _mnemonic == SHHLR || _mnemonic == SLHHHR || _mnemonic == SLHHLR);
+}
 
 uint64_t
 OMR::Z::InstOpCode::setsOperand(uint32_t opNum)
-   {
-   if (opNum == 1)
-      return properties[_mnemonic] & S390OpProp_SetsOperand1;
-   else if (opNum == 2)
-      return properties[_mnemonic] & S390OpProp_SetsOperand2;
-   else if (opNum == 3)
-      return properties[_mnemonic] & S390OpProp_SetsOperand3;
-   else if (opNum == 4)
-      return properties[_mnemonic] & S390OpProp_SetsOperand4;
-   return false;
-   }
+{
+    if (opNum == 1)
+        return properties[_mnemonic] & S390OpProp_SetsOperand1;
+    else if (opNum == 2)
+        return properties[_mnemonic] & S390OpProp_SetsOperand2;
+    else if (opNum == 3)
+        return properties[_mnemonic] & S390OpProp_SetsOperand3;
+    else if (opNum == 4)
+        return properties[_mnemonic] & S390OpProp_SetsOperand4;
+    return false;
+}
 
 uint64_t
 OMR::Z::InstOpCode::isOperandHW(uint32_t i)
-   {
-   uint64_t mask = ((i==1)? S390OpProp_TargetHW : 0) | ((i==2)? S390OpProp_SrcHW : 0) | ((i==3)? S390OpProp_Src2HW : 0);
-   return properties[_mnemonic] & mask;
-   }
+{
+    uint64_t mask = ((i == 1) ? S390OpProp_TargetHW : 0) | ((i == 2) ? S390OpProp_SrcHW : 0) | ((i == 3) ? S390OpProp_Src2HW : 0);
+    return properties[_mnemonic] & mask;
+}
 
 uint64_t
 OMR::Z::InstOpCode::isOperandLW(uint32_t i)
-    {
-    uint64_t mask = ((i==1)? S390OpProp_TargetLW : 0) | ((i==2)? S390OpProp_SrcLW : 0) | ((i==3)? S390OpProp_Src2LW : 0);
+{
+    uint64_t mask = ((i == 1) ? S390OpProp_TargetLW : 0) | ((i == 2) ? S390OpProp_SrcLW : 0) | ((i == 3) ? S390OpProp_Src2LW : 0);
     return properties[_mnemonic] & mask;
-    }
-
-
+}
 
 /* Static Methods */
 
-void
-OMR::Z::InstOpCode::copyBinaryToBufferWithoutClear(uint8_t *cursor, TR::InstOpCode::Mnemonic i_opCode)
-  {
-  cursor[0] = binaryEncodings[i_opCode].bytes[0];
-  if( binaryEncodings[i_opCode].bytes[1] ) //Two byte opcode
+void OMR::Z::InstOpCode::copyBinaryToBufferWithoutClear(uint8_t* cursor, TR::InstOpCode::Mnemonic i_opCode)
+{
+    cursor[0] = binaryEncodings[i_opCode].bytes[0];
+    if (binaryEncodings[i_opCode].bytes[1]) //Two byte opcode
     {
-    switch (getInstructionFormat(i_opCode))
-      {
-      case RXE_FORMAT:
-      case RXY_FORMAT:
-      case RXF_FORMAT:
-      case RSE_FORMAT:
-      case RSY_FORMAT:
-      case RSL_FORMAT:
-      case RIE_FORMAT:
-      case SIY_FORMAT:
-      case RRS_FORMAT:
-      case RIS_FORMAT:
-      case VRIa_FORMAT:
-      case VRIb_FORMAT:
-      case VRIc_FORMAT:
-      case VRId_FORMAT:
-      case VRIe_FORMAT:
-      case VRRa_FORMAT:
-      case VRRb_FORMAT:
-      case VRRc_FORMAT:
-      case VRRd_FORMAT:
-      case VRRe_FORMAT:
-      case VRRf_FORMAT:
-      case VRSa_FORMAT:
-      case VRSb_FORMAT:
-      case VRSc_FORMAT:
-      case VRV_FORMAT:
-      case VRX_FORMAT:
-         cursor[5] = binaryEncodings[i_opCode].bytes[1];
-         //second byte of opcode begins at bit 47 (sixth byte)
-         break;
-       default:
-         cursor[1] = binaryEncodings[i_opCode].bytes[1];
-         break;
-       }
+        switch (getInstructionFormat(i_opCode)) {
+        case RXE_FORMAT:
+        case RXY_FORMAT:
+        case RXF_FORMAT:
+        case RSE_FORMAT:
+        case RSY_FORMAT:
+        case RSL_FORMAT:
+        case RIE_FORMAT:
+        case SIY_FORMAT:
+        case RRS_FORMAT:
+        case RIS_FORMAT:
+        case VRIa_FORMAT:
+        case VRIb_FORMAT:
+        case VRIc_FORMAT:
+        case VRId_FORMAT:
+        case VRIe_FORMAT:
+        case VRRa_FORMAT:
+        case VRRb_FORMAT:
+        case VRRc_FORMAT:
+        case VRRd_FORMAT:
+        case VRRe_FORMAT:
+        case VRRf_FORMAT:
+        case VRSa_FORMAT:
+        case VRSb_FORMAT:
+        case VRSc_FORMAT:
+        case VRV_FORMAT:
+        case VRX_FORMAT:
+            cursor[5] = binaryEncodings[i_opCode].bytes[1];
+            //second byte of opcode begins at bit 47 (sixth byte)
+            break;
+        default:
+            cursor[1] = binaryEncodings[i_opCode].bytes[1];
+            break;
+        }
     }
-  }
+}
 
-void
-OMR::Z::InstOpCode::copyBinaryToBuffer(uint8_t *cursor, TR::InstOpCode::Mnemonic i_opCode)
-  {
- /*
+void OMR::Z::InstOpCode::copyBinaryToBuffer(uint8_t* cursor, TR::InstOpCode::Mnemonic i_opCode)
+{
+    /*
   * clear the stg for this instruction
   */
-  for (int32_t i=0; i< getInstructionLength(i_opCode); ++i)
-    {
-    cursor[i] = 0;
+    for (int32_t i = 0; i < getInstructionLength(i_opCode); ++i) {
+        cursor[i] = 0;
     }
-  copyBinaryToBufferWithoutClear(cursor,i_opCode);
-  }
+    copyBinaryToBufferWithoutClear(cursor, i_opCode);
+}
 
 /* Using a table that maps values of bit 0-1 to instruction length from POP chapter 5,  topic: Instruction formats (page 5.5)*/
 uint8_t
 OMR::Z::InstOpCode::getInstructionLength(TR::InstOpCode::Mnemonic i_opCode)
-  {
-  if (binaryEncodings[i_opCode].bytes[0])
-     {
-     switch(binaryEncodings[i_opCode].bytes[0] & 0xC0)
-       {
-       case 0x00 : return 2;
-       case 0x40 :
-       case 0x80 : return 4;
-       case 0xC0 : return 6;
-       default   : return 0;
-       }
-     }
-  else // not a real instruction e.g. DC, PSEUDO
-     {
-     switch(getInstructionFormat(i_opCode))
-       {
-       case DC_FORMAT:
-          {
-          if (i_opCode == DC2)   return 2;
-          else                      return 4;
-          }
-       case PSEUDO : return 0;
-       default     : return 0;
-       }
-     }
-  }
-
-
+{
+    if (binaryEncodings[i_opCode].bytes[0]) {
+        switch (binaryEncodings[i_opCode].bytes[0] & 0xC0) {
+        case 0x00:
+            return 2;
+        case 0x40:
+        case 0x80:
+            return 4;
+        case 0xC0:
+            return 6;
+        default:
+            return 0;
+        }
+    } else // not a real instruction e.g. DC, PSEUDO
+    {
+        switch (getInstructionFormat(i_opCode)) {
+        case DC_FORMAT: {
+            if (i_opCode == DC2)
+                return 2;
+            else
+                return 4;
+        }
+        case PSEUDO:
+            return 0;
+        default:
+            return 0;
+        }
+    }
+}
 
 /* Function Prototype */
-#define GET_OPCODE_FROM_NODE(opKind, opcode64, opcode32) \
-   TR::InstOpCode::Mnemonic\
-   OMR::Z::InstOpCode::get ## opKind ## OpCodeFromNode(TR::Node *node) \
-      {\
-      if (TR::Compiler->target.is64Bit() && (node->getType().isInt64() || node->getType().isAddress()))\
-         {\
-         return opcode64;\
-         }\
-      return opcode32;\
-      }
+#define GET_OPCODE_FROM_NODE(opKind, opcode64, opcode32)                                                    \
+    TR::InstOpCode::Mnemonic                                                                                \
+        OMR::Z::InstOpCode::get##opKind##OpCodeFromNode(TR::Node* node)                                     \
+    {                                                                                                       \
+        if (TR::Compiler->target.is64Bit() && (node->getType().isInt64() || node->getType().isAddress())) { \
+            return opcode64;                                                                                \
+        }                                                                                                   \
+        return opcode32;                                                                                    \
+    }
 
 // getLoadOpCodeFromNode
 GET_OPCODE_FROM_NODE(Load, TR::InstOpCode::LG, TR::InstOpCode::L)
@@ -377,7 +327,6 @@ GET_OPCODE_FROM_NODE(CmpLogicalWiden, TR::InstOpCode::CLGF, TR::InstOpCode::CL)
 // getCmpLogicalRegWidenOpCodeFromNode
 GET_OPCODE_FROM_NODE(CmpLogicalRegWiden, TR::InstOpCode::CLGFR, TR::InstOpCode::CLR)
 
-
 TR::InstOpCode::Mnemonic
 OMR::Z::InstOpCode::getLoadOnConditionRegOpCode() { return TR::Compiler->target.is64Bit() ? TR::InstOpCode::LOCGR : TR::InstOpCode::LOCR; }
 
@@ -418,7 +367,7 @@ TR::InstOpCode::Mnemonic
 OMR::Z::InstOpCode::getLoadNegativeOpCode() { return TR::Compiler->target.is64Bit() ? TR::InstOpCode::LNGR : TR::InstOpCode::LNR; }
 
 TR::InstOpCode::Mnemonic
-OMR::Z::InstOpCode::getLoadAndTrapOpCode() { return TR::Compiler->target.is64Bit()? TR::InstOpCode::LGAT : TR::InstOpCode::LAT; }
+OMR::Z::InstOpCode::getLoadAndTrapOpCode() { return TR::Compiler->target.is64Bit() ? TR::InstOpCode::LGAT : TR::InstOpCode::LAT; }
 
 TR::InstOpCode::Mnemonic
 OMR::Z::InstOpCode::getExtendedStoreOpCode() { return TR::Compiler->target.is64Bit() ? TR::InstOpCode::STG : TR::InstOpCode::STY; }
@@ -564,7 +513,6 @@ OMR::Z::InstOpCode::getBranchRelIndexHighOpCode() { return TR::Compiler->target.
 TR::InstOpCode::Mnemonic
 OMR::Z::InstOpCode::getBranchRelIndexEqOrLowOpCode() { return TR::Compiler->target.is64Bit() ? TR::InstOpCode::BRXLG : TR::InstOpCode::BRXLE; }
 
-
 TR::InstOpCode::Mnemonic
 OMR::Z::InstOpCode::getLoadWidenOpCode() { return TR::Compiler->target.is64Bit() ? TR::InstOpCode::LGF : TR::InstOpCode::L; }
 
@@ -621,36 +569,32 @@ OMR::Z::InstOpCode::getLoadRelativeLongOpCode() { return TR::Compiler->target.is
 TR::InstOpCode::Mnemonic
 OMR::Z::InstOpCode::getMoveHalfWordImmOpCode() { return TR::Compiler->target.is64Bit() ? TR::InstOpCode::MVGHI : TR::InstOpCode::MVHI; }
 
-
 TR::InstOpCode::Mnemonic
-OMR::Z::InstOpCode::getLoadRegOpCodeFromNode(TR::CodeGenerator *cg, TR::Node *node)
-   {
-   if (node->getType().isAddress())
-      {
-      if (TR::Compiler->target.is64Bit())
-         return TR::InstOpCode::LGR;
-      else
-         return TR::InstOpCode::LR;
-      }
+OMR::Z::InstOpCode::getLoadRegOpCodeFromNode(TR::CodeGenerator* cg, TR::Node* node)
+{
+    if (node->getType().isAddress()) {
+        if (TR::Compiler->target.is64Bit())
+            return TR::InstOpCode::LGR;
+        else
+            return TR::InstOpCode::LR;
+    }
 
-   if ((TR::Compiler->target.is64Bit() || cg->use64BitRegsOn32Bit()) && node->getType().isInt64())
-      {
-      return TR::InstOpCode::LGR;
-      }
-   return TR::InstOpCode::LR;
-   }
-
+    if ((TR::Compiler->target.is64Bit() || cg->use64BitRegsOn32Bit()) && node->getType().isInt64()) {
+        return TR::InstOpCode::LGR;
+    }
+    return TR::InstOpCode::LR;
+}
 
 TR::InstOpCode::Mnemonic
 OMR::Z::InstOpCode::getMoveHalfWordImmOpCodeFromStoreOpCode(TR::InstOpCode::Mnemonic storeOpCode)
-   {
-   TR::InstOpCode::Mnemonic mvhiOpCode = TR::InstOpCode::BAD;
-   if (storeOpCode == TR::InstOpCode::ST)
-      mvhiOpCode = TR::InstOpCode::MVHI;
-   else if (storeOpCode == TR::InstOpCode::STG)
-      mvhiOpCode = TR::InstOpCode::MVGHI;
-   else if (storeOpCode == TR::InstOpCode::STH)
-      mvhiOpCode = TR::InstOpCode::MVHHI;
+{
+    TR::InstOpCode::Mnemonic mvhiOpCode = TR::InstOpCode::BAD;
+    if (storeOpCode == TR::InstOpCode::ST)
+        mvhiOpCode = TR::InstOpCode::MVHI;
+    else if (storeOpCode == TR::InstOpCode::STG)
+        mvhiOpCode = TR::InstOpCode::MVGHI;
+    else if (storeOpCode == TR::InstOpCode::STH)
+        mvhiOpCode = TR::InstOpCode::MVHHI;
 
-   return mvhiOpCode;
-   }
+    return mvhiOpCode;
+}

@@ -16,52 +16,50 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-#include <ctype.h>   // for tolower
-#include <stddef.h>  // for size_t
+#include <ctype.h> // for tolower
+#include <stddef.h> // for size_t
 
 // These functions should be used anywhere the locale should not influence how characters are compared
 // e.g. option names are ascii strings that should not be compared differently in different locales
 
 int tolower_ignore_locale(int c);
 int toupper_ignore_locale(int c);
-int stricmp_ignore_locale(const char *s1, const char *s2);
-int strnicmp_ignore_locale(const char *s1, const char *s2, size_t n);
+int stricmp_ignore_locale(const char* s1, const char* s2);
+int strnicmp_ignore_locale(const char* s1, const char* s2, size_t n);
 
 #if (J9ZOS390 || AIXPPC || LINUX)
 #include <strings.h>
-   #define STRICMP strcasecmp
-   #define STRNICMP strncasecmp
+#define STRICMP strcasecmp
+#define STRNICMP strncasecmp
 #elif defined(WIN32)
-   #define STRICMP _stricmp
-   #define STRNICMP _strnicmp
+#define STRICMP _stricmp
+#define STRNICMP _strnicmp
 #elif PILOT
-   #define STRICMP StrCaselessCompare
-   #define STRNICMP StrNCaselessCompare
+#define STRICMP StrCaselessCompare
+#define STRNICMP StrNCaselessCompare
 #else
-   inline int STRICMP(char *p1, char *p2)
-   {
-      while (1)
-      {
-         char c1 = *p1++, c2 = *p2++;
-         int diff = tolower(c1) - tolower(c2);
-         if (diff)
+inline int STRICMP(char* p1, char* p2)
+{
+    while (1) {
+        char c1 = *p1++, c2 = *p2++;
+        int diff = tolower(c1) - tolower(c2);
+        if (diff)
             return diff;
-         if (!c1)
+        if (!c1)
             break;
-      }
-      return 0;
-   }
-   inline int STRNICMP(char *p1, char *p2, int len)
-   {
-      while ((len--) > 0)
-      {
-         char c1 = *p1++, c2 = *p2++;
-         int diff = tolower(c1) - tolower(c2);
-         if (diff)
+    }
+    return 0;
+}
+inline int STRNICMP(char* p1, char* p2, int len)
+{
+    while ((len--) > 0) {
+        char c1 = *p1++, c2 = *p2++;
+        int diff = tolower(c1) - tolower(c2);
+        if (diff)
             return diff;
-         if (!c1)
+        if (!c1)
             break;
-      }
-      return 0;
-   }
+    }
+    return 0;
+}
 #endif

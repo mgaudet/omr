@@ -22,17 +22,15 @@
 #include "env/OMRClassEnv.hpp"
 #include "infra/Annotations.hpp"
 
-namespace TR
-{
+namespace TR {
 
-class OMR_EXTENSIBLE ClassEnv : public OMR::ClassEnvConnector
-   {
+class OMR_EXTENSIBLE ClassEnv : public OMR::ClassEnvConnector {
 public:
-
-   ClassEnv() : OMR::ClassEnvConnector() {}
-
-   };
-
+    ClassEnv()
+        : OMR::ClassEnvConnector()
+    {
+    }
+};
 }
 
 #endif

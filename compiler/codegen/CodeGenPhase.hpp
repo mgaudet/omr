@@ -22,18 +22,19 @@
 #include "infra/Annotations.hpp"
 #include "codegen/OMRCodeGenPhase.hpp"
 
-namespace TR { class CodeGenerator; }
+namespace TR {
+class CodeGenerator;
+}
 
-namespace TR
-{
+namespace TR {
 
-class OMR_EXTENSIBLE CodeGenPhase: public OMR::CodeGenPhaseConnector
-   {
-   public:
-
-   CodeGenPhase(TR::CodeGenerator * cg): OMR::CodeGenPhaseConnector(cg) {}
-   };
-
+class OMR_EXTENSIBLE CodeGenPhase : public OMR::CodeGenPhaseConnector {
+public:
+    CodeGenPhase(TR::CodeGenerator* cg)
+        : OMR::CodeGenPhaseConnector(cg)
+    {
+    }
+};
 }
 
 #endif

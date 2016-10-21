@@ -24,39 +24,35 @@
 #include "TypedefUDT.hpp"
 
 Field::Field()
-	: _fieldType(NULL),
-	  _sizeOf(0),
-	  _bitField(0),
-	  _isStatic(false)
+    : _fieldType(NULL)
+    , _sizeOf(0)
+    , _bitField(0)
+    , _isStatic(false)
 {
 }
 
-string
-Field::getTypeName()
-{
-	return _fieldType->_name;
-}
+string Field::getTypeName() { return _fieldType->_name; }
 
 DDR_RC
-Field::getBaseSymbolType(SymbolType *symbolType)
+Field::getBaseSymbolType(SymbolType* symbolType)
 {
-	DDR_RC rc = DDR_RC_OK;
-	Type *type = _fieldType;
-	if (NULL == type) {
-		ERRMSG("fieldType is NULL");
-		rc = DDR_RC_ERROR;
-	} else {
-		TypedefUDT *td = dynamic_cast<TypedefUDT *>(type);
-		while (NULL != td) {
-			type = td->_type;
-			td = dynamic_cast<TypedefUDT *>(type);
-		}
-		if (NULL == type) {
-			*symbolType = TYPEDEF;
-		} else {
-			*symbolType = type->getSymbolType();
-		}
-	}
+    DDR_RC rc = DDR_RC_OK;
+    Type* type = _fieldType;
+    if (NULL == type) {
+        ERRMSG("fieldType is NULL");
+        rc = DDR_RC_ERROR;
+    } else {
+        TypedefUDT* td = dynamic_cast<TypedefUDT*>(type);
+        while (NULL != td) {
+            type = td->_type;
+            td = dynamic_cast<TypedefUDT*>(type);
+        }
+        if (NULL == type) {
+            *symbolType = TYPEDEF;
+        } else {
+            *symbolType = type->getSymbolType();
+        }
+    }
 
-	return rc;
+    return rc;
 }

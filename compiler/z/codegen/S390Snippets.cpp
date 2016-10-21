@@ -21,45 +21,38 @@
 #include "codegen/CodeGenerator.hpp"
 #include "env/IO.hpp"
 
-uint32_t
-TR_S390WarmToColdTrampolineSnippet::getLength(int32_t estimatedSnippetStart)
-   {
-   // BRCL - 6 bytes
-   return 6;
-   }
+uint32_t TR_S390WarmToColdTrampolineSnippet::getLength(int32_t estimatedSnippetStart)
+{
+    // BRCL - 6 bytes
+    return 6;
+}
 
+uint8_t* TR_S390WarmToColdTrampolineSnippet::emitSnippetBody()
+{
+    uint8_t* cursor = cg()->getBinaryBufferCursor();
+    getSnippetLabel()->setCodeLocation(cursor);
 
-uint8_t *
-TR_S390WarmToColdTrampolineSnippet::emitSnippetBody()
-   {
-   uint8_t * cursor = cg()->getBinaryBufferCursor();
-   getSnippetLabel()->setCodeLocation(cursor);
+    if (getIsUsed()) {
+        cg()->addRelocation(new (cg()->trHeapMemory()) TR_32BitLabelRelativeRelocation(cursor, getTargetLabel()));
 
-   if (getIsUsed())
-      {
-      cg()->addRelocation(new (cg()->trHeapMemory()) TR_32BitLabelRelativeRelocation(cursor, getTargetLabel()));
+        // BRCL 0xf, <target>
+        *(int16_t*)cursor = 0xC0F4;
+        cursor += sizeof(int16_t);
 
-      // BRCL 0xf, <target>
-      *(int16_t *) cursor = 0xC0F4;
-      cursor += sizeof(int16_t);
+        // BRCL - Add Relocation the data constants to this LARL.
+        *(int32_t*)cursor = 0xDEADBEEF;
+        cursor += sizeof(int32_t);
+    }
+    return cursor;
+}
 
-      // BRCL - Add Relocation the data constants to this LARL.
-      *(int32_t *) cursor = 0xDEADBEEF;
-      cursor += sizeof(int32_t);
-      }
-   return cursor;
-   }
+void TR_Debug::print(TR::FILE* pOutFile, TR_S390WarmToColdTrampolineSnippet* snippet)
+{
+    uint8_t* buffer = snippet->getSnippetLabel()->getCodeLocation();
 
+    printSnippetLabel(pOutFile, snippet->getSnippetLabel(), buffer, "Warm To Cold Trampoline");
 
-void
-TR_Debug::print(TR::FILE *pOutFile, TR_S390WarmToColdTrampolineSnippet *snippet)
-   {
-   uint8_t * buffer = snippet->getSnippetLabel()->getCodeLocation();
-
-   printSnippetLabel(pOutFile, snippet->getSnippetLabel(), buffer, "Warm To Cold Trampoline");
-
-
-   printPrefix(pOutFile, NULL, buffer, 6);
-   trfprintf(pOutFile, "BRCL 0xF, targetLabel(%p)", snippet->getTargetLabel()->getCodeLocation());
-   buffer += 6;
-   }
+    printPrefix(pOutFile, NULL, buffer, 6);
+    trfprintf(pOutFile, "BRCL 0xF, targetLabel(%p)", snippet->getTargetLabel()->getCodeLocation());
+    buffer += 6;
+}

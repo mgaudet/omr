@@ -21,18 +21,15 @@
 
 #include "codegen/OMRSnippetGCMap.hpp"
 
+namespace TR {
 
-namespace TR
-{
-
-class SnippetGCMap : public OMR::SnippetGCMapConnector
-   {
-   public:
-
-   SnippetGCMap() :
-      OMR::SnippetGCMapConnector() {}
-   };
-
+class SnippetGCMap : public OMR::SnippetGCMapConnector {
+public:
+    SnippetGCMap()
+        : OMR::SnippetGCMapConnector()
+    {
+    }
+};
 }
 
 #endif

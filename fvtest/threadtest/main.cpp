@@ -20,15 +20,14 @@
 #include "thread_api.h"
 #include "testHelper.hpp"
 
-ThreadTestEnvironment *omrTestEnv;
+ThreadTestEnvironment* omrTestEnv;
 
-extern "C" int
-testMain(int argc, char **argv, char **envp)
+extern "C" int testMain(int argc, char** argv, char** envp)
 {
-	::testing::InitGoogleTest(&argc, argv);
-	ATTACH_J9THREAD();
-	omrTestEnv = (ThreadTestEnvironment *)testing::AddGlobalTestEnvironment(new ThreadTestEnvironment(argc, argv));
-	int rc = RUN_ALL_TESTS();
-	DETACH_J9THREAD();
-	return rc;
+    ::testing::InitGoogleTest(&argc, argv);
+    ATTACH_J9THREAD();
+    omrTestEnv = (ThreadTestEnvironment*)testing::AddGlobalTestEnvironment(new ThreadTestEnvironment(argc, argv));
+    int rc = RUN_ALL_TESTS();
+    DETACH_J9THREAD();
+    return rc;
 }

@@ -26,15 +26,15 @@ extern "C" {
 #endif /* defined(__cplusplus) */
 
 /* ---------------- AtomicFunctions.cpp ---------------- */
-uintptr_t compareAndSwapUDATA(uintptr_t *location, uintptr_t oldValue, uintptr_t newValue, uintptr_t *spinlock);
-uintptr_t compareAndSwapUDATANoSpinlock(uintptr_t *location, uintptr_t oldValue, uintptr_t newValue);
-uint32_t compareAndSwapU32(uint32_t *location, uint32_t oldValue, uint32_t newValue, uintptr_t *spinlock);
-uint32_t compareAndSwapU32NoSpinlock(uint32_t *location, uint32_t oldValue, uint32_t newValue);
+uintptr_t compareAndSwapUDATA(uintptr_t* location, uintptr_t oldValue, uintptr_t newValue, uintptr_t* spinlock);
+uintptr_t compareAndSwapUDATANoSpinlock(uintptr_t* location, uintptr_t oldValue, uintptr_t newValue);
+uint32_t compareAndSwapU32(uint32_t* location, uint32_t oldValue, uint32_t newValue, uintptr_t* spinlock);
+uint32_t compareAndSwapU32NoSpinlock(uint32_t* location, uint32_t oldValue, uint32_t newValue);
 void issueReadBarrier(void);
 void issueReadWriteBarrier(void);
 void issueWriteBarrier(void);
-uintptr_t addAtomic(volatile uintptr_t *address, uintptr_t addend);
-uintptr_t subtractAtomic(volatile uintptr_t *address, uintptr_t value);
+uintptr_t addAtomic(volatile uintptr_t* address, uintptr_t addend);
+uintptr_t subtractAtomic(volatile uintptr_t* address, uintptr_t value);
 
 /* ---------------- cas8help.s ---------------- */
 #if !defined(OMR_ENV_DATA64) && (defined(AIXPPC) || defined(LINUXPPC))
@@ -49,10 +49,10 @@ uintptr_t subtractAtomic(volatile uintptr_t *address, uintptr_t value);
  * @param[in] swapHi  High part of swap value
  * @return  The old value read from addr
  */
-uint64_t J9CAS8Helper(volatile uint64_t *addr, uint32_t compareLo, uint32_t compareHi, uint32_t swapLo, uint32_t swapHi);
+uint64_t J9CAS8Helper(
+    volatile uint64_t* addr, uint32_t compareLo, uint32_t compareHi, uint32_t swapLo, uint32_t swapHi);
 
 #endif /* !OMR_ENV_DATA64 && (AIXPPC || LINUXPPC) */
-
 
 /* ---------------- gettimebase.c ---------------- */
 uint64_t getTimebase(void);

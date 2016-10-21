@@ -18,9 +18,8 @@
 
 #include "omrutil.h"
 
-uintptr_t
-getStorageKey(void)
+uintptr_t getStorageKey(void)
 {
-	/* The storage key is returned in bits 8-11 of the PSW */
-	return ((_GETPSW() >> 20) & 0xF);
+    /* The storage key is returned in bits 8-11 of the PSW */
+    return ((_GETPSW() >> 20) & 0xF);
 }

@@ -26,20 +26,12 @@
 #include <errno.h>
 #include "OMRTestEnv.hpp"
 
-extern "C" bool initializeTestJit(TR_RuntimeHelper *helperIDs, void **helperAddresses, int32_t numHelpers, char *options, TR_Memory **m);
+extern "C" bool initializeTestJit(
+    TR_RuntimeHelper* helperIDs, void** helperAddresses, int32_t numHelpers, char* options, TR_Memory** m);
 extern "C" void shutdownJit();
 
-TR_Memory * OMRTestEnv::_trMemory = 0;
+TR_Memory* OMRTestEnv::_trMemory = 0;
 
-void
-OMRTestEnv::SetUp()
-   {
-   initializeTestJit(0, 0, 0, "-Xjit", &_trMemory);
-   }
+void OMRTestEnv::SetUp() { initializeTestJit(0, 0, 0, "-Xjit", &_trMemory); }
 
-void
-OMRTestEnv::TearDown()
-   {
-   shutdownJit();
-   }
-
+void OMRTestEnv::TearDown() { shutdownJit(); }

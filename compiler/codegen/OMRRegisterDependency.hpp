@@ -24,26 +24,26 @@
  */
 #ifndef OMR_REGISTER_DEPENDENCY_CONNECTOR
 #define OMR_REGISTER_DEPENDENCY_CONNECTOR
-   namespace OMR { class RegisterDependencyConditions; }
-   namespace OMR { typedef OMR::RegisterDependencyConditions RegisterDependencyConditionsConnector; }
+namespace OMR {
+class RegisterDependencyConditions;
+}
+namespace OMR {
+typedef OMR::RegisterDependencyConditions RegisterDependencyConditionsConnector;
+}
 #endif
 
-#include "env/TRMemory.hpp"  // for TR_Memory, etc
+#include "env/TRMemory.hpp" // for TR_Memory, etc
 #include "codegen/RegisterDependencyStruct.hpp"
 
-namespace OMR
-{
+namespace OMR {
 
-class RegisterDependencyConditions
-   {
-   protected:
-   RegisterDependencyConditions() {};
+class RegisterDependencyConditions {
+protected:
+    RegisterDependencyConditions(){};
 
-   public:
-   TR_ALLOC(TR_Memory::RegisterDependencyConditions)
-
-   };
-
+public:
+    TR_ALLOC(TR_Memory::RegisterDependencyConditions)
+};
 }
 
 #endif

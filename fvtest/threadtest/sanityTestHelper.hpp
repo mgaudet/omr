@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef SANITYTESTHELPER_HPP_INCLUDED
 #define SANITYTESTHELPER_HPP_INCLUDED
 

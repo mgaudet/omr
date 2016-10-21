@@ -40,9 +40,11 @@ extern "C" {
  *
  * Allocation categories are expected to be defined in the language object model (glue/GC_ObjectModel).
  */
-omrobjectptr_t OMR_GC_Allocate(OMR_VMThread * omrVMThread, uintptr_t allocationCategory, uintptr_t size, uintptr_t allocateFlags);
+omrobjectptr_t OMR_GC_Allocate(
+    OMR_VMThread* omrVMThread, uintptr_t allocationCategory, uintptr_t size, uintptr_t allocateFlags);
 
-omrobjectptr_t OMR_GC_AllocateNoGC(OMR_VMThread * omrVMThread, uintptr_t allocationCategory, uintptr_t size, uintptr_t allocateFlagss);
+omrobjectptr_t OMR_GC_AllocateNoGC(
+    OMR_VMThread* omrVMThread, uintptr_t allocationCategory, uintptr_t size, uintptr_t allocateFlagss);
 
 omr_error_t OMR_GC_SystemCollect(OMR_VMThread* omrVMThread, uint32_t gcCode);
 

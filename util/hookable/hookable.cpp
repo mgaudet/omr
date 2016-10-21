@@ -27,33 +27,28 @@
 
 extern "C" {
 
-static void J9HookUnregister(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void *userData);
-static intptr_t J9HookRegister(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void *userData, ...);
-static void J9HookShutdownInterface(struct J9HookInterface **hookInterface);
-static intptr_t J9HookDisable(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum);
-static intptr_t J9HookIsEnabled(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum);
-static void J9HookDispatch(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum, void *eventData);
-static intptr_t J9HookReserve(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum);
-static uintptr_t J9HookAllocateAgentID(struct J9HookInterface **hookInterface);
-static void J9HookDeallocateAgentID(struct J9HookInterface **hookInterface, uintptr_t agentID);
+static void J9HookUnregister(
+    struct J9HookInterface** hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void* userData);
+static intptr_t J9HookRegister(
+    struct J9HookInterface** hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void* userData, ...);
+static void J9HookShutdownInterface(struct J9HookInterface** hookInterface);
+static intptr_t J9HookDisable(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum);
+static intptr_t J9HookIsEnabled(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum);
+static void J9HookDispatch(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum, void* eventData);
+static intptr_t J9HookReserve(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum);
+static uintptr_t J9HookAllocateAgentID(struct J9HookInterface** hookInterface);
+static void J9HookDeallocateAgentID(struct J9HookInterface** hookInterface, uintptr_t agentID);
 
 static J9CONST_TABLE J9HookInterface hookFunctionTable = {
-	J9HookDispatch,
-	J9HookDisable,
-	J9HookReserve,
-	J9HookRegister,
-	J9HookUnregister,
-	J9HookShutdownInterface,
-	J9HookIsEnabled,
-	J9HookAllocateAgentID,
-	J9HookDeallocateAgentID,
+    J9HookDispatch, J9HookDisable, J9HookReserve, J9HookRegister, J9HookUnregister, J9HookShutdownInterface,
+    J9HookIsEnabled, J9HookAllocateAgentID, J9HookDeallocateAgentID,
 };
 
 /* flags are stored at the beginning of the interface just after the common interface fields in ascending order */
 #define HOOK_FLAGS(interface, event) (((uint8_t*)((interface) + 1))[event])
 
 /* records are stored at the END of the interface in descending order */
-#define HOOK_RECORD(interface, event) (((J9HookRecord**)( (uint8_t*)(interface) + (interface)->size ))[ -1 - (event)])
+#define HOOK_RECORD(interface, event) (((J9HookRecord**)((uint8_t*)(interface) + (interface)->size))[-1 - (event)])
 
 /* e.g.
  0: J9CommonInterface::interface
@@ -71,12 +66,13 @@ static J9CONST_TABLE J9HookInterface hookFunctionTable = {
 
 /* each record has an ID which is used to detect inconsistent records without resorting to monitors */
 /* even IDs are valid. Odd IDs are invalid */
-/* a record is consistent if the same ID is in the record before all the fields are read and after all the fields are read */
+/* a record is consistent if the same ID is in the record before all the fields are read and after all the fields are
+ * read */
 /* read and write barriers must be used to ensure that reads and writes occur in the correct order */
 #define HOOK_INITIAL_ID (0)
-#define HOOK_IS_VALID_ID(id) ( ((id) & 1) == 0)
+#define HOOK_IS_VALID_ID(id) (((id)&1) == 0)
 #define HOOK_INVALID_ID(id) ((id) | 1)
-#define HOOK_VALID_ID(id) ( (((id) | 1) + 1) )
+#define HOOK_VALID_ID(id) ((((id) | 1) + 1))
 
 /*
  * Prepares the specified hook interface for first use.
@@ -85,53 +81,51 @@ static J9CONST_TABLE J9HookInterface hookFunctionTable = {
  *
  * Returns 0 on success, non-zero on failure
  */
-intptr_t
-J9HookInitializeInterface(struct J9HookInterface **hookInterface, OMRPortLibrary *portLib, size_t interfaceSize)
+intptr_t J9HookInitializeInterface(
+    struct J9HookInterface** hookInterface, OMRPortLibrary* portLib, size_t interfaceSize)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
 
-	memset(commonInterface, 0, interfaceSize);
+    memset(commonInterface, 0, interfaceSize);
 
-	commonInterface->hookInterface = (J9HookInterface *)GLOBAL_TABLE(hookFunctionTable);
+    commonInterface->hookInterface = (J9HookInterface*)GLOBAL_TABLE(hookFunctionTable);
 
-	commonInterface->size = interfaceSize;
+    commonInterface->size = interfaceSize;
 
-	if (omrthread_monitor_init_with_name(&commonInterface->lock, 0, "Hook Interface")) {
-		J9HookShutdownInterface(hookInterface);
-		return J9HOOK_ERR_NOMEM;
-	}
+    if (omrthread_monitor_init_with_name(&commonInterface->lock, 0, "Hook Interface")) {
+        J9HookShutdownInterface(hookInterface);
+        return J9HOOK_ERR_NOMEM;
+    }
 
-	commonInterface->pool = pool_new(sizeof(J9HookRecord), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_VM, POOL_FOR_PORT((OMRPortLibrary *)portLib));
-	if (commonInterface->pool == NULL) {
-		J9HookShutdownInterface(hookInterface);
-		return J9HOOK_ERR_NOMEM;
-	}
+    commonInterface->pool = pool_new(
+        sizeof(J9HookRecord), 0, 0, 0, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_VM, POOL_FOR_PORT((OMRPortLibrary*)portLib));
+    if (commonInterface->pool == NULL) {
+        J9HookShutdownInterface(hookInterface);
+        return J9HOOK_ERR_NOMEM;
+    }
 
-	commonInterface->nextAgentID = J9HOOK_AGENTID_DEFAULT + 1;
+    commonInterface->nextAgentID = J9HOOK_AGENTID_DEFAULT + 1;
 
-	return 0;
+    return 0;
 }
-
 
 /*
  * Shuts down the specified hook interface.
  *
  * This function should not be called directly. It should be called through the hook interface
  */
-static void
-J9HookShutdownInterface(struct J9HookInterface **hookInterface)
+static void J9HookShutdownInterface(struct J9HookInterface** hookInterface)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
 
-	if (commonInterface->lock) {
-		omrthread_monitor_destroy(commonInterface->lock);
-	}
+    if (commonInterface->lock) {
+        omrthread_monitor_destroy(commonInterface->lock);
+    }
 
-	if (commonInterface->pool) {
-		pool_kill(commonInterface->pool);
-	}
+    if (commonInterface->pool) {
+        pool_kill(commonInterface->pool);
+    }
 }
-
 
 /*
  * Inform all registered listeners that the specified event has occurred. Details about the
@@ -144,55 +138,53 @@ J9HookShutdownInterface(struct J9HookInterface **hookInterface)
  * This function should not be called directly. It should be called through the hook interface
  *
  */
-static void
-J9HookDispatch(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum, void *eventData)
+static void J9HookDispatch(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum, void* eventData)
 {
-	uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
-	J9HookRecord *record = HOOK_RECORD(commonInterface, eventNum);
+    uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
+    J9HookRecord* record = HOOK_RECORD(commonInterface, eventNum);
 
-	if (taggedEventNum & J9HOOK_TAG_ONCE) {
-		uint8_t oldFlags;
+    if (taggedEventNum & J9HOOK_TAG_ONCE) {
+        uint8_t oldFlags;
 
-		omrthread_monitor_enter(commonInterface->lock);
-		oldFlags = HOOK_FLAGS(commonInterface, eventNum);
-		/* clear the HOOKED and RESERVED flags and set the DISABLED flag */
-		HOOK_FLAGS(commonInterface, eventNum) = (oldFlags | J9HOOK_FLAG_DISABLED) & ~(J9HOOK_FLAG_RESERVED | J9HOOK_FLAG_HOOKED);
-		omrthread_monitor_exit(commonInterface->lock);
+        omrthread_monitor_enter(commonInterface->lock);
+        oldFlags = HOOK_FLAGS(commonInterface, eventNum);
+        /* clear the HOOKED and RESERVED flags and set the DISABLED flag */
+        HOOK_FLAGS(commonInterface, eventNum)
+            = (oldFlags | J9HOOK_FLAG_DISABLED) & ~(J9HOOK_FLAG_RESERVED | J9HOOK_FLAG_HOOKED);
+        omrthread_monitor_exit(commonInterface->lock);
 
-		if (oldFlags & J9HOOK_FLAG_DISABLED) {
-			/* already reported */
-			return;
-		}
-	}
+        if (oldFlags & J9HOOK_FLAG_DISABLED) {
+            /* already reported */
+            return;
+        }
+    }
 
-	while (record) {
-		J9HookFunction function;
-		void *userData;
-		uintptr_t id;
+    while (record) {
+        J9HookFunction function;
+        void* userData;
+        uintptr_t id;
 
-		/* ensure that the id is read before any other fields */
-		id = record->id;
-		if (HOOK_IS_VALID_ID(id)) {
-			VM_AtomicSupport::readBarrier();
+        /* ensure that the id is read before any other fields */
+        id = record->id;
+        if (HOOK_IS_VALID_ID(id)) {
+            VM_AtomicSupport::readBarrier();
 
-			function = record->function;
-			userData = record->userData;
+            function = record->function;
+            userData = record->userData;
 
-			/* now read the id again to make sure that nothing has changed */
-			VM_AtomicSupport::readBarrier();
-			if (record->id == id) {
-				function(hookInterface, eventNum, eventData, userData);
-			} else {
-				/* this record has been updated while we were reading it. Skip it. */
-			}
-		}
+            /* now read the id again to make sure that nothing has changed */
+            VM_AtomicSupport::readBarrier();
+            if (record->id == id) {
+                function(hookInterface, eventNum, eventData, userData);
+            } else {
+                /* this record has been updated while we were reading it. Skip it. */
+            }
+        }
 
-		record = record->next;
-	}
+        record = record->next;
+    }
 }
-
-
 
 /*
  * Mark this event as disabled. Any future attempts to add a hook for this event
@@ -202,35 +194,32 @@ J9HookDispatch(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum,
  *
  * Returns 0 on success, or non-zero if the event is already hooked or reserved
  */
-static intptr_t
-J9HookDisable(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum)
+static intptr_t J9HookDisable(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
-	uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
+    uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
 
-	/* try to answer without using the lock, first */
-	if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_RESERVED) {
-		return -1;
-	} else if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
-		return 0;
-	} else {
-		intptr_t rc = 0;
+    /* try to answer without using the lock, first */
+    if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_RESERVED) {
+        return -1;
+    } else if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
+        return 0;
+    } else {
+        intptr_t rc = 0;
 
-		omrthread_monitor_enter(commonInterface->lock);
+        omrthread_monitor_enter(commonInterface->lock);
 
-		if (HOOK_FLAGS(commonInterface, eventNum) & (J9HOOK_FLAG_RESERVED | J9HOOK_FLAG_HOOKED)) {
-			rc = -1;
-		} else {
-			HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_DISABLED;
-		}
+        if (HOOK_FLAGS(commonInterface, eventNum) & (J9HOOK_FLAG_RESERVED | J9HOOK_FLAG_HOOKED)) {
+            rc = -1;
+        } else {
+            HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_DISABLED;
+        }
 
-		omrthread_monitor_exit(commonInterface->lock);
+        omrthread_monitor_exit(commonInterface->lock);
 
-		return rc;
-	}
+        return rc;
+    }
 }
-
-
 
 /*
  * Use J9HookReserve to indicate your intention to hook an event in the future.
@@ -244,27 +233,24 @@ J9HookDisable(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum)
  * returns 0 on success
  * non-zero if the event has been disabled
  */
-static intptr_t
-J9HookReserve(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum)
+static intptr_t J9HookReserve(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
-	intptr_t rc = 0;
-	uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
+    intptr_t rc = 0;
+    uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
 
-	omrthread_monitor_enter(commonInterface->lock);
+    omrthread_monitor_enter(commonInterface->lock);
 
-	if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
-		rc = -1;
-	} else {
-		HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_RESERVED;
-	}
+    if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
+        rc = -1;
+    } else {
+        HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_RESERVED;
+    }
 
-	omrthread_monitor_exit(commonInterface->lock);
+    omrthread_monitor_exit(commonInterface->lock);
 
-	return rc;
+    return rc;
 }
-
-
 
 /*
  * Register a listener for the specified event.
@@ -287,112 +273,112 @@ J9HookReserve(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum)
  * J9HOOK_ERR_NOMEM if insufficient resources exist to register the listener
  * J9HOOK_ERR_INVALID_AGENT_ID if the optional agent ID is invalid
  */
-static intptr_t
-J9HookRegister(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void *userData, ...)
+static intptr_t J9HookRegister(
+    struct J9HookInterface** hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void* userData, ...)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
-	J9HookRegistrationEvent eventStruct;
-	intptr_t rc = 0;
-	uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
-	uintptr_t agentID = J9HOOK_AGENTID_DEFAULT;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
+    J9HookRegistrationEvent eventStruct;
+    intptr_t rc = 0;
+    uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
+    uintptr_t agentID = J9HOOK_AGENTID_DEFAULT;
 
-	if (taggedEventNum & J9HOOK_TAG_AGENT_ID) {
-		va_list args;
+    if (taggedEventNum & J9HOOK_TAG_AGENT_ID) {
+        va_list args;
 
-		va_start(args, userData);
-		agentID = va_arg(args, uintptr_t);
-		va_end(args);
-	}
+        va_start(args, userData);
+        agentID = va_arg(args, uintptr_t);
+        va_end(args);
+    }
 
-	omrthread_monitor_enter(commonInterface->lock);
+    omrthread_monitor_enter(commonInterface->lock);
 
-	if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
-		rc = -1;
-	} else {
-		J9HookRecord *insertionPoint = NULL;
-		J9HookRecord *emptyRecord = NULL;
-		J9HookRecord *record = HOOK_RECORD(commonInterface, eventNum);
-		/* at the end of the loop, insertionPoint will point to the last record which should be triggered before the one we're adding */
-		while (record) {
-			if ((taggedEventNum & J9HOOK_TAG_REVERSE_ORDER) ? record->agentID >= agentID : record->agentID <= agentID) {
-				insertionPoint = record;
-			}
-			if (!HOOK_IS_VALID_ID(record->id)) {
-				if ((taggedEventNum & J9HOOK_TAG_REVERSE_ORDER) ? record->agentID >= agentID : record->agentID <= agentID) {
-					emptyRecord = record;
-				}
-			} else if ((record->function == function) && (record->userData == userData)) {
-				/* this listener is already registered */
-				++(record->count);
-				omrthread_monitor_exit(commonInterface->lock);
-				return 0;
-			}
-			record = record->next;
-		}
+    if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
+        rc = -1;
+    } else {
+        J9HookRecord* insertionPoint = NULL;
+        J9HookRecord* emptyRecord = NULL;
+        J9HookRecord* record = HOOK_RECORD(commonInterface, eventNum);
+        /* at the end of the loop, insertionPoint will point to the last record which should be triggered before the one
+         * we're adding */
+        while (record) {
+            if ((taggedEventNum & J9HOOK_TAG_REVERSE_ORDER) ? record->agentID >= agentID : record->agentID <= agentID) {
+                insertionPoint = record;
+            }
+            if (!HOOK_IS_VALID_ID(record->id)) {
+                if ((taggedEventNum & J9HOOK_TAG_REVERSE_ORDER) ? record->agentID >= agentID
+                                                                : record->agentID <= agentID) {
+                    emptyRecord = record;
+                }
+            } else if ((record->function == function) && (record->userData == userData)) {
+                /* this listener is already registered */
+                ++(record->count);
+                omrthread_monitor_exit(commonInterface->lock);
+                return 0;
+            }
+            record = record->next;
+        }
 
-		/*
-		 * Re-use the empty record if it is in a legitimate position for the requested agent.
-		 * (It is a legitimate position if all records before this position have the same or lower agent IDs (tested previously)
-		 * and all records after this position have the same or higher IDs)
-		 */
-		if ((emptyRecord != NULL)
-			&& ((emptyRecord->next == NULL)
-				|| ((taggedEventNum & J9HOOK_TAG_REVERSE_ORDER) ?
-					(emptyRecord->next->agentID <= agentID) :
-					(emptyRecord->next->agentID >= agentID)))
-		) {
-			emptyRecord->function = function;
-			emptyRecord->userData = userData;
-			emptyRecord->count = 1;
-			emptyRecord->agentID = agentID;
+        /*
+         * Re-use the empty record if it is in a legitimate position for the requested agent.
+         * (It is a legitimate position if all records before this position have the same or lower agent IDs (tested
+         * previously)
+         * and all records after this position have the same or higher IDs)
+         */
+        if ((emptyRecord != NULL)
+            && ((emptyRecord->next == NULL)
+                   || ((taggedEventNum & J9HOOK_TAG_REVERSE_ORDER) ? (emptyRecord->next->agentID <= agentID)
+                                                                   : (emptyRecord->next->agentID >= agentID)))) {
+            emptyRecord->function = function;
+            emptyRecord->userData = userData;
+            emptyRecord->count = 1;
+            emptyRecord->agentID = agentID;
 
-			VM_AtomicSupport::writeBarrier();
+            VM_AtomicSupport::writeBarrier();
 
-			emptyRecord->id = HOOK_VALID_ID(emptyRecord->id);
+            emptyRecord->id = HOOK_VALID_ID(emptyRecord->id);
 
-			HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_HOOKED | J9HOOK_FLAG_RESERVED;
-		} else {
-			record = (J9HookRecord *)pool_newElement(commonInterface->pool);
-			if (record == NULL) {
-				rc = -1;
-			} else {
-				if (insertionPoint == NULL) {
-					record->next = HOOK_RECORD(commonInterface, eventNum);
-				} else {
-					record->next = insertionPoint->next;
-				}
-				record->function = function;
-				record->userData = userData;
-				record->count = 1;
-				record->id = HOOK_INITIAL_ID;
-				record->agentID = agentID;
+            HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_HOOKED | J9HOOK_FLAG_RESERVED;
+        } else {
+            record = (J9HookRecord*)pool_newElement(commonInterface->pool);
+            if (record == NULL) {
+                rc = -1;
+            } else {
+                if (insertionPoint == NULL) {
+                    record->next = HOOK_RECORD(commonInterface, eventNum);
+                } else {
+                    record->next = insertionPoint->next;
+                }
+                record->function = function;
+                record->userData = userData;
+                record->count = 1;
+                record->id = HOOK_INITIAL_ID;
+                record->agentID = agentID;
 
-				VM_AtomicSupport::writeBarrier();
+                VM_AtomicSupport::writeBarrier();
 
-				if (insertionPoint == NULL) {
-					HOOK_RECORD(commonInterface, eventNum) = record;
-				} else {
-					insertionPoint->next = record;
-				}
+                if (insertionPoint == NULL) {
+                    HOOK_RECORD(commonInterface, eventNum) = record;
+                } else {
+                    insertionPoint->next = record;
+                }
 
-				HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_HOOKED | J9HOOK_FLAG_RESERVED;
-			}
-		}
-	}
+                HOOK_FLAGS(commonInterface, eventNum) |= J9HOOK_FLAG_HOOKED | J9HOOK_FLAG_RESERVED;
+            }
+        }
+    }
 
-	omrthread_monitor_exit(commonInterface->lock);
+    omrthread_monitor_exit(commonInterface->lock);
 
-	/* report the registration event */
-	eventStruct.eventNum = eventNum;
-	eventStruct.function = function;
-	eventStruct.userData = userData;
-	eventStruct.isRegistration = 1;
-	eventStruct.agentID = agentID;
-	(*hookInterface)->J9HookDispatch(hookInterface, J9HOOK_REGISTRATION_EVENT, &eventStruct);
+    /* report the registration event */
+    eventStruct.eventNum = eventNum;
+    eventStruct.function = function;
+    eventStruct.userData = userData;
+    eventStruct.isRegistration = 1;
+    eventStruct.agentID = agentID;
+    (*hookInterface)->J9HookDispatch(hookInterface, J9HOOK_REGISTRATION_EVENT, &eventStruct);
 
-	return rc;
+    return rc;
 }
-
 
 /*
  * Remove the specified function from the listeners for eventNum.
@@ -401,62 +387,62 @@ J9HookRegister(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum,
  *
  * This function should not be called directly. It should be called through the hook interface
  */
-static void
-J9HookUnregister(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void *userData)
+static void J9HookUnregister(
+    struct J9HookInterface** hookInterface, uintptr_t taggedEventNum, J9HookFunction function, void* userData)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
-	J9HookRecord *record;
-	J9HookRegistrationEvent eventStruct;
-	uintptr_t hooksRemaining = 0;
-	uintptr_t hooksRemoved = 0;
-	uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
+    J9HookRecord* record;
+    J9HookRegistrationEvent eventStruct;
+    uintptr_t hooksRemaining = 0;
+    uintptr_t hooksRemoved = 0;
+    uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
 
-	eventStruct.eventNum = eventNum;
-	eventStruct.function = function;
-	eventStruct.isRegistration = 0;
-	eventStruct.userData = NULL;
-	eventStruct.agentID = J9HOOK_AGENTID_DEFAULT;
+    eventStruct.eventNum = eventNum;
+    eventStruct.function = function;
+    eventStruct.isRegistration = 0;
+    eventStruct.userData = NULL;
+    eventStruct.agentID = J9HOOK_AGENTID_DEFAULT;
 
-	omrthread_monitor_enter(commonInterface->lock);
+    omrthread_monitor_enter(commonInterface->lock);
 
-	record = HOOK_RECORD(commonInterface, eventNum);
-	while (record) {
-		if (record->function == function) {
-			if ((userData == NULL) || (record->userData == userData)) {
-				if (taggedEventNum & J9HOOK_TAG_COUNTED) {
-					if (--(record->count) != 0) {
-						omrthread_monitor_exit(commonInterface->lock);
-						return;
-					}
-				}
+    record = HOOK_RECORD(commonInterface, eventNum);
+    while (record) {
+        if (record->function == function) {
+            if ((userData == NULL) || (record->userData == userData)) {
+                if (taggedEventNum & J9HOOK_TAG_COUNTED) {
+                    if (--(record->count) != 0) {
+                        omrthread_monitor_exit(commonInterface->lock);
+                        return;
+                    }
+                }
 
-				if (userData != NULL) {
-					/* copy data from the event record so that we can report it once we've released the mutex */
-					eventStruct.userData = record->userData;
-					eventStruct.agentID = record->agentID;
-				}
+                if (userData != NULL) {
+                    /* copy data from the event record so that we can report it once we've released the mutex */
+                    eventStruct.userData = record->userData;
+                    eventStruct.agentID = record->agentID;
+                }
 
-				/* mark the record as invalid so that it can be recycled */
-				record->id = HOOK_INVALID_ID(record->id);
-				hooksRemoved++;
-			}
-		}
-		if (HOOK_IS_VALID_ID(record->id)) {
-			hooksRemaining++;
-		}
-		record = record->next;
-	}
+                /* mark the record as invalid so that it can be recycled */
+                record->id = HOOK_INVALID_ID(record->id);
+                hooksRemoved++;
+            }
+        }
+        if (HOOK_IS_VALID_ID(record->id)) {
+            hooksRemaining++;
+        }
+        record = record->next;
+    }
 
-	if (hooksRemaining == 0) {
-		HOOK_FLAGS(commonInterface, eventNum) &= ~J9HOOK_FLAG_HOOKED;
-	}
+    if (hooksRemaining == 0) {
+        HOOK_FLAGS(commonInterface, eventNum) &= ~J9HOOK_FLAG_HOOKED;
+    }
 
-	omrthread_monitor_exit(commonInterface->lock);
+    omrthread_monitor_exit(commonInterface->lock);
 
-	if (hooksRemoved != 0) {
-		/* report the unregistration event */
-		(*hookInterface)->J9HookDispatch(hookInterface, J9HOOK_REGISTRATION_EVENT, &eventStruct);
-	}
+    if (hooksRemoved != 0) {
+        /* report the unregistration event */
+        (*hookInterface)->J9HookDispatch(hookInterface, J9HOOK_REGISTRATION_EVENT, &eventStruct);
+    }
 }
 
 /**
@@ -467,15 +453,14 @@ J9HookUnregister(struct J9HookInterface **hookInterface, uintptr_t taggedEventNu
  *
  * @return 0 (false) if the event is disabled, non-zero (true) if the event is not disabled.
  */
-static intptr_t
-J9HookIsEnabled(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum)
+static intptr_t J9HookIsEnabled(struct J9HookInterface** hookInterface, uintptr_t taggedEventNum)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
-	uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
+    uintptr_t eventNum = taggedEventNum & J9HOOK_EVENT_NUM_MASK;
 
-	if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
-		return 0;
-	}
+    if (HOOK_FLAGS(commonInterface, eventNum) & J9HOOK_FLAG_DISABLED) {
+        return 0;
+    }
 
 #if 0
 	/* at some point, we may wish to distinguish between 'not disabled' and reserved. */
@@ -484,7 +469,7 @@ J9HookIsEnabled(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum
 	}
 #endif
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -492,19 +477,18 @@ J9HookIsEnabled(struct J9HookInterface **hookInterface, uintptr_t taggedEventNum
  *
  * This function should not be called directly. It should be called through the hook interface
  */
-static uintptr_t
-J9HookAllocateAgentID(struct J9HookInterface **hookInterface)
+static uintptr_t J9HookAllocateAgentID(struct J9HookInterface** hookInterface)
 {
-	J9CommonHookInterface *commonInterface = (J9CommonHookInterface *)hookInterface;
-	uintptr_t id = 0;
+    J9CommonHookInterface* commonInterface = (J9CommonHookInterface*)hookInterface;
+    uintptr_t id = 0;
 
-	omrthread_monitor_enter(commonInterface->lock);
-	if (commonInterface->nextAgentID < J9HOOK_AGENTID_LAST) {
-		id = commonInterface->nextAgentID++;
-	}
-	omrthread_monitor_exit(commonInterface->lock);
+    omrthread_monitor_enter(commonInterface->lock);
+    if (commonInterface->nextAgentID < J9HOOK_AGENTID_LAST) {
+        id = commonInterface->nextAgentID++;
+    }
+    omrthread_monitor_exit(commonInterface->lock);
 
-	return id;
+    return id;
 }
 
 /**
@@ -516,10 +500,5 @@ J9HookAllocateAgentID(struct J9HookInterface **hookInterface)
  * This API is provided in case a future implementation chooses to support
  * this.
  */
-static void
-J9HookDeallocateAgentID(struct J9HookInterface **hookInterface, uintptr_t agentID)
-{
-	return;
-}
-
+static void J9HookDeallocateAgentID(struct J9HookInterface** hookInterface, uintptr_t agentID) { return; }
 }

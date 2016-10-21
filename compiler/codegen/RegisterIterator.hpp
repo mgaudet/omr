@@ -22,19 +22,19 @@
 #include "codegen/RegisterConstants.hpp"
 #include "codegen/OMRRegisterIterator.hpp"
 
-namespace TR { class Machine; }
+namespace TR {
+class Machine;
+}
 
-namespace TR
-{
+namespace TR {
 
-class OMR_EXTENSIBLE RegisterIterator : public OMR::RegisterIteratorConnector
-   {
-   public:
-
-   RegisterIterator(TR::Machine *machine, TR_RegisterKinds kind): OMR::RegisterIteratorConnector(machine, kind) {}
-
-   };
-
+class OMR_EXTENSIBLE RegisterIterator : public OMR::RegisterIteratorConnector {
+public:
+    RegisterIterator(TR::Machine* machine, TR_RegisterKinds kind)
+        : OMR::RegisterIteratorConnector(machine, kind)
+    {
+    }
+};
 }
 
 #endif

@@ -28,7 +28,6 @@
  * These functions are not accessible via the port library function table.
  */
 
-
 #include <string.h>
 #include <errno.h>
 #include "omrportpriv.h"
@@ -49,23 +48,23 @@
  *
  * @note Buffer is managed by the port library, do not free
  */
-const char *
-errorMessage(struct OMRPortLibrary *portLibrary, int32_t errorCode)
+const char* errorMessage(struct OMRPortLibrary* portLibrary, int32_t errorCode)
 {
-	PortlibPTBuffers_t ptBuffers;
+    PortlibPTBuffers_t ptBuffers;
 
-	ptBuffers = omrport_tls_peek(portLibrary);
-	if (0 == ptBuffers->errorMessageBufferSize) {
-		ptBuffers->errorMessageBuffer = portLibrary->mem_allocate_memory(portLibrary, J9ERROR_DEFAULT_BUFFER_SIZE, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
-		if (NULL == ptBuffers->errorMessageBuffer) {
-			return "";
-		}
-		ptBuffers->errorMessageBufferSize = J9ERROR_DEFAULT_BUFFER_SIZE;
-	}
+    ptBuffers = omrport_tls_peek(portLibrary);
+    if (0 == ptBuffers->errorMessageBufferSize) {
+        ptBuffers->errorMessageBuffer = portLibrary->mem_allocate_memory(
+            portLibrary, J9ERROR_DEFAULT_BUFFER_SIZE, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+        if (NULL == ptBuffers->errorMessageBuffer) {
+            return "";
+        }
+        ptBuffers->errorMessageBufferSize = J9ERROR_DEFAULT_BUFFER_SIZE;
+    }
 
-	/* Copy from OS to ptBuffers */
-	portLibrary->str_printf(portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s", strerror(errorCode));
-	ptBuffers->errorMessageBuffer[ptBuffers->errorMessageBufferSize - 1] = '\0';
-	return ptBuffers->errorMessageBuffer;
+    /* Copy from OS to ptBuffers */
+    portLibrary->str_printf(
+        portLibrary, ptBuffers->errorMessageBuffer, ptBuffers->errorMessageBufferSize, "%s", strerror(errorCode));
+    ptBuffers->errorMessageBuffer[ptBuffers->errorMessageBufferSize - 1] = '\0';
+    return ptBuffers->errorMessageBuffer;
 }
-

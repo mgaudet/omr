@@ -32,9 +32,9 @@
 #include <dlfcn.h>
 #endif
 
-int main(int argc, char **argv)
-   {
-   ::testing::InitGoogleTest(&argc, argv);
-   ::testing::AddGlobalTestEnvironment(new OMRTestEnv);
-   return RUN_ALL_TESTS();
-   }
+int main(int argc, char** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    ::testing::AddGlobalTestEnvironment(new OMRTestEnv);
+    return RUN_ALL_TESTS();
+}

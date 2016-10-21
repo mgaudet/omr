@@ -16,7 +16,6 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-
 #ifndef OMREXAMPLEVM_HPP_
 #define OMREXAMPLEVM_HPP_
 
@@ -25,31 +24,31 @@
 #include "objectdescription.h"
 
 typedef struct OMR_VM_Example {
-	OMR_VM *_omrVM;
-	OMR_VMThread *_omrVMThread;
-	J9HashTable *rootTable;
-	J9HashTable *objectTable;
-	omrthread_t self;
-	omrthread_rwmutex_t _vmAccessMutex;
-	volatile uintptr_t _vmExclusiveAccessCount;
+    OMR_VM* _omrVM;
+    OMR_VMThread* _omrVMThread;
+    J9HashTable* rootTable;
+    J9HashTable* objectTable;
+    omrthread_t self;
+    omrthread_rwmutex_t _vmAccessMutex;
+    volatile uintptr_t _vmExclusiveAccessCount;
 } OMR_VM_Example;
 
 typedef struct RootEntry {
-	const char *name;
-	omrobjectptr_t rootPtr;
+    const char* name;
+    omrobjectptr_t rootPtr;
 } RootEntry;
 
 typedef struct ObjectEntry {
-	const char *name;
-	omrobjectptr_t objPtr;
-	int32_t numOfRef;
+    const char* name;
+    omrobjectptr_t objPtr;
+    int32_t numOfRef;
 } ObjectEntry;
 
-uintptr_t rootTableHashFn(void *entry, void *userData);
-uintptr_t rootTableHashEqualFn(void *leftEntry, void *rightEntry, void *userData);
+uintptr_t rootTableHashFn(void* entry, void* userData);
+uintptr_t rootTableHashEqualFn(void* leftEntry, void* rightEntry, void* userData);
 
-uintptr_t objectTableHashFn(void *entry, void *userData);
-uintptr_t objectTableHashEqualFn(void *leftEntry, void *rightEntry, void *userData);
-uintptr_t objectTableFreeFn(void *entry, void *userData);
+uintptr_t objectTableHashFn(void* entry, void* userData);
+uintptr_t objectTableHashEqualFn(void* leftEntry, void* rightEntry, void* userData);
+uintptr_t objectTableFreeFn(void* entry, void* userData);
 
 #endif /* OMREXAMPLEVM_HPP_ */

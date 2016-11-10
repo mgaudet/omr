@@ -3809,6 +3809,7 @@ TR_Debug::getRuntimeHelperName(int32_t index)
          case RubyHelper_rb_class2name:          return "rb_class2name";
          case RubyHelper_vm_opt_aref_with:            return "vm_opt_aref_with";
          case RubyHelper_vm_opt_aset_with:            return "vm_opt_aset_with";
+         case RubyHelper_vm_setconstant:            return "vm_setconstant";
          }
       }
 #endif

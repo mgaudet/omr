@@ -3811,6 +3811,7 @@ TR_Debug::getRuntimeHelperName(int32_t index)
          case RubyHelper_vm_opt_aset_with:       return "vm_opt_aset_with";
          case RubyHelper_vm_setconstant:         return "vm_setconstant";
          case RubyHelper_rb_vm_env_write:        return "rb_vm_env_write";
+         case RubyHelper_vm_jit_stack_check:     return "vm_jit_stack_check";
          }
       }
 #endif

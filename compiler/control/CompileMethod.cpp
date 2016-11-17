@@ -64,7 +64,7 @@ writePerfToolEntry(void *start, uint32_t size, const char *name)
       static const int maxPerfFilenameSize = 15 + sizeof(jvmPid)* 3; // "/tmp/perf-%ld.map"
       char perfFilename[maxPerfFilenameSize] = { 0 };
 
-      int numCharsWritten = snprintf(perfFilename, maxPerfFilenameSize, "/tmp/perf-%ld.map", jvmPid);
+      int numCharsWritten = snprintf(perfFilename, maxPerfFilenameSize, "/tmp/perf-%d.map", (int)jvmPid);
       if (numCharsWritten > 0 && numCharsWritten < maxPerfFilenameSize)
          {
          perfFile = fopen(perfFilename, "a");

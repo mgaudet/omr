@@ -28,6 +28,8 @@ OMR_JIT_VERSION_STRING
 
 CONFIGURE_SENTINEL_FILE
 *.sentinel
+omrcfg.mk
+toolconfigure.mk
 
 # misc generated files
 gc/base/mmomrhook_internal.h
@@ -159,4 +161,3 @@ VerboseGC_*.xml*
 
 # common development artifacts
 .*.swp
-tags

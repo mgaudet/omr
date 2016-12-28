@@ -20,6 +20,7 @@
 #define REFERENCE_WRAPPER_HPP
 
 #pragma once
+#include "infra/Assert.hpp" 
 
 /*
  * XL 12 is incompatible with the TR1 headers on RHEL6,
@@ -48,12 +49,14 @@ template <typename T>
 reference_wrapper<T>::reference_wrapper(reference_type ref) throw():
   m_ref(&ref)
 {
+   TR_ASSERT(m_ref != NULL, "NULL REFERENCE"); 
 }
 
 template <typename T>
 reference_wrapper<T>::reference_wrapper(const reference_wrapper &other) throw():
   m_ref(other.m_ref)
 {
+   TR_ASSERT(m_ref != NULL, "NULL REFERENCE"); 
 }
 
 template <typename T>
@@ -61,6 +64,7 @@ reference_wrapper<T> &
 reference_wrapper<T>::operator =(const reference_wrapper &other) throw()
 {
   m_ref = other.m_ref;
+   TR_ASSERT(m_ref != NULL, "NULL REFERENCE"); 
   return *this;
 }
 
@@ -68,12 +72,14 @@ template <typename T>
 typename reference_wrapper<T>::reference_type
 reference_wrapper<T>::get() throw()
 {
+   TR_ASSERT(m_ref != NULL, "NULL REFERENCE"); 
   return *m_ref;
 }
 
 template <typename T>
 reference_wrapper<T>::operator reference_type() throw()
 {
+   TR_ASSERT(m_ref != NULL, "NULL REFERENCE"); 
   return *m_ref;
 }
 

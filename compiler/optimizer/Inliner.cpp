@@ -3802,12 +3802,9 @@ void TR_InlinerBase::getSymbolAndFindInlineTargets(TR_CallStack *callStack, TR_C
    if (callsite->_initialCalleeSymbol)
       {
       if (getPolicy()->supressInliningRecognizedInitialCallee(callsite, comp()))
-         isInlineable = Recognized_Callee;
-
-      if (isInlineable != InlineableTarget)
          {
          tracer()->insertCounter(isInlineable, callNodeTreeTop);
-         callsite->_failureReason=isInlineable;
+         callsite->_failureReason=Recognized_Callee;
          callsite->removeAllTargets(tracer(),isInlineable);
          return;
          }

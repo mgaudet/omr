@@ -88,6 +88,7 @@
 #include "infra/TRCfgNode.hpp"                            // for CFGNode
 #include "optimizer/CallInfo.hpp"                         // for TR_CallTarget, etc
 #include "optimizer/InlinerFailureReason.hpp"
+#include "optimizer/InlinerPolicy.hpp"
 #include "optimizer/Optimization.hpp"                     // for Optimization
 #include "optimizer/OptimizationManager.hpp"
 #include "optimizer/Optimizations.hpp"
@@ -164,13 +165,13 @@ static bool succAndPredAreNotOSRBlocks(TR::CFGEdge * edge)
    }
 
 int32_t
-OMR_InlinerPolicy::getInitialBytecodeSize(TR::ResolvedMethodSymbol * methodSymbol, TR::Compilation *comp)
+OMR::InlinerPolicy::getInitialBytecodeSize(TR::ResolvedMethodSymbol * methodSymbol, TR::Compilation *comp)
    {
    return getInitialBytecodeSize(methodSymbol->getResolvedMethod(),methodSymbol, comp);
    }
 
 int32_t
-OMR_InlinerPolicy::getInitialBytecodeSize(TR_ResolvedMethod *feMethod, TR::ResolvedMethodSymbol * methodSymbol, TR::Compilation *comp)
+OMR::InlinerPolicy::getInitialBytecodeSize(TR_ResolvedMethod *feMethod, TR::ResolvedMethodSymbol * methodSymbol, TR::Compilation *comp)
    {
    int32_t size = feMethod->maxBytecodeIndex();
    if (!comp->getOption(TR_DisableAdaptiveDumbInliner))
@@ -241,7 +242,7 @@ TR_InlinerBase::TR_InlinerBase(TR::Optimizer * optimizer, TR::Optimization *opti
      _aggressivelyInlineInLoops(false),
      _GlobalLabels(_trMemory)
    {
-   _policy = optimization->manager()->getOptPolicy() ? static_cast<OMR_InlinerPolicy*>(optimization->manager()->getOptPolicy()) : optimizer->getInlinerPolicy();
+   _policy = optimization->manager()->getOptPolicy() ? static_cast<OMR::InlinerPolicy*>(optimization->manager()->getOptPolicy()) : optimizer->getInlinerPolicy();
    _util = optimizer->getInlinerUtil();
    _policy->setInliner(this);
    _util->setInliner(this);
@@ -282,7 +283,7 @@ TR_InlinerBase::setSizeThreshold(uint32_t size)
    }
 
 void
-OMR_InlinerPolicy::determineInliningHeuristic(TR::ResolvedMethodSymbol *callerSymbol)
+OMR::InlinerPolicy::determineInliningHeuristic(TR::ResolvedMethodSymbol *callerSymbol)
    {
    return;
    }
@@ -472,7 +473,7 @@ OMR_InlinerUtil::validateInterfaceImplementation(TR_ResolvedMethod *interfaceMet
 
 
 bool
-OMR_InlinerPolicy::mustBeInlinedEvenInDebug(TR_ResolvedMethod * calleeMethod, TR::TreeTop *callNodeTreeTop)
+OMR::InlinerPolicy::mustBeInlinedEvenInDebug(TR_ResolvedMethod * calleeMethod, TR::TreeTop *callNodeTreeTop)
    {
    return false;
    }
@@ -484,7 +485,7 @@ TR_InlinerBase::alwaysWorthInlining(TR_ResolvedMethod * calleeMethod, TR::Node *
    }
 
 bool
-OMR_InlinerPolicy::alwaysWorthInlining(TR_ResolvedMethod * calleeMethod, TR::Node *callNode)
+OMR::InlinerPolicy::alwaysWorthInlining(TR_ResolvedMethod * calleeMethod, TR::Node *callNode)
    {
    return false;
    }
@@ -509,7 +510,7 @@ TR_InlinerBase::exceedsSizeThreshold(TR_CallSite *callsite, int bytecodeSize, TR
    int32_t coldBorderFrequency; // only used in TR_MultipleCallTargetInliner::exceedsSizeThreshold (to date)
    getBorderFrequencies(borderFrequency, coldBorderFrequency, calleeResolvedMethod, callNode);
 
-   OMR_InlinerPolicy *inlinerPolicy = getPolicy();
+   OMR::InlinerPolicy *inlinerPolicy = getPolicy();
    if (block)
       {
       blockFrequency = comp()->convertNonDeterministicInput(block->getFrequency(), MAX_BLOCK_COUNT + MAX_COLD_BLOCK_COUNT, randomGenerator(), 0);
@@ -679,7 +680,7 @@ TR_InlinerBase::inlineRecognizedMethod(TR::RecognizedMethod method)
    }
 
 bool
-OMR_InlinerPolicy::inlineRecognizedMethod(TR::RecognizedMethod method)
+OMR::InlinerPolicy::inlineRecognizedMethod(TR::RecognizedMethod method)
    {
    return false;
    }
@@ -702,7 +703,7 @@ TR_DumbInliner::tryToInline(char *message, TR_CallTarget *calltarget)
 
 //general tryToInline methods
 bool
-OMR_InlinerPolicy::tryToInlineGeneral(TR_CallTarget * calltarget, TR_CallStack * callStack, bool toInline)
+OMR::InlinerPolicy::tryToInlineGeneral(TR_CallTarget * calltarget, TR_CallStack * callStack, bool toInline)
    {
    const char * signature = calltarget->_calleeMethod->signature(comp()->trMemory());
 
@@ -775,7 +776,7 @@ OMR_InlinerPolicy::tryToInlineGeneral(TR_CallTarget * calltarget, TR_CallStack *
    }
 
 bool
-OMR_InlinerPolicy::tryToInline(TR_CallTarget * calltarget, TR_CallStack * callStack, bool toInline)
+OMR::InlinerPolicy::tryToInline(TR_CallTarget * calltarget, TR_CallStack * callStack, bool toInline)
    {
    return tryToInlineGeneral(calltarget, callStack, toInline);
    }
@@ -1169,7 +1170,7 @@ TR_DumbInliner::TR_DumbInliner(TR::Optimizer * optimizer, TR::Optimization *opti
    }
 
 bool
-OMR_InlinerPolicy::inlineMethodEvenForColdBlocks(TR_ResolvedMethod *method)
+OMR::InlinerPolicy::inlineMethodEvenForColdBlocks(TR_ResolvedMethod *method)
    {
    return false;
    }
@@ -3923,7 +3924,7 @@ void TR_InlinerBase::getSymbolAndFindInlineTargets(TR_CallStack *callStack, TR_C
 
 
 
-bool OMR_InlinerPolicy::canInlineMethodWhileInstrumenting(TR_ResolvedMethod *method)
+bool OMR::InlinerPolicy::canInlineMethodWhileInstrumenting(TR_ResolvedMethod *method)
    {
    return true;
    }
@@ -4578,7 +4579,7 @@ bool TR_InlinerBase::tryToInlineTrivialMethod (TR_CallStack* callStack, TR_CallT
    return getPolicy()->tryToInlineTrivialMethod(callStack, calltarget);
    }
 
-bool OMR_InlinerPolicy::tryToInlineTrivialMethod (TR_CallStack* callStack, TR_CallTarget* calltarget)
+bool OMR::InlinerPolicy::tryToInlineTrivialMethod (TR_CallStack* callStack, TR_CallTarget* calltarget)
    {
    return false;
    }
@@ -5339,7 +5340,7 @@ TR_InlinerBase::forceCalcInlining(TR_CallTarget *calltarget)
    }
 
 bool
-OMR_InlinerPolicy::callMustBeInlined(TR_CallTarget *calltarget)
+OMR::InlinerPolicy::callMustBeInlined(TR_CallTarget *calltarget)
    {
    return false;
    }
@@ -6167,12 +6168,12 @@ void TR_InlinerTracer::dumpPrexArgInfo(TR_PrexArgInfo* argInfo)
    }
 
 bool
-OMR_InlinerPolicy::willBeInlinedInCodeGen(TR::RecognizedMethod method)
+OMR::InlinerPolicy::willBeInlinedInCodeGen(TR::RecognizedMethod method)
    {
    return false;
    }
 
-OMR_InlinerPolicy::OMR_InlinerPolicy(TR::Compilation *comp)
+OMR::InlinerPolicy::InlinerPolicy(TR::Compilation *comp)
    : TR::OptimizationPolicy (comp)
    {
 
@@ -6199,14 +6200,14 @@ OMR_InlinerUtil::refineInlineGuard(TR::Node *callNode, TR::Block *&block1, TR::B
  * stop inlining for this callsite if TR_CallSite#_initialCalleeSymbol is certain specific method
  */
 bool
-OMR_InlinerPolicy::supressInliningRecognizedInitialCallee(TR_CallSite* callsite, TR::Compilation* comp)
+OMR::InlinerPolicy::supressInliningRecognizedInitialCallee(TR_CallSite* callsite, TR::Compilation* comp)
    {
    return false;
    }
 
 
 TR_InlinerFailureReason
-OMR_InlinerPolicy::checkIfTargetInlineable(TR_CallTarget* target, TR_CallSite* callsite, TR::Compilation* comp)
+OMR::InlinerPolicy::checkIfTargetInlineable(TR_CallTarget* target, TR_CallSite* callsite, TR::Compilation* comp)
    {
    return InlineableTarget;
    }
@@ -6218,7 +6219,7 @@ OMR_InlinerPolicy::checkIfTargetInlineable(TR_CallTarget* target, TR_CallSite* c
  * @return true if privatized inliner argumetn rematerialization should be suppressed
  */
 bool
-OMR_InlinerPolicy::suitableForRemat(TR::Compilation *comp, TR::Node *node, TR_VirtualGuardSelection *guard)
+OMR::InlinerPolicy::suitableForRemat(TR::Compilation *comp, TR::Node *node, TR_VirtualGuardSelection *guard)
    {
    return true;
    }
@@ -6302,7 +6303,7 @@ OMR_InlinerUtil::calleeTreeTopPreMergeActions(TR::ResolvedMethodSymbol *calleeRe
    }
 
 bool
-OMR_InlinerPolicy::dontPrivatizeArgumentsForRecognizedMethod(TR::RecognizedMethod recognizedMethod)
+OMR::InlinerPolicy::dontPrivatizeArgumentsForRecognizedMethod(TR::RecognizedMethod recognizedMethod)
    {
    return false;
    }
@@ -6311,7 +6312,7 @@ OMR_InlinerPolicy::dontPrivatizeArgumentsForRecognizedMethod(TR::RecognizedMetho
  * return true if the \p calleeMethod is doing a software overflow check which can be replaced by a hardware check
  */
 bool
-OMR_InlinerPolicy::replaceSoftwareCheckWithHardwareCheck(TR_ResolvedMethod *calleeMethod)
+OMR::InlinerPolicy::replaceSoftwareCheckWithHardwareCheck(TR_ResolvedMethod *calleeMethod)
    {
    return false;
    }

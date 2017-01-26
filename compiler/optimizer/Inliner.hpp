@@ -90,7 +90,7 @@ struct TR_CallSite;
 struct TR_CallTarget;
 struct TR_ParameterMapping;
 struct TR_VirtualGuardSelection;
-class OMR_InlinerPolicy;
+namespace OMR { class InlinerPolicy; }
 class OMR_InlinerUtil;
 
 class TR_InlinerTracer : public TR_LogTracer
@@ -262,9 +262,9 @@ class TR_InlinerBase: public TR_HasRandomGenerator
    public:
       vcount_t getVisitCount() { return _visitCount;}
 
-      void setPolicy(OMR_InlinerPolicy *policy){ _policy = policy; }
+      void setPolicy(OMR::InlinerPolicy *policy){ _policy = policy; }
       void setUtil(OMR_InlinerUtil *util){ _util = util; }
-      OMR_InlinerPolicy *getPolicy(){ TR_ASSERT(_policy != NULL, "inliner policy must be set"); return _policy; }
+      OMR::InlinerPolicy *getPolicy(){ TR_ASSERT(_policy != NULL, "inliner policy must be set"); return _policy; }
       OMR_InlinerUtil *getUtil(){ TR_ASSERT(_util != NULL, "inliner util must be set"); return _util; }
 
       bool allowBiggerMethods() { return comp()->isServerInlining(); }
@@ -411,7 +411,7 @@ class TR_InlinerBase: public TR_HasRandomGenerator
       TR_InlinerTracer*         _tracer;
       List<TR::Block>                           _GlobalLabels;
       List<TR::Block > * getSuccessorsWithGlobalLabels(){ return &_GlobalLabels; }
-      OMR_InlinerPolicy *_policy;
+      OMR::InlinerPolicy *_policy;
       OMR_InlinerUtil*_util;
    };
 
@@ -546,33 +546,6 @@ class OMR_InlinerUtil : public TR::OptimizationUtil, public OMR_InlinerHelper
                                   List<TR::SymbolReference> &, List<TR::SymbolReference> &);
    };
 
-class OMR_InlinerPolicy : public TR::OptimizationPolicy, public OMR_InlinerHelper
-   {
-   friend class TR_InlinerBase;
-   public:
-      OMR_InlinerPolicy(TR::Compilation *comp);
-      virtual bool inlineRecognizedMethod(TR::RecognizedMethod method);
-      int32_t getInitialBytecodeSize(TR::ResolvedMethodSymbol * methodSymbol, TR::Compilation *comp);
-      virtual int32_t getInitialBytecodeSize(TR_ResolvedMethod *feMethod, TR::ResolvedMethodSymbol * methodSymbol, TR::Compilation *comp);
-      virtual bool tryToInline(TR_CallTarget *, TR_CallStack *, bool);
-      virtual bool inlineMethodEvenForColdBlocks(TR_ResolvedMethod *method);
-      bool aggressiveSmallAppOpts() { return TR::Options::getCmdLineOptions()->getOption(TR_AggressiveOpts); }
-      virtual bool willBeInlinedInCodeGen(TR::RecognizedMethod method);
-      virtual bool canInlineMethodWhileInstrumenting(TR_ResolvedMethod *method);
-      virtual bool skipHCRGuardForCallee(TR::ResolvedMethodSymbol *calleeSymbol){return false;}
-      virtual bool dontPrivatizeArgumentsForRecognizedMethod(TR::RecognizedMethod recognizedMethod);
-      virtual bool replaceSoftwareCheckWithHardwareCheck(TR_ResolvedMethod *calleeMethod);
-   protected:
-      virtual bool tryToInlineTrivialMethod (TR_CallStack* callStack, TR_CallTarget* calltarget);
-      virtual bool alwaysWorthInlining(TR_ResolvedMethod * calleeMethod, TR::Node *callNode);
-      virtual void determineInliningHeuristic(TR::ResolvedMethodSymbol *callerSymbol);
-      bool tryToInlineGeneral(TR_CallTarget *, TR_CallStack *, bool);
-      virtual bool callMustBeInlined(TR_CallTarget *calltarget);
-      bool mustBeInlinedEvenInDebug(TR_ResolvedMethod * calleeMethod, TR::TreeTop *callNodeTreeTop);
-      virtual bool supressInliningRecognizedInitialCallee(TR_CallSite* callsite, TR::Compilation* comp);
-      virtual TR_InlinerFailureReason checkIfTargetInlineable(TR_CallTarget* target, TR_CallSite* callsite, TR::Compilation* comp);
-      virtual bool suitableForRemat(TR::Compilation *comp, TR::Node *node, TR_VirtualGuardSelection *guard);
-   };
 
 class TR_TransformInlinedFunction
    {

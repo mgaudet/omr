@@ -93,7 +93,7 @@
 #include "optimizer/Simplifier.hpp"
 #include "optimizer/VirtualGuardCoalescer.hpp"
 #include "optimizer/VirtualGuardHeadMerger.hpp"
-#include "optimizer/Inliner.hpp" // for OMR_InlinerPolicy
+#include "optimizer/InlinerPolicy.hpp" 
 #include "ras/Debug.hpp"
 #include "optimizer/InductionVariable.hpp"
 #include "optimizer/ValuePropagation.hpp"
@@ -2825,9 +2825,9 @@ TR::Optimizer *OMR::Optimizer::self()
    return (static_cast<TR::Optimizer *>(this));
    }
 
-OMR_InlinerPolicy* OMR::Optimizer::getInlinerPolicy()
+OMR::InlinerPolicy* OMR::Optimizer::getInlinerPolicy()
    {
-   return new (comp()->allocator()) OMR_InlinerPolicy(comp());
+   return new (comp()->allocator()) OMR::InlinerPolicy(comp());
    }
 
 OMR_InlinerUtil* OMR::Optimizer::getInlinerUtil()

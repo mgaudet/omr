@@ -52,7 +52,7 @@ namespace TR { class OptimizationManager; }
 namespace TR { class Optimizer; }
 namespace TR { class ResolvedMethodSymbol; }
 struct OptimizationStrategy;
-class OMR_InlinerPolicy;
+namespace OMR { class InlinerPolicy; } 
 class OMR_InlinerUtil;
 
 
@@ -265,7 +265,7 @@ class Optimizer
    TR_BitVector *getSuccessorBitsGRA()                     { return _successorBitsGRA; }
    void setSuccessorBitsGRA(TR_BitVector *bv)              { _successorBitsGRA = bv; }
 
-   OMR_InlinerPolicy *getInlinerPolicy();
+   OMR::InlinerPolicy *getInlinerPolicy();
    OMR_InlinerUtil *getInlinerUtil();
    TR::OptimizationManager *getOptimization(OMR::Optimizations i)
       {

@@ -21,22 +21,30 @@
 #define SIMPLE_INCL
 
 #include "ilgen/MethodBuilder.hpp"
+#include <functional>
 
-typedef bool (*buildIlType)(TR::MethodBuilder*);  
+typedef std::function<bool(TR::MethodBuilder*)> BuilderDelgateFunction;  
 
-class LambdaBuilder : public TR::MethodBuilder
+class DelegateBuilder : public TR::MethodBuilder
    {
-   buildIlType buildIlFunc; 
+   BuilderDelgateFunction buildIlFunc; 
+   BuilderDelgateFunction initFunc; 
    public:
-   LambdaBuilder(TR::TypeDictionary *d, buildIlType func) :
+   DelegateBuilder(TR::TypeDictionary *d,
+                 BuilderDelgateFunction initializationDelegate,
+                 BuilderDelgateFunction ilBuilderDelgate) :
       TR::MethodBuilder(d),
-      buildIlFunc(func) 
-   {}
+      initFunc(initializationDelegate), 
+      buildIlFunc(ilBuilderDelgate) 
+   {
+   initFunc(this); 
+   }
 
    virtual bool buildIL()
       {
       return buildIlFunc(this);
       } 
+
    };
 
 #endif // !defined(SIMPLE_INCL)

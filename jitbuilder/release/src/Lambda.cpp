@@ -48,23 +48,26 @@ main(int argc, char *argv[])
 
    cout << "Step 3: compile method builder\n";
 
-   LambdaBuilder method(&types, 
-                        [](TR::MethodBuilder* b) -> bool { 
-                           cout << "SimpleMethod::buildIL() running!\n";
-                           b->Return(
-                                  b->Add(
-                                      b->Load("value"),
-                                      b->ConstInt32(1)));
+   DelegateBuilder method(&types, 
+                          [&types](TR::MethodBuilder* b) -> bool { 
+                             b->DefineLine(LINETOSTR(__LINE__));
+                             b->DefineFile(__FILE__);
 
-                           return true;
-                        } 
-                        );
-   method.DefineLine(LINETOSTR(__LINE__));
-   method.DefineFile(__FILE__);
+                             b->DefineName("increment");
+                             b->DefineParameter("value", types.toIlType<int32_t>());
+                             b->DefineReturnType(types.toIlType<int32_t>());
+                             return true;
+                          },
+                          [](TR::MethodBuilder* b) -> bool { 
+                             cout << "SimpleMethod::buildIL() running!\n";
+                             b->Return(
+                                       b->Add(
+                                              b->Load("value"),
+                                              b->ConstInt32(1)));
 
-   method.DefineName("increment");
-   method.DefineParameter("value", types.toIlType<int32_t>());
-   method.DefineReturnType(types.toIlType<int32_t>());
+                             return true;
+                          }
+                         );
 
 
    uint8_t *entry = 0;

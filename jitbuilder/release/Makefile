@@ -256,6 +256,13 @@ simple : libjitbuilder.a Simple.o
 Simple.o: src/Simple.cpp src/Simple.hpp
 	g++ -o $@ $(CXXFLAGS) $<
 
+lambda: libjitbuilder.a Lambda.o
+	g++ -g -fno-rtti -o $@ Lambda.o -L. -ljitbuilder -ldl
+
+Lambda.o: src/Lambda.cpp src/Lambda.hpp
+	g++ -o $@ $(CXXFLAGS) $<
+
+
 
 structarray : libjitbuilder.a StructArray.o
 	g++ -g -fno-rtti -o $@ StructArray.o -L. -ljitbuilder -ldl

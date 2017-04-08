@@ -56,7 +56,6 @@ matrix:
       env: SPEC=linux_x86-64_cmprssptrs PLATFORM=amd64-linux64-gcc
     - os: linux
       env: SPEC=linux_x86-64 PLATFORM=amd64-linux64-gcc RUN_LINT=yes RUN_TESTS=no
-      dist: precise
     - os: linux
       env: SPEC=linux_x86 PLATFORM=amd64-linux-gcc
     - os: osx

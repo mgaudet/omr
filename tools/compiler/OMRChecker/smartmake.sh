@@ -35,6 +35,8 @@
 
 echo "Attempting to build OMRChecker normally."
 
+echo "PATH: $PWD, clang++ is $(which clang++)" 
+
 make cleanall
 make OMRCHECKER_DIR=$PWD
 python test.py --checker $PWD/OMRChecker.so

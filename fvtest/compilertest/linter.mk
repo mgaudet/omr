@@ -21,6 +21,8 @@ else
     endif
 endif
 
+$(info "PATH is $(PATH), clang++ is $(shell which clang++)")
+
 #
 # First setup some important paths
 # Personally, I feel it's best to default to out-of-tree build but who knows, there may be

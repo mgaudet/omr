@@ -88,7 +88,7 @@ class TestRunner(object):
          print("Test " + self.test.name + " FAILED.")
 
    def printLog(self):
-      outputLevel = 2  if self.testPassed else 1
+      outputLevel = 0 
       for logEntry in self.test.log:
          if self.mcommand >= outputLevel:
             print('>Command: ' + logEntry.cmdstr)

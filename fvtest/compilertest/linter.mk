@@ -14,7 +14,11 @@ else
     #default paths, unless overriden 
     export LLVM_CONFIG?=llvm-config
     export CC_PATH?=clang
-    export CXX_PATH?=clang++
+    ifneq ($(CLANG),)
+      export CXX_PATH?=$(CLANG)
+    else
+      export CXX_PATH?=clang++
+    endif
 endif
 
 #

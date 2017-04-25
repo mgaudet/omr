@@ -24,7 +24,8 @@ set(OMR_VERSION_MINOR 0)
 set(OMR_VERSION_PATCH 1)
 set(OMR_VERSION ${OMR_VERSION_MAJOR}.${OMR_VERSION_MINOR}.${OMR_VERSION_PATCH})
 
-project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C)
+#TODO assembly dialect depends on platform. So it really shouldnt be here
+project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C ASM-ATT)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 
@@ -107,7 +108,7 @@ if(OMR_GC)
   add_subdirectory("${OMR_GLUE}")
 endif(OMR_GC)
 
-if(OMR_COMPILER)
+#if(OMR_COMPILER)
   # TODO: Actually support the compiler
   add_subdirectory(compiler)
-endif(OMR_COMPILER)
+#endif(OMR_COMPILER)

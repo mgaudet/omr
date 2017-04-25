@@ -25,7 +25,8 @@ Various components may fail to compile with default configuration options, and s
 
 include(cmake/versions.cmake) # Required for OMR_VERSION 
 
-project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C)
+#TODO assembly dialect depends on platform. So it really shouldnt be here
+project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C ASM-ATT)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 
@@ -87,6 +88,7 @@ add_subdirectory(tools)
 if(CMAKE_CROSSCOMPILING)
 	include(${OMR_TOOLS_IMPORTFILE})
 endif()
+add_subdirectory(compiler)
 add_subdirectory(thread)
 add_subdirectory(port)
 add_subdirectory(util)
@@ -94,7 +96,7 @@ add_subdirectory(omrtrace)
 add_subdirectory(omr)
 add_subdirectory(third_party)
 add_subdirectory(omrsigcompat)
-
+add_subdirectory(jitbuilder)
 #TODO should be wrapped in if()
 add_subdirectory(fvtest)
 
@@ -103,7 +105,7 @@ if(OMR_GC)
   add_subdirectory("${OMR_GLUE}")
 endif(OMR_GC)
 
-if(OMR_COMPILER)
+#if(OMR_COMPILER)
   # TODO: Actually support the compiler
-  add_subdirectory(compiler)
-endif(OMR_COMPILER)
+  
+#endif(OMR_COMPILER)

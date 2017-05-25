@@ -1,63 +1,35 @@
-        #$(JIT_OMR_DIRTY_DIR)/codegen/OMRAheadOfTimeCompile.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/Analyser.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/CodeGenPrep.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/CodeGenGC.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/CodeGenRA.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/FrontEnd.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRGCRegisterMap.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRGCStackAtlas.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRLinkage.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/LiveRegister.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OutOfLineCodeSection.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRRegisterDependency.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/Relocation.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/ScratchRegisterManager.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/StorageInfo.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRTreeEvaluator.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/PreInstructionSelection.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/NodeEvaluation.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRSnippet.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRUnresolvedDataSnippet.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRSnippetGCMap.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRCodeGenerator.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRCodeGenPhase.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRMemoryReference.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRMachine.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRRegister.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRRealRegister.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRRegisterPair.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/codegen/OMRInstruction.cpp \
 
-add_library(tr_codegen STATIC
-	OMRAheadOfTimeCompile.cpp
-	Analyser.cpp
-	CodeGenPrep.cpp
-	CodeGenGC.cpp
-	CodeGenRA.cpp
-	FrontEnd.cpp
-	OMRGCRegisterMap.cpp
-	OMRGCStackAtlas.cpp
-	OMRLinkage.cpp
-	LiveRegister.cpp
-	OutOfLineCodeSection.cpp
-	OMRRegisterDependency.cpp
-	Relocation.cpp
-	ScratchRegisterManager.cpp
-	StorageInfo.cpp
-	OMRTreeEvaluator.cpp
-	PreInstructionSelection.cpp
-	NodeEvaluation.cpp
-	OMRSnippet.cpp
-	OMRUnresolvedDataSnippet.cpp
-	OMRSnippetGCMap.cpp
-	OMRCodeGenerator.cpp
-	OMRCodeGenPhase.cpp
-	OMRMemoryReference.cpp
-	OMRMachine.cpp
-	OMRRegister.cpp
-	OMRRealRegister.cpp
-	OMRRegisterPair.cpp
-	OMRInstruction.cpp
+add_library(tr_codegen INTERFACE)
+target_sources(tr_codegen INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRAheadOfTimeCompile.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Analyser.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CodeGenPrep.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CodeGenGC.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CodeGenRA.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/FrontEnd.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRGCRegisterMap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRGCStackAtlas.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRLinkage.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LiveRegister.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OutOfLineCodeSection.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRRegisterDependency.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Relocation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ScratchRegisterManager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StorageInfo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRTreeEvaluator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PreInstructionSelection.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/NodeEvaluation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRSnippet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRUnresolvedDataSnippet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRSnippetGCMap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCodeGenerator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCodeGenPhase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRMemoryReference.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRMachine.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRRegister.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRRealRegister.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRRegisterPair.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRInstruction.cpp
 )
 #TODO: this could be moved 1 dir up?
-target_link_libraries(tr_codegen tr_TargetCodegen)
+#target_link_libraries(tr_codegen tr_TargetCodegen)

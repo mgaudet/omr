@@ -20,7 +20,7 @@ add_subdirectory(util)
 
 add_subdirectory(omrGtestGlue)
 add_subdirectory(algotest)
-# add_subdirectory(compilertest)
+add_subdirectory(compilertest)
 add_subdirectory(gctest)
 # add_subdirectory(jitbuildertest)
 add_subdirectory(porttest)

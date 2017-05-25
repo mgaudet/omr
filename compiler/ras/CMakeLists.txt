@@ -1,24 +1,14 @@
 
-    #$(JIT_OMR_DIRTY_DIR)/ras/CallStack.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/CFGChecker.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/Debug.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/DebugCounter.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/IgnoreLocale.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/LimitFile.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/LogTracer.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/OptionsDebug.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/PPCOpNames.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/ras/Tree.cpp \
-    
-add_library(tr_ras STATIC
-	CallStack.cpp
-	CFGChecker.cpp
-	Debug.cpp
-	DebugCounter.cpp
-	IgnoreLocale.cpp
-	LimitFile.cpp
-	LogTracer.cpp
-	OptionsDebug.cpp
-	PPCOpNames.cpp
-	Tree.cpp
+add_library(tr_ras INTERFACE)
+target_sources(tr_ras INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/CallStack.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/CFGChecker.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/Debug.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/DebugCounter.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/IgnoreLocale.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/LimitFile.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/LogTracer.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OptionsDebug.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/PPCOpNames.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/Tree.cpp 
 )

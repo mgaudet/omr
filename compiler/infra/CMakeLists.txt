@@ -1,33 +1,19 @@
-    #$(JIT_OMR_DIRTY_DIR)/infra/Assert.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/BitVector.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/Checklist.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/HashTab.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/IGBase.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/IGNode.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/ILWalk.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/InterferenceGraph.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/OMRMonitor.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/OMRMonitorTable.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/Random.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/Timer.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/TreeServices.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/OMRCfg.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/infra/SimpleRegex.cpp \
     
-add_library(tr_infra STATIC
-	Assert.cpp
-	BitVector.cpp
-	Checklist.cpp
-	HashTab.cpp
-	IGBase.cpp
-	IGNode.cpp
-	ILWalk.cpp
-	InterferenceGraph.cpp
-	OMRMonitor.cpp
-	OMRMonitorTable.cpp
-	Random.cpp
-	Timer.cpp
-	TreeServices.cpp
-	OMRCfg.cpp
-	SimpleRegex.cpp
+add_library(tr_infra INTERFACE)
+target_sources(tr_infra INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/Assert.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/BitVector.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/Checklist.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/HashTab.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/IGBase.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/IGNode.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/ILWalk.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/InterferenceGraph.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRMonitor.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRMonitorTable.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/Random.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/SimpleRegex.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Timer.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/TreeServices.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCfg.cpp 
 )

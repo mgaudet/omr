@@ -1,29 +1,45 @@
 
+Find_package(Perl)
+
+if (NOT PERL_FOUND )
+	message(FATAL_ERROR "Perl not found")
+else()
+	message(STATUS PERL = ${PERL_EXECUTABLE})
+endif()
+
+#TODO these should not be force-set
 set(TR_TARGET_ARCH x)
 set(TR_TARGET_SUBARCH amd64)
 
+set(JIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "TODO: DOCUMENT" FORCE)
 
-set(JIT_PRODUCT_DIR ../fvtest/compilertest)
+#set(JIT_PRODUCT_DIR ../fvtest/compilertest)
 
 set(CMAKE_INCLUDE_CURRENT_DIR OFF)
+
+#this is dumb. should be set by product
+set(MASM2GAS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../fvtest/compilertest/build/scripts/masm2gas.pl)
+
+function(process_compiler_target tgtName)
+	#we need to preprocess assembly files
+
+endfunction()
+function(masm2gas inpt)
+
+endfunction()
+
 
 #HACk there are alot of include directories here that shouldnt be
 #Note for whatever reason, include dir paths is backward from the way you think
 #ie paths at end are are added first
 include_directories(
-	${JIT_PRODUCT_DIR}/${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
-	${JIT_PRODUCT_DIR}/${TR_TARGET_ARCH}
-	${JIT_PRODUCT_DIR}
-	${JIT_PRODUCT_DIR}/
-
 	${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
 	${TR_TARGET_ARCH}
 	.
 	../
 )
 
-get_directory_property(incdirs INCLUDE_DIRECTORIES)
-message(STATUS "INC dirs = ${incdirs}")
+
 
 #hack definitions in
 add_definitions(
@@ -70,25 +86,25 @@ add_subdirectory(optimizer)
 add_subdirectory(runtime)
 add_subdirectory(ilgen)
 
-add_library(tr INTERFACE)
-target_link_libraries(tr
-	INTERFACE
-	tr_ras
-	tr_compile
-	tr_control
-	tr_env
-	tr_codegen
-	tr_infra
-	tr_il
-	tr_optimizer
-	tr_runtime
-	tr_ilgen
-)
+#add_library(tr INTERFACE)
+#target_link_libraries(tr
+#	INTERFACE
+#	tr_ras
+#	tr_compile
+#	tr_control
+#	tr_env
+#	tr_codegen
+#	tr_infra
+#	tr_il
+#	tr_optimizer
+#	tr_runtime
+#	tr_ilgen
+#)
 
 
 
-add_executable(dummy dummy.cpp)
-target_link_libraries(dummy tr)
+#add_executable(dummy dummy.cpp)
+#target_link_libraries(dummy tr)
 
 
 

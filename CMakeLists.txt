@@ -92,6 +92,7 @@ add_subdirectory(tools)
 if(CMAKE_CROSSCOMPILING)
 	include(${OMR_TOOLS_IMPORTFILE})
 endif()
+add_subdirectory(compiler)
 add_subdirectory(thread)
 add_subdirectory(port)
 add_subdirectory(util)
@@ -99,7 +100,7 @@ add_subdirectory(omrtrace)
 add_subdirectory(omr)
 add_subdirectory(third_party)
 add_subdirectory(omrsigcompat)
-
+add_subdirectory(jitbuilder)
 #TODO should be wrapped in if()
 add_subdirectory(fvtest)
 
@@ -110,5 +111,5 @@ endif(OMR_GC)
 
 #if(OMR_COMPILER)
   # TODO: Actually support the compiler
-  add_subdirectory(compiler)
+  
 #endif(OMR_COMPILER)

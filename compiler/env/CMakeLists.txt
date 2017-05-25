@@ -1,48 +1,32 @@
-#$(JIT_OMR_DIRTY_DIR)/env/ExceptionTable.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRCPU.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRObjectModel.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRArithEnv.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRClassEnv.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRDebugEnv.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRVMEnv.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/SegmentProvider.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/SystemSegmentProvider.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/Region.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/StackMemoryRegion.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRPersistentInfo.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/TRMemory.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/TRPersistentMemory.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/VerboseLog.cpp \
-       #$(JIT_OMR_DIRTY_DIR)/env/FEBase.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/JitConfig.cpp \
+
+add_library(tr_env INTERFACE)
+target_sources(tr_env INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/ExceptionTable.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCPU.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRObjectModel.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRArithEnv.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRClassEnv.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRDebugEnv.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRVMEnv.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/SegmentProvider.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/SystemSegmentProvider.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/Region.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/StackMemoryRegion.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRPersistentInfo.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/TRMemory.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/TRPersistentMemory.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/VerboseLog.cpp 
 
 
-	     #$(JIT_OMR_DIRTY_DIR)/env/OMRIO.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRKnownObjectTable.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/Globals.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/OMRCompilerEnv.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/env/PersistentAllocator.cpp \
+	# The following are listed under JIT_PRODUCT_SOURCE_FILES 
+	# (for compiler test, but not jitbuilder). 
+	# TODO: figure out why and move if required
+	${CMAKE_CURRENT_SOURCE_DIR}/FEBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/JitConfig.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRIO.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRKnownObjectTable.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Globals.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCompilerEnv.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PersistentAllocator.cpp
 
-add_library(tr_env STATIC
-	ExceptionTable.cpp
-	OMRCPU.cpp
-	OMRObjectModel.cpp
-	OMRArithEnv.cpp
-	OMRClassEnv.cpp
-	OMRDebugEnv.cpp
-	OMRVMEnv.cpp
-	SegmentProvider.cpp
-	Region.cpp
-	StackMemoryRegion.cpp
-	OMRPersistentInfo.cpp
-	TRMemory.cpp
-	TRPersistentMemory.cpp
-	VerboseLog.cpp
-	JitConfig.cpp
-
-	OMRIO.cpp
-	OMRKnownObjectTable.cpp
-	Globals.cpp
-	OMRCompilerEnv.cpp
-	PersistentAllocator.cpp
 )

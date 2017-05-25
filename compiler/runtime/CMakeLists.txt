@@ -1,21 +1,18 @@
-    #$(JIT_OMR_DIRTY_DIR)/runtime/Runtime.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/runtime/Trampoline.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/runtime/Alignment.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/runtime/CodeCacheTypes.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/runtime/OMRCodeCache.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/runtime/OMRCodeCacheManager.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/runtime/OMRCodeCacheMemorySegment.cpp \
-    #$(JIT_OMR_DIRTY_DIR)/runtime/OMRCodeCacheConfig.cpp \
-
-add_library(tr_runtime STATIC
-	Runtime.cpp
-	Trampoline.cpp
-	Alignment.cpp
-	CodeCacheTypes.cpp
-	OMRCodeCache.cpp
-	OMRCodeCacheManager.cpp
-	OMRCodeCacheMemorySegment.cpp
-	OMRCodeCacheConfig.cpp
+    
+add_library(tr_runtime INTERFACE)
+target_sources(tr_runtime INTERFACE
+	# The following are listed under JIT_PRODUCT_SOURCE_FILES 
+	# (for compiler test). 
+	# TODO: figure out why and move if required
+	# NOTE: they are backend sources for jitbuilder
+	${CMAKE_CURRENT_SOURCE_DIR}/Runtime.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Trampoline.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Alignment.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CodeCacheTypes.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCodeCache.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCodeCacheManager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCodeCacheMemorySegment.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/OMRCodeCacheConfig.cpp
 )
 
-target_link_libraries(tr_runtime tr_TargetRuntime)
+#target_link_libraries(tr_runtime tr_TargetRuntime)

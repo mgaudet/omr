@@ -10,13 +10,13 @@ target_sources(tr_TargetCodegen INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/FPBinaryArithmeticAnalyser.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/FPCompareAnalyser.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/FPTreeEvaluator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/codegen/SIMDTreeEvaluator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/HelperCallSnippet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/IA32LinkageUtils.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/IntegerMultiplyDecomposer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OMRMemoryReference.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OpBinary.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OpNames.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OpProperties.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OutlinedInstructions.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/RegisterRematerialization.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/SubtractAnalyser.cpp
@@ -39,40 +39,25 @@ target_sources(tr_TargetCodegen INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OMRCodeGenerator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OMRRegisterIterator.cpp
 
-
 )
 
+#TODO needs better guard?
 if(OMR_ENV_DATA64)
 	target_sources(tr_TargetCodegen INTERFACE
 		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRCodeGenerator.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRMachine.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRMemoryReference.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRRealRegister.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/AMD64FPConversionSnippet.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/AMD64SystemLinkage.cpp
+
 	)
+	add_library(tr_CodegenJitbuilder INTERFACE)
+	target_sources(tr_CodegenJitbuilder INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRTreeEvaluator.cpp)
 endif()
 
-
-#TODO we need ability to hack on assembly commands
-add_library(tr_TargetRuntime INTERFACE)
-target_sources(tr_TargetRuntime
-	INTERFACE
-	${CMAKE_CURRENT_SOURCE_DIR}/runtime/CPUID.asm
+add_library(tr_TargetEnv INTERFACE)
+target_sources(tr_TargetEnv INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/env/OMRDebugEnv.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/enc/OMRCPU.cpp
 )
 
-
-    #$(JIT_OMR_DIRTY_DIR)/x/runtime/CPUID.asm
-#JIT_PRODUCT_BACKEND_SOURCES+=\
-
-
-
-#JIT_PRODUCT_SOURCE_FILES+=
-
-#JIT_PRODUCT_BACKEND_SOURCES+=\
-
-# H/W SPECIFIC
-
-
-    #$(JIT_PRODUCT_DIR)/x/runtime/AsmUtil64.asm \
-    #$(JIT_PRODUCT_DIR)/x/codegen/Evaluator.cpp \

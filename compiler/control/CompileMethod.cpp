@@ -201,7 +201,7 @@ int32_t init_options(TR::JitConfig *jitConfig, char *cmdLineOptions)
    return 0;
    }
 
-static bool methodCanBeCompiled(OMR::FrontEnd *fe, TR_ResolvedMethod &method, TR_FilterBST *&filter, TR_Memory *trMemory)
+bool methodCanBeCompiled(OMR::FrontEnd *fe, TR_ResolvedMethod &method, TR_FilterBST *&filter, TR_Memory *trMemory)
    {
    if (!method.isCompilable(trMemory))
       return false;

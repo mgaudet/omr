@@ -1,6 +1,5 @@
 
-add_library(tr_env INTERFACE)
-target_sources(tr_env INTERFACE
+compiler_library(env 
 	${CMAKE_CURRENT_SOURCE_DIR}/ExceptionTable.cpp 
 	${CMAKE_CURRENT_SOURCE_DIR}/OMRCPU.cpp 
 	${CMAKE_CURRENT_SOURCE_DIR}/OMRObjectModel.cpp 

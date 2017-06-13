@@ -26,7 +26,7 @@ Various components may fail to compile with default configuration options, and s
 include(cmake/versions.cmake) # Required for OMR_VERSION 
 
 #TODO assembly dialect depends on platform. So it really shouldnt be here
-project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C ASM-ATT)
+project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 
@@ -53,9 +53,6 @@ include(cmake/config.cmake)
 include(cmake/vpath.cmake)
 
 enable_testing()
-
-#include current source dir and current bin dir automatically
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include_directories(
   ${PROJECT_BINARY_DIR}
@@ -88,7 +85,7 @@ add_subdirectory(tools)
 if(CMAKE_CROSSCOMPILING)
 	include(${OMR_TOOLS_IMPORTFILE})
 endif()
-add_subdirectory(compiler)
+
 add_subdirectory(thread)
 add_subdirectory(port)
 add_subdirectory(util)

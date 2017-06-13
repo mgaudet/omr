@@ -1,5 +1,4 @@
-add_library(tr_TargetCodegen INTERFACE)
-target_sources(tr_TargetCodegen INTERFACE
+compiler_library(x 
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/BinaryCommutativeAnalyser.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/BinaryEvaluator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/CompareAnalyser.cpp
@@ -38,26 +37,13 @@ target_sources(tr_TargetCodegen INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/XMMBinaryArithmeticAnalyser.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OMRCodeGenerator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/OMRRegisterIterator.cpp
-
-)
-
-#TODO needs better guard?
-if(OMR_ENV_DATA64)
-	target_sources(tr_TargetCodegen INTERFACE
-		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRCodeGenerator.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRMachine.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRMemoryReference.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRRealRegister.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/AMD64SystemLinkage.cpp
-
-	)
-	add_library(tr_CodegenJitbuilder INTERFACE)
-	target_sources(tr_CodegenJitbuilder INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRTreeEvaluator.cpp)
-endif()
-
-add_library(tr_TargetEnv INTERFACE)
-target_sources(tr_TargetEnv INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/env/OMRCPU.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/env/OMRDebugEnv.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/enc/OMRCPU.cpp
+	$<$<EQUAL:${OMR_TARGET_DATASIZE},64>: ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRCodeGenerator.cpp> 
+	$<$<EQUAL:${OMR_TARGET_DATASIZE},64>: ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRMachine.cpp>
+	$<$<EQUAL:${OMR_TARGET_DATASIZE},64>: ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRTreeEvaluator.cpp> 
+	$<$<EQUAL:${OMR_TARGET_DATASIZE},64>: ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRMemoryReference.cpp>
+	$<$<EQUAL:${OMR_TARGET_DATASIZE},64>: ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/OMRRealRegister.cpp>
+	$<$<EQUAL:${OMR_TARGET_DATASIZE},64>: ${CMAKE_CURRENT_SOURCE_DIR}/amd64/codegen/AMD64SystemLinkage.cpp>
 )
 

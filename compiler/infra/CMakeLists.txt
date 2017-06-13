@@ -1,6 +1,5 @@
     
-add_library(tr_infra INTERFACE)
-target_sources(tr_infra INTERFACE
+compiler_library(infra 
 	${CMAKE_CURRENT_SOURCE_DIR}/Assert.cpp 
 	${CMAKE_CURRENT_SOURCE_DIR}/BitVector.cpp 
 	${CMAKE_CURRENT_SOURCE_DIR}/Checklist.cpp 

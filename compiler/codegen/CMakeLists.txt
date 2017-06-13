@@ -1,6 +1,5 @@
 
-add_library(tr_codegen INTERFACE)
-target_sources(tr_codegen INTERFACE
+compiler_library(codegen
 	${CMAKE_CURRENT_SOURCE_DIR}/OMRAheadOfTimeCompile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Analyser.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/CodeGenPrep.cpp
@@ -31,5 +30,3 @@ target_sources(tr_codegen INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/OMRRegisterPair.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/OMRInstruction.cpp
 )
-#TODO: this could be moved 1 dir up?
-#target_link_libraries(tr_codegen tr_TargetCodegen)

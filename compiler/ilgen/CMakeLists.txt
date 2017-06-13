@@ -1,17 +1,11 @@
-
-    
-        
-
-add_library(tr_ilgen INTERFACE)
-target_sources(tr_ilgen INTERFACE
+compiler_library(ilgen
 	${CMAKE_CURRENT_SOURCE_DIR}/IlGenRequest.cpp 
-
-
-)
-
-add_library(tr_ilbuilder INTERFACE)
-target_sources(tr_ilbuilder INTERFACE
+# )
+# 
+# # Should make this conditional on JitBuilder potentially?
+# compiler_library(ilbuilder 
 	${CMAKE_CURRENT_SOURCE_DIR}/IlBuilder.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/IlValue.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/IlInjector.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MethodBuilder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BytecodeBuilder.cpp

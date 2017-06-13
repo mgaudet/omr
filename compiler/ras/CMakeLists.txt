@@ -1,6 +1,5 @@
 
-add_library(tr_ras INTERFACE)
-target_sources(tr_ras INTERFACE
+compiler_library(ras 
 	${CMAKE_CURRENT_SOURCE_DIR}/CallStack.cpp 
 	${CMAKE_CURRENT_SOURCE_DIR}/CFGChecker.cpp 
 	${CMAKE_CURRENT_SOURCE_DIR}/Debug.cpp 

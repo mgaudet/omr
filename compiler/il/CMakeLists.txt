@@ -1,6 +1,5 @@
 
-add_library(tr_il INTERFACE)
-target_sources(tr_il INTERFACE
+compiler_library(il 
 	${CMAKE_CURRENT_SOURCE_DIR}/symbol/OMRSymbol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/symbol/OMRAutomaticSymbol.cpp 
 	${CMAKE_CURRENT_SOURCE_DIR}/symbol/OMRLabelSymbol.cpp 

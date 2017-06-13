@@ -1,6 +1,5 @@
     
-add_library(tr_runtime INTERFACE)
-target_sources(tr_runtime INTERFACE
+compiler_library(runtime 
 	# The following are listed under JIT_PRODUCT_SOURCE_FILES 
 	# (for compiler test). 
 	# TODO: figure out why and move if required

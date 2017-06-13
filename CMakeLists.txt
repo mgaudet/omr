@@ -88,7 +88,7 @@ add_subdirectory(tools)
 if(CMAKE_CROSSCOMPILING)
 	include(${OMR_TOOLS_IMPORTFILE})
 endif()
-add_subdirectory(compiler)
+
 add_subdirectory(thread)
 add_subdirectory(port)
 add_subdirectory(util)

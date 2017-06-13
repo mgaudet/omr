@@ -1,6 +1,5 @@
 
-add_library(tr_optimizer INTERFACE)
-target_sources(tr_optimizer INTERFACE
+compiler_library(optimizer 
 	${CMAKE_CURRENT_SOURCE_DIR}/AsyncCheckInsertion.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BackwardBitVectorAnalysis.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BackwardIntersectionBitVectorAnalysis.cpp

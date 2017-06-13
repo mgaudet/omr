@@ -1,7 +1,6 @@
 
-add_library(tr_compile INTERFACE)
+compiler_library(compile 
 
-target_sources(tr_compile INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/OSRData.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Method.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/VirtualGuard.cpp

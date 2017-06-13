@@ -3,8 +3,7 @@
     #$(JIT_OMR_DIRTY_DIR)/control/OMRRecompilation.cpp  \
     #$(JIT_OMR_DIRTY_DIR)/control/CompilationController.cpp \
     
-add_library(tr_control INTERFACE)
-target_sources(tr_control INTERFACE
+compiler_library(control 
 	${CMAKE_CURRENT_SOURCE_DIR}/OMROptions.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/OptimizationPlan.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/OMRRecompilation.cpp

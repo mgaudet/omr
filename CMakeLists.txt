@@ -26,7 +26,7 @@ Various components may fail to compile with default configuration options, and s
 include(cmake/versions.cmake) # Required for OMR_VERSION 
 
 #TODO assembly dialect depends on platform. So it really shouldnt be here
-project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C ASM-ATT)
+project(omr VERSION ${OMR_VERSION} LANGUAGES CXX C)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 

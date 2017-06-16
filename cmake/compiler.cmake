@@ -6,20 +6,13 @@ else()
 	message(STATUS PERL = ${PERL_EXECUTABLE})
 endif()
 	
-
-set(MASM2GAS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../fvtest/compilertest/build/scripts/masm2gas.pl)
+set(MASM2GAS_PATH ${CMAKE_SOURCE_DIR}/tools/compiler/scripts/masm2gas.pl)
 # Create an OMR Compiler component
 # 
 # call like this: 
 #  create_omr_compiler_library(NAME <compilername>  
 #                              GLUE_OBJECTS <list of objects to add to the glue> 
 function(create_omr_compiler_library)
-
-   set(CMAKE_INCLUDE_CURRENT_DIR OFF)
-   #TODO these should not be force-set
-   set(TR_TARGET_ARCH x)
-   set(TR_TARGET_SUBARCH amd64)
-
    cmake_parse_arguments(COMPILER 
       "" # Optional Arguments
       "NAME" # One value arguments
@@ -27,15 +20,27 @@ function(create_omr_compiler_library)
       ${ARGN}
       )
 
-   #TODO needs to be in compiler detection wrapper
 
-   message(STATUS "Creating ${COMPILER_NAME} compiler component") 
+   set(CMAKE_INCLUDE_CURRENT_DIR OFF)
+   #TODO these should not be force-set
+   set(TR_TARGET_ARCH x)
+   set(TR_TARGET_SUBARCH amd64)
 
 
 
    add_library(${COMPILER_NAME} STATIC
+      ${BUILD_NAME_FILE} 
       ${COMPILER_OBJECTS}
       )    	
+
+   set(BUILD_NAME_FILE "${CMAKE_BINARY_DIR}/${COMPILER_NAME}Name.cpp")
+   add_custom_target(OUTPUT ${BUILD_FILE_NAME}  
+      		     COMMAND perl ${CMAKE_SOURCE_DIR}/tools/compiler/scripts/generateVersion.pl ${COMPILER_NAME} > ${BUILD_NAME_FILE}
+		     VERBATIM
+                     BYPRODUCTS ${BUILD_NAME_FILE}
+      )
+   # add_dependencies(${COMPILER_NAME} ${COMPILER_NAME}_name_file)
+
 
    function(create_compiler_target target) 
       target_compile_features(${target} PUBLIC cxx_static_assert)

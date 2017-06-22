@@ -19,8 +19,6 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "compile/Method.hpp"
-#include "il/DataTypes.hpp"
 #include "gtest/gtest.h"
 #include "OMRTestEnv.hpp"
 

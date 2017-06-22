@@ -2,11 +2,52 @@ Find_package(Perl)
 
 if (NOT PERL_FOUND )
 	message(FATAL_ERROR "Perl not found")
-else()
-	message(STATUS PERL = ${PERL_EXECUTABLE})
 endif()
 	
 set(MASM2GAS_PATH ${CMAKE_SOURCE_DIR}/tools/compiler/scripts/masm2gas.pl)
+
+# Mark a target as consuming the comppiler components. 
+# 
+# This supplements the compile definitions, options and 
+# include directories. 
+function(make_compiler_target target) 
+   target_compile_features(${target} PUBLIC cxx_static_assert)
+
+
+   target_include_directories(${target} BEFORE PRIVATE 
+      ./${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
+      ./${TR_TARGET_ARCH} 
+      . 
+      ${CMAKE_SOURCE_DIR}/compiler/${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
+      ${CMAKE_SOURCE_DIR}/compiler/${TR_TARGET_ARCH} 
+      ${CMAKE_SOURCE_DIR}/compiler 
+      ${CMAKE_SOURCE_DIR} 
+      )
+
+
+   #hack definitions in
+   target_compile_definitions(${target} PRIVATE
+      $<UPPER_CASE:${COMPILER_NAME}>_PROJECT_SPECIFIC
+      BITVECTOR_BIT_NUMBERING_MSB
+      UT_DIRECT_TRACE_REGISTRATION
+      JITTEST
+      TR_HOST_64BIT
+      LINUX
+      TR_HOST_X86
+      TR_TARGET_X86
+      TR_TARGET_64BIT
+      )
+
+   target_compile_options(${target} PRIVATE
+      -w
+      )
+
+endfunction(make_compiler_target)
+
+message(AUTHOR_WARNING "Currently creating a compiler target without any warning") 
+
+
+
 # Create an OMR Compiler component
 # 
 # call like this: 
@@ -21,7 +62,6 @@ function(create_omr_compiler_library)
       )
 
 
-   set(CMAKE_INCLUDE_CURRENT_DIR OFF)
    #TODO these should not be force-set
    set(TR_TARGET_ARCH x)
    set(TR_TARGET_SUBARCH amd64)
@@ -34,48 +74,16 @@ function(create_omr_compiler_library)
       )    	
 
    set(BUILD_NAME_FILE "${CMAKE_BINARY_DIR}/${COMPILER_NAME}Name.cpp")
-   add_custom_target(OUTPUT ${BUILD_FILE_NAME}  
+   add_custom_command(OUTPUT ${BUILD_NAME_FILE}  
       		     COMMAND perl ${CMAKE_SOURCE_DIR}/tools/compiler/scripts/generateVersion.pl ${COMPILER_NAME} > ${BUILD_NAME_FILE}
 		     VERBATIM
                      BYPRODUCTS ${BUILD_NAME_FILE}
+                     COMMENT "Generate ${BUILD_NAME_FILE}"
       )
    # add_dependencies(${COMPILER_NAME} ${COMPILER_NAME}_name_file)
 
 
-   function(create_compiler_target target) 
-      target_compile_features(${target} PUBLIC cxx_static_assert)
-
-      target_include_directories(${target} BEFORE PRIVATE 
-         ./${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
-         ./${TR_TARGET_ARCH} 
-         . 
-         ${CMAKE_SOURCE_DIR}/compiler/${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
-         ${CMAKE_SOURCE_DIR}/compiler/${TR_TARGET_ARCH} 
-         ${CMAKE_SOURCE_DIR}/compiler 
-         ${CMAKE_SOURCE_DIR} 
-         )
-
-      #hack definitions in
-      target_compile_definitions(${target} PRIVATE
-         $<UPPER_CASE:${COMPILER_NAME}>_PROJECT_SPECIFIC
-         BITVECTOR_BIT_NUMBERING_MSB
-         UT_DIRECT_TRACE_REGISTRATION
-         JITTEST
-         TR_HOST_64BIT
-         LINUX
-         TR_HOST_X86
-         TR_TARGET_X86
-         TR_TARGET_64BIT
-         )
-
-      target_compile_options(${target} PRIVATE
-         -w
-         )
-
-
-   endfunction(create_compiler_target)
-
-   create_compiler_target(${COMPILER_NAME})
+   make_compiler_target(${COMPILER_NAME})
 
  
       #TODO there is a much cleaner way of doing this
@@ -91,14 +99,14 @@ function(create_omr_compiler_library)
       )
  
    function(compiler_library libraryname)
-    add_library(${COMPILER_NAME}_${libraryname} ${ARGN})
+      add_library(${COMPILER_NAME}_${libraryname} ${ARGN})
    endfunction(compiler_library)
 
    macro(add_compiler_subdirectory dir) 
       add_subdirectory(${CMAKE_SOURCE_DIR}/compiler/${dir}
                        ${CMAKE_CURRENT_BINARY_DIR}/compiler/${dir}_${COMPILER_NAME})
       target_link_Libraries(${COMPILER_NAME} PRIVATE ${COMPILER_NAME}_${dir})
-      create_compiler_target(${COMPILER_NAME}_${dir}) 
+      make_compiler_target(${COMPILER_NAME}_${dir}) 
    endmacro(add_compiler_subdirectory)
 
    if(OMR_ARCH_X86)

@@ -36,3 +36,28 @@ endif()
 create_omr_compiler_library(NAME            jitbuilder
                             OBJECTS    ${JITBUILDER_OBJECTS})
 
+# Add interface path so that include paths propagate. 
+# NOTE: Relase isn't being automatically setup, so this 
+#       Won't yet work on a clone!
+target_include_directories(jitbuilder 
+    INTERFACE release/include release/include/compiler
+)
+
+
+add_subdirectory(release)
+
+# install(TARGETS jitbuilder 
+#         ARCHIVE       DESTINATION ${CMAKE_BINARY_DIR}/jitbuilder_release
+#         PUBLIC_HEADER DESTINATION ${CMAKE_BINARY_DIR}/jitbuilder_release/include
+#         )
+# 
+
+# #Create release directory
+# file(MAKE_DIRECTORY jitbuilder_release) 
+# file(COPY ${jitbuilder_library} DESTINATION jitbuilder_release) 
+# file(COPY ${CMAKE_SOURCE_DIR}/compiler/env   DESTINATION jitbuilder_release/include) 
+# file(COPY ${CMAKE_SOURCE_DIR}/compiler/il    DESTINATION jitbuilder_release/include) 
+# file(COPY ${CMAKE_SOURCE_DIR}/compiler/ilgen DESTINATION jitbuilder_release/include) 
+
+
+

@@ -50,7 +50,7 @@ function(make_compiler_target target)
 
 endfunction(make_compiler_target)
 
-message(AUTHOR_WARNING "Currently creating a compiler target without any warning") 
+message(AUTHOR_WARNING "Currently creating a compiler target without any warnings enabled!") 
 
 
 

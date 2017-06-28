@@ -50,15 +50,8 @@ add_executable(compilertest
 
 )
 
-get_target_property(output compilertest INCLUDE_DIRECTORIES)
-message(STATUS "incudes before ${output}")
-
 # Inherit the include path from the compiler component
 make_compiler_target(compilertest)
-
-
-get_target_property(output compilertest INCLUDE_DIRECTORIES)
-message(STATUS "incudes after ${output}")
 
 #dumb hack for gtest. Maybe not needed now that we link agains gtest?
 target_include_directories( compilertest PRIVATE 

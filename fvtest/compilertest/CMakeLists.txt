@@ -50,6 +50,9 @@ add_executable(compilertest
 
 )
 
+# https://cmake.org/cmake/help/v3.5/prop_test/PASS_REGULAR_EXPRESSION.html#prop_test:PASS_REGULAR_EXPRESSION
+add_test(NAME CompilerTest COMMAND compilertest) 
+
 # Inherit the include path from the compiler component
 make_compiler_target(compilertest)
 
@@ -58,8 +61,6 @@ target_include_directories( compilertest PRIVATE
 	${PROJECT_SOURCE_DIR}/third_party/gtest-1.7.0/
 	${PROJECT_SOURCE_DIR}/third_party/gtest-1.7.0/include
 )
-
-
 
 target_link_libraries(compilertest
 	testcompiler	

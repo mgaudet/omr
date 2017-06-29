@@ -23,8 +23,10 @@ if(OMR_ARCH_X86)
 		x/codegen/Evaluator.cpp
 	)
 endif()
+
 create_omr_compiler_library(NAME       testcompiler 
-                            OBJECTS    ${COMPILERTEST_FILES})
+                            OBJECTS    ${COMPILERTEST_FILES}
+							DEFINES JITTEST TEST_PROJECT_SPECIFIC)
 add_executable(compilertest
 	tests/main.cpp
 	tests/BarIlInjector.cpp
@@ -54,7 +56,7 @@ add_executable(compilertest
 add_test(NAME CompilerTest COMMAND compilertest) 
 
 # Inherit the include path from the compiler component
-make_compiler_target(compilertest)
+make_compiler_target(compilertest COMPILER testcompiler)
 
 #dumb hack for gtest. Maybe not needed now that we link agains gtest?
 target_include_directories( compilertest PRIVATE 

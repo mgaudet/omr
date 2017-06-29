@@ -33,7 +33,7 @@ elseif(OMR_ARCH_S390)
 endif()
 
 
-create_omr_compiler_library(NAME            jitbuilder
+create_omr_compiler_library(NAME       jitbuilder
                             OBJECTS    ${JITBUILDER_OBJECTS})
 
 # Add interface path so that include paths propagate. 

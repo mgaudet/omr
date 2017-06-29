@@ -16,11 +16,20 @@ set(TR_TARGET_SUBARCH amd64)
 # 
 # This supplements the compile definitions, options and 
 # include directories. 
-function(make_compiler_target target) 
-   target_compile_features(${target} PUBLIC cxx_static_assert)
+function(make_compiler_target TARGET_NAME) 
+   cmake_parse_arguments(TARGET 
+      "" # Optional Arguments
+      "COMPILER" # One value arguments
+      ""
+      ${ARGN}
+      )
+
+   set(COMPILER_DEFINES ${${TARGET_COMPILER}_DEFINES})
+   message("making ${TARGET_NAME} into a compiler target, for ${TARGET_COMPILER}. Defines are ${COMPILER_DEFINES}") 
+   target_compile_features(${TARGET_NAME} PUBLIC cxx_static_assert)
 
 
-   target_include_directories(${target} BEFORE PRIVATE 
+   target_include_directories(${TARGET_NAME} BEFORE PRIVATE 
       ./${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
       ./${TR_TARGET_ARCH} 
       . 
@@ -30,21 +39,19 @@ function(make_compiler_target target)
       ${CMAKE_SOURCE_DIR} 
       )
 
-
-   #hack definitions in
-   target_compile_definitions(${target} PRIVATE
-      $<UPPER_CASE:${COMPILER_NAME}>_PROJECT_SPECIFIC
+#hack definitions in
+   target_compile_definitions(${TARGET_NAME} PRIVATE
       BITVECTOR_BIT_NUMBERING_MSB
       UT_DIRECT_TRACE_REGISTRATION
-      JITTEST
       TR_HOST_64BIT
       LINUX
       TR_HOST_X86
       TR_TARGET_X86
       TR_TARGET_64BIT
+      ${COMPILER_DEFINES} 
       )
 
-   target_compile_options(${target} PRIVATE
+   target_compile_options(${TARGET_NAME} PRIVATE
       -w
       )
 
@@ -58,27 +65,29 @@ message(AUTHOR_WARNING "Currently creating a compiler target without any warning
 # 
 # call like this: 
 #  create_omr_compiler_library(NAME <compilername>  
-#                              GLUE_OBJECTS <list of objects to add to the glue> 
+#                              OBJECTS <list of objects to add to the glue> 
+#			       DEFINES <DEFINES for building library
 function(create_omr_compiler_library)
    cmake_parse_arguments(COMPILER 
       "" # Optional Arguments
       "NAME" # One value arguments
-      "OBJECTS" # Multi value args
-      ${ARGN}
+      "OBJECTS;DEFINES" # Multi value args
+      ${ARGV}
       )
    
+   set(${COMPILER_NAME}_DEFINES ${COMPILER_DEFINES} CACHE INTERNAL "Defines for compiler ${COMPILER_NAME}") 
    #TODO there is a much cleaner way of doing this
    set(CMAKE_ASM-ATT_FLAGS
-      -DBITVECTOR_BIT_NUMBERING_MSB
-      -DUT_DIRECT_TRACE_REGISTRATION
-      -DJITTEST
-      -DTR_HOST_64BIT
-      -DLINUX
-      -DTR_HOST_X86
-      -DTR_TARGET_X86
-      -DTR_TARGET_64BIT
+      BITVECTOR_BIT_NUMBERING_MSB
+      UT_DIRECT_TRACE_REGISTRATION
+      TR_HOST_64BIT
+      LINUX
+      TR_HOST_X86
+      TR_TARGET_X86
+      TR_TARGET_64BIT
+      ${COMPILER_DEFINES}
       )
-  	
+
 
 
    set(EXTRA_COMPILER_OBJECTS "") 
@@ -126,11 +135,9 @@ function(create_omr_compiler_library)
    add_compiler_subdirectory(runtime)
    add_compiler_subdirectory(ilgen)
 
-
-   make_compiler_target(${COMPILER_NAME})
-   
    #   message("Extra Compiler objects ${EXTRA_COMPILER_OBJECTS}") 
 
    target_sources(${COMPILER_NAME} PRIVATE ${EXTRA_COMPILER_OBJECTS})
+   make_compiler_target(${COMPILER_NAME} COMPILER ${COMPILER_NAME})
 
 endfunction(create_omr_compiler_library)

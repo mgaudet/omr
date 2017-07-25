@@ -24,6 +24,7 @@ export JOBS=4
 if test "x$BUILD_WITH_CMAKE" = "xyes"; then
   mkdir build
   cd build
+  cmake --version
   time cmake -Wdev -GNinja -C../cmake/caches/Travis.cmake ..
   if test "x$RUN_BUILD" != "xno"; then
     time ninja -j1 

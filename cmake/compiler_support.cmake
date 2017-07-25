@@ -86,6 +86,10 @@ function(make_compiler_target TARGET_NAME)
       ${COMPILER_INCLUDES}
       )
 
+   target_compile_options(${TARGET_NAME} PRIVATE
+      $<$<COMPILE_LANGUAGE:C>:-std=gnu89>
+      ) 
+
    # TODO: Extract into platform specific section.
    target_compile_definitions(${TARGET_NAME} PRIVATE
       BITVECTOR_BIT_NUMBERING_MSB

@@ -77,11 +77,27 @@ function(make_compiler_target TARGET_NAME)
    set(COMPILER_INCLUDES ${${TARGET_COMPILER}_INCLUDES})
    message("making ${TARGET_NAME} into a compiler target,for ${TARGET_COMPILER}.")
    message("Defines are ${COMPILER_DEFINES}, arch is ${TR_TARGET_ARCH} and ${TR_TARGET_SUBARCH}") 
-   target_compile_features(${TARGET_NAME} PUBLIC cxx_static_assert)
+   #   target_compile_features(${TARGET_NAME} PUBLIC cxx_static_assert)
 
    target_include_directories(${TARGET_NAME} BEFORE PRIVATE 
       ${COMPILER_INCLUDES}
       )
+	
+   set(TARGET_SHAREDFLAGS
+	-O3 
+	-m64
+        ) 
+
+   set(TARGET_CXXFLAGS
+      ${TARGET_SHAREDFLAGS} 
+      -std=c++0x
+      )
+
+
+   target_compile_options(${TARGET_NAME} PRIVATE
+      $<$<COMPILE_LANGUAGE:CXX>:${TARGET_CXXFLAGS}>
+      $<$<COMPILE_LANGUAGE:C>:${TARGET_SHAREDFLAGS} -std=gnu89>
+      ) 
 
    # TODO: Extract into platform specific section.
    target_compile_definitions(${TARGET_NAME} PRIVATE
@@ -194,7 +210,7 @@ endfunction()
 #                              OBJECTS  <list of objects to add to the glue> 
 #                              DEFINES  <DEFINES for building library
 #                              FILTER   <list of default objects to remove from the compiler library.> 
-#                              INCLUDES <Additional includes for building the library> 
+#                              INCLUDE_BEFORE, INCLUDE_AFTER  <Additional includes for building the library> 
 #                              SHARED   <True if you want a shared object, false if you want a static archive> 
 # 
 # FILTER exists to allow compiler subprojects to opt-out of functionality
@@ -204,9 +220,12 @@ function(create_omr_compiler_library)
    cmake_parse_arguments(COMPILER 
       "SHARED" # Optional Arguments
       "NAME" # One value arguments
-      "OBJECTS;DEFINES;FILTER;INCLUDES" # Multi value args
+      "OBJECTS;DEFINES;FILTER;INCLUDE_BEFORE;INCLUDE_AFTER" # Multi value args
       ${ARGV}
       )
+
+   message("Include_before ${COMPILER_INCLUDE_BEFORE}") 
+   message("Include_after  ${COMPILER_INCLUDE_AFTER}") 
 
    if(COMPILER_SHARED)
       message("Creating shared library for ${COMPILER_NAME}")
@@ -217,12 +236,12 @@ function(create_omr_compiler_library)
    endif()
 
 
-   get_filename_component(abs_root ${CMAKE_CURRENT_LIST_DIR} ABSOLUTE)
    # We use the cache to allow passing information about compiler targets 
    # from function to function without having to use lots of temps. 
-   set(${COMPILER_NAME}_ROOT    ${abs_root}               CACHE INTERNAL "Root for compiler ${COMPILER_NAME}")
+   set(${COMPILER_NAME}_ROOT    ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "Root for compiler ${COMPILER_NAME}")
    set(${COMPILER_NAME}_DEFINES ${COMPILER_DEFINES}       CACHE INTERNAL "Defines for compiler ${COMPILER_NAME}") 
    set(${COMPILER_NAME}_INCLUDES 
+      ${COMPILER_INCLUDE_BEFORE}
       ${${COMPILER_NAME}_ROOT}/${TR_TARGET_ARCH}/${TR_TARGET_SUBARCH}
       ${${COMPILER_NAME}_ROOT}/${TR_TARGET_ARCH} 
       ${${COMPILER_NAME}_ROOT} 
@@ -230,7 +249,7 @@ function(create_omr_compiler_library)
       ${OMR_ROOT}/compiler/${TR_TARGET_ARCH} 
       ${OMR_ROOT}/compiler 
       ${OMR_ROOT}
-      ${COMPILER_INCLUDES}
+      ${COMPILER_INCLUDE_AFTER}
       CACHE INTERNAL "Include header list for ${COMPILER}")
 
    message("${COMPILER_NAME}_ROOT = ${${COMPILER_NAME}_ROOT}") 

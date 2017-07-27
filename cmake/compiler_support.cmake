@@ -31,6 +31,7 @@ if (NOT PERL_FOUND )
    message(FATAL_ERROR "Perl not found")
 endif()
 
+
 set(MASM2GAS_PATH ${OMR_ROOT}/tools/compiler/scripts/masm2gas.pl CACHE INTERNAL "MASM2GAS PATH")
 
 # Given a prefix, and a list of arguments, prefix the list of arguments and
@@ -45,18 +46,44 @@ function(add_prefix out prefix)
 endfunction(add_prefix) 
 
 
-# Platform setup code!
-# TODO: THis needs to be abstracted for cross platform builds
+# Fetch the OMR view of the system.
+include(${OMR_ROOT}/cmake/DetectSystemInformation.cmake)
 
-set(TR_TARGET_ARCH    x     CACHE INTERNAL "The architecture directory used for the compiler code (x, p, arm, or z)")
-set(TR_TARGET_SUBARCH amd64 CACHE INTERNAL "The subarchitecture directory used for the compiler code. May be empty (i386 or amd64)")
-set(TR_TARGET_BITS    64    CACHE INTERNAL  "Bitness of the target architecture")
+macro(tr_detect_system_information)
 
-set(TR_HOST_ARCH    x     CACHE INTERNAL "The architecture directory used for the compiler code (x, p, or z)")
-set(TR_HOST_SUBARCH amd64 CACHE INTERNAL "The subarchitecture directory used for the compiler code. May be empty (i386 or amd64)")
-set(TR_HOST_BITS    64    CACHE INTERNAL  "Bitness of the target architecture")
+   macro(jit_not_ready)
+      message(FATAL "JIT isn't ready to bulid with CMake on this platform")
+   endmacro()
 
-set(CMAKE_ASM-ATT_FLAGS "--64 --defsym TR_HOST_X86=1 --defsym TR_HOST_64BIT=1 --defsym BITVECTOR_64BIT=1 --defsym LINUX=1 --defsym TR_TARGET_X86=1 --defsym TR_TARGET_64BIT=1" CACHE INTERNAL "ASM FLags")
+
+   omr_detect_system_information()
+
+   # Platform setup code! 
+   # TODOs:
+   #  - Support more platforms, and, separate host and target arch. 
+   #  - Once we support all the platforms OMR supports with CMake, this can be
+   #    largely integrated into DetectSystemInformation.cmake. 
+   if(OMR_ARCH_X86)
+      set(TR_HOST_ARCH    x     CACHE INTERNAL "The architecture directory used for the compiler code (x, p, or z)")
+      if(OMR_ENV_DATA64)
+         set(TR_HOST_SUBARCH amd64 CACHE INTERNAL "The subarchitecture directory used for the compiler code. May be empty (i386 or amd64)")
+         set(TR_HOST_BITS    64    CACHE INTERNAL  "Bitness of the target architecture")
+         set(CMAKE_ASM-ATT_FLAGS "--64 --defsym TR_HOST_X86=1 --defsym TR_HOST_64BIT=1 --defsym BITVECTOR_64BIT=1 --defsym LINUX=1 --defsym TR_TARGET_X86=1 --defsym TR_TARGET_64BIT=1" CACHE INTERNAL "ASM FLags")
+      else()
+         jit_not_ready()
+      endif()
+
+   else()
+      jit_not_ready()
+   endif()
+
+   # Currently not doing cross, so assume HOST == TARGET
+   set(TR_TARGET_ARCH    ${TR_HOST_ARCH}    CACHE INTERNAL "The architecture directory used for the compiler code (x, p, arm, or z)")
+   set(TR_TARGET_SUBARCH ${TR_HOST_SUBARCH} CACHE INTERNAL "The subarchitecture directory used for the compiler code. May be empty (i386 or amd64)")
+   set(TR_TARGET_BITS    ${TR_HOST_BITS}    CACHE INTERNAL  "Bitness of the target architecture")
+endmacro(tr_detect_system_information)
+
+tr_detect_system_information()
 
 # Mark a target as consuming the compiler components. 
 # 

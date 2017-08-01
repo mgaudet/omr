@@ -52,11 +52,40 @@ void
 GCConfigTest::SetUp()
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(gcTestEnv->portLib);
+	const char *param = GetParam();
+	const char *filePath = NULL;
+	
+	for (int i = 0; i < gcTestEnv->_argc; i++) {
+		if (!strncmp("-filePath:", gcTestEnv->_argv[i], 10)) {
+			filePath = &gcTestEnv->_argv[i][10];
+		}
+	}
+	if (NULL == filePath) {
+		FAIL() << "Error parsing filePath (use: -filePath:path)";
+	}
+
+	size_t filePathLength = strlen(filePath);
+	size_t spaceForSlashRequired = 0;
+	char trailingChar = filePath[filePathLength - 1];
+	const char *format = NULL;
+	if (('/' == trailingChar) || ('\\' == trailingChar)) {
+		format = "%s%s";
+	} else {
+		spaceForSlashRequired = 1;
+		format = "%s/%s";
+	}
+
+	size_t fileNameLength = strlen(param) + strlen(filePath) + spaceForSlashRequired + 1;
+	fileName = (char *)omrmem_allocate_memory(fileNameLength, OMRMEM_CATEGORY_MM);
+	if (NULL == fileName) {
+		FAIL() << "Failed to allocate native memory.";
+	}
+	omrstr_printf(fileName, fileNameLength, format, filePath, param);
 
 	printMemUsed("Setup()", gcTestEnv->portLib);
 
-	gcTestEnv->log("Configuration File: %s\n", GetParam());
-	MM_StartupManagerTestExample startupManager(exampleVM->_omrVM, GetParam());
+	gcTestEnv->log("Configuration File: %s\n", fileName);
+	MM_StartupManagerTestExample startupManager(exampleVM->_omrVM, fileName);
 
 	/* Initialize heap and collector */
 	omr_error_t rc = OMR_GC_IntializeHeapAndCollector(exampleVM->_omrVM, &startupManager);
@@ -79,11 +108,11 @@ GCConfigTest::SetUp()
 
 	/* load config file */
 #if defined(OMRGCTEST_PRINTFILE)
-	printFile(GetParam());
+	printFile(fileName);
 #endif
-	pugi::xml_parse_result result = doc.load_file(GetParam());
+	pugi::xml_parse_result result = doc.load_file(fileName);
 	if (!result) {
-		FAIL() << "Failed to load test configuration file (" << GetParam() << ") with error description: " << result.description() << ".";
+		FAIL() << "Failed to load test configuration file (" << fileName << ") with error description: " << result.description() << ".";
 	}
 
 	/* parse verbose information and initialize verbose manager */
@@ -168,8 +197,16 @@ GCConfigTest::TearDown()
 			}
 		}
 	}
-	omrmem_free_memory((void *)verboseFile);
-	verboseFile = NULL;
+
+	if (NULL != verboseFile) {
+		omrmem_free_memory((void *)verboseFile);
+		verboseFile = NULL;
+	}
+
+	if (fileName) {
+		omrmem_free_memory((void *)fileName);
+		fileName = NULL;
+	}
 
 	cli->kill(env);
 

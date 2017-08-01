@@ -82,6 +82,7 @@ protected:
 	/* verbose log options */
 	MM_VerboseManager *verboseManager;
 	char *verboseFile;
+	char *fileName;
 	uintptr_t numOfFiles;
 
 	/*
@@ -155,6 +156,7 @@ public:
 		, cli(NULL)
 		, verboseManager(NULL)
 		, verboseFile(NULL)
+		, fileName(NULL)
 		, numOfFiles(0)
 	{
 		gp.namePrefix = NULL;

@@ -16,6 +16,44 @@
 #    Multiple authors (IBM Corp.) - initial implementation and documentation
 ###############################################################################
 
+set(OMR_PLATFORM_DEFINITIONS
+	-DRS6000
+	-DAIXPPC
+	-D_LARGE_FILES
+	-D_ALL_SOURCE
+)
+
+list(APPEND OMR_PLATFORM_COMPILE_OPTIONS
+	-qlanglvl=extended
+	-qinfo=pro
+	-qalias=noansi
+	-qxflag=LTOL:LTOL0
+)
+
+if(OMR_ENV_DATA64)
+	list(APPEND OMR_PLATFORM_COMPILE_OPTIONS
+		-q64
+	)
+else()
+	#-qarch should be there for 32 and 64 but 64 bit assembler has trouble with some assembly files if it is specified
+	list(APPEND OMR_PLATFORM_COMPILE_OPTIONS
+		-q32
+		-qarch=ppc
+	)
+endif()
+
+set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -lm -liconv -ldl -lperfstat")
+
+if(OMR_ENV_DATA64)
+	set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -q64")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -q64")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -q64")
+	
+	set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -X64 cr <TARGET> <LINK_FLAGS> <OBJECTS>")
+	set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> -X64 cr <TARGET> <LINK_FLAGS> <OBJECTS>")
+	set(CMAKE_C_ARCHIVE_FINISH "<CMAKE_RANLIB> -X64 <TARGET>")
+endif()
+
 # Testarossa build variables. Longer term the distinction between TR and the rest 
 # of the OMR code should be heavily reduced. In the mean time, we keep
 # the distinction

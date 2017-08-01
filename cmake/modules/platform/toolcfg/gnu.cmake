@@ -18,6 +18,17 @@
 
 set(OMR_WARNING_AS_ERROR_FLAG -Werror)
 
+if(OMR_ENV_DATA64)
+	list(APPEND OMR_PLATFORM_COMPILE_OPTIONS
+		-m64
+	)
+else()
+	list(APPEND OMR_PLATFORM_COMPILE_OPTIONS
+		-m32
+		-msse2
+	)
+endif()
+
 # Testarossa build variables. Longer term the distinction between TR and the rest 
 # of the OMR code should be heavily reduced. In the mean time, we keep
 # the distinction

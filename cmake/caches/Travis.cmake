@@ -16,14 +16,14 @@
 #    Multiple authors (IBM Corp.) - initial implementation and documentation
 ###############################################################################
 
-set(OMR_DDR ON CACHE BOOL "Enable DDR")
+set(OMR_DDR OFF CACHE BOOL "Enable DDR")
 set(OMR_EXAMPLE ON CACHE BOOL "")
 set(OMR_JIT  ON CACHE BOOL "")
-set(OMR_JITBUILDER ON CACHE BOOL "")
+set(OMR_JITBUILDER OFF CACHE BOOL "")
 set(OMR_GC ON CACHE BOOL "")
 set(OMR_PORT ON CACHE BOOL "")
 set(OMR_THREAD ON CACHE BOOL "")
-set(OMR_TEST_COMPILER ON CACHE BOOL "")
+set(OMR_TEST_COMPILER OFF CACHE BOOL "")
 set(OMR_OMRSIG ON CACHE BOOL "")
 set(OMR_FVTEST ON CACHE BOOL "")
 set(OMR_GLUE ${CMAKE_SOURCE_DIR}/example/glue)

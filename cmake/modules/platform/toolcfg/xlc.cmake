@@ -16,6 +16,8 @@
 #    Multiple authors (IBM Corp.) - initial implementation and documentation
 ###############################################################################
 
+set(OMR_WARNING_AS_ERROR_FLAG -qhalt=w)
+
 # Testarossa build variables. Longer term the distinction between TR and the rest 
 # of the OMR code should be heavily reduced. In the mean time, we keep
 # the distinction

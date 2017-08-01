@@ -39,7 +39,6 @@ target_link_libraries(omrvmtest
 	j9pool
 	omrgc
 	omrglue
-	omrcore
 
 )
 

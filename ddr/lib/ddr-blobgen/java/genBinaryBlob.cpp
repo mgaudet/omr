@@ -16,24 +16,24 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-#include "ddr/config.hpp"
-
-#include "ddr/blobgen/java/genBinaryBlob.hpp"
-
-#include "ddr/std/sstream.hpp"
-
 #undef NDEBUG
 
 #include <assert.h>
 #include <cstring>
 #include <fcntl.h>
-#include <limits.h>
+#include <limits>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
+
+#include "ddr/config.hpp"
+
+#include "ddr/blobgen/java/genBinaryBlob.hpp"
+
+#include "ddr/std/sstream.hpp"
 
 using std::string;
 using std::pair;
@@ -190,10 +190,10 @@ JavaBlobGenerator::stringTableOffset(BlobHeader *blobHeader, J9HashTable *string
 	DDR_RC rc = DDR_RC_OK;
 	StringTableEntry exemplar;
 	StringTableEntry *entry;
-	*offset = UINT32_MAX;
+	*offset = std::numeric_limits<uint32_t>::max();
 
 	exemplar.cString = cString;
-	exemplar.offset = UINT32_MAX;
+	exemplar.offset = std::numeric_limits<uint32_t>::max();
 
 	/* Add will return an existing entry if one matches, NULL on allocation failure, or the new node */
 	entry = (StringTableEntry *)hashTableAdd(stringTable, &exemplar);
@@ -203,8 +203,8 @@ JavaBlobGenerator::stringTableOffset(BlobHeader *blobHeader, J9HashTable *string
 		ERRMSG("Unable to allocate memory for string table entry: %s", cString);
 		rc = DDR_RC_ERROR;
 	} else {
-		/* If the offset is UINT32_MAX, this indicates that a new entry was added */
-		if (UINT32_MAX == entry->offset) {
+		/* If the offset is std::numeric_limits<uint32_t>::max(), this indicates that a new entry was added */
+		if (std::numeric_limits<uint32_t>::max() == entry->offset) {
 			entry->offset = blobHeader->stringDataSize;
 
 			/* For new string entries, allocate memory to hold the string */
@@ -306,20 +306,20 @@ JavaBlobGenerator::genBinaryBlob(OMRPortLibrary *portLibrary, Symbol_IR *ir, con
 }
 
 pair<string, unsigned long long> JavaBlobGenerator::cLimits[] = {
-		make_pair("CHAR_MAX", CHAR_MAX),
-		make_pair("CHAR_MIN", CHAR_MIN),
-		make_pair("INT_MAX", INT_MAX),
-		make_pair("INT_MIN", INT_MIN),
-		make_pair("LONG_MAX", LONG_MAX),
-		make_pair("LONG_MIN", LONG_MIN),
-		make_pair("SCHAR_MAX", SCHAR_MAX),
-		make_pair("SCHAR_MIN", SCHAR_MIN),
-		make_pair("SHRT_MAX", SHRT_MAX),
-		make_pair("SHRT_MIN", SHRT_MIN),
-		make_pair("UCHAR_MAX", UCHAR_MAX),
-		make_pair("UINT_MAX", UINT_MAX),
-		make_pair("ULONG_MAX", ULONG_MAX),
-		make_pair("USHRT_MAX", USHRT_MAX)
+		make_pair("CHAR_MAX", std::numeric_limits<char>::max()),
+		make_pair("CHAR_MIN", std::numeric_limits<char>::min()),
+		make_pair("INT_MAX", std::numeric_limits<int>::max()),
+		make_pair("INT_MIN", std::numeric_limits<int>::min()),
+		make_pair("LONG_MAX", std::numeric_limits<long>::max()),
+		make_pair("LONG_MIN", std::numeric_limits<long>::min()),
+		make_pair("SCHAR_MAX", std::numeric_limits<signed char>::max()),
+		make_pair("SCHAR_MIN", std::numeric_limits<signed char>::min()),
+		make_pair("SHRT_MAX", std::numeric_limits<short>::max()),
+		make_pair("SHRT_MIN", std::numeric_limits<short>::min()),
+		make_pair("UCHAR_MAX", std::numeric_limits<unsigned char>::max()),
+		make_pair("UINT_MAX", std::numeric_limits<unsigned int>::max()),
+		make_pair("ULONG_MAX", std::numeric_limits<unsigned long>::max()),
+		make_pair("USHRT_MAX", std::numeric_limits<unsigned short>::max())
 };
 
 DDR_RC
@@ -712,13 +712,13 @@ JavaBlobGenerator::addBlobField(Field *f, uint32_t *fieldCount, uint32_t *constC
 			if (DDR_RC_OK == rc) {
 				string fieldName = prefix + f->_name;
 				if (DDR_RC_OK == rc) {
-					uint32_t offset = UINT32_MAX;
+					uint32_t offset = std::numeric_limits<uint32_t>::max();
 					rc = stringTableOffset(&_buildInfo.header, _buildInfo.stringHash, fieldName.c_str(), &offset);
 
 					if (DDR_RC_OK == rc) {
 						_buildInfo.curBlobField->nameOffset = offset;
 
-						offset = UINT32_MAX;
+						offset = std::numeric_limits<uint32_t>::max();
 						rc = stringTableOffset(&_buildInfo.header, _buildInfo.stringHash, typeName.c_str(), &offset);
 
 						if (DDR_RC_OK == rc) {
@@ -740,7 +740,7 @@ DDR_RC
 JavaBlobGenerator::addBlobConst(string name, long long value, uint32_t *constCount)
 {
 	DDR_RC rc = DDR_RC_OK;
-	uint32_t offset = UINT32_MAX;
+	uint32_t offset = std::numeric_limits<uint32_t>::max();
 
 	rc = stringTableOffset(&_buildInfo.header, _buildInfo.stringHash, name.c_str(), &offset);
 	if (DDR_RC_OK == rc) {
@@ -761,7 +761,7 @@ DDR_RC
 JavaBlobGenerator::addBlobStruct(string name, string superName, uint32_t constCount, uint32_t fieldCount, uint32_t size)
 {
 	DDR_RC rc = DDR_RC_OK;
-	uint32_t offset = UINT32_MAX;
+	uint32_t offset = std::numeric_limits<uint32_t>::max();
 
 	rc = stringTableOffset(&_buildInfo.header, _buildInfo.stringHash, name.c_str(), &offset);
 
@@ -770,7 +770,7 @@ JavaBlobGenerator::addBlobStruct(string name, string superName, uint32_t constCo
 		if (superName.empty()) {
 			_buildInfo.curBlobStruct->superOffset = 0xffffffff;
 		} else {
-			offset = UINT32_MAX;
+			offset = std::numeric_limits<uint32_t>::max();
 			rc = stringTableOffset(&_buildInfo.header, _buildInfo.stringHash, superName.c_str(), &offset);
 
 			if (DDR_RC_OK == rc) {

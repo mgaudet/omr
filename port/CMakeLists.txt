@@ -29,7 +29,7 @@ add_library(omrport STATIC
 
 
 if(OMR_HOST_OS STREQUAL "aix")
-	list(APPEND OBJECTS omrgetsp.c)
+	list(APPEND OBJECTS omrgetsp.s)
 endif()
 
 
@@ -74,11 +74,10 @@ list(APPEND OBJECTS
 if(OMR_ARCH_S390)
 	list(APPEND OBJECTS omrrttime.s)
 else()
-	if(OMR_ARCH_PPC)
+	if(OMR_ARCH_POWER)
 		if(OMR_ENV_DATA64)
 			if(OMR_HOST_OS STREQUAL "linux")
-				#TODO what source extension is this?
-				list(APPEND OBJECTS omrrttime)
+				list(APPEND OBJECTS omrrttime.s)
 			endif()
 		endif()
 	endif()
@@ -86,7 +85,7 @@ endif()
 
 if(OMR_ARCH_S390)
 	if(OMR_HOST_OS STREQUAL "linux")
-		list(APPEND OBJECTS omrgetstfle) #TODO: extension?
+		list(APPEND OBJECTS omrgetstfle.s)
 	else()
 		if(OMR_ENV_DATA64)
 			list(APPEND OBJECTS omrgetstfle64.s)
@@ -101,8 +100,8 @@ endif()
 
 if(OMR_HOST_OS STREQUAL "aix")
 	list(APPEND OBJECTS 
-		rt_divu64.c
-		rt_time.c
+		rt_divu64.s
+		rt_time.s
 	)
 endif()
 
@@ -243,41 +242,17 @@ if(OMR_HOST_OS STREQUAL "aix")
 	#endif
 
 	if(OMR_ENV_DATA64)
-	#vpath % $(PORT_SRCDIR)aix64
-	#MODULE_INCLUDES += $(PORT_SRCDIR)aix64
+		list(APPEND VPATH aix64)
+		target_include_directories(omrport PRIVATE aix64)
 	endif()
-	#vpath % $(PORT_SRCDIR)aix
-	#MODULE_INCLUDES += $(PORT_SRCDIR)aix
+	list(APPEND VPATH aix)
+	target_include_directories(omrport PRIVATE aix)
 endif()
 
 
 #endif
-#TODO other platforms port_objects:209
 
 if(OMR_HOST_OS STREQUAL "linux")
-	#TODO need to port following vpath code
-	#ifeq (ppc,$(OMR_HOST_ARCH))
-		#ifeq (1,$(OMR_ENV_DATA64))
-			#ifeq (1,$(OMR_ENV_LITTLE_ENDIAN))
-				#vpath % $(PORT_SRCDIR)linuxppc64le
-				#MODULE_INCLUDES += $(PORT_SRCDIR)linuxppc64le
-			#endif
-			#vpath % $(PORT_SRCDIR)linuxppc64
-			#MODULE_INCLUDES += $(PORT_SRCDIR)linuxppc64
-		#endif
-		#vpath % $(PORT_SRCDIR)linuxppc
-		#MODULE_INCLUDES += $(PORT_SRCDIR)linuxppc
-	#endif
-
-	#ifeq (s390,$(OMR_HOST_ARCH))
-		#ifeq (1,$(OMR_ENV_DATA64))
-			#vpath % $(PORT_SRCDIR)linuxs39064
-			#MODULE_INCLUDES += $(PORT_SRCDIR)linuxs39064
-		#endif
-		#vpath % $(PORT_SRCDIR)linuxs390
-		#MODULE_INCLUDES += $(PORT_SRCDIR)linuxs390
-	#endif
-
 	if(OMR_ARCH_ARM)
 		list(APPEND VPATH linuxarm)
 		target_include_directories(omrport PRIVATE linuxarm)
@@ -292,6 +267,28 @@ if(OMR_HOST_OS STREQUAL "linux")
 			target_include_directories(omrport PRIVATE linux386)
 		endif()
 
+	endif()
+	
+	if(OMR_ARCH_POWER)
+		if(OMR_ENV_DATA64)
+			if(OMR_ENV_LITTLE_ENDIAN)
+				list(APPEND VPATH linuxppc64le)
+				target_include_directories(omrport PRIVATE linuxppc64le)
+			endif()
+			list(APPEND VPATH linuxppc64)
+			target_include_directories(omrport PRIVATE linuxppc64)
+		endif()
+		list(APPEND VPATH linuxppc)
+		target_include_directories(omrport PRIVATE linuxppc)
+	endif()
+	
+	if(OMR_ARCH_S390)
+		if(OMR_ENV_DATA64)
+			list(APPEND VPATH linuxs39064)
+			target_include_directories(omrport PRIVATE linuxs39064)
+		endif()
+		list(APPEND VPATH linuxs390)
+		target_include_directories(omrport PRIVATE linuxs390)
 	endif()
 
 	list(APPEND VPATH linux)

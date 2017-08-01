@@ -54,6 +54,9 @@ include(cmake/platform.cmake)
 include(cmake/config.cmake)
 include(cmake/vpath.cmake)
 
+# TODO this should be based on the compiler being used
+enable_language(ASM)
+
 enable_testing()
 
 #include current source dir and current bin dir automatically

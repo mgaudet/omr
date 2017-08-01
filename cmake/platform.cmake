@@ -57,18 +57,45 @@ endmacro(omr_remove_option)
 omr_add_prefix(OMR_OS_DEFINITIONS_PREFIXED   ${OMR_C_DEFINITION_PREFIX} ${OMR_OS_DEFINITIONS})
 omr_add_prefix(OMR_ARCH_DEFINITIONS_PREFIXED ${OMR_C_DEFINITION_PREFIX} ${OMR_ARCH_DEFINITIONS})
 
-
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OMR_OS_COMPILE_OPTIONS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OMR_OS_COMPILE_OPTIONS}")
+		
 add_definitions(
-	${OMR_OS_COMPILE_OPTIONS}
 	${OMR_OS_DEFINITIONS_PREFIXED}
 	${OMR_ARCH_DEFINITIONS_PREFIXED}
 )
 
 if(OMR_HOST_OS STREQUAL "linux")
 	if(OMR_WARNINGS_AS_ERRORS)
-		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${OMR_WARNING_AS_ERROR_FLAG}")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OMR_WARNING_AS_ERROR_FLAG}")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OMR_WARNING_AS_ERROR_FLAG}")
 	endif()
+endif()
+
+if(OMR_ARCH_POWER)
+	if (OMR_HOST_OS STREQUAL "linux")
+		if(OMR_ENV_DATA64)
+			add_definitions(-DLINUXPPC64)
+			add_definitions(-DPPC64)
+		endif()
+		add_definitions(-DLINUXPPC)
+	else()
+		if(OMR_ENV_DATA64)
+			add_definitions(-DPPC64)
+			add_definitions(-q64)
+			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -q64")
+			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -q64")
+		endif()
+	endif()
+endif()
+
+if(OMR_ARCH_S390)
+	if(OMR_ENV_DATA64)
+		add_definitions(-DS39064)
+	endif()
+	add_definitions(-DS390)
+	add_definitions(-D_LONG_LONG)
+	add_definitions(-DJ9VM_TIERED_CODE_CACHE)
 endif()
 
 
@@ -85,7 +112,7 @@ if(OMR_HOST_OS STREQUAL "win")
 	set(common_flags "-MD -Zm400 /wd4577 /wd4091")
 
 	if(OMR_WARNINGS_AS_ERRORS)
-           set(common_flags "${common_flags} ${OMR_WARNING_AS_ERROR_FLAG}")
+		set(common_flags "${common_flags} ${OMR_WARNING_AS_ERROR_FLAG}")
 		# TODO we also want to be setting warning as error on linker flags
 	endif()
 

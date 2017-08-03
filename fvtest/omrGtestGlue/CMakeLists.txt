@@ -38,6 +38,7 @@ target_sources(omrGtestGlue INTERFACE
 )
 
 target_link_libraries(omrGtestGlue INTERFACE omrGtest)
+omr_set_target_flags(omrGtest)
 
 #TODO  system thread library should be linked in a more generic way.
 if(NOT OMR_HOST_OS STREQUAL "win")

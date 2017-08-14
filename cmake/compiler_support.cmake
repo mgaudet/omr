@@ -37,12 +37,12 @@ set(MASM2GAS_PATH ${OMR_ROOT}/tools/compiler/scripts/masm2gas.pl CACHE INTERNAL 
 include(${OMR_ROOT}/cmake/AddPrefix.cmake) 
 
 # Fetch the OMR view of the system.
-include(OmrDetectSystemInformation)
+include(${OMR_ROOT}/cmake/DetectSystemInformation.cmake)
 
 macro(tr_detect_system_information)
 
 	macro(jit_not_ready)
-		message(FATAL "JIT isn't ready to build with CMake on this platform")
+		message(FATAL "JIT isn't ready to build with CMake on this platform: ")
 	endmacro()
 
 
@@ -64,6 +64,16 @@ macro(tr_detect_system_information)
 			set(TR_HOST_SUBARCH amd64 CACHE INTERNAL "The subarchitecture directory used for the compiler code. May be empty (i386 or amd64)")
 			set(TR_HOST_BITS    64    CACHE INTERNAL  "Bitness of the target architecture")
 			set(CMAKE_ASM-ATT_FLAGS "--64 --defsym TR_HOST_X86=1 --defsym TR_HOST_64BIT=1 --defsym BITVECTOR_64BIT=1 --defsym LINUX=1 --defsym TR_TARGET_X86=1 --defsym TR_TARGET_64BIT=1" CACHE INTERNAL "ASM FLags")
+			list(APPEND TR_COMPILE_DEFINITIONS TR_HOST_64BIT TR_TARGET_64BIT)
+		else()
+			jit_not_ready()
+		endif()
+	elseif(OMR_ARCH_POWER)
+		set(TR_HOST_ARCH p CACHE INTERNAL "")
+		list(APPEND TR_COMPILE_DEFINITIONS TR_HOST_POWER TR_TARGET_POWER)
+		if(OMR_ENV_DATA64)
+			set(TR_HOST_BITS    64    CACHE INTERNAL  "Bitness of the target architecture")
+			set(CMAKE_ASM-ATT_FLAGS "TBD" CACHE INTERNAL "ASM FLags")
 			list(APPEND TR_COMPILE_DEFINITIONS TR_HOST_64BIT TR_TARGET_64BIT)
 		else()
 			jit_not_ready()
@@ -328,10 +338,7 @@ function(create_omr_compiler_library)
    add_compiler_subdirectory(runtime)
    add_compiler_subdirectory(ilgen)
 
-   if(${TR_TARGET_ARCH} STREQUAL "x")
-      add_compiler_subdirectory(x)
-   endif()
-
+   add_compiler_subdirectory(${TR_TARGET_ARCH})
 
    # Filter out objects requested to be removed by 
    # client project (if any): 

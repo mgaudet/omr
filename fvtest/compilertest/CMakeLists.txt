@@ -45,9 +45,9 @@ if(OMR_ARCH_X86)
 elseif(OMR_ARCH_POWER)
 	list(APPEND COMPILERTEST_FILES 
 #Host 
-    		p/runtime/AsmUtil.spp 
-    		p/runtime/CodeDispatch.spp 
-    		p/runtime/CodeSync.cpp 
+    		p/runtime/AsmUtil.S
+    		p/runtime/CodeDispatch.S
+    		p/runtime/CodeSync.cpp
 		${OMR_ROOT}/compiler/p/runtime/OMRCodeCacheConfig.cpp
 #target
 		p/codegen/Evaluator.cpp

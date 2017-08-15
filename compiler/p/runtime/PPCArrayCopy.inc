@@ -1,30 +1,30 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! (c) Copyright IBM Corp. 2000, 2016
-!!
-!!  This program and the accompanying materials are made available
-!!  under the terms of the Eclipse Public License v1.0 and
-!!  Apache License v2.0 which accompanies this distribution.
-!!
-!!      The Eclipse Public License is available at
-!!      http://www.eclipse.org/legal/epl-v10.html
-!!
-!!      The Apache License v2.0 is available at
-!!      http://www.opensource.org/licenses/apache2.0.php
-!!
-!! Contributors:
-!!    Multiple authors (IBM Corp.) - initial implementation and documentation
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+################################################################################
+##
+## (c) Copyright IBM Corp. 2000, 2016
+##
+##  This program and the accompanying materials are made available
+##  under the terms of the Eclipse Public License v1.0 and
+##  Apache License v2.0 which accompanies this distribution.
+##
+##      The Eclipse Public License is available at
+##      http://www.eclipse.org/legal/epl-v10.html
+##
+##      The Apache License v2.0 is available at
+##      http://www.opensource.org/licenses/apache2.0.php
+##
+## Contributors:
+##    Multiple authors (IBM Corp.) - initial implementation and documentation
+################################################################################
 
-! arrayCopy*, wordArrayCopy*, halfWordArrayCopy*, forwardArrayCopy*,
-! forwardWordArrayCopy*, forwardHalfWordArrayCopy*:
-!       copyByteLength -- r7
-!       srcByteAddr    -- r8
-!       dstByteAddr    -- r9
-!  64-bit kills: r0, r5, r6, r7, r8, r9, r11, cr0
-!  32-bit kills: r0, r3, r4, r5, r6, r7, r8, r9, r10, r11, cr0
-!  32-bit float additionally kills: fp8, fp9, fp10, fp11
-!  float double pair additionally kills: fp8, fp9, fp10, fp11
+# arrayCopy*, wordArrayCopy*, halfWordArrayCopy*, forwardArrayCopy*,
+# forwardWordArrayCopy*, forwardHalfWordArrayCopy*:
+#       copyByteLength -- r7
+#       srcByteAddr    -- r8
+#       dstByteAddr    -- r9
+#  64-bit kills: r0, r5, r6, r7, r8, r9, r11, cr0
+#  32-bit kills: r0, r3, r4, r5, r6, r7, r8, r9, r10, r11, cr0
+#  32-bit float additionally kills: fp8, fp9, fp10, fp11
+#  float double pair additionally kills: fp8, fp9, fp10, fp11
 
 
 #include "p/runtime/ppcasmdefines.inc"
@@ -170,13 +170,13 @@ __arrayCopy:
 #endif
    startproc.__arrayCopy:
 L.__arrayCopy:
-   cmpli cr0, CmpAddr, r7, LONG_LENGTH       ! Decide if it is a long copy
+   cmpli cr0, CmpAddr, r7, LONG_LENGTH       # Decide if it is a long copy
    subf  r11, r8, r9
    bc BO_IF, CR0_LT, .L.tableDispatch
-   cmpl  cr0, CmpAddr, r11, r7            ! Reverse copy or not
+   cmpl  cr0, CmpAddr, r11, r7            # Reverse copy or not
    bc BO_IF, CR0_LT, .L.reverseArrayCopy
 .L.testOddAddressed:
-   andi. r11, r8, 1              ! Source aligned on PPC
+   andi. r11, r8, 1              # Source aligned on PPC
    bc BO_IF, CR0_EQ, .L.testHalfWordAlign
    lbz   r11, 0(r8)
    addi  r8, r8, 1
@@ -195,10 +195,10 @@ L.__arrayCopy:
    bc BO_IF, CR0_LT, .L.tableDispatch
 .L.wordAligned:
 #ifdef TR_HOST_64BIT
-! Some older non-PPC-AS processors may take aligment interrupts on fixed
-! doubleword loads and stores that are not word aligned (the 630 for
-! example).  We will ignore the performance issue there and always use
-! doublewords in a 64-bit environment.
+# Some older non-PPC-AS processors may take aligment interrupts on fixed
+# doubleword loads and stores that are not word aligned (the 630 for
+# example).  We will ignore the performance issue there and always use
+# doublewords in a 64-bit environment.
         andi.   r11, r8, 4
         bc      BO_IF, CR0_EQ, .L.dWordAligned
    lwz   r11, 0(r8)
@@ -209,8 +209,8 @@ L.__arrayCopy:
    addi  r9, r9, 4
    bc BO_IF, CR0_LT, .L.tableDispatch
 .L.dWordAligned:
-   srdi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
+   srdi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
    mtctr r11
 .L.dWordLoop:
    ld r6, 0(r8)
@@ -227,9 +227,9 @@ L.__arrayCopy:
    bclr  BO_IF, CR0_EQ
 #else
 
-! On some processors, a float doubleword load/store that is not word aligned
-! will take an alignment interrupt.  If the target is not word aligned, fall
-! back on using fixed word loads/stores.
+# On some processors, a float doubleword load/store that is not word aligned
+# will take an alignment interrupt.  If the target is not word aligned, fall
+# back on using fixed word loads/stores.
         andi.   r11, r9, 3
         bc      BO_IF_NOT, CR0_EQ, .L.targetMisaligned
         andi.   r11, r8, 4
@@ -242,8 +242,8 @@ L.__arrayCopy:
    addi  r9, r9, 4
    bc BO_IF, CR0_LT, .L.tableDispatch
 .L.dWordAligned:
-   srwi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
+   srwi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
    mtctr r11
 .L.dWordLoop:
    lfd   fp11, 0(r8)
@@ -261,8 +261,8 @@ L.__arrayCopy:
    b  .L.tableDispatch
 .L.targetMisaligned:
 
-   srwi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
+   srwi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
    mtctr r11
 .L.wordLoop:
    lwz   r6, 0(r8)
@@ -289,7 +289,7 @@ L.__arrayCopy:
 .L.tableDispatch:
         dcbt    r0, r8
         dcbtst  r0, r9
-   laddr r11, J9TR_VMThreadRTOCOffset(J9VM_STRUCT) ! Restore TOC/GOT
+   laddr r11, J9TR_VMThreadRTOCOffset(J9VM_STRUCT) # Restore TOC/GOT
 
 #ifdef TR_HOST_64BIT
    rlwinm   r7, r7, 3, 0xFFFFFFF8
@@ -325,10 +325,10 @@ L.__arrayCopy:
    bc BO_IF, CR0_LT, .L.reverseTableDispatch
 .L.reverseWordAligned:
 #ifdef TR_HOST_64BIT
-! Some older non-PPC-AS processors may take aligment interrupts on fixed
-! doubleword loads and stores that are not word aligned (the 630 for
-! example).  We will ignore the performance issue there and always use
-! doublewords in a 64-bit environment.
+# Some older non-PPC-AS processors may take aligment interrupts on fixed
+# doubleword loads and stores that are not word aligned (the 630 for
+# example).  We will ignore the performance issue there and always use
+# doublewords in a 64-bit environment.
         andi.   r11, r8, 4
         bc      BO_IF, CR0_EQ, .L.reverseDWordAligned
         addi    r7, r7, -4
@@ -337,8 +337,8 @@ L.__arrayCopy:
         stwu    r11, -4(r9)
         bc      BO_IF, CR0_LT, .L.reverseTableDispatch
 .L.reverseDWordAligned:
-   srdi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
+   srdi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
    mtctr r11
 .L.reverseDWordLoop:
         ld      r6, -8(r8)
@@ -353,9 +353,9 @@ L.__arrayCopy:
    bclr  BO_IF, CR0_EQ
 #else
 
-! On some processors, a float doubleword load/store that is not word aligned
-! will take an alignment interrupt.  If the target is not word aligned, fall
-! back on using fixed word loads/stores.
+# On some processors, a float doubleword load/store that is not word aligned
+# will take an alignment interrupt.  If the target is not word aligned, fall
+# back on using fixed word loads/stores.
         andi.   r11, r9, 3
         bc      BO_IF_NOT, CR0_EQ, .L.reverseTargetMisaligned
         andi.   r11, r8, 4
@@ -366,8 +366,8 @@ L.__arrayCopy:
         stwu    r11, -4(r9)
         bc      BO_IF, CR0_LT, .L.reverseTableDispatch
 .L.reverseDWordAligned:
-   srwi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
+   srwi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
    mtctr r11
 .L.reverseDWordLoop:
    lfd   fp11, -8(r8)
@@ -383,8 +383,8 @@ L.__arrayCopy:
    b  .L.reverseTableDispatch
 .L.reverseTargetMisaligned:
 
-   srwi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
+   srwi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
    mtctr r11
 .L.reverseWordLoop:
    lwz   r6, -4(r8)
@@ -503,8 +503,8 @@ __forwardHalfWordArrayCopy:
    endproc.__forwardHalfWordArrayCopy:
 
 
-! This code is for POWER6 and later processors that support store float
-! double pair instructions.  The code is scheduled for a POWER6.
+# This code is for POWER6 and later processors that support store float
+# double pair instructions.  The code is scheduled for a POWER6.
 
 
 #ifdef AIXPPC
@@ -521,13 +521,13 @@ __arrayCopy_dp:
 __arrayCopy_dp:
 #endif
    startproc.__arrayCopy_dp:
-   cmpli cr0, CmpAddr, r7, LONG_LENGTH       ! Decide if it is a long copy
+   cmpli cr0, CmpAddr, r7, LONG_LENGTH       # Decide if it is a long copy
    subf  r11, r8, r9
    bc BO_IF, CR0_LT, .L.tableDispatch
-   cmpl  cr0, CmpAddr, r11, r7            ! Reverse copy or not
+   cmpl  cr0, CmpAddr, r11, r7            # Reverse copy or not
    bc BO_IF, CR0_LT, .L.reverseArrayCopy_dp
 .L.testOddAddressed_dp:
-   andi. r11, r9, 1              ! Destination aligned on PPC
+   andi. r11, r9, 1              # Destination aligned on PPC
    bc BO_IF, CR0_EQ, .L.testHalfWordAlign_dp
    lbz   r11, 0(r8)
    addi  r8, r8, 1
@@ -545,9 +545,9 @@ __arrayCopy_dp:
    addi  r9, r9, 2
    bc BO_IF, CR0_LT, .L.tableDispatch
 .L.wordAligned_dp:
-! On a P6 processor stores that cross an 8B boundary cause two store
-! operations from the core to the GPS, and that will cause a slowdown if
-! the store queue becomes full.
+# On a P6 processor stores that cross an 8B boundary cause two store
+# operations from the core to the GPS, and that will cause a slowdown if
+# the store queue becomes full.
    andi. r11, r9, 4
    bc BO_IF, CR0_EQ, .L.dWordAligned_dp
    lwz   r11, 0(r8)
@@ -558,13 +558,13 @@ __arrayCopy_dp:
    addi  r9, r9, 4
    bc BO_IF, CR0_LT, .L.tableDispatch
 .L.dWordAligned_dp:
-! Destination is doubleword (8-byte) aligned.
-! On a P6 processor a floating point load/store that is not word aligned
-! will take an alignment interrupt.  If the source is not word aligned, fall
-! back on using fixed point doubleword loads/stores.
+# Destination is doubleword (8-byte) aligned.
+# On a P6 processor a floating point load/store that is not word aligned
+# will take an alignment interrupt.  If the source is not word aligned, fall
+# back on using fixed point doubleword loads/stores.
    andi. r11, r8, 7
    bc BO_IF_NOT, CR0_EQ, .L.sourceMisaligned_dp
-! To use stfdp we need to align the destination on a 16-byte boundary.
+# To use stfdp we need to align the destination on a 16-byte boundary.
    andi. r11, r9, 8
    bc BO_IF, CR0_EQ, .L.qWordAligned_dp
    lfd   fp8, 0(r8)
@@ -575,56 +575,56 @@ __arrayCopy_dp:
    addi  r9, r9, 8
    bc BO_IF, CR0_LT, .L.tableDispatch
 #if defined(AIXPPC) || defined(LINUX) || defined(LINUXPPC64)
-   .align   5     ! force 32-byte I-cache sector alignment here
+   .align   5     # force 32-byte I-cache sector alignment here
 #endif
 .L.qWordAligned_dp:
 #ifdef TR_HOST_64BIT
-   srdi. r11, r7, 6  ! number of 64 byte copy loop iterations
+   srdi. r11, r7, 6  # number of 64 byte copy loop iterations
 #else
-   srwi. r11, r7, 6  ! number of 64 byte copy loop iterations
+   srwi. r11, r7, 6  # number of 64 byte copy loop iterations
 #endif
-   addi  r5, r8, 32  ! extra source pointer to avoid AGI delays
-   addi  r6, r9, 32  ! extra destination pointer to avoid AGI delays
+   addi  r5, r8, 32  # extra source pointer to avoid AGI delays
+   addi  r6, r9, 32  # extra destination pointer to avoid AGI delays
    bc BO_IF, CR0_EQ, .L.residueBlock
-   mtctr r11      ! first/last (alone in group) on P6
+   mtctr r11      # first/last (alone in group) on P6
 .L.qWordLoop_dp:
-   lfd   fp8, 0(r8)           ! group 1
+   lfd   fp8, 0(r8)           # group 1
    lfd   fp9, 8(r8)
-   .long 0xf5090000  ! stfdp  fp8, 0(r9)  ! group 2
-! 32-byte I-cache sector boundary (group start forced on DD3)
-   lfd   fp10, 16(r8)            ! group 3
+   .long 0xf5090000  # stfdp  fp8, 0(r9)  # group 2
+# 32-byte I-cache sector boundary (group start forced on DD3)
+   lfd   fp10, 16(r8)            # group 3
    lfd   fp11, 24(r8)
-   addi  r8, r8, 64     ! 3 cycles to next load use of r8
-   .long 0xf5490010  ! stfdp  fp10, 16(r9)   ! group 4
-   addi  r9, r9, 64     ! 3 cycles to next store use of r9
-   lfd   fp8, 0(r5)           ! group 5
+   addi  r8, r8, 64     # 3 cycles to next load use of r8
+   .long 0xf5490010  # stfdp  fp10, 16(r9)   # group 4
+   addi  r9, r9, 64     # 3 cycles to next store use of r9
+   lfd   fp8, 0(r5)           # group 5
    lfd   fp9, 8(r5)
-   .long 0xf5060000  ! stfdp  fp8, 0(r6)  ! group 6
-! 32-byte I-cache sector boundary (group start forced on DD3)
-   lfd   fp10, 16(r5)            ! group 7
+   .long 0xf5060000  # stfdp  fp8, 0(r6)  # group 6
+# 32-byte I-cache sector boundary (group start forced on DD3)
+   lfd   fp10, 16(r5)            # group 7
    lfd   fp11, 24(r5)
-   addi  r5, r5, 64     ! 3 cycles to next load use of r5
-   .long 0xf5460010  ! stfdp  fp10, 16(r6)   ! group 8
-   addi  r6, r6, 64     ! 3 cycles to next store use of r6
-   bdnz  .L.qWordLoop_dp    ! 1/cycle, no grouping restriction
+   addi  r5, r5, 64     # 3 cycles to next load use of r5
+   .long 0xf5460010  # stfdp  fp10, 16(r6)   # group 8
+   addi  r6, r6, 64     # 3 cycles to next store use of r6
+   bdnz  .L.qWordLoop_dp    # 1/cycle, no grouping restriction
 .L.residueBlock:
-   andi. r11, r7, 32 ! 32-byte residue block?
+   andi. r11, r7, 32 # 32-byte residue block?
    bc BO_IF, CR0_EQ, .L.over
    lfd   fp8, 0(r8)
    lfd   fp9, 8(r8)
-   .long 0xf5090000  ! stfdp fp8, 0(r9)
+   .long 0xf5090000  # stfdp fp8, 0(r9)
    lfd   fp10, 16(r8)
    lfd   fp11, 24(r8)
    addi  r8, r8, 32
-   .long 0xf5490010  ! stfdp fp10, 16(r9)
+   .long 0xf5490010  # stfdp fp10, 16(r9)
    addi  r9, r9, 32
 .L.over:
-   andi. r7, r7, 31  ! residue bytes
+   andi. r7, r7, 31  # residue bytes
    bclr  BO_IF, CR0_EQ
    b  .L.tableDispatch
 .L.sourceMisaligned_dp:
 .L.testOddAddressedSourceMisaligned_dp:
-        andi.   r11, r8, 1                                      ! source  aligned on PPC
+        andi.   r11, r8, 1                                      # source  aligned on PPC
         bc      BO_IF, CR0_EQ, .L.testHalfWordAlignSourceMisaligned_dp
         lbz     r11, 0(r8)
         addi    r8, r8, 1
@@ -645,7 +645,7 @@ __arrayCopy_dp:
         bc      BO_IF, CR0_LT, .L.tableDispatch
 .L.continueSourceMisaligned_dp:
 #ifdef TR_HOST_64BIT
-! Making source 8 byte aligned for 64-bit environment
+# Making source 8 byte aligned for 64-bit environment
         andi.   r11, r8, 4
         bc      BO_IF, CR0_EQ, .L.continueSourceMisalignedLoop_dp
         lwz     r11, 0(r8)
@@ -656,10 +656,10 @@ __arrayCopy_dp:
         addi    r9, r9, 4
         bc      BO_IF, CR0_LT, .L.tableDispatch
 .L.continueSourceMisalignedLoop_dp:
-! use doubleword loads and stores for the copy
-   srdi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
-   mtctr r11      ! first/last (alone in group) on P6
+# use doubleword loads and stores for the copy
+   srdi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
+   mtctr r11      # first/last (alone in group) on P6
 .L.dWordLoop_dp:
    ld r6, 0(r8)
    ld r5, 8(r8)
@@ -675,10 +675,10 @@ __arrayCopy_dp:
    bclr  BO_IF, CR0_EQ
    b  .L.tableDispatch
 #else
-! use word loads and stores for the copy
-   srwi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
-   mtctr r11      ! first/last (alone in group) on P6
+# use word loads and stores for the copy
+   srwi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
+   mtctr r11      # first/last (alone in group) on P6
 .L.wordLoop_dp:
    lwz   r6, 0(r8)
    lwz   r5, 4(r8)
@@ -724,9 +724,9 @@ __arrayCopy_dp:
    addi  r9, r9, -2
    bc BO_IF, CR0_LT, .L.reverseTableDispatch
 .L.reverseWordAligned_dp:
-! On a P6 processor stores that cross an 8B boundary cause two store
-! operations from the core to the GPS, and that will cause a slowdown if
-! the store queue becomes full.
+# On a P6 processor stores that cross an 8B boundary cause two store
+# operations from the core to the GPS, and that will cause a slowdown if
+# the store queue becomes full.
    andi. r11, r9, 4
    bc BO_IF, CR0_EQ, .L.reverseDWordAligned_dp
    lwz   r11, -4(r8)
@@ -737,13 +737,13 @@ __arrayCopy_dp:
    addi  r9, r9, -4
    bc BO_IF, CR0_LT, .L.reverseTableDispatch
 .L.reverseDWordAligned_dp:
-! Destination is doubleword (8-byte) aligned.
-! On a P6 processor a floating point load/store that is not word aligned
-! will take an alignment interrupt.  If the source is not word aligned, fall
-! back on using fixed point doubleword loads/stores.
+# Destination is doubleword (8-byte) aligned.
+# On a P6 processor a floating point load/store that is not word aligned
+# will take an alignment interrupt.  If the source is not word aligned, fall
+# back on using fixed point doubleword loads/stores.
    andi. r11, r8, 7
    bc BO_IF_NOT, CR0_EQ, .L.reverseSourceMisaligned_dp
-! To use stfdp we need to align the destination on a 16-byte boundary.
+# To use stfdp we need to align the destination on a 16-byte boundary.
    andi. r11, r9, 8
    bc BO_IF, CR0_EQ, .L.reverseQWordAligned_dp
    lfd   fp8, -8(r8)
@@ -754,56 +754,56 @@ __arrayCopy_dp:
    addi  r9, r9, -8
    bc BO_IF, CR0_LT, .L.reverseTableDispatch
 #if defined(AIXPPC) || defined(LINUX) || defined(LINUXPPC64)
-   .align   5     ! force 32-byte I-cache sector alignment here
+   .align   5     # force 32-byte I-cache sector alignment here
 #endif
 .L.reverseQWordAligned_dp:
 #ifdef TR_HOST_64BIT
-   srdi. r11, r7, 6  ! number of 64 byte copy loop iterations
+   srdi. r11, r7, 6  # number of 64 byte copy loop iterations
 #else
-   srwi. r11, r7, 6  ! number of 64 byte copy loop iterations
+   srwi. r11, r7, 6  # number of 64 byte copy loop iterations
 #endif
-   addi  r5, r8, -32 ! extra source pointer to avoid AGI delays
-   addi  r6, r9, -32 ! extra destination pointer to avoid AGI delays
+   addi  r5, r8, -32 # extra source pointer to avoid AGI delays
+   addi  r6, r9, -32 # extra destination pointer to avoid AGI delays
    bc BO_IF, CR0_EQ, .L.reverseResidueBlock
-   mtctr r11      ! first/last (alone in group) on P6
+   mtctr r11      # first/last (alone in group) on P6
 .L.reverseQWordLoop_dp:
-   lfd   fp9, -8(r8)          ! group 1
+   lfd   fp9, -8(r8)          # group 1
    lfd   fp8, -16(r8)
-   .long 0xf509fff0  ! stfdp  fp8, -16(r9)   ! group 2
-! 32-byte I-cache sector boundary (group start forced on DD3)
-   lfd   fp11, -24(r8)           ! group 3
+   .long 0xf509fff0  # stfdp  fp8, -16(r9)   # group 2
+# 32-byte I-cache sector boundary (group start forced on DD3)
+   lfd   fp11, -24(r8)           # group 3
    lfd   fp10, -32(r8)
-   addi  r8, r8, -64    ! 3 cycles to next load use of r8
-   .long 0xf549ffe0  ! stfdp  fp10, -32(r9)  ! group 4
-   addi  r9, r9, -64    ! 3 cycles to next store use of r9
-   lfd   fp9, -8(r5)          ! group 5
+   addi  r8, r8, -64    # 3 cycles to next load use of r8
+   .long 0xf549ffe0  # stfdp  fp10, -32(r9)  # group 4
+   addi  r9, r9, -64    # 3 cycles to next store use of r9
+   lfd   fp9, -8(r5)          # group 5
    lfd   fp8, -16(r5)
-   .long 0xf506fff0  ! stfdp  fp8, -16(r6)   ! group 6
-! 32-byte I-cache sector boundary (group start forced on DD3)
-   lfd   fp11, -24(r5)           ! group 7
+   .long 0xf506fff0  # stfdp  fp8, -16(r6)   # group 6
+# 32-byte I-cache sector boundary (group start forced on DD3)
+   lfd   fp11, -24(r5)           # group 7
    lfd   fp10, -32(r5)
-   addi  r5, r5, -64    ! 3 cycles to next load use of r5
-   .long 0xf546ffe0  ! stfdp  fp10, -32(r6)  ! group 8
-   addi  r6, r6, -64    ! 3 cycles to next store use of r6
-   bdnz  .L.reverseQWordLoop_dp   ! 1/cycle, no grouping restriction
+   addi  r5, r5, -64    # 3 cycles to next load use of r5
+   .long 0xf546ffe0  # stfdp  fp10, -32(r6)  # group 8
+   addi  r6, r6, -64    # 3 cycles to next store use of r6
+   bdnz  .L.reverseQWordLoop_dp   # 1/cycle, no grouping restriction
 .L.reverseResidueBlock:
-   andi. r11, r7, 32 ! 32-byte residue block?
+   andi. r11, r7, 32 # 32-byte residue block?
    bc BO_IF, CR0_EQ, .L.reverseOver
    lfd   fp9, -8(r8)
    lfd   fp8, -16(r8)
-   .long 0xf509fff0  ! stfdp  fp8, -16(r9)
+   .long 0xf509fff0  # stfdp  fp8, -16(r9)
    lfd   fp11, -24(r8)
    lfd   fp10, -32(r8)
    addi  r8, r8, -32
-   .long 0xf549ffe0  ! stfdp  fp10, -32(r9)
+   .long 0xf549ffe0  # stfdp  fp10, -32(r9)
    addi  r9, r9, -32
 .L.reverseOver:
-   andi. r7, r7, 31  ! residue bytes
+   andi. r7, r7, 31  # residue bytes
    bclr  BO_IF, CR0_EQ
    b  .L.reverseTableDispatch
 .L.reverseSourceMisaligned_dp:
 .L.reverseTestOddAddressedSourceMisaligned_dp:
-        andi.   r11, r8, 1                                      ! source  aligned on PPC
+        andi.   r11, r8, 1                                      # source  aligned on PPC
         bc      BO_IF, CR0_EQ, .L.reverseTestHalfWordAlignSourceMisaligned_dp
         lbz     r11, -1(r8)
         addi    r8, r8, -1
@@ -824,7 +824,7 @@ __arrayCopy_dp:
         bc      BO_IF, CR0_LT, .L.reverseTableDispatch
 .L.continueReverseSourceMisaligned_dp:
 #ifdef TR_HOST_64BIT
-! Making source 8 byte aligned for 64-bit environment
+# Making source 8 byte aligned for 64-bit environment
         andi.   r11, r8, 4
         bc      BO_IF, CR0_EQ, .L.continueReverseSourceMisalignedLoop_dp
         lwz     r11, -4(r8)
@@ -835,10 +835,10 @@ __arrayCopy_dp:
         addi    r9, r9, -4
         bc      BO_IF, CR0_LT, .L.reverseTableDispatch
 .L.continueReverseSourceMisalignedLoop_dp:
-! use doubleword loads and stores for the copy
-   srdi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
-   mtctr r11      ! first/last (alone in group) on P6
+# use doubleword loads and stores for the copy
+   srdi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
+   mtctr r11      # first/last (alone in group) on P6
 .L.reverseDWordLoop_dp:
    ld r6, -8(r8)
    ld r5, -16(r8)
@@ -854,10 +854,10 @@ __arrayCopy_dp:
    bclr  BO_IF, CR0_EQ
    b  .L.reverseTableDispatch
 #else
-! use word loads and stores for the copy
-   srwi  r11, r7, 5  ! number of loop iterations
-   andi. r7, r7, 31  ! residue bytes
-   mtctr r11      ! first/last (alone in group) on P6
+# use word loads and stores for the copy
+   srwi  r11, r7, 5  # number of loop iterations
+   andi. r7, r7, 31  # residue bytes
+   mtctr r11      # first/last (alone in group) on P6
 .L.reverseWordLoop_dp:
    lwz   r6, -4(r8)
    lwz   r5, -8(r8)
@@ -972,7 +972,7 @@ __forwardHalfWordArrayCopy_dp:
         dcbtst  r0, r9
    cmpli cr0, CmpAddr, r7, LONG_LENGTH
         bc      BO_IF_NOT, CR0_LT, .L.testHalfWordAlign_dp
-        laddr   r11, J9TR_VMThreadRTOCOffset(J9VM_STRUCT)       ! Restore TOC/GOT
+        laddr   r11, J9TR_VMThreadRTOCOffset(J9VM_STRUCT)       # Restore TOC/GOT
 
 #ifdef TR_HOST_64BIT
         rlwinm  r7, r7, 3, 0xFFFFFFF8
@@ -1001,15 +1001,15 @@ __forwardHalfWordArrayCopy_dp:
 FUNC_LABEL(__codeForShortArrayCopy):
 #endif
    startproc.__codeForShortArrayCopy:
-! Note: Do not attempt to use floating point loads and stores in
-! these short straight-line array copy sequences.  This is because we do
-! not know the alignment of the source (r8) and destination (r9), and some
-! processors will take alignment interrupts on f.p. loads or stores
-! that are not at least word aligned.
-! Some older non-PPC-AS processors may take aligment interrupts on fixed
-! doubleword loads and stores that are not word aligned (the 630 for
-! example).  We will ignore the performance issue there and always use
-! doublewords in a 64-bit environment.
+# Note: Do not attempt to use floating point loads and stores in
+# these short straight-line array copy sequences.  This is because we do
+# not know the alignment of the source (r8) and destination (r9), and some
+# processors will take alignment interrupts on f.p. loads or stores
+# that are not at least word aligned.
+# Some older non-PPC-AS processors may take aligment interrupts on fixed
+# doubleword loads and stores that are not word aligned (the 630 for
+# example).  We will ignore the performance issue there and always use
+# doublewords in a 64-bit environment.
 L.0copy:
    bclr  BO_ALWAYS, CR0_EQ
 
@@ -1972,15 +1972,15 @@ endproc.__quadWordArrayCopy_vsx:
 
 
 L.quadWordAlignment_vsx:
-   !Precondition, must strictly have r7 >= 32 to land here.
+   #Precondition, must strictly have r7 >= 32 to land here.
 
-   !Need 16 byte alignment for VSX loads/stores.
-   !Test 8byte alignment first, before 16 byte.
+   #Need 16 byte alignment for VSX loads/stores.
+   #Test 8byte alignment first, before 16 byte.
    andi.   r11, r8, 0x7
    beq     cr0,  L.quadWordAlignment_vsx_test8
 
-   !Here we are not aligned at 8 bytes.
-   !Copy data using GPRs till we hit 16 byte alignment.
+   #Here we are not aligned at 8 bytes.
+   #Copy data using GPRs till we hit 16 byte alignment.
    andi.   r11, r8, 0x1
    beq     cr0, L.quadWordAlignment_vsx_test2
    lbz     r6, 0(r8)
@@ -2034,13 +2034,13 @@ L.quadWordAlignment_vsx_test8:
 L.quadWordAligned_vsx:
 
    addi   r6,   0, 16
-   srwi  r11,  r7,  6            ! number of 64byte loop iterations
-   andi.  r7,  r7, 63            ! residue bytes
+   srwi  r11,  r7,  6            # number of 64byte loop iterations
+   andi.  r7,  r7, 63            # residue bytes
 
-   !If r11 is zero, then cannot just go forward and do the vector code.
-   !we can have a case where 0 <= r7 < 64
+   #If r11 is zero, then cannot just go forward and do the vector code.
+   #we can have a case where 0 <= r7 < 64
    cmpli cr0, CmpAddr, r11, 0
-   beq   cr0, L.quadWordAligned_vsx_residue    ! false, goto residue
+   beq   cr0, L.quadWordAligned_vsx_residue    # false, goto residue
 
    mtctr r11
 
@@ -2066,16 +2066,16 @@ L.quadWordLoop_vsx:
 #endif
    bdnz  L.quadWordLoop_vsx
 
-   cmpli cr0, CmpAddr, r7, 0     ! check if any residue left.
-   bclr  BO_IF, CR0_EQ           ! return if no residue left.
+   cmpli cr0, CmpAddr, r7, 0     # check if any residue left.
+   bclr  BO_IF, CR0_EQ           # return if no residue left.
 
 L.quadWordAligned_vsx_residue:
-   !This code is quadWordAligned, and 0 < r7 < 64
+   #This code is quadWordAligned, and 0 < r7 < 64
 
    cmpli cr0, CmpAddr, r7, LONG_LENGTH
    bc BO_IF, CR0_LT, .L.tableDispatch
 
-   !This code is quadWordAligned, and 32 <= r7 < 64
+   #This code is quadWordAligned, and 32 <= r7 < 64
 
 #ifdef AIXPPC
    .machine "push"
@@ -2091,21 +2091,21 @@ L.quadWordAligned_vsx_residue:
 #ifdef AIXPPC
    .machine "pop"
 #endif
-   !Now 0 <= r7 < 32
-   cmpli cr0, CmpAddr, r7, 0        ! check if any residue left.
-   bclr  BO_IF, CR0_EQ              ! return if no residue left.
-   b     .L.tableDispatch           ! table dispatch the remaining residue.
+   #Now 0 <= r7 < 32
+   cmpli cr0, CmpAddr, r7, 0        # check if any residue left.
+   bclr  BO_IF, CR0_EQ              # return if no residue left.
+   b     .L.tableDispatch           # table dispatch the remaining residue.
 
 L.reverseQuadWordAlignment_vsx:
-   !Precondition, must strictly have r7 >= 32 to land here.
+   #Precondition, must strictly have r7 >= 32 to land here.
 
-   !Need 16 byte alignment for VSX loads/stores.
-   !Test 8 byte alignment first, before 16 byte.
+   #Need 16 byte alignment for VSX loads/stores.
+   #Test 8 byte alignment first, before 16 byte.
    andi.   r11, r8, 0x7
    beq     cr0,  L.reverseQuadWordAlignment_vsx_test8
 
-   !Here we are not aligned at 8 bytes.
-   !Copy data using GPRs till we hit 16 byte alignment.
+   #Here we are not aligned at 8 bytes.
+   #Copy data using GPRs till we hit 16 byte alignment.
    andi.   r11, r8, 0x1
    beq     cr0, L.reverseQuadWordAlignment_vsx_test2
    lbz     r6, -1(r8)
@@ -2160,13 +2160,13 @@ L.reverseQuadWordAligned_vsx:
 
    addi   r6,   0, -16
    addi   r5,   0, -32
-   srwi  r11,  r7,  6            ! number of 64byte loop iterations
-   andi.  r7,  r7,  63           ! residue bytes
+   srwi  r11,  r7,  6            # number of 64byte loop iterations
+   andi.  r7,  r7,  63           # residue bytes
 
-   !If r11 is zero, then cannot just go forward and do the vector code.
-   !we can have a case where 0 <= r7 < 64
+   #If r11 is zero, then cannot just go forward and do the vector code.
+   #we can have a case where 0 <= r7 < 64
    cmpli cr0, CmpAddr, r11, 0
-   beq   cr0, L.reverseQuadWordAligned_vsx_residue    ! false, goto residue
+   beq   cr0, L.reverseQuadWordAligned_vsx_residue    # false, goto residue
 
    mtctr r11
 
@@ -2192,16 +2192,16 @@ L.reverseQuadWordLoop_vsx:
 #endif
    bdnz  L.reverseQuadWordLoop_vsx
 
-   cmpli cr0, CmpAddr, r7, 0        ! check if any residue left.
-   bclr  BO_IF, CR0_EQ              ! return if no residue left.
+   cmpli cr0, CmpAddr, r7, 0        # check if any residue left.
+   bclr  BO_IF, CR0_EQ              # return if no residue left.
 
 L.reverseQuadWordAligned_vsx_residue:
-   !This code is quadWordAligned, and 0 < r7 < 64
+   #This code is quadWordAligned, and 0 < r7 < 64
 
    cmpli cr0, CmpAddr, r7, LONG_LENGTH
    bc BO_IF, CR0_LT, .L.reverseTableDispatch
 
-   !This code is quadWordAligned, and 32 <= r7 < 64
+   #This code is quadWordAligned, and 32 <= r7 < 64
 
 #ifdef AIXPPC
 .machine "push"
@@ -2218,10 +2218,10 @@ L.reverseQuadWordAligned_vsx_residue:
 .machine "pop"
 #endif
 
-   !Now 0 <= r7 < 32
-   cmpli cr0, CmpAddr, r7, 0        ! check if any residue left.
-   bclr  BO_IF, CR0_EQ              ! return if no residue left.
-   b     .L.reverseTableDispatch    ! table dispatch the remaining residue.
+   #Now 0 <= r7 < 32
+   cmpli cr0, CmpAddr, r7, 0        # check if any residue left.
+   bclr  BO_IF, CR0_EQ              # return if no residue left.
+   b     .L.reverseTableDispatch    # table dispatch the remaining residue.
 
 #ifdef AIXPPC
    .csect   __forwardLEArrayCopy{PR}
@@ -2264,15 +2264,15 @@ startproc.__leArrayCopy:
 endproc.__leArrayCopy:
 
 L.doubleWordAlignment_le:
-   !Precondition, must strictly have r7 >= 32 to land here.
+   #Precondition, must strictly have r7 >= 32 to land here.
 
-   !Need 16 byte alignment for VSX loads/stores.
-   !Test 8byte alignment first, before 16 byte.
+   #Need 16 byte alignment for VSX loads/stores.
+   #Test 8byte alignment first, before 16 byte.
    andi.   r11, r8, 0x7
    beq     cr0,  L.doubleWordAligned_le
 
-   !Here we are not aligned at 8 bytes.
-   !Copy data using GPRs till we hit 16 byte alignment.
+   #Here we are not aligned at 8 bytes.
+   #Copy data using GPRs till we hit 16 byte alignment.
    andi.   r11, r8, 0x1
    beq     cr0, L.doubleWordAlignment_le_test2
    lbz     r6, 0(r8)
@@ -2301,13 +2301,13 @@ L.doubleWordAlignment_le_test4:
 
 L.doubleWordAligned_le:
 
-   srwi  r11,  r7,  4            ! number of 16byte loop iterations
-   andi.  r7,  r7, 15            ! residue bytes
+   srwi  r11,  r7,  4            # number of 16byte loop iterations
+   andi.  r7,  r7, 15            # residue bytes
 
-   !If r11 is zero, then cannot just go forward and do the vector code.
-   !we can have a case where 0 <= r7 < 64
+   #If r11 is zero, then cannot just go forward and do the vector code.
+   #we can have a case where 0 <= r7 < 64
    cmpli cr0, CmpAddr, r11, 0
-   beq   cr0, .L.tableDispatch    ! false, goto residue
+   beq   cr0, .L.tableDispatch    # false, goto residue
 
    mtctr r11
 
@@ -2320,21 +2320,21 @@ L.doubleWordLoop_le:
    addi  r9, r9, 16
    bdnz  L.doubleWordLoop_le
 
-   cmpli cr0, CmpAddr, r7, 0     ! check if any residue left.
-   bclr  BO_IF, CR0_EQ           ! return if no residue left.
-   !This code is quadWordAligned, and 0 < r7 < 16
+   cmpli cr0, CmpAddr, r7, 0     # check if any residue left.
+   bclr  BO_IF, CR0_EQ           # return if no residue left.
+   #This code is quadWordAligned, and 0 < r7 < 16
    b     .L.tableDispatch
 
 L.reverseDoubleWordAlignment_le:
-   !Precondition, must strictly have r7 >= 32 to land here.
+   #Precondition, must strictly have r7 >= 32 to land here.
 
-   !Need 16 byte alignment for VSX loads/stores.
-   !Test 8 byte alignment first, before 16 byte.
+   #Need 16 byte alignment for VSX loads/stores.
+   #Test 8 byte alignment first, before 16 byte.
    andi.   r11, r8, 0x7
    beq     cr0,  L.reverseDoubleWordAligned_le
 
-   !Here we are not aligned at 8 bytes.
-   !Copy data using GPRs till we hit 16 byte alignment.
+   #Here we are not aligned at 8 bytes.
+   #Copy data using GPRs till we hit 16 byte alignment.
    andi.   r11, r8, 0x1
    beq     cr0, L.reverseDoubleWordAlignment_le_test2
    lbz     r6, -1(r8)
@@ -2362,13 +2362,13 @@ L.reversedoubleWordAlignment_le_test4:
    addi r7, r7, -4
 
 L.reverseDoubleWordAligned_le:
-   srwi  r11,  r7,  4            ! number of 16byte loop iterations
-   andi.  r7,  r7,  15           ! residue bytes
+   srwi  r11,  r7,  4            # number of 16byte loop iterations
+   andi.  r7,  r7,  15           # residue bytes
 
-   !If r11 is zero, then cannot just go forward and do the vector code.
-   !we can have a case where 0 <= r7 < 16
+   #If r11 is zero, then cannot just go forward and do the vector code.
+   #we can have a case where 0 <= r7 < 16
    cmpli cr0, CmpAddr, r11, 0
-   beq   cr0, .L.reverseTableDispatch    ! false, goto residue
+   beq   cr0, .L.reverseTableDispatch    # false, goto residue
 
    mtctr r11
 
@@ -2381,12 +2381,12 @@ L.reverseDoubleWordLoop_le:
    addi     r9, r9, -16
    bdnz  L.reverseDoubleWordLoop_le
 
-   cmpli cr0, CmpAddr, r7, 0        ! check if any residue left.
-   bclr  BO_IF, CR0_EQ              ! return if no residue left.
-   !This code is quadWordAligned, and 0 < r7 < 16
-   b     .L.reverseTableDispatch    ! table dispatch the remaining residue.
+   cmpli cr0, CmpAddr, r7, 0        # check if any residue left.
+   bclr  BO_IF, CR0_EQ              # return if no residue left.
+   #This code is quadWordAligned, and 0 < r7 < 16
+   b     .L.reverseTableDispatch    # table dispatch the remaining residue.
 
-! .data section
+# .data section
 #ifdef AIXPPC
    .toc
 TOC__shortArrayCopyLabelTable:
@@ -2396,97 +2396,97 @@ TOC__shortArrayCopyLabelTable:
    ADDR      .__arrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __arrayCopy{DS}
+# End   csect     __arrayCopy{DS}
 
    .csect    __wordArrayCopy{DS}
    ADDR      .__wordArrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __wordArrayCopy{DS}
+# End   csect     __wordArrayCopy{DS}
 
    .csect    __halfWordArrayCopy{DS}
    ADDR      .__halfWordArrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __halfWordArrayCopy{DS}
+# End   csect     __halfWordArrayCopy{DS}
 
    .csect    __forwardArrayCopy{DS}
    ADDR      .__forwardArrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardArrayCopy{DS}
+# End   csect     __forwardArrayCopy{DS}
 
    .csect    __forwardWordArrayCopy{DS}
    ADDR      .__forwardWordArrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardWordArrayCopy{DS}
+# End   csect     __forwardWordArrayCopy{DS}
 
    .csect    __forwardHalfWordArrayCopy{DS}
    ADDR      .__forwardHalfWordArrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardHalfWordArrayCopy{DS}
+# End   csect     __forwardHalfWordArrayCopy{DS}
 
    .csect    __arrayCopy_dp{DS}
    ADDR      .__arrayCopy_dp
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __arrayCopy_dp{DS}
+# End   csect     __arrayCopy_dp{DS}
 
    .csect    __wordArrayCopy_dp{DS}
    ADDR      .__wordArrayCopy_dp
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __wordArrayCopy_dp{DS}
+# End   csect     __wordArrayCopy_dp{DS}
 
    .csect    __halfWordArrayCopy_dp{DS}
    ADDR      .__halfWordArrayCopy_dp
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __halfWordArrayCopy_dp{DS}
+# End   csect     __halfWordArrayCopy_dp{DS}
 
    .csect    __forwardArrayCopy_dp{DS}
    ADDR      .__forwardArrayCopy_dp
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardArrayCopy_dp{DS}
+# End   csect     __forwardArrayCopy_dp{DS}
 
    .csect    __forwardWordArrayCopy_dp{DS}
    ADDR      .__forwardWordArrayCopy_dp
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardWordArrayCopy_dp{DS}
+# End   csect     __forwardWordArrayCopy_dp{DS}
 
    .csect    __forwardHalfWordArrayCopy_dp{DS}
    ADDR      .__forwardHalfWordArrayCopy_dp
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardHalfWordArrayCopy_dp{DS}
+# End   csect     __forwardHalfWordArrayCopy_dp{DS}
 
    .csect    __forwardQuadWordArrayCopy_vsx{DS}
    ADDR      .__forwardQuadWordArrayCopy_vsx
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardQuadWordArrayCopy_vsx{DS}
+# End   csect     __forwardQuadWordArrayCopy_vsx{DS}
 
    .csect    __quadWordArrayCopy_vsx{DS}
    ADDR      .__quadWordArrayCopy_vsx
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __quadWordArrayCopy_vsx{DS}
+# End   csect     __quadWordArrayCopy_vsx{DS}
 
    .csect    __forwardLEArrayCopy{DS}
    ADDR      .__forwardLEArrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __forwardLEArrayCopy{DS}
+# End   csect     __forwardLEArrayCopy{DS}
 
    .csect    __leArrayCopy{DS}
    ADDR      .__leArrayCopy
    ADDR      TOC{TC0}
    ADDR      0x00000000
-! End   csect     __leArrayCopy{DS}
+# End   csect     __leArrayCopy{DS}
 
 
 #elif defined(LINUXPPC64)
@@ -2494,7 +2494,7 @@ TOC__shortArrayCopyLabelTable:
 TOC__shortArrayCopyLabelTable:
    .tc       __shortArrayCopyLabelTable[TC],__shortArrayCopyLabelTable
 
-#if !defined(__LITTLE_ENDIAN__)
+#if #defined(__LITTLE_ENDIAN__)
    .section  ".opd","aw"
    .align    3
    .globl    __arrayCopy
@@ -2674,4 +2674,4 @@ __shortArrayCopyLabelTable:
     ADDR   L.30copy
     ADDR   L.31copy
     ADDR   L.32copy
-! End   csect    ArrayCopy_DATA{RW}
+# End   csect    ArrayCopy_DATA{RW}

@@ -42,6 +42,17 @@ if(OMR_ARCH_X86)
 	list(APPEND COMPILERTEST_FILES 
 		x/codegen/Evaluator.cpp
 	)
+elseif(OMR_ARCH_POWER)
+	list(APPEND COMPILERTEST_FILES 
+#Host 
+    		p/runtime/AsmUtil.S
+    		p/runtime/CodeDispatch.S
+    		p/runtime/CodeSync.cpp
+		${OMR_ROOT}/compiler/p/runtime/OMRCodeCacheConfig.cpp
+#target
+		p/codegen/Evaluator.cpp
+		${OMR_ROOT}/compiler/p/env/OMRDebugEnv.cpp
+	)
 endif()
 
 create_omr_compiler_library(NAME       testcompiler 

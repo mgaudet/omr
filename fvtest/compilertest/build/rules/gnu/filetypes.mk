@@ -155,38 +155,20 @@ endif # ($(HOST_ARCH),x)
 ifeq ($(HOST_ARCH),p) 
 
 #
-# Compile .ipp file into .o file
+# Compile .S file into .o file
 #
-define DEF_RULE.ipp
-$(1).s: $(2) | jit_createdirs
-	$$(IPP_CMD) $$(IPP_FLAGS) 's/\!/\#/g' $$< > $$@
+define DEF_RULE.S
+$(1): $(2) | jit_createdirs
+	$$(SPP_CMD) $$(SPP_FLAGS) $$(patsubst %,-D%,$$(SPP_DEFINES)) $$(patsubst %,-I'%',$$(SPP_INCLUDES)) -o $$@ -x assembler-with-cpp -c $$<
 
 JIT_DIR_LIST+=$(dir $(1))
 
 jit_cleanobjs::
-	rm -f $(1).s
+	rm -f $(1)
 
-$(call RULE.s,$(1),$(1).s)
-endef # DEF_RULE.ipp
+endef # DEF_RULE.S
 
-RULE.ipp=$(eval $(DEF_RULE.ipp))
-
-#
-# Compile .spp file into .o file
-#
-define DEF_RULE.spp
-$(1).ipp: $(2) | jit_createdirs
-	$$(SPP_CMD) $$(SPP_FLAGS) $$(patsubst %,-D%,$$(SPP_DEFINES)) $$(patsubst %,-I'%',$$(SPP_INCLUDES)) -o $$@ -x assembler-with-cpp -E -P $$<
-
-JIT_DIR_LIST+=$(dir $(1))
-
-jit_cleanobjs::
-	rm -f $(1).ipp
-
-$(call RULE.ipp,$(1),$(1).ipp)
-endef # DEF_RULE.spp
-
-RULE.spp=$(eval $(DEF_RULE.spp))
+RULE.S=$(eval $(DEF_RULE.S))
 
 endif # ($(HOST_ARCH),p) 
 ##### END PPC SPECIFIC RULES #####

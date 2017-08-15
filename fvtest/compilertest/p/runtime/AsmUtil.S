@@ -1,6 +1,6 @@
 ################################################################################
 ##
-## (c) Copyright IBM Corp. 2016, 2016
+## (c) Copyright IBM Corp. 2000, 2016
 ##
 ##  This program and the accompanying materials are made available
 ##  under the terms of the Eclipse Public License v1.0 and
@@ -16,9 +16,5 @@
 ##    Multiple authors (IBM Corp.) - initial implementation and documentation
 ################################################################################
 
-JIT_PRODUCT_BACKEND_SOURCES+=\
-    $(JIT_OMR_DIRTY_DIR)/p/runtime/OMRCodeCacheConfig.cpp \
-    $(JIT_PRODUCT_DIR)/p/runtime/AsmUtil.S \
-    $(JIT_PRODUCT_DIR)/p/runtime/CodeDispatch.S \
-    $(JIT_PRODUCT_DIR)/p/runtime/CodeSync.cpp
-
+#include "p/runtime/ppcasmdefines.inc"
+#include "p/runtime/PPCAsmUtil.inc"

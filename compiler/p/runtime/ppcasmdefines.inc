@@ -1,20 +1,20 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! (c) Copyright IBM Corp. 2000, 2016
-!!
-!!  This program and the accompanying materials are made available
-!!  under the terms of the Eclipse Public License v1.0 and
-!!  Apache License v2.0 which accompanies this distribution.
-!!
-!!      The Eclipse Public License is available at
-!!      http://www.eclipse.org/legal/epl-v10.html
-!!
-!!      The Apache License v2.0 is available at
-!!      http://www.opensource.org/licenses/apache2.0.php
-!!
-!! Contributors:
-!!    Multiple authors (IBM Corp.) - initial implementation and documentation
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+################################################################################
+##
+## (c) Copyright IBM Corp. 2000, 2016
+##
+##  This program and the accompanying materials are made available
+##  under the terms of the Eclipse Public License v1.0 and
+##  Apache License v2.0 which accompanies this distribution.
+##
+##      The Eclipse Public License is available at
+##      http://www.eclipse.org/legal/epl-v10.html
+##
+##      The Apache License v2.0 is available at
+##      http://www.opensource.org/licenses/apache2.0.php
+##
+## Contributors:
+##    Multiple authors (IBM Corp.) - initial implementation and documentation
+################################################################################
 
 #ifdef TR_TARGET_64BIT
 #define laddr	ld
@@ -86,7 +86,7 @@
 
 # define r0 GPREG(0)
 # define r1 GPREG(1)
-! Used only when r2 is not actually the TOC
+# Used only when r2 is not actually the TOC
 # define r2 GPREG(2)
 # define r3 GPREG(3)
 # define r4 GPREG(4)
@@ -227,7 +227,7 @@
 
 	.set RTOC_SAVE_OFFSET,8;
 
-! Branch constants
+# Branch constants
 	.set BO_dCTR_NZERO_AND_NOT,0; .set BO_dCTR_NZERO_AND_NOT_1,1
 	.set BO_dCTR_ZERO_AND_NOT,2; .set BO_dCTR_ZERO_AND_NOT_1,3
 	.set BO_IF_NOT,4; .set BO_IF_NOT_1,5; .set BO_IF_NOT_2,6
@@ -248,7 +248,7 @@
 	.set CR6_LT,24; .set CR6_GT,25; .set CR6_EQ,26; .set CR6_SO,27
 	.set CR7_LT,28; .set CR7_GT,29; .set CR7_EQ,30; .set CR7_SO,31
 
-! VM Register Use
+# VM Register Use
 #ifdef TR_TARGET_64BIT
 	#define J9_BP r15
 	#define J9VM_STRUCT r15
@@ -267,7 +267,7 @@
 	#define J9_TOC r16
 #endif
 
-! Special Registers
+# Special Registers
 #define LR 8
 #define CTR 9
 
@@ -278,8 +278,8 @@
 #define LABEL_DIFF(x) x
 
 #ifdef LINUX
-		! In case we do not have assembler support for VMX/VSX instructions, use these macros to generate them
-		! These are grouped according to their respective categories.
+		# In case we do not have assembler support for VMX/VSX instructions, use these macros to generate them
+		# These are grouped according to their respective categories.
 
         .macro lvsl     vrt, ra, rb
         .int 0x7c00000c | \vrt << 21 | \ra << 16 | \rb << 11
@@ -500,7 +500,7 @@
         .endm
 #endif
 
-!The record form instructions break the Linux Assembler, this is the workaround for it
+#The record form instructions break the Linux Assembler, this is the workaround for it
 #ifdef AIXPPC
 #define vcmpequw_r vcmpequw.
 #define vcmpequh_r vcmpequh.

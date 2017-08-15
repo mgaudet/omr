@@ -1,20 +1,20 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! (c) Copyright IBM Corp. 2000, 2016
-!!
-!!  This program and the accompanying materials are made available
-!!  under the terms of the Eclipse Public License v1.0 and
-!!  Apache License v2.0 which accompanies this distribution.
-!!
-!!      The Eclipse Public License is available at
-!!      http://www.eclipse.org/legal/epl-v10.html
-!!
-!!      The Apache License v2.0 is available at
-!!      http://www.opensource.org/licenses/apache2.0.php
-!!
-!! Contributors:
-!!    Multiple authors (IBM Corp.) - initial implementation and documentation
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+################################################################################
+##
+## (c) Copyright IBM Corp. 2000, 2016
+##
+##  This program and the accompanying materials are made available
+##  under the terms of the Eclipse Public License v1.0 and
+##  Apache License v2.0 which accompanies this distribution.
+##
+##      The Eclipse Public License is available at
+##      http://www.eclipse.org/legal/epl-v10.html
+##
+##      The Apache License v2.0 is available at
+##      http://www.opensource.org/licenses/apache2.0.php
+##
+## Contributors:
+##    Multiple authors (IBM Corp.) - initial implementation and documentation
+################################################################################
 
 #ifdef AIXPPC
 	.lglobl   .__uni_lock_check
@@ -84,7 +84,7 @@
 #endif
 
 #ifdef AIXPPC
-! .text section
+# .text section
 	.csect    PicBuilder_TEXT{PR}
 #elif defined(LINUXPPC64)
 	.section  ".text"
@@ -204,15 +204,15 @@ __code_synchronization:
 .__code_synchronization:
 #endif
 	startproc.__code_synchronization:
-	dcbst   0, r9                          ! Write back d-cache block
-	sync                                    ! Wait for it to complete
-	icbi    0, r9                          ! Invalidate all i-cache blocks
-	sync					!Required for G4 processors
+	dcbst   0, r9                          # Write back d-cache block
+	sync                                    # Wait for it to complete
+	icbi    0, r9                          # Invalidate all i-cache blocks
+	sync					#Required for G4 processors
 	isync
-	blr                                     ! Return
+	blr                                     # Return
 	endproc.__code_synchronization:
 
-! prototype int jitPPCSmpAtomicIncrement(int32_t *value);
+# prototype int jitPPCSmpAtomicIncrement(int32_t *value);
 #ifdef AIXPPC
 .jitPPCSmpAtomicIncrement:
 	.function .jitPPCSmpAtomicIncrement,startproc.jitPPCSmpAtomicIncrement,16,0,(endproc.jitPPCSmpAtomicIncrement-startproc.jitPPCSmpAtomicIncrement)
@@ -285,7 +285,7 @@ _tr_unlock:
 	blr
 	endproc._tr_unlock:
 
-! .data section
+# .data section
 #ifdef AIXPPC
 	.toc
 
@@ -293,49 +293,49 @@ _tr_unlock:
 	ADDR	  ._tr_try_lock
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  _tr_try_lock{DS}
+#End	csect	  _tr_try_lock{DS}
 
 	.csect	  _tr_unlock{DS}
 	ADDR	  ._tr_unlock
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  _tr_unlock{DS}
+#End	csect	  _tr_unlock{DS}
 
 	.csect	  jitPPCUniLockCheck{DS}
 	ADDR	  .jitPPCUniLockCheck
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  jitPPCUniLockCheck{DS}
+#End	csect	  jitPPCUniLockCheck{DS}
 
 	.csect	  jitPPCUniLockUpdate{DS}
 	ADDR	  .jitPPCUniLockUpdate
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  jitPPCUniLockUpdate{DS}
+#End	csect	  jitPPCUniLockUpdate{DS}
 
 	.csect	  jitPPCSmpLockCheck{DS}
 	ADDR	  .jitPPCSmpLockCheck
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  jitPPCSmpLockCheck{DS}
+#End	csect	  jitPPCSmpLockCheck{DS}
 
 	.csect	  jitPPCSmpLockUpdate{DS}
 	ADDR	  .jitPPCSmpLockUpdate
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  jitPPCSmpLockUpdate{DS}
+#End	csect	  jitPPCSmpLockUpdate{DS}
 
 	.csect	  jitPPCCodeSync{DS}
 	ADDR	  .jitPPCCodeSync
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  jitPPCCodeSync{DS}
+#End	csect	  jitPPCCodeSync{DS}
 
 	.csect	  jitPPCSmpAtomicIncrement{DS}
 	ADDR	  .jitPPCSmpAtomicIncrement
 	ADDR 	  TOC{TC0}
 	ADDR	  0x00000000
-!End	csect	  jitPPCSmpAtomicIncrement{DS}
+#End	csect	  jitPPCSmpAtomicIncrement{DS}
 
 #elif defined(LINUXPPC64)
 	.section ".toc", "wa"

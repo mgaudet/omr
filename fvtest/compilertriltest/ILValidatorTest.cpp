@@ -56,6 +56,13 @@ INSTANTIATE_TEST_CASE_P(ILValidatorDeathTest, IllformedTrees, ::testing::Values(
     "(method return=Int64 (block (lreturn (sconst 1) )))"                   // lreturn incorrect type. 
     ));
 
+INSTANTIATE_TEST_CASE_P(ILValidatorChildrenCountDeathTest, IllformedTrees, ::testing::Values(
+    "(method return=Int64 (block (lreturn (lconst 1) (lconst 1))))",
+    "(method return=Int64 (block (lreturn (ladd (lconst 1)))))",
+    "(method return=Int64 (block (lreturn (ladd (lconst 1) (lconst 1) (lconst 1)))))"
+    ));
+
+
 class WellformedTrees : public TRTest::JitTest, public ::testing::WithParamInterface<std::string> {};
 
 TEST_P(WellformedTrees, CompileOnly) {

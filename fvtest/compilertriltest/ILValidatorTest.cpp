@@ -38,7 +38,7 @@ TEST_P(IllformedTrees, FailCompilation) {
             << "Compilation did not fail due to ill-formed input trees";
 }
 
-INSTANTIATE_TEST_CASE_P(ILValidatorDeathTest, IllformedTrees, ::testing::Values(
+INSTANTIATE_TEST_CASE_P(ILValidatorTypeDeathTest, IllformedTrees, ::testing::Values(
     "(method return=Int32 (block (ireturn (iadd (iconst 1) (sconst 3)))))",
     "(method return=Int32 (block (ireturn (sadd (iconst 1) (iconst 3)))))",
     "(method return=Address (block (areturn (aiadd (aconst 4) (lconst 1)))))",
@@ -47,13 +47,16 @@ INSTANTIATE_TEST_CASE_P(ILValidatorDeathTest, IllformedTrees, ::testing::Values(
     "(method return=Address (block (areturn (aladd (lconst 1) (aconst 4)))))",
     "(method return=Int32 (block (ireturn (acmpeq (iconst 4) (aconst 4)))))",
     "(method return=Int32 (block (ireturn (acmpge (lconst 4) (aconst 4)))))",
+    "(method return=Int64 (block (lreturn (sshl (sconst 1) (iconst 1)))))", // lreturn incorrect type. 
+    "(method return=Int64 (block (lreturn (sconst 1) )))"                   // lreturn incorrect type. 
+    ));
+
+INSTANTIATE_TEST_CASE_P(ILValidatorFormDeathTest, IllformedTrees, ::testing::Values(
     "(method return=NoType (block (return (GlRegDeps))))",
     "(method return=Int32 (block (ireturn (GlRegDeps) (iconst 3))))",
     "(method return=Int32 (block (ireturn (GlRegDeps) (iadd (iconst 1) (iconst 3)))))",
     "(method return=Int32 (block (ireturn (iconst 3 (GlRegDeps)))))",
     "(method return=Int32 (block (ireturn (iadd (GlRegDeps) (iconst 1) (iconst 3)))))"
-    "(method return=Int64 (block (lreturn (sshl (sconst 1) (iconst 1)))))", // lreturn incorrect type. 
-    "(method return=Int64 (block (lreturn (sconst 1) )))"                   // lreturn incorrect type. 
     ));
 
 INSTANTIATE_TEST_CASE_P(ILValidatorChildrenCountDeathTest, IllformedTrees, ::testing::Values(
